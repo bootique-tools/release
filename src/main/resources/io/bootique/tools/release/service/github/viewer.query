@@ -1,0 +1,9 @@
+query {
+  viewer {
+    __typename
+    id
+    url
+    name
+    login
+  }
+}

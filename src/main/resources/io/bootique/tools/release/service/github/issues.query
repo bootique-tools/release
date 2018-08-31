@@ -1,0 +1,46 @@
+query ($owner: String!, $name: String!, $totalCount: Int!) {
+  repository(owner:$owner, name:$name) {
+     name
+       issues(first: $totalCount, states: OPEN) {
+          totalCount
+          nodes {
+            id
+            url
+            number
+            title
+            createdAt
+            comments {
+              totalCount
+            }
+            author {
+              __typename
+              login
+              url
+              ... on User {
+                id
+                name
+              }
+              ... on Organization {
+                id
+                name
+              }
+            }
+            milestone {
+              id
+              url
+              title
+              number
+            }
+            labels(first: 10) {
+              totalCount
+              nodes {
+                id
+                url
+                name
+                color
+              }
+            }
+          }
+        }
+    }
+}
