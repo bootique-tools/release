@@ -1,0 +1,15 @@
+maven-central:
+  username: name
+  password: password
+  close: 0
+
+preferences:
+  gitHubToken: token
+  basePath: path
+
+jerseyclient:
+  auth:
+    bintray:
+      type: basic
+      username: name
+      password: password

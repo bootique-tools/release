@@ -1,0 +1,74 @@
+{{> header}}
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th><a href="/ui/repo?sort=name">Repository</a></th>
+            <th><a href="/ui/repo?sort=pr:desc">PR</a></th>
+            <th><a href="/ui/repo?sort=issue:desc">issues</a></th>
+            <th><a href="/ui/repo?sort=date:desc">last push</a></th>
+            <th>milestones</th>
+            <th>local copy
+                <button type="button" class="btn btn-sm btn-outline-primary" id="btn-folder-setup">
+                    setup <i class="fas fa-folder-open"></i>
+                </button>
+
+                <button type="submit" class="btn btn-sm btn-outline-secondary" id="btn-update-all">
+                    update all <i class="fas fa-sync"></i>
+                </button>
+
+                <button type="submit" class="btn btn-sm btn-outline-secondary" id="btn-clone-all">
+                    clone all <i class="fas fa-clone"></i>
+                </button>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#repositories}}
+            <tr>
+                <td>
+                    <a href="{{url}}" target="_blank">{{name}}</a> {{#parent}}
+                    <a href="{{url}}" target="_blank" class="badge badge-secondary">parent</a>{{/parent}}
+                </td>
+                <td>
+                    <a href="/ui/pr?filter=r:{{name}}">{{prCount}}</a>
+                </td>
+                <td>
+                    <a href="/ui/issue?filter=r:{{name}}">{{issueCollection.totalCount}}</a>
+                </td>
+                <td>
+                    {{pushedAtStr}}
+                </td>
+                <td>
+
+                        &nbsp;<a href="/ui/milestone" class="badge badge-secondary">Total count: {{milestoneCollection.totalCount}}</a>
+
+                </td>
+                <td>
+                    {{#gitPathSet}}
+                        {{#haveLocalRepo}}
+                            <button type="button" class="btn btn-sm btn-outline-primary repo-view" data-target="{{name}}">
+                                <i class="fas fa-folder-open"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary repo-view" data-target="{{name}}" data-type="terminal">
+                                <i class="fas fa-terminal"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary repo-update" data-target="{{name}}">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                        {{/haveLocalRepo}}
+                        {{^haveLocalRepo}}
+                            <button type="button" class="btn btn-sm btn-outline-primary repo-clone" data-target="{{name}}">
+                                clone <i class="fas fa-clone"></i>
+                            </button>
+                        {{/haveLocalRepo}}
+                    {{/gitPathSet}}
+                </td>
+            </tr>
+        {{/repositories}}
+        </tbody>
+    </table>
+</div>
+
+{{> footer}}

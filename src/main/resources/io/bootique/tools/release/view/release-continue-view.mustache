@@ -1,0 +1,61 @@
+{{> header}}
+
+<div class="release-fields" id="continueReleaseVue">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12" style="text-align:center;">
+                <h1>Continue your previous release</h1>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <th>Version</th>
+                        <th>Last success state</th>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>{{releaseVersion}}</td>
+                            <td>{{currentStage}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <th>Modules in Release</th>
+                        </thead>
+                        <tbody>
+                         {{#projectList}}
+                        <tr v-for="module in modules">
+                            <td>{{repository.name}}</td>
+                        </tr>
+                        {{/projectList}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            <div class="buttons-block">
+                <div class="col-sm-12">
+                    <div class="text-center release-btn">
+                        <a href="/ui/release/next" style="display:{{finishStep}};">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Continue</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> footer}}

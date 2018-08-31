@@ -1,0 +1,50 @@
+{{> head}}
+<div class="fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        {{#organization}}<a class="navbar-brand" href="{{url}}">{{name}}</a>{{/organization}}
+        {{^organization}}No data from GitHub API, wrong token?{{/organization}}
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                {{#organization}}
+                <li class="nav-item">
+                    <a class="nav-link" href="/ui">Repos <span class="badge badge-secondary">{{totalRepos}}</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ui/issue">Issues <span class="badge badge-secondary">{{totalIssues}}</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ui/pr">PRs <span class="badge badge-secondary">{{totalPRs}}</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ui/milestone">Milestones <!--span class="badge badge-secondary">{{totalMilestones}}</span--></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ui/maven">Maven projects</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ui/release">Release</a>
+                </li>
+                 <li class="nav-item">
+                     <a class="nav-link" href="/ui/extra-rollback">Extra Rollback</a>
+                 </li>
+                {{/organization}}
+            </ul>
+
+
+            {{#user}}
+             <span class="navbar-text"><a href="{{url}}" target="_blank" title="Current user: {{login}} ({{name}})">{{login}}</a></span>&nbsp;&nbsp;
+            {{/user}}
+        </div>
+    </nav>
+</div>
+<div class="container-fluid" style="margin-top: 4rem;">
+    <div class="row">
+        <div class="col-lg-2">
+        </div>
+        <div class="col">

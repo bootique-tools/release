@@ -1,0 +1,99 @@
+{{> header}}
+
+<div class="release-fields" id="extraRollback">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h1 style="text-align:center;">{{msg}}</h1>
+            </div>
+            <div class="col-sm-3">
+                <h4>Dev Version</h4>
+                <input type="text" v-model="devVersion"/>
+            </div>
+
+            <div class="col-sm-3">
+                <h4>Release Version</h4>
+                <input type="text" v-model="releaseVersion"/>
+            </div>
+
+            <div class="col-sm-3">
+                <h4>Prev Version</h4>
+                <input type="text" v-model="prevVersion"/>
+            </div>
+
+            <div class="col-sm-3">
+                <div class="text-center release-btn">
+                    <form class="" id="rollbackForm" action="/ui/extra-rollback/create-descriptor" method="post">
+                        <input class="form-control mr-sm-2" type="hidden" placeholder="" name="devVersion" v-model="devVersion">
+                        <input class="form-control mr-sm-2" type="hidden" placeholder="" name="releaseVersion" v-model="releaseVersion">
+                        <input class="form-control mr-sm-2" type="hidden" placeholder="" name="prevVersion" v-model="prevVersion">
+                        <input class="form-control mr-sm-2" type="hidden" placeholder="" name="projects" v-model="JSON.stringify(selectedModules)">
+                        <button id="btn-confirm" data-toggle="modal" data-target="#confirm-modal" class="btn btn-outline-success" type="button" v-bind:disabled="startRollback">Start rollback</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="projects">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Check</th>
+                                <th>Module</th>
+                                <th>Version</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="module in allModules">
+                                <td><input type="checkbox" v-bind:id="module.repository.name" v-bind:value="module.repository.name"  v-model="selectedModules"></td>
+                                <td><label v-bind:for="module.repository.name">[[module.repository.name]]</label></td>
+                                <td>[[module.rootModule.version]]</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <p style="text-align:center">[[errorMessage]]</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="progress-style">
+            <div id="bar" class="indeterminate-progress-bar active">
+                <div class="progress-block single-segment"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="confirm-modal">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" v-on:click="closeModal()"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-content">
+                    <p style="padding:10px; font-weight:500;">
+                        <strong>You rollback release </strong> <br>
+                        from release version: <strong style="color:red">[[releaseVersion]]</strong><br>
+                        to previous version: <strong style="color:red">[[prevVersion]]</strong>.<br>
+                        Current dev version is <strong style="color:red">[[devVersion]]</strong>.
+
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" type="submit" v-on:click="sendForm()">Yes</button>
+
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initExtraRollback } from '/js/functions.js';
+    initExtraRollback();
+</script>
+{{> footer}}

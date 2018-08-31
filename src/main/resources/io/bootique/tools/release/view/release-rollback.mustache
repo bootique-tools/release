@@ -1,0 +1,28 @@
+{{> header}}
+
+<div id="{{rollbackId}}">
+    <div class="row" style="text-align:center;">
+        <div v-for="statusItem in statusBar" class="col-sm-6">
+            <p>[[statusItem.name]]<br>
+                <span v-bind:style="{color:statusItem.color}">[[statusItem.msg]]</span></p>
+        </div>
+    </div>
+
+    <div>
+        <h1>{{rollbackTitle}}</h1>
+    </div>
+
+    {{> release-step}}
+
+    <div class="buttons-block">
+        <a href="/ui/rollback/next" style="display:{{finishStep}};">
+            <button type="submit" class="btn btn-sm btn-outline-primary" v-bind:disabled="showButton">Next Step</button>
+        </a>
+    </div>
+</div>
+
+<script type="module">
+    import { initReleaseProcess } from '/js/releaseProcess.js?123';
+    initReleaseProcess('{{rollbackId}}');
+</script>
+{{> footer}}

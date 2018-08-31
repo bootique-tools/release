@@ -1,0 +1,29 @@
+jetty:
+  staticResourceBase: "classpath:static"
+  connectors:
+  - host: 127.0.0.1
+    port: 9999
+
+jersey:
+  urlPattern: "/ui/*"
+
+mvc:
+  templateBase: "classpath:"
+
+log:
+  useLogbackConfig: true
+
+preferences:
+  organizationName: bootique
+  organizationGroupId: io.bootique
+  bintrayOrganizationName: stariy95
+
+jerseyclient:
+  targets:
+    bintray:
+      url: "https://api.bintray.com"
+      auth: bintray
+    mvncentral:
+      url: "http://search.maven.org"
+    github:
+      url: "https://api.github.com"

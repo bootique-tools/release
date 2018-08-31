@@ -1,0 +1,42 @@
+{{> header}}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th><a href="/ui/issue?sort=title">Title</a></th>
+                <th><a href="/ui/issue?sort=author">Author</a></th>
+                <th><a href="/ui/issue?sort=date:desc">Created</a></th>
+                <th><a href="/ui/issue?sort=milestone">Milestone</a></th>
+                <th><a href="/ui/issue?sort=labels">Labels</a></th>
+                <th><a href="/ui/issue?sort=repo">Repository</a></th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#issues}}
+                <tr>
+                    <td>
+                        <a href="{{url}}" target="_blank">{{title}}</a>
+                        <a href="{{url}}" target="_blank" class="badge badge-secondary">#{{number}}</a>
+                    </td>
+                    <td><a href="/ui/issue?filter=a:{{author.login}}">{{author.login}}</a></td>
+                    <td>{{createdAtStr}}</td>
+                    <td>{{#milestone}}<a href="/ui/issue?filter=m:{{title}}" class="badge badge-secondary">{{title}}</a>{{/milestone}}</td>
+                    <td>
+                        {{#labels.labels}}
+                            <a href="/ui/issue?filter=l:{{name}}" class="badge" style="color: white; text-decoration: none; background-color: #{{color}}">{{name}}</a>&nbsp;
+                        {{/labels.labels}}
+                    </td>
+                    <td>
+                        {{#repository}}
+                        <a href="/ui/issue?filter=r:{{name}}">{{name}}</a>
+                        {{#parent}}
+                            <a href="{{url}}" target="_blank" class="badge badge-secondary">parent</a>
+                        {{/parent}}
+                        {{/repository}}
+                    </td>
+                </tr>
+            {{/issues}}
+            </tbody>
+        </table>
+    </div>
+{{> footer}}
