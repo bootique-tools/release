@@ -1,6 +1,7 @@
 package io.bootique.tools.release.controller;
 
 import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.view.BaseView;
@@ -46,8 +47,9 @@ public class ReleaseProcessController extends BaseReleaseController {
     @GET
     @Path("/current-step")
     public BaseView currentStep() {
+        ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
         return new ReleaseProcessView(gitHubApi.getCurrentUser(),
-                gitHubApi.getCurrentOrganization(), releaseService.getReleaseDescriptor().getCurrentReleaseStage());
+                gitHubApi.getCurrentOrganization(), releaseDescriptor.getCurrentReleaseStage(), releaseDescriptor.isAutoReleaseMode());
     }
 
     @GET

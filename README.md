@@ -20,4 +20,4 @@ $ java -jar target/release-1.0-SNAPSHOT.jar
 Then just go to http://127.0.0.1:9999/ui/
 
 ### TODO
-1. Add gpg key check before starting release.
+

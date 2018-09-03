@@ -18,6 +18,7 @@ import io.bootique.jetty.command.ServerCommand;
 import io.bootique.tools.release.command.ConsoleReleaseCommand;
 import io.bootique.tools.release.command.ConsoleRollbackCommand;
 import io.bootique.tools.release.command.GithubInit;
+import io.bootique.tools.release.controller.BaseRequestFilter;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
@@ -97,6 +98,7 @@ public class Application implements Module {
         JettyModule.extend(binder).useDefaultServlet();
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)
+                .addResource(BaseRequestFilter.class)
                 .addPackage(RepoController.class);
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_PULL, ReleasePullTask.class);
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_INSTALL, ReleaseInstallTask.class);

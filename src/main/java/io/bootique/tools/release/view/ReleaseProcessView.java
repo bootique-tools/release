@@ -11,10 +11,10 @@ public class ReleaseProcessView extends BaseView{
     private String releaseId;
     private String finishStep;
 
-    public ReleaseProcessView(User user, Organization organization, ReleaseStage releaseStage) {
+    public ReleaseProcessView(User user, Organization organization, ReleaseStage releaseStage, boolean mode) {
         super("release-process", user, organization);
         this.releaseStage = releaseStage;
-        if(releaseStage == ReleaseStage.RELEASE_SYNC) {
+        if(releaseStage == ReleaseStage.RELEASE_SYNC || mode) {
             this.finishStep = "none";
         } else {
             this.finishStep = "inline-block";
