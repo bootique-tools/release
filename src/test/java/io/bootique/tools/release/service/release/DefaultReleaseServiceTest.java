@@ -62,7 +62,7 @@ class DefaultReleaseServiceTest {
     @Test
     @DisplayName("Release save, check active and delete test.")
     void releaseServiceTest(@TempDirectory.TempDir Path path) throws IOException {
-        Path savePath = path.resolve(Paths.get("service" + File.separator + "persist"));
+        Path savePath = path.resolve(Paths.get("release-status" + File.separator + "persist"));
         mockPreferenceService.set(ReleaseService.SAVE_PATH, savePath.toString());
         releaseService.saveRelease();
         assertTrue(Files.exists(Paths.get(mockPreferenceService.get(ReleaseService.SAVE_PATH),

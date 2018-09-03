@@ -2,4 +2,5 @@ target
 .idea
 *.iml
 .DS_Store
+release-status
 release-manager.yml

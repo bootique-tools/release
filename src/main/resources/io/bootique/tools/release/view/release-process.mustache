@@ -20,7 +20,7 @@
         <a href="/ui/release/next" style="display:{{finishStep}};">
             <button type="submit" class="btn btn-sm btn-outline-primary" v-bind:disabled="showButton">Next Step</button>
         </a>
-        <button type="submit" id="btn-confirm" class="btn btn-sm btn-outline-primary" v-bind:disabled="showButton">Rollback release</button>
+        <button type="submit" id="btn-confirm" class="btn btn-sm btn-outline-primary" v-bind:disabled="showButton" style="display:{{finishStep}};">Rollback release</button>
     </div>
 </div>
 
@@ -37,10 +37,10 @@
                 </p>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
                 <a href="/ui/rollback/start" style="display:{{finishStep}};">
-                    <button type="button" class="btn btn-default" id="modal-btn-yes">Yes</button>
+                    <button type="button" class="btn btn-default" id="modal-btn-yes">Confirm</button>
                 </a>
-                <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
             </div>
         </div>
     </div>

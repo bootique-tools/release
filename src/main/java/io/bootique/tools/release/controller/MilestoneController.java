@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Path("milestone")
 public class MilestoneController extends BaseController {
@@ -55,8 +56,7 @@ public class MilestoneController extends BaseController {
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getMilestones(@QueryParam("selectedModules") String selectedModules) throws IOException {
         List selectedProjects = objectMapper.readValue(selectedModules, List.class);
-        List<Project> projects = mavenService.getProjects(gitHubApi.getCurrentOrganization(),
-                project -> selectedProjects.contains(project.getRepository().getName()));
+        List<Project> projects = getProjects(project -> selectedProjects.contains(project.getRepository().getName()));
         Map<String, Integer> milestoneMap = new HashMap<>();
         for(Project project : projects) {
             for(Milestone milestone : project.getRepository().getMilestoneCollection().getMilestones()) {
@@ -136,18 +136,22 @@ public class MilestoneController extends BaseController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> showAll() {
-        Organization organization = gitHubApi.getCurrentOrganization();
-        gitHubApi.getMilestones(organization).forEach(milestone ->
-                milestone.setIssues(
-                        gitHubApi.getIssues(organization, issue -> milestone.equals(issue.getMilestone()),
-                                Comparator.comparing(Issue::getMilestone))));
-        return haveMissingRepos(organization) ? new ArrayList<>() :
-                mavenService.getProjects(organization, project -> true);
+        return getProjects(project -> true);
     }
 
     private void startJob(Function<Project, String> proc, String selectedModules) throws IOException {
         List<Project> allProjects = getSelectedProjects(selectedModules);
         BatchJobDescriptor<Project, String> descriptor = new BatchJobDescriptor<>(allProjects, proc);
         preferences.set(BatchJobService.CURRENT_JOB_ID, jobService.submit(descriptor).getId());
+    }
+
+    private List<Project> getProjects(Predicate<Project> predicate) {
+        Organization organization = gitHubApi.getCurrentOrganization();
+        gitHubApi.getMilestones(organization).forEach(milestone ->
+                milestone.setIssues(
+                        gitHubApi.getIssues(organization, issue -> milestone.equals(issue.getMilestone()),
+                                Comparator.comparing(Issue::getMilestone))));
+        return haveMissingRepos(organization) ? new ArrayList<>() :
+                mavenService.getProjects(organization, predicate);
     }
 }

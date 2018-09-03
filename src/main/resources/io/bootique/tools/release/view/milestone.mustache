@@ -86,7 +86,7 @@
                 <div class="modal-content" style="padding:20px 30px;">
                     <div class="milestone-combo-box">
                         <p>Current Milestone title</p>
-                        <select v-model="milestoneTitle" id="vSelector" class="form-control">
+                        <select v-model="milestoneTitle" id="vSelector" class="form-control" v-bind:disabled="disableSelection">
                             <option v-for="milestone in milestones" >[[milestone]]</option>
                         </select>
                     </div>
@@ -97,8 +97,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" v-bind:disabled="showModalButton" v-on:click="start([[currentAction]])">Yes</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-default" v-bind:disabled="showModalButton" v-on:click="start([[currentAction]])">Confirm</button>
                 </div>
             </div>
         </div>
@@ -109,7 +109,7 @@
 
 
 <script type="module">
-    import { initMilestoneView } from '/js/functions.js?1';
+    import { initMilestoneView } from '/js/functions.js?123456';
     initMilestoneView();
 </script>
 

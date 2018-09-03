@@ -32,7 +32,7 @@ class DefaultLoggerServiceTest {
 
     @BeforeEach
     void createService(@TempDirectory.TempDir Path tempDirectory) {
-        Path path = tempDirectory.resolve(Paths.get( "service" + File.separator + "logs"));
+        Path path = tempDirectory.resolve(Paths.get( "release-status" + File.separator + "logs"));
         mockPreferenceService.set(LoggerService.LOGGER_BASE_PATH, path.toString());
         loggerService = new DefaultLoggerService();
         loggerService.preferenceService = mockPreferenceService;

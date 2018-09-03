@@ -98,3 +98,8 @@
 .buttons-block {
     padding-bottom:2rem;
 }
+#confirm-modal p{
+    padding:10px;
+    font-weight:500;
+    text-align:left;
+}

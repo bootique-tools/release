@@ -93,11 +93,11 @@ public class PreferenceCredentialFactory {
         }
 
         if (!preferences.have(ReleaseService.SAVE_PATH)) {
-            preferences.set(ReleaseService.SAVE_PATH, savePath == null ? "service" + File.separator + "persist" : savePath);
+            preferences.set(ReleaseService.SAVE_PATH, savePath == null ? "release-status" + File.separator + "persist" : savePath);
         }
 
         if(!preferences.have(LoggerService.LOGGER_BASE_PATH)) {
-            preferences.set(LoggerService.LOGGER_BASE_PATH, logsPath == null ? "service" + File.separator + "logs" : logsPath);
+            preferences.set(LoggerService.LOGGER_BASE_PATH, logsPath == null ? "release-status" + File.separator + "logs" : logsPath);
         }
 
         return preferences;

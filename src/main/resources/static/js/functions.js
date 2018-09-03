@@ -100,6 +100,10 @@ export function initRelease() {
                     .catch(function () {
                      console.log("Selection error. Can't display selected projects.");
                  })
+                },
+                sendForm: function() {
+                    $("#release-form").submit();
+                    $("#confirm-modal").modal('hide');
                 }
             }
         });
@@ -250,7 +254,8 @@ export function initRelease() {
                 errorMap: null,
                 milestones: null,
                 currentAction: '',
-                showModalButton: true
+                showModalButton: true,
+                disableSelection: true
             },
             mounted: function(){
                this.getAllProjects();
@@ -325,6 +330,7 @@ export function initRelease() {
                 },
                 getMilestones: function(val) {
                     let currApp = this;
+                    currApp.disableSelection = true;
                     currApp.currentAction = val;
                     currApp.milestoneTitle = '';
                     currApp.milestoneNewTitle = '';
@@ -332,9 +338,10 @@ export function initRelease() {
                     axios.get(`/ui/milestone/getMilestones?selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                     .then(function (response) {
                         currApp.milestones = response.data;
+                        currApp.disableSelection = false;
                     })
                     .catch(function () {
-                     console.log("Error in creating milestones.");
+                     console.log("Error in getting milestones.");
                  })
                     $("#milestone-modal").modal('show');
                 },
