@@ -7,9 +7,9 @@
 1. Create file with config. Template of this file is release-manager-sample.yml.
 2. Generate your personal access token on GitHub.
 3. Install [GPG Suite](https://gpgtools.org) 
-   - Generate your GPG key 
+   - Generate your GPG key.
    - Add key to keychain to prevent password request for every module.
-4. Create folder to have local copy of releasing project. Set path to __basePath__ variable in release-manager.yml.
+4. Create folder to have local copy of releasing project. Set path to __basePath__ variable in config file.
 
 ### Usage
 ```
