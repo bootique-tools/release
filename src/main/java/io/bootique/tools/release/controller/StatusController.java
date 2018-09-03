@@ -91,7 +91,7 @@ public class StatusController extends BaseController{
                         releaseStatusMsg.setMsg("Process");
                     }
                 }
-                releaseStatusMsg.setName(rollStage.name());
+                releaseStatusMsg.setName(rollStage.getText());
                 releaseStatusMsgs.add(releaseStatusMsg);
             }
         } else {
@@ -111,7 +111,7 @@ public class StatusController extends BaseController{
                         releaseStatusMsg.setMsg("Process");
                     }
                 }
-                releaseStatusMsg.setName(relStage.name());
+                releaseStatusMsg.setName(relStage.getText());
                 releaseStatusMsgs.add(releaseStatusMsg);
             }
         }
