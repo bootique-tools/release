@@ -10,7 +10,6 @@
     </appender>
 
     <appender name="multiAppender" class="io.bootique.tools.release.service.logger.MultiAppender">
-        <param name="Append" value="false" />
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
         </filter>

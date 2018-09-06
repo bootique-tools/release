@@ -16,7 +16,7 @@ log:
 preferences:
   organizationName: bootique
   organizationGroupId: io.bootique
-  bintrayOrganizationName: stariy95
+  bintrayOrganizationName: bootique
 
 jerseyclient:
   targets:

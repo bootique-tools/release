@@ -10,11 +10,10 @@ public class WindowsDesktopService extends BaseDesktopService {
 
     @Override
     public String runMavenCommand(Path path, String... args) {
-        String[] commands = new String[args.length + 3];
-        commands[0] = "cmd.exe";
-        commands[1] = "/C";
-        commands[2] = "mvn";
-        System.arraycopy(args, 0, commands, 3, args.length);
-        return runCommand(path, commands);
+        String[] commands = new String[args.length + 2];
+        commands[0] = "/C";
+        commands[1] = "mvn";
+        System.arraycopy(args, 0, commands, 2, args.length);
+        return runCommand(path, "cmd.exe", commands);
     }
 }

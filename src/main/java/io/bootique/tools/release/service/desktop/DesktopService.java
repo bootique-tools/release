@@ -11,7 +11,7 @@ public interface DesktopService {
 
     void openTerminal(Path path);
 
-    String runCommand(Path path, String... commands);
+    String runCommand(Path path, String command, String... args);
 
     String runMavenCommand(Path path, String... args);
 

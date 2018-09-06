@@ -1,7 +1,16 @@
 package io.bootique.tools.release.service.github;
 
-import com.google.common.collect.ImmutableMap;
-import io.bootique.tools.release.model.github.*;
+import io.bootique.tools.release.model.github.Issue;
+import io.bootique.tools.release.model.github.IssueCollection;
+import io.bootique.tools.release.model.github.Milestone;
+import io.bootique.tools.release.model.github.MilestoneCollection;
+import io.bootique.tools.release.model.github.Organization;
+import io.bootique.tools.release.model.github.OrganizationContainer;
+import io.bootique.tools.release.model.github.PullRequest;
+import io.bootique.tools.release.model.github.PullRequestCollection;
+import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.github.RepositoryContainer;
+import io.bootique.tools.release.model.github.User;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.graphql.GraphQLService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
@@ -12,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +51,7 @@ public class GraphQLGitHubApi implements GitHubApi {
     @Override
     public User getCurrentUser() {
         return getFromCache("viewer:", () -> {
-            Viewer query = loadQuery("viewer", Viewer.class);
+            Viewer query = loadQuery("viewer", Collections.emptyMap(), Viewer.class);
             if(query == null) {
                 return null;
             }
@@ -58,7 +68,7 @@ public class GraphQLGitHubApi implements GitHubApi {
     public Organization getOrganization(String name) {
         return getFromCache("org:" + name, () -> {
             OrganizationContainer container = loadQuery("organization",
-                    ImmutableMap.of("name", name),
+                    Map.of("name", name),
                     OrganizationContainer.class);
             if(container == null) {
                 return null;
@@ -71,6 +81,9 @@ public class GraphQLGitHubApi implements GitHubApi {
 
     @Override
     public List<Milestone> getMilestones(Organization organization) {
+        if(organization == null) {
+            return Collections.emptyList();
+        }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
             MilestoneCollection milestoneCollection = getMilestoneCollection(repository.getName(), repository.getMilestoneCollection().getTotalCount());
             repository.setMilestoneCollection(milestoneCollection);
@@ -82,7 +95,9 @@ public class GraphQLGitHubApi implements GitHubApi {
     private MilestoneCollection getMilestoneCollection(String repoName, int totalCount) {
         return getFromCache("milestones:" + repoName, () -> {
             RepositoryContainer repository = loadQuery("milestones",
-                    ImmutableMap.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE), "name", repoName, "totalCount", totalCount),
+                    Map.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                            , "name", repoName
+                            , "totalCount", totalCount),
                     RepositoryContainer.class);
             if(repository == null) {
                 return null;
@@ -93,6 +108,9 @@ public class GraphQLGitHubApi implements GitHubApi {
 
     @Override
     public List<Issue> getIssues(Organization organization, Predicate<Issue> predicate, Comparator<Issue> comparator) {
+        if(organization == null) {
+            return Collections.emptyList();
+        }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
             IssueCollection issueCollection = getIssueCollection(repository.getName(), repository.getIssueCollection().getTotalCount());
             repository.setIssueCollection(issueCollection);
@@ -105,7 +123,9 @@ public class GraphQLGitHubApi implements GitHubApi {
     private IssueCollection getIssueCollection(String repoName, int totalCount) {
         return getFromCache("issue:" + repoName, () -> {
             RepositoryContainer repository = loadQuery("issues",
-                    ImmutableMap.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE), "name", repoName, "totalCount", totalCount),
+                    Map.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                            , "name", repoName
+                            , "totalCount", totalCount),
                     RepositoryContainer.class);
             if(repository == null) {
                 return null;
@@ -116,6 +136,9 @@ public class GraphQLGitHubApi implements GitHubApi {
 
     @Override
     public List<PullRequest> getPullRequests(Organization organization, Predicate<PullRequest> predicate, Comparator<PullRequest> comparator) {
+        if(organization == null) {
+            return Collections.emptyList();
+        }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
             PullRequestCollection pullRequestCollection = getPrCollection(repository.getName(), repository.getPullRequestCollection().getTotalCount());
             repository.setPullRequestCollection(pullRequestCollection);
@@ -127,6 +150,9 @@ public class GraphQLGitHubApi implements GitHubApi {
 
     @Override
     public List<Repository> getRepositories(Organization organization, Predicate<Repository> predicate, Comparator<Repository> comparator) {
+        if(organization == null) {
+            return Collections.emptyList();
+        }
         List<Repository> repositoryList = organization.getRepositories(predicate, comparator);
         repositoryList.forEach(r -> {
             if (preferences.have(GitService.BASE_PATH_PREFERENCE)) {
@@ -139,7 +165,9 @@ public class GraphQLGitHubApi implements GitHubApi {
     private PullRequestCollection getPrCollection(String repoName, int totalCount) {
         return getFromCache("pr:" + repoName, () -> {
             RepositoryContainer repository = loadQuery("pr",
-                    ImmutableMap.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE), "name", repoName, "totalCount", totalCount),
+                    Map.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                            , "name", repoName
+                            , "totalCount", totalCount),
                     RepositoryContainer.class);
             if(repository == null) {
                 return null;
@@ -217,16 +245,12 @@ public class GraphQLGitHubApi implements GitHubApi {
         }).getObject();
     }
 
-    private<T> T loadQuery(String key, ImmutableMap<String, Object> map, Class<T> tClass) {
+    private<T> T loadQuery(String key, Map<String, Object> map, Class<T> tClass) {
         return graphQLService.query(tClass,
                 GIT_HUB_API_URI,
                 preferences.get(AUTH_TOKEN_PREFERENCE),
                 getQuery(key),
                 map);
-    }
-
-    private<T> T loadQuery(String key, Class<T> tClass) {
-        return loadQuery(key, ImmutableMap.of(), tClass);
     }
 
     /**

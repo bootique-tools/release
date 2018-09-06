@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -54,7 +57,11 @@ public abstract class BaseDesktopService implements DesktopService {
     }
 
     @Override
-    public String runCommand(java.nio.file.Path path, String... commands) {
+    public String runCommand(java.nio.file.Path path, String command, String... args) {
+        List<String> commands = new ArrayList<>(1 + args.length);
+        commands.add(command);
+        commands.addAll(Arrays.asList(args));
+
         StringBuilder sb = new StringBuilder();
         if(LOGGER.isDebugEnabled()) {
             LOGGER.debug("Running command: {}", String.join(" ", commands));
@@ -101,9 +108,6 @@ public abstract class BaseDesktopService implements DesktopService {
 
     @Override
     public String runMavenCommand(Path path, String... args) {
-        String[] commands = new String[args.length + 1];
-        commands[0] = "mvn";
-        System.arraycopy(args, 0, commands, 1, args.length);
-        return runCommand(path, commands);
+        return runCommand(path, "mvn", args);
     }
 }

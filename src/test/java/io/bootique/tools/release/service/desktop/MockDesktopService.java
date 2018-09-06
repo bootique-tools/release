@@ -8,19 +8,14 @@ import java.util.Queue;
 public class MockDesktopService implements DesktopService {
 
     private Queue<String> nextCommandResult = new ArrayDeque<>();
-    private File nextFileResult;
 
     public void addCommandResult(String result) {
         nextCommandResult.add(result);
     }
 
-    public void setNextFileResult(File file) {
-        this.nextFileResult = file;
-    }
-
     @Override
     public File selectFile() {
-        return nextFileResult;
+        return null;
     }
 
     @Override
@@ -32,7 +27,7 @@ public class MockDesktopService implements DesktopService {
     }
 
     @Override
-    public String runCommand(Path path, String... commands) {
+    public String runCommand(Path path, String command, String... args) {
         return nextCommandResult.remove();
     }
 
