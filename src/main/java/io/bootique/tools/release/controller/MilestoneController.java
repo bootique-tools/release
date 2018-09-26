@@ -149,7 +149,8 @@ public class MilestoneController extends BaseController {
         Organization organization = gitHubApi.getCurrentOrganization();
         gitHubApi.getMilestones(organization).forEach(milestone ->
                 milestone.setIssues(
-                        gitHubApi.getIssues(organization, issue -> milestone.equals(issue.getMilestone()),
+                        gitHubApi.getIssues(organization,
+                                List.of(issue -> (milestone.equals(issue.getMilestone()) && milestone.getRepository().equals(issue.getRepository()))),
                                 Comparator.comparing(Issue::getMilestone))));
         return haveMissingRepos(organization) ? new ArrayList<>() :
                 mavenService.getProjects(organization, predicate);

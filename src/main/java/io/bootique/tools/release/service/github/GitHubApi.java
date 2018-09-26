@@ -27,7 +27,7 @@ public interface GitHubApi {
 
     List<Milestone> getMilestones(Organization organization);
 
-    List<Issue> getIssues(Organization organization, Predicate<Issue> predicate, Comparator<Issue> comparator);
+    List<Issue> getIssues(Organization organization, List<Predicate<Issue>> predicate, Comparator<Issue> comparator);
 
     List<PullRequest> getPullRequests(Organization organization, Predicate<PullRequest> predicate, Comparator<PullRequest> comparator);
 

@@ -70,10 +70,10 @@ public class Organization extends GitHubEntity {
     }
 
     @JsonIgnore
-    public List<Issue> getIssues(Predicate<Issue> filter, Comparator<Issue> comparator) {
+    public List<Issue> getIssues(List<Predicate<Issue>> filters, Comparator<Issue> comparator) {
         return repositoryCollection.getRepositories().stream()
                 .flatMap(r -> r.getIssueCollection().getIssues().stream())
-                .filter(filter)
+                .filter(issue -> filters.stream().allMatch(f -> f.test(issue)))
                 .sorted(comparator)
                 .collect(Collectors.toList());
     }

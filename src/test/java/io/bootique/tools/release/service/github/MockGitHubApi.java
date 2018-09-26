@@ -43,7 +43,7 @@ public class MockGitHubApi implements GitHubApi{
     }
 
     @Override
-    public List<Issue> getIssues(Organization organization, Predicate<Issue> predicate, Comparator<Issue> comparator) {
+    public List<Issue> getIssues(Organization organization, List<Predicate<Issue>> predicate, Comparator<Issue> comparator) {
         return null;
     }
 

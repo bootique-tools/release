@@ -107,7 +107,7 @@ public class GraphQLGitHubApi implements GitHubApi {
     }
 
     @Override
-    public List<Issue> getIssues(Organization organization, Predicate<Issue> predicate, Comparator<Issue> comparator) {
+    public List<Issue> getIssues(Organization organization, List<Predicate<Issue>> predicates, Comparator<Issue> comparator) {
         if(organization == null) {
             return Collections.emptyList();
         }
@@ -117,7 +117,7 @@ public class GraphQLGitHubApi implements GitHubApi {
         }
         organization.setIssuesRepo();
 
-        return organization.getIssues(predicate, comparator);
+        return organization.getIssues(predicates, comparator);
     }
 
     private IssueCollection getIssueCollection(String repoName, int totalCount) {

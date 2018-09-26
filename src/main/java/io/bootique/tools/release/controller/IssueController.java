@@ -9,7 +9,9 @@ import io.bootique.tools.release.view.IssueView;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 
 @Path("/issue")
@@ -20,9 +22,15 @@ public class IssueController extends BaseController {
     private static final Comparator<Issue> DEFAULT_COMPARATOR = Comparator.comparing(Issue::getCreatedAt).reversed();
 
     @GET
-    public IssueView home(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
+    public IssueView home(@QueryParam("filter") List<String> filters, @QueryParam("sort") String sort) {
         Organization organization = gitHubApi.getCurrentOrganization();
-        return new IssueView(gitHubApi.getCurrentUser(), organization, gitHubApi.getIssues(organization, getPredicate(filter), getComparator(sort)));
+        return new IssueView(gitHubApi.getCurrentUser(), organization, gitHubApi.getIssues(organization, getPredicates(filters), getComparator(sort)));
+    }
+
+    private List<Predicate<Issue>> getPredicates(List<String> filters) {
+        List<Predicate<Issue>> predicates = new ArrayList<>();
+        filters.forEach(filter -> predicates.add(getPredicate(filter)));
+        return predicates;
     }
 
     private Predicate<Issue> getPredicate(String filter) {
