@@ -36,4 +36,9 @@ public class MockMavenService implements MavenService {
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Project> getProjectsWithoutDependencies(Organization organization, Predicate<Project> predicate) {
+        return null;
+    }
 }

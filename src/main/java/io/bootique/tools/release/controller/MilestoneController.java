@@ -9,6 +9,7 @@ import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.service.desktop.DesktopException;
+import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.JobException;
@@ -22,13 +23,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Path("milestone")
 public class MilestoneController extends BaseController {
@@ -152,7 +150,7 @@ public class MilestoneController extends BaseController {
                         gitHubApi.getIssues(organization,
                                 List.of(issue -> (milestone.equals(issue.getMilestone()) && milestone.getRepository().equals(issue.getRepository()))),
                                 Comparator.comparing(Issue::getMilestone))));
-        return haveMissingRepos(organization) ? new ArrayList<>() :
-                mavenService.getProjects(organization, predicate);
+        return haveMissingRepos(organization) ? Collections.emptyList() :
+                mavenService.getProjectsWithoutDependencies(organization, predicate);
     }
 }

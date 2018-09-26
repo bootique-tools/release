@@ -30,12 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,6 +93,22 @@ public class DefaultMavenService implements MavenService {
                 .map(this::createProject)
                 .filter(predicate)
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public List<Project> getProjectsWithoutDependencies(Organization organization, Predicate<Project> predicate) {
+        return sort(organization
+                .getRepositoryCollection().getRepositories().stream()
+                .filter(this::isMavenProject)
+                .map(this::createProjectWithoutDependencies)
+                .filter(predicate)
+                .collect(Collectors.toList()));
+    }
+
+    public Project createProjectWithoutDependencies(Repository repository) {
+        Path basePath = preferences.get(GitService.BASE_PATH_PREFERENCE);
+        Path path = basePath.resolve(repository.getName());
+        return new Project(repository, path, resolveRootModule(path));
     }
 
     private static Document readDocument(URL url) {
