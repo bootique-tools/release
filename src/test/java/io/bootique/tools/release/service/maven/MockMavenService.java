@@ -24,7 +24,7 @@ public class MockMavenService implements MavenService {
     }
 
     @Override
-    public Module resolveRootModule(Path path) {
+    public Module resolveModule(Path path) {
         return null;
     }
 
@@ -37,8 +37,4 @@ public class MockMavenService implements MavenService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<Project> getProjectsWithoutDependencies(Organization organization, Predicate<Project> predicate) {
-        return null;
-    }
 }

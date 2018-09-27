@@ -18,9 +18,7 @@ public interface MavenService {
 
     Project createProject(Repository repository);
 
-    Module resolveRootModule(Path path);
+    Module resolveModule(Path path);
 
     List<Project> getProjects(Organization organization, Predicate<Project> predicate);
-
-    List<Project> getProjectsWithoutDependencies(Organization organization, Predicate<Project> predicate);
 }

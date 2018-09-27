@@ -11,12 +11,7 @@ public class DependencyTest {
 
     @BeforeEach
     public void createDependency() {
-        dependency = new Dependency("group1:id1:jar:1.0:test");
-    }
-
-    @Test
-    void getName() {
-        assertEquals("group1:id1:jar:1.0:test", dependency.getName());
+        dependency = new Dependency("group1", "id1", "1.0", "test");
     }
 
     @Test
@@ -29,21 +24,16 @@ public class DependencyTest {
     }
 
     @Test
-    void getArtifact() {
-        assertEquals("jar", dependency.getArtifact());
-    }
-
-    @Test
     void getType() {
         assertEquals("test", dependency.getType());
     }
 
     @Test
     void compareTo() {
-        Dependency dep2 = new Dependency("group1:id1:jar:1.0:compile");
-        Dependency dep3 = new Dependency("group1:id1:jar:2.0:test");
-        Dependency dep4 = new Dependency("group1:id2:jar:1.0:test");
-        Dependency dep5 = new Dependency("group1:id0:jar:1.0:test");
+        Dependency dep2 = new Dependency("group1", "id1", "1.0", "compile");
+        Dependency dep3 = new Dependency("group1", "id1","2.0", "test");
+        Dependency dep4 = new Dependency("group1", "id2", "1.0", "test");
+        Dependency dep5 = new Dependency("group1", "id0", "1.0", "test");
 
         assertEquals(0, dependency.compareTo(dep2));
         assertEquals(0, dependency.compareTo(dep3));
@@ -53,9 +43,9 @@ public class DependencyTest {
 
     @Test
     void equals() {
-        Dependency dep2 = new Dependency("group1:id1:jar:1.0:compile");
-        Dependency dep3 = new Dependency("group1:id1:jar:2.0:test");
-        Dependency dep4 = new Dependency("group1:id2:jar:1.0:test");
+        Dependency dep2 = new Dependency("group1", "id1", "1.0", "compile");
+        Dependency dep3 = new Dependency("group1", "id1", "2.0", "test");
+        Dependency dep4 = new Dependency("group1", "id2", "1.0", "test");
 
         assertEquals(dep2, dependency);
         assertEquals(dep3, dependency);
@@ -64,9 +54,9 @@ public class DependencyTest {
 
     @Test
     void testHashCode() {
-        Dependency dep2 = new Dependency("group1:id1:jar:1.0:compile");
-        Dependency dep3 = new Dependency("group1:id1:jar:2.0:test");
-        Dependency dep4 = new Dependency("group1:id2:jar:1.0:test");
+        Dependency dep2 = new Dependency("group1", "id1", "1.0", "compile");
+        Dependency dep3 = new Dependency("group1", "id1", "2.0", "test");
+        Dependency dep4 = new Dependency("group1", "id2", "1.0", "test");
 
         assertEquals(dep2.hashCode(), dependency.hashCode());
         assertEquals(dep3.hashCode(), dependency.hashCode());
