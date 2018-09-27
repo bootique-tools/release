@@ -2,7 +2,6 @@ package io.bootique.tools.release.model.maven;
 
 public class Dependency implements Comparable<Dependency> {
 
-    // io.bootique:bootique:jar:0.26-SNAPSHOT:compile
     private final String type;
     private final Module module;
 
