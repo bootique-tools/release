@@ -43,7 +43,7 @@ public class DefaultMavenService implements MavenService {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(MavenService.class);
 
-    private final Pattern dependencyPattern = Pattern.compile("^(io.bootique).*$");
+    private final Pattern dependencyPattern = Pattern.compile("^io\\.bootique.*$");
 
     @Inject
     DesktopService desktopService;
@@ -110,7 +110,7 @@ public class DefaultMavenService implements MavenService {
             for(int i = 0; i < dependencies.getLength(); i++) {
                 Element element = (Element) dependencies.item(i);
                 String groupId = element.getElementsByTagName("groupId").item(0).getTextContent();
-                if(dependencyPattern.matcher(groupId).lookingAt()) {
+                if(dependencyPattern.matcher(groupId).matches()) {
                     String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
                     NodeList typeNodes = element.getElementsByTagName("scope");
                     Dependency dependency = new Dependency(groupId,
@@ -124,7 +124,7 @@ public class DefaultMavenService implements MavenService {
             for(int i = 0; i < modules.getLength(); i++) {
                 Path currPath = path.resolve(modules.item(i).getTextContent());
                 Module currModule = resolveModule(currPath);
-                moduleSet.addAll(getModules(currModule, path.resolve(modules.item(i).getTextContent())));
+                moduleSet.addAll(getModules(currModule, currPath));
             }
         } catch (Exception ex) {
             throw new RuntimeException("Invalid path " + path, ex);
