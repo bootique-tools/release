@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.maven.MavenService;
@@ -29,6 +30,9 @@ abstract class BaseController {
 
     @Inject
     GitService gitService;
+
+    @Inject
+    ContentService contentService;
 
     List<Project> getSelectedProjects(String selectedProjects) throws IOException {
         List selectedProjectsId = objectMapper.readValue(selectedProjects, List.class);

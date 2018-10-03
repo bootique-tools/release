@@ -8,14 +8,21 @@ import io.bootique.tools.release.model.github.User;
 
 public class IssueView extends BaseView {
 
-    private final List<Issue> issues;
+    private String defaultFilters;
+    private String defaultSort;
 
-    public IssueView(User user, Organization organization, List<Issue> issues) {
+    public IssueView(User user, Organization organization, String defaultFilters, String defaultSort) {
         super("issue", user, organization);
-        this.issues = issues;
+        this.defaultFilters = defaultFilters;
+        this.defaultSort = defaultSort;
     }
 
-    public List<Issue> getIssues() {
-        return issues;
+
+    public String getDefaultFilters() {
+        return defaultFilters;
+    }
+
+    public String getDefaultSort() {
+        return defaultSort;
     }
 }

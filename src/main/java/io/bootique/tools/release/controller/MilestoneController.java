@@ -9,7 +9,7 @@ import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.service.desktop.DesktopException;
-import io.bootique.tools.release.service.github.GitHubApi;
+import io.bootique.tools.release.service.github.GitHubRestAPI;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.maven.MavenService;
@@ -35,9 +35,6 @@ import java.util.function.Predicate;
 public class MilestoneController extends BaseController {
 
     @Inject
-    private GitHubApi gitHubApi;
-
-    @Inject
     private ObjectMapper objectMapper;
 
     @Inject
@@ -45,6 +42,9 @@ public class MilestoneController extends BaseController {
 
     @Inject
     private BatchJobService jobService;
+
+    @Inject
+    private GitHubRestAPI gitHubRestAPI;
 
     @GET
     public MilestonesView home() {
@@ -85,7 +85,7 @@ public class MilestoneController extends BaseController {
                        @QueryParam("selectedModules") String selectedModules) throws IOException {
         Function<Project, String> repoProcessor = project -> {
             try {
-                Milestone milestone = gitHubApi.createMilestone(project.getRepository(), title, "");;
+                Milestone milestone = gitHubRestAPI.createMilestone(project.getRepository(), title, "");;
                 project.getRepository().addMilestoneToCollection(milestone);
                 return "";
             } catch (IOException ex) {
@@ -104,7 +104,7 @@ public class MilestoneController extends BaseController {
         Function<Project, String> repoProcessor = project -> {
             try {
                 Repository repository = project.getRepository();
-                gitHubApi.closeMilestone(project.getRepository(), title, "");
+                gitHubRestAPI.closeMilestone(project.getRepository(), title, "");
                 repository.closeMilestone(title);
                 return "";
             } catch (DesktopException ex) {
@@ -123,7 +123,7 @@ public class MilestoneController extends BaseController {
         Function<Project, String> repoProcessor = project -> {
             try {
                 Repository repository = project.getRepository();
-                gitHubApi.renameMilestone(project.getRepository(), title, "", milestoneNewTitle);
+                gitHubRestAPI.renameMilestone(project.getRepository(), title, "", milestoneNewTitle);
                 repository.renameMilestone(title, milestoneNewTitle);
                 return "";
             } catch (DesktopException ex) {
@@ -148,9 +148,9 @@ public class MilestoneController extends BaseController {
 
     private List<Project> getProjects(Predicate<Project> predicate) {
         Organization organization = gitHubApi.getCurrentOrganization();
-        gitHubApi.getMilestones(organization).forEach(milestone ->
+        contentService.getMilestones(organization).forEach(milestone ->
                 milestone.setIssues(
-                        gitHubApi.getIssues(organization,
+                        contentService.getIssues(organization,
                                 List.of(issue -> (milestone.equals(issue.getMilestone()) && milestone.getRepository().equals(issue.getRepository()))),
                                 Comparator.comparing(Issue::getMilestone))));
         return haveMissingRepos(organization) ? Collections.emptyList() :

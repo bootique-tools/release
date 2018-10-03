@@ -51,7 +51,6 @@ public class Repository extends GitHubEntity implements Comparable<Repository> {
     @JsonProperty("description")
     private String description;
 
-    @JsonIgnore
     private Repository parent;
 
     @JsonIgnore
@@ -66,7 +65,9 @@ public class Repository extends GitHubEntity implements Comparable<Repository> {
     @JsonProperty("pullRequests")
     private PullRequestCollection pullRequestCollection;
 
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private String pushedAtStr;
+
     private GitService.GitStatus localStatus = GitService.GitStatus.MISSING;
 
     public String getName() {
@@ -177,13 +178,13 @@ public class Repository extends GitHubEntity implements Comparable<Repository> {
         return pushedAt;
     }
 
-    @JsonIgnore
     public String getPushedAtStr() {
-        return dateTimeFormatter.format(pushedAt);
+        return pushedAtStr;
     }
 
     public void setPushedAt(LocalDateTime pushedAt) {
         this.pushedAt = pushedAt;
+        this.pushedAtStr = dateTimeFormatter.format(pushedAt);
     }
 
     public GitService.GitStatus getLocalStatus() {
@@ -194,6 +195,7 @@ public class Repository extends GitHubEntity implements Comparable<Repository> {
         this.localStatus = localStatus;
     }
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public boolean haveLocalRepo() {
         return localStatus != GitService.GitStatus.MISSING;
     }

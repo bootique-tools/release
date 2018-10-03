@@ -42,7 +42,6 @@ class DefaultMavenServiceTest {
         service = new DefaultMavenService();
         service.desktopService = mockDesktopService;
         service.preferences = mockPreferenceService;
-        service.gitHubApi = gitHubApi;
     }
 
     @Test

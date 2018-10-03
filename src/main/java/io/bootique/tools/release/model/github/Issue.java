@@ -1,5 +1,7 @@
 package io.bootique.tools.release.model.github;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * id
  * number
@@ -16,6 +18,7 @@ package io.bootique.tools.release.model.github;
  */
 public class Issue extends RepositoryNode {
 
+    @JsonProperty("milestone")
     private Milestone milestone;
 
     public Milestone getMilestone() {

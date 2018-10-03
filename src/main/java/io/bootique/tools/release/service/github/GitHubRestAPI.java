@@ -9,5 +9,7 @@ public interface GitHubRestAPI {
 
     Milestone createMilestone(Repository repository, String title, String description) throws IOException;
 
-    void patchMilestone(Repository repository, String title, String description, String state, int id);
+    void renameMilestone(Repository repository, String title, String description, String newTitle);
+
+    void closeMilestone(Repository repository, String title, String description);
 }

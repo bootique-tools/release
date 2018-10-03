@@ -1,33 +1,28 @@
 package io.bootique.tools.release.controller;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.view.RepoView;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import java.util.Comparator;
+import java.util.List;
 
 @Path("/")
 public class RepoController extends BaseController {
 
     private static final Comparator<Repository> DEFAULT_COMPARATOR = Repository::compareTo;
 
-    @Inject
-    private GitHubApi gitHubApi;
-
     @GET
     public RepoView home(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
         Organization organization = gitHubApi.getCurrentOrganization();
         return new RepoView(gitHubApi.getCurrentUser(),
-                organization,
-                gitHubApi.getRepositories(organization, p -> true, getComparator(sort)),
-                preferences.have(GitService.BASE_PATH_PREFERENCE));
+                organization);
     }
 
     /**
@@ -68,5 +63,20 @@ public class RepoController extends BaseController {
         }
 
         return comparator;
+    }
+
+    @GET
+    @Path("/checkCache")
+    @Produces(MediaType.APPLICATION_JSON)
+    public boolean checkCache() {
+        return contentService.haveCache();
+    }
+
+    @GET
+    @Path("/show-all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Repository> showAll(@QueryParam("sort") String sort) {
+        Organization organization = gitHubApi.getCurrentOrganization();
+        return contentService.getRepositories(organization, r -> true, getComparator(sort));
     }
 }

@@ -29,7 +29,6 @@ public class GitController extends BaseController {
     @Inject
     private PreferenceService preferences;
 
-
     @Path("select_path")
     @GET
     public Response selectPath() {
@@ -113,7 +112,7 @@ public class GitController extends BaseController {
                     .build();
         }
 
-        Repository repository = gitHubApi.getRepository(preferences.get(GitHubApi.ORGANIZATION_PREFERENCE), repoName);
+        Repository repository = contentService.getRepository(preferences.get(GitHubApi.ORGANIZATION_PREFERENCE), repoName);
         if(repository == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

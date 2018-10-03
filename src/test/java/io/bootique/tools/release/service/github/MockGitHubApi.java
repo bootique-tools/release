@@ -19,7 +19,6 @@ public class MockGitHubApi implements GitHubApi{
         Organization organization = new Organization();
         organization.setName("dummy-org-00");
 
-
         Repository repository = new Repository();
         repository.setName("dummy-api");
         Repository repository1 = new Repository();
@@ -33,52 +32,17 @@ public class MockGitHubApi implements GitHubApi{
     }
 
     @Override
-    public Organization getOrganization(String name) {
-        return getCurrentOrganization();
-    }
-
-    @Override
-    public List<Milestone> getMilestones(Organization organization) {
+    public MilestoneCollection getMilestoneCollection(Repository repository) {
         return null;
     }
 
     @Override
-    public List<Issue> getIssues(Organization organization, List<Predicate<Issue>> predicate, Comparator<Issue> comparator) {
+    public IssueCollection getIssueCollection(Repository repository) {
         return null;
     }
 
     @Override
-    public List<PullRequest> getPullRequests(Organization organization, Predicate<PullRequest> predicate, Comparator<PullRequest> comparator) {
+    public PullRequestCollection getPullRequestCollection(Repository repo) {
         return null;
-    }
-
-    @Override
-    public List<Repository> getRepositories(Organization organization, Predicate<Repository> predicate, Comparator<Repository> comparator) {
-        return null;
-    }
-
-    @Override
-    public Repository getRepository(String organizationName, String name) {
-        return null;
-    }
-
-    @Override
-    public Milestone createMilestone(Repository repository, String title, String description) throws IOException {
-        return null;
-    }
-
-    @Override
-    public void closeMilestone(Repository repository, String title, String description) {
-
-    }
-
-    @Override
-    public void renameMilestone(Repository repository, String title, String description, String newTitle) {
-
-    }
-
-    @Override
-    public void flushCache(Predicate<String> keyFilter) {
-
     }
 }

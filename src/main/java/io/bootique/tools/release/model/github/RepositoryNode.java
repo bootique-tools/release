@@ -18,6 +18,9 @@ public abstract class RepositoryNode extends GitHubEntity implements Comparable<
     private User author;
     private LabelCollection labels;
 
+    @JsonProperty("repoName")
+    private String repoName;
+
     @JsonIgnore
     private Repository repository;
 
@@ -48,7 +51,6 @@ public abstract class RepositoryNode extends GitHubEntity implements Comparable<
         this.createdAt = createdAt;
     }
 
-    @JsonIgnore
     public String getCreatedAtStr() {
         return dateTimeFormatter.format(createdAt);
     }
@@ -60,6 +62,11 @@ public abstract class RepositoryNode extends GitHubEntity implements Comparable<
 
     public void setRepository(Repository repository) {
         this.repository = repository;
+        this.repoName = repository.getName();
+    }
+
+    public String getRepoName(){
+        return repoName;
     }
 
     public User getAuthor() {
@@ -84,6 +91,11 @@ public abstract class RepositoryNode extends GitHubEntity implements Comparable<
 
     public void setCommentsCount(int commentsCount) {
         this.commentsCount = commentsCount;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "parent")
+    public Repository getParent() {
+        return repository.getParent();
     }
 
     @JsonProperty("comments")

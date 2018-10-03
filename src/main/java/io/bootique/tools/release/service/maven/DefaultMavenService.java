@@ -9,7 +9,6 @@ import io.bootique.tools.release.model.maven.Module;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -26,16 +25,15 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -50,9 +48,6 @@ public class DefaultMavenService implements MavenService {
 
     @Inject
     PreferenceService preferences;
-
-    @Inject
-    GitHubApi gitHubApi;
 
     @Override
     public boolean isMavenProject(Repository repository) {

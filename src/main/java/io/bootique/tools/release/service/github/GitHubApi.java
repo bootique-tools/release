@@ -1,17 +1,7 @@
 package io.bootique.tools.release.service.github;
 
-import io.bootique.tools.release.model.github.Issue;
-import io.bootique.tools.release.model.github.Milestone;
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.PullRequest;
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.github.User;
+import io.bootique.tools.release.model.github.*;
 import io.bootique.tools.release.service.preferences.Preference;
-
-import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Predicate;
 
 public interface GitHubApi {
 
@@ -23,23 +13,10 @@ public interface GitHubApi {
 
     Organization getCurrentOrganization();
 
-    Organization getOrganization(String name);
+    MilestoneCollection getMilestoneCollection(Repository repo);
 
-    List<Milestone> getMilestones(Organization organization);
+    IssueCollection getIssueCollection(Repository repo);
 
-    List<Issue> getIssues(Organization organization, List<Predicate<Issue>> predicate, Comparator<Issue> comparator);
+    PullRequestCollection getPullRequestCollection(Repository repo);
 
-    List<PullRequest> getPullRequests(Organization organization, Predicate<PullRequest> predicate, Comparator<PullRequest> comparator);
-
-    List<Repository> getRepositories(Organization organization, Predicate<Repository> predicate, Comparator<Repository> comparator);
-
-    Repository getRepository(String organizationName, String name);
-
-    Milestone createMilestone(Repository repository, String title, String description) throws IOException;
-
-    void closeMilestone(Repository repository, String title, String description);
-
-    void renameMilestone(Repository repository, String title, String description, String newTitle);
-
-    void flushCache(Predicate<String> keyFilter);
 }

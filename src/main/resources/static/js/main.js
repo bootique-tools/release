@@ -16,19 +16,6 @@
     }
 
     function initRepoButtons() {
-        $('.repo-clone').click(function() {
-            const repo = $(this).attr('data-target');
-            $(this).attr('disabled', true);
-            $.get('/ui/git/clone?repo=' + repo, () => location.reload());
-        });
-
-        $('.repo-update').click(function() {
-            const repo = $(this).attr('data-target');
-            const btn = $(this);
-            btn.attr('disabled', true);
-            $.get('/ui/git/update?repo=' + repo, () => btn.attr('disabled', false));
-        });
-
         $('#btn-update-all').click(function() {
             const btn = $(this);
             btn.attr('disabled', true);
@@ -48,17 +35,6 @@
                 $('.repo-clone').attr('disabled', false);
                 location.reload();
             });
-        });
-
-        $('.repo-view').click(function() {
-            const btn = $(this);
-            const repo = btn.attr('data-target');
-            let type = btn.attr('data-type');
-            if(!type) {
-                type = 'viewer';
-            }
-            btn.attr('disabled', true);
-            $.get(`/ui/git/open?repo=${repo}&type=${type}`, () => btn.attr('disabled', false));
         });
     }
 

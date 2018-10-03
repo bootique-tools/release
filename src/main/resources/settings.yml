@@ -27,3 +27,11 @@ jerseyclient:
       url: "http://search.maven.org"
     github:
       url: "https://api.github.com"
+
+scheduler:
+  threadPoolSize: 3
+  triggers:
+  - job: query
+    initialDelayMs: 300
+    # run every 5 minutes
+    fixedDelayMs: 300000

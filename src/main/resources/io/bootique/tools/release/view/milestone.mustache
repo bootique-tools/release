@@ -37,12 +37,12 @@
                         <tbody>
                         <tr v-for="module in allModules">
                             <td><input type="checkbox" v-bind:id="module.repository.name" v-bind:value="module.repository.name"  v-model.lazy="selectedModules"></td>
-                            <td><label v-bind:for="module.repository.name"><a v-bind:href="module.repository.url">[[module.repository.name]]</a></label></td>
+                            <td><label v-bind:for="module.repository.name"><a v-bind:href="module.repository.url" target="_blank">[[module.repository.name]]</a></label></td>
                             <td>[[module.rootModule.version]]</td>
                             <td>
                                 <ul>
-                                    <li v-for="milestone in module.repository.milestones.nodes">Milestone: <a v-bind:href="milestone.url">[[milestone.title]]</a>
-                                        - issues count: <a :href="'/ui/issue?filter=m:' + milestone.title + '&filter=r:' + module.repository.name">[[milestone.issues.length]]</a></li>
+                                    <li v-for="milestone in module.repository.milestones.nodes">Milestone: <a v-bind:href="milestone.url" target="_blank">[[milestone.title]]</a>
+                                        - issues count: <a :href="'/ui/issue?filter=m:' + milestone.title + ',r:' + module.repository.name">[[milestone.issues.length]]</a></li>
                                 </ul>
                             </td>
 

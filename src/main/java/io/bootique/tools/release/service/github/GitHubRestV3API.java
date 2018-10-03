@@ -63,8 +63,7 @@ public class GitHubRestV3API implements GitHubRestAPI {
         return jsonToMilestone(repository, mapper.readTree(response.readEntity(String.class)));
     }
 
-    @Override
-    public void patchMilestone(Repository repository, String title, String description, String state, int id) {
+    private void patchMilestone(Repository repository, String title, String description, String state, int id) {
         Map<String, String> data = new HashMap<>();
         data.put("title", title);
         data.put("state", state);
@@ -84,6 +83,16 @@ public class GitHubRestV3API implements GitHubRestAPI {
         if(response.getStatus() != 200) {
             throw new DesktopException("Can't patch milestone for " + repository.getName());
         }
+    }
+
+    @Override
+    public void renameMilestone(Repository repository, String title, String description, String newTitle) {
+        patchMilestone(repository, newTitle, description, "open", repository.getMilestoneId(title));
+    }
+
+    @Override
+    public void closeMilestone(Repository repository, String title, String description) {
+        patchMilestone(repository, title, description, "closed", repository.getMilestoneId(title));
     }
 
     private Invocation.Builder prepareRequest(String path){

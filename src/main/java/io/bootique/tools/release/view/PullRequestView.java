@@ -8,14 +8,21 @@ import io.bootique.tools.release.model.github.User;
 
 public class PullRequestView extends BaseView {
 
-    private final List<PullRequest> pullRequests;
+    private String filter;
+    private String sort;
 
-    public PullRequestView(User user, Organization organization, List<PullRequest> pullRequests) {
+    public PullRequestView(User user, Organization organization, String filter, String sort) {
         super("pr", user, organization);
-        this.pullRequests = pullRequests;
+        this.filter = filter;
+        this.sort = sort;
     }
 
-    public List<PullRequest> getPullRequests() {
-        return pullRequests;
+
+    public String getFilter() {
+        return filter;
+    }
+
+    public String getSort() {
+        return sort;
     }
 }

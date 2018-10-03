@@ -7,8 +7,11 @@ import io.bootique.tools.release.view.PullRequestView;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Predicate;
 
 @Path("/pr")
@@ -21,7 +24,7 @@ public class PRController extends BaseController {
     @GET
     public PullRequestView home(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
         Organization organization = gitHubApi.getCurrentOrganization();
-        return new PullRequestView(gitHubApi.getCurrentUser(), organization, gitHubApi.getPullRequests(organization, getPredicate(filter), getComparator(sort)));
+        return new PullRequestView(gitHubApi.getCurrentUser(), organization, filter, sort);
     }
 
     private Predicate<PullRequest> getPredicate(String filter) {
@@ -80,5 +83,11 @@ public class PRController extends BaseController {
         return comparator;
     }
 
-
+    @GET
+    @Path("/show-all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<PullRequest> showAll(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
+        Organization organization = gitHubApi.getCurrentOrganization();
+        return contentService.getPullRequests(organization, getPredicate(filter), getComparator(sort));
+    }
 }

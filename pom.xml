@@ -52,6 +52,10 @@
             <artifactId>bootique-jersey-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.bootique.job</groupId>
+            <artifactId>bootique-job</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
             <version>${jetty-version}</version>

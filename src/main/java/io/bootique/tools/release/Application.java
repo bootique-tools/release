@@ -2,11 +2,13 @@ package io.bootique.tools.release;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Binder;
+import com.google.inject.Module;
+import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
-import com.google.inject.Module;
 import com.google.inject.multibindings.MapBinder;
+import com.google.inject.name.Named;
 import io.bootique.BQCoreModule;
 import io.bootique.Bootique;
 import io.bootique.command.CommandDecorator;
@@ -15,11 +17,13 @@ import io.bootique.jersey.JerseyModule;
 import io.bootique.jersey.client.HttpTargets;
 import io.bootique.jetty.JettyModule;
 import io.bootique.jetty.command.ServerCommand;
+import io.bootique.job.command.ScheduleCommand;
+import io.bootique.job.runtime.JobModule;
 import io.bootique.tools.release.command.ConsoleReleaseCommand;
 import io.bootique.tools.release.command.ConsoleRollbackCommand;
-import io.bootique.tools.release.command.GithubInit;
 import io.bootique.tools.release.controller.BaseRequestFilter;
 import io.bootique.tools.release.controller.RepoController;
+import io.bootique.tools.release.job.QueryJob;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
@@ -31,17 +35,16 @@ import io.bootique.tools.release.service.console.ConsoleReleaseService;
 import io.bootique.tools.release.service.console.ConsoleRollbackService;
 import io.bootique.tools.release.service.console.DefaultConsoleReleaseService;
 import io.bootique.tools.release.service.console.DefaultConsoleRollbackService;
-import io.bootique.tools.release.service.desktop.DesktopService;
-import io.bootique.tools.release.service.desktop.GenericDesktopService;
-import io.bootique.tools.release.service.desktop.LinuxDesktopService;
-import io.bootique.tools.release.service.desktop.MacOSService;
-import io.bootique.tools.release.service.desktop.WindowsDesktopService;
+import io.bootique.tools.release.service.content.ContentService;
+import io.bootique.tools.release.service.content.DefaultContentService;
+import io.bootique.tools.release.service.desktop.*;
 import io.bootique.tools.release.service.git.ExternalGitService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.github.GitHubRestAPI;
 import io.bootique.tools.release.service.github.GitHubRestV3API;
 import io.bootique.tools.release.service.github.GraphQLGitHubApi;
+import io.bootique.tools.release.service.github.GraphQLGitHubApiInvalidateCache;
 import io.bootique.tools.release.service.graphql.GraphQLService;
 import io.bootique.tools.release.service.graphql.SimpleGraphQLService;
 import io.bootique.tools.release.service.job.BatchJobService;
@@ -65,6 +68,7 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 
 import java.util.function.Function;
 
+//--config="release-manager.yml" --server
 public class Application implements Module {
     public static void main(String[] args) {
         Bootique
@@ -85,7 +89,6 @@ public class Application implements Module {
     @Override
     public void configure(Binder binder) {
         binder.bind(GraphQLService.class).to(SimpleGraphQLService.class).in(Singleton.class);
-        binder.bind(GitHubApi.class).to(GraphQLGitHubApi.class).in(Singleton.class);
         binder.bind(GitHubRestAPI.class).to(GitHubRestV3API.class).in(Singleton.class);
         binder.bind(GitService.class).to(ExternalGitService.class).in(Singleton.class);
         binder.bind(MavenService.class).to(DefaultMavenService.class).in(Singleton.class);
@@ -95,6 +98,7 @@ public class Application implements Module {
         binder.bind(ConsoleReleaseService.class).to(DefaultConsoleReleaseService.class).in(Singleton.class);
         binder.bind(ConsoleRollbackService.class).to(DefaultConsoleRollbackService.class).in(Singleton.class);
         binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).in(Singleton.class);
+        binder.bind(ContentService.class).to(DefaultContentService.class).in(Singleton.class);
         JettyModule.extend(binder).useDefaultServlet();
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)
@@ -109,22 +113,23 @@ public class Application implements Module {
         setRollbackFunctionClass(binder, RollbackStage.ROLLBACK_MVN, RollbackMvnGitTask.class);
         BQCoreModule.extend(binder).addCommand(ConsoleReleaseCommand.class);
         BQCoreModule.extend(binder).addCommand(ConsoleRollbackCommand.class);
-        BQCoreModule.extend(binder).addCommand(GithubInit.class);
 
         BQCoreModule.extend(binder)
-                .decorateCommand(ServerCommand.class, CommandDecorator.beforeRun(GithubInit.class));
+                .decorateCommand(ServerCommand.class, CommandDecorator.beforeRun(ScheduleCommand.class));
+
+        JobModule.extend(binder).addJob(QueryJob.class);
     }
 
-
     private static MapBinder<ReleaseStage, Function<Repository, String>> contributeReleaseFunctionClass(Binder binder) {
-        TypeLiteral<Function<Repository, String>> type = new TypeLiteral<Function<Repository, String>>(){};
-        TypeLiteral<ReleaseStage> key = new TypeLiteral<ReleaseStage>(){};
+        TypeLiteral<Function<Repository, String>> type = new TypeLiteral<>() {};
+        TypeLiteral<ReleaseStage> key = new TypeLiteral<>() {};
         return MapBinder.newMapBinder(binder, key, type);
     }
 
     private static MapBinder<RollbackStage, Function<Repository, String>> contributeRollbackFunctionClass(Binder binder) {
-        TypeLiteral<Function<Repository, String>> type = new TypeLiteral<Function<Repository, String>>(){};
-        TypeLiteral<RollbackStage> key = new TypeLiteral<RollbackStage>(){};
+        TypeLiteral<Function<Repository, String>> type = new TypeLiteral<>() {
+        };
+        TypeLiteral<RollbackStage> key = new TypeLiteral<>() {};
         return MapBinder.newMapBinder(binder, key, type);
     }
 
@@ -166,6 +171,19 @@ public class Application implements Module {
         return configurationFactory
                 .config(PreferenceCredentialFactory.class, "preferences")
                 .createPreferenceService();
+    }
+
+    @Provides
+    @Singleton
+    GitHubApi provideGitHubApi(PreferenceService preferenceService, ContentService contentService) {
+        return new GraphQLGitHubApi(preferenceService, contentService);
+    }
+
+    @Provides
+    @Singleton
+    @Named("updateCache")
+    GitHubApi provideGitGubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferenceService, ContentService contentService) {
+        return new GraphQLGitHubApiInvalidateCache(graphQLService, preferenceService, contentService);
     }
 
 }

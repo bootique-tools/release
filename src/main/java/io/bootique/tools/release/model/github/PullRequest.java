@@ -13,4 +13,5 @@ package io.bootique.tools.release.model.github;
  * }
  */
 public class PullRequest extends RepositoryNode {
+
 }

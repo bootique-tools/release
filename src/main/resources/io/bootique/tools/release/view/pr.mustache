@@ -1,40 +1,43 @@
 {{> header}}
+<div id="prVue">
+    <div class="progress-style">
+        <div id="bar" class="indeterminate-progress-bar active">
+            <div class="progress-block single-segment"></div>
+        </div>
+    </div>
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead>
             <tr>
-                <th><a href="/ui/pr?sort=title">Title</a></th>
-                <th><a href="/ui/pr?sort=author">Author</a></th>
-                <th><a href="/ui/pr?sort=date:desc">Created</a></th>
-                <th><a href="/ui/pr?sort=labels">Labels</a></th>
-                <th><a href="/ui/pr?sort=repo">Repository</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'title')" href="#">Title</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'author')" href="#">Author</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'date:desc')" href="#">Created</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'labels')" href="#">Labels</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'repo')" href="#">Repository</a></th>
             </tr>
             </thead>
             <tbody>
-            {{#pullRequests}}
-                <tr>
+                <tr v-for="pr in allPrs">
                     <td>
-                        <a href="{{url}}" target="_blank">{{title}}</a>
-                        <a href="{{url}}" target="_blank" class="badge badge-secondary">#{{number}}</a>
+                        <a :href="pr.url" target="_blank">[[pr.title]]</a>
+                        <a :href="pr.url" target="_blank" class="badge badge-secondary">#[[pr.number]]</a>
                     </td>
-                    <td><a href="/ui/pr?filter=a:{{author.login}}">{{author.login}}</a></td>
-                    <td>{{createdAtStr}}</td>
+                    <td><a v-on:click="sortAndFilter('a:' + pr.author.login, null)" href="#">[[pr.author.login]]</a></td>
+                    <td>[[pr.createdAtStr]]</td>
                     <td>
-                        {{#labels.labels}}
-                            <a href="/ui/pr?filter=l:{{name}}" class="badge" style="color: white; text-decoration: none; background-color: #{{color}}">{{name}}</a>&nbsp;
-                        {{/labels.labels}}
+                        <a v-for="label in pr.labels.nodes" v-on:click="sortAndFilter('l:' + label.name, null)" href="#" class="badge" :style="'color: white; text-decoration: none; background-color: #' + label.color">[[label.name]]</a>&nbsp;
                     </td>
                     <td>
-                        {{#repository}}
-                        <a href="/ui/pr?filter=r:{{name}}">{{name}}</a>
-                        {{#parent}}
-                            <a href="{{url}}" target="_blank" class="badge badge-secondary">parent</a>
-                        {{/parent}}
-                        {{/repository}}
+                        <a v-on:click="sortAndFilter('r:' + pr.repoName, null)" href="#">[[pr.repoName]]</a>
+                        <a v-if="pr.parent !== null" :href="pr.parent.url" target="_blank" class="badge badge-secondary">parent</a>
                     </td>
                 </tr>
-            {{/pullRequests}}
             </tbody>
         </table>
     </div>
+</div>
+<script type="module">
+    import { initPrVue } from '/js/functions.js?12';
+    initPrVue('{{filter}}', '{{sort}}');
+</script>
 {{> footer}}
