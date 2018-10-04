@@ -3,23 +3,69 @@ function incrementLast(v) {
         return parseInt(match, 10)+1;
     });
 }
+
+const baseMethods = {
+ delimiters: ['[[', ']]'],
+ data: {
+    allItems: null,
+    errorMessage: '',
+},
+methods: {
+    checkCache: function (filter, sort) {
+        let currApp = this;
+        let intervalCheck = setInterval(function() {
+            const param = new Date().getTime();
+            axios.get(`/ui/checkCache`)
+            .then(function (response) {
+                if(response.data) {
+                    $('#bar').fadeOut();
+                    clearInterval(intervalCheck); 
+                    currApp.getAllProjects(filter, sort);
+                }
+            })
+            .catch(function () {
+                console.log("Error in loading projects.");
+            })
+        }, 100);
+    },
+    sortAndFilter: function(filter, sort) {
+        let currApp = this;
+        currApp.getAllProjects(filter, sort);
+    },
+    getAllProjects: function (filter, sort) {
+        let currApp = this;
+        axios.get(`/ui/${currApp.path}/show-all?filter=${filter}&sort=${sort}`)
+        .then(function (response) {
+            currApp.allItems = response.data;
+            currApp.additionalMethod(currApp);
+            if(currApp.allItems.length === 0) {
+                currApp.errorMessage = "Please clone all repositories to you local repositories!";
+            }
+        })
+        .catch(function () {
+         console.log("Error in loading projects.");
+     })
+    },
+    additionalMethod: function(data) {},
+}
+}
+
 export function initRelease() {
     return new Vue({
         el: '#releaseVue',
-        delimiters: ['[[', ']]'],
+        mixins: [baseMethods],
         data: {
             currentVersion: '',
             releaseVersion: '',
             nextDevVersion: '',
-            allModules: null,
             versions: null,
             selectedModules: [],
             startRelease: true,
-            errorMessage: '',
-            mode: false
+            mode: false,
+            path: 'release'
         },
         mounted: function(){
-            this.getAllProjects();
+            this.checkCache(null, null);
         },
         watch: {
             releaseVersion: function (val) {
@@ -28,24 +74,12 @@ export function initRelease() {
             }
         },
         methods: {
-            getAllProjects: function () {
-                let currApp = this;
-                axios.get(`/ui/release/show-all`)
-                .then(function (response) {
-                    $('#bar').fadeOut();
-                    currApp.allModules = response.data;
-                    let versionSet = new Set();
-                    for(let i = 0; i < currApp.allModules.length; i++) {
-                        versionSet.add(currApp.allModules[i].rootModule.version);
-                    }
-                    currApp.versions = Array.from(versionSet);
-                    if(currApp.allModules.length === 0) {
-                        currApp.errorMessage = "Please clone all repositories to you local repositories!";
-                    }
-                })
-                .catch(function () {
-                   console.log("Error in loading projects.");
-               })
+            additionalMethod: function(currApp) {
+                let versionSet = new Set();
+                for(let i = 0; i < currApp.allItems.length; i++) {
+                    versionSet.add(currApp.allItems[i].rootModule.version);
+                }
+                currApp.versions = Array.from(versionSet);
             },
             versionSelector: function () {
                 let currApp = this;
@@ -55,13 +89,13 @@ export function initRelease() {
                 axios.get(`/ui/release/show-projects?version=${this.currentVersion}`)
                 .then(function (response) {
                     currApp.selectedModules = [];
-                    currApp.allModules = response.data;
-                    if(currApp.allModules.length === 0) {
+                    currApp.allItems = response.data;
+                    if(currApp.allItems.length === 0) {
                         currApp.errorMessage = "Please clone all repositories to you local repositories!";
                     } else {
-                        for(let i = 0; i < currApp.allModules.length; i++) {
-                            if(currApp.allModules[i].disable === false){
-                                currApp.selectedModules.push(currApp.allModules[i].repository.name);
+                        for(let i = 0; i < currApp.allItems.length; i++) {
+                            if(currApp.allItems[i].disable === false){
+                                currApp.selectedModules.push(currApp.allItems[i].repository.name);
                             }
                         }
                         if(currApp.selectedModules.length === 0) {
@@ -72,8 +106,8 @@ export function initRelease() {
                     }
                 })
                 .catch(function () {
-                   console.log("Show projects for version error. Can't show projects for this version.");
-               })
+                 console.log("Show projects for version error. Can't show projects for this version.");
+             })
             },
             moduleSelect: function (project) {
                 let currApp = this;
@@ -98,8 +132,8 @@ export function initRelease() {
                     }
                 })
                 .catch(function () {
-                   console.log("Selection error. Can't display selected projects.");
-               })
+                 console.log("Selection error. Can't display selected projects.");
+             })
             },
             sendForm: function() {
                 $("#release-form").submit();
@@ -113,18 +147,17 @@ export function initRelease() {
 export function initExtraRollback() {
     return new Vue({
         el: '#extraRollback',
-        delimiters: ['[[', ']]'],
+        mixins: [baseMethods],
         data: {
             devVersion: '',
             releaseVersion: '',
             prevVersion: '',
-            allModules: null,
             selectedModules: [],
             startRollback: true,
-            errorMessage: ''
+            path: 'release'
         },
         mounted: function(){
-            this.getAllProjects();
+            this.checkCache(null, null);
         },
         watch: {
             selectedModules: function (val) {
@@ -149,20 +182,6 @@ export function initExtraRollback() {
                     currApp.startRollback = true;
                 }
             },
-            getAllProjects: function () {
-                let currApp = this;
-                axios.get(`/ui/release/show-all`)
-                .then(function (response) {
-                    $('#bar').fadeOut();
-                    currApp.allModules = response.data;
-                    if(currApp.allModules.length === 0) {
-                        currApp.errorMessage = "Please clone all repositories to you local repositories!";
-                    }
-                })
-                .catch(function () {
-                   console.log("Error in loading projects.");
-               })
-            },
             sendForm: function() {
                 $("#rollbackForm").submit();
                 $("#confirm-modal").modal('hide');
@@ -175,50 +194,20 @@ export function initExtraRollback() {
 export function initMavenVue() {
     return new Vue({
         el: '#mavenVue',
-        delimiters: ['[[', ']]'],
+        mixins: [baseMethods],
         data: {
-            allModules: null,
             showProcess: false,
             progress: 0,
             statusArr: null,
-            errorMessage: '',
-            verifyButton: true
+            verifyButton: true,
+            path: 'release'
         },
         mounted: function(){
-         this.checkCache();
-     },
-     methods: {
-        checkCache: function () {
-            let currApp = this;
-            let intervalCheck = setInterval(function() {
-                const param = new Date().getTime();
-                axios.get(`/ui/checkCache`)
-                .then(function (response) {
-                    if(response.data) {
-                        $('#bar').fadeOut();
-                        clearInterval(intervalCheck); 
-                        currApp.getAllProjects();
-                    }
-                })
-                .catch(function () {
-                    console.log("Error in loading projects.");
-                })
-            }, 100);
-        },
-        getAllProjects: function () {
-            let currApp = this;
-            axios.get(`/ui/release/show-all`)
-            .then(function (response) {
-                currApp.allModules = response.data;
-                $('#bar').fadeOut();
-                currApp.verifyButton = false;
-                if(currApp.allModules.length === 0) {
-                    currApp.errorMessage = "Please clone all repositories to you local repositories!";
-                }
-            })
-            .catch(function () {
-               console.log("Error in loading projects.");
-           })
+           this.checkCache(null, null);
+       },
+       methods: {
+        additionalMethod: function(app) {
+            app.verifyButton = false;
         },
         verify: function() {
             let currApp = this;
@@ -257,13 +246,11 @@ export function initMavenVue() {
 export function initMilestoneView() {
     return new Vue({
         el: '#milestonesVue',
-        delimiters: ['[[', ']]'],
+        mixins: [baseMethods],
         data: {
             milestoneTitle: '',
             milestoneNewTitle: '',
             selectedModules: [],
-            allModules: [],
-            errorMessage: '',
             showButton: true,
             checked: false,
             progress: 0,
@@ -272,14 +259,15 @@ export function initMilestoneView() {
             milestones: null,
             currentAction: '',
             showModalButton: true,
-            disableSelection: true
+            disableSelection: true,
+            path: 'milestone'
         },
         mounted: function(){
-         this.checkCache();
-         this.statusMap = new Map();
-         this.errorMap = new Map();
-     },
-     watch: {
+           this.checkCache(null, null);
+           this.statusMap = new Map();
+           this.errorMap = new Map();
+       },
+       watch: {
         selectedModules: function (val) {
             this.disableStartButton();
         },
@@ -293,31 +281,14 @@ export function initMilestoneView() {
             let currApp = this;
             currApp.selectedModules = [];
             if(val === true) {
-                console.log(currApp.allModules.length);
-                for(var i = 0; i < currApp.allModules.length; i++) {
-                    currApp.selectedModules.push(currApp.allModules[i].repository.name);
+                console.log(currApp.allItems.length);
+                for(var i = 0; i < currApp.allItems.length; i++) {
+                    currApp.selectedModules.push(currApp.allItems[i].repository.name);
                 }
             }
         }
     },
     methods: {
-        checkCache: function () {
-            let currApp = this;
-            let intervalCheck = setInterval(function() {
-                const param = new Date().getTime();
-                axios.get(`/ui/checkCache`)
-                .then(function (response) {
-                    if(response.data) {
-                        $('#bar').fadeOut();
-                        clearInterval(intervalCheck); 
-                        currApp.getAllProjects();
-                    }
-                })
-                .catch(function () {
-                    console.log("Error in loading projects.");
-                })
-            }, 100);
-        },
         disableActionButton: function() {
             let currApp = this;
             if(currApp.currentAction === 'Create') {
@@ -348,20 +319,6 @@ export function initMilestoneView() {
                 currApp.showButton = true;
             }
         },
-        getAllProjects: function () {
-            let currApp = this;
-            axios.get(`/ui/milestone/show-all`)
-            .then(function (response) {
-             currApp.allModules = response.data;
-             $('#bar').fadeOut();
-             if(currApp.allModules.length === 0) {
-                currApp.errorMessage = "Please clone all repositories to you local repositories!";
-            }
-        })
-            .catch(function () {
-               console.log("Error in loading projects.");
-           })
-        },
         getMilestones: function(val) {
             let currApp = this;
             currApp.disableSelection = true;
@@ -375,8 +332,8 @@ export function initMilestoneView() {
                 currApp.disableSelection = false;
             })
             .catch(function () {
-               console.log("Error in getting milestones.");
-           })
+             console.log("Error in getting milestones.");
+         })
             $("#milestone-modal").modal('show');
         },
         controlUI: function(val) {
@@ -399,8 +356,8 @@ export function initMilestoneView() {
                 $("#milestone-modal").modal('hide');
             })
             .catch(function () {
-               console.log("Error in creating milestones.");
-           })
+             console.log("Error in creating milestones.");
+         })
         },
         checkStatus: function() {
           let currApp = this;
@@ -409,12 +366,12 @@ export function initMilestoneView() {
             axios.get(`/ui/release/process/status?time=${param}`)
             .then(function (response) {
               currApp.progress = response.data.percent.percent;
-              for(let i = 0 ; i < currApp.allModules.length; i++) {
+              for(let i = 0 ; i < currApp.allItems.length; i++) {
                 for(let j = 0; j < response.data.results.length; j++) {
-                    if(currApp.allModules[i].repository.name === response.data.results[j].data.repository.name) {
-                        currApp.allModules[i] = response.data.results[j].data;
-                        currApp.statusMap.set(currApp.allModules[i], response.data.results[j].status);
-                        currApp.errorMap.set(currApp.allModules[i], response.data.results[j].result);
+                    if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
+                        currApp.allItems[i] = response.data.results[j].data;
+                        currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
+                        currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
                     }
                 }
             }
@@ -435,53 +392,16 @@ export function initMilestoneView() {
 export function initRepoVue() {
     return new Vue({
         el: '#repoVue',
-        delimiters: ['[[', ']]'],
+        mixins: [baseMethods],
         data: {
-            allRepos: null,
-            errorMessage: ''
+            path: 'repo'
         },
         mounted: function(){
-         this.checkCache();
-     },
-     methods: {
-        checkCache: function () {
-            let currApp = this;
-            let intervalCheck = setInterval(function() {
-                const param = new Date().getTime();
-                axios.get(`/ui/checkCache`)
-                .then(function (response) {
-                    if(response.data) {
-                        $('#bar').fadeOut();
-                        clearInterval(intervalCheck); 
-                        currApp.getAllProjects();
-                    }
-                })
-                .catch(function () {
-                    console.log("Error in loading projects.");
-                })
-            }, 100);
-        },        
-        sort: function(val) {
-            let currApp = this;
-            currApp.getAllProjects(val);
-        },
-        getAllProjects: function (val) {
-            let currApp = this;
-            axios.get(`/ui/show-all?sort=${val}`)
-            .then(function (response) {
-                currApp.allRepos = response.data;
-                if(currApp.allRepos.length === 0) {
-                    currApp.errorMessage = "Please clone all repositories to you local repositories!";
-                }
-            })
-            .catch(function () {
-               console.log("Error in loading projects.");
-           })
-        },
+           this.checkCache(null, null);
+       },
+       methods: {       
         repoView: function(repo, type) {
-            const btn = $(this);
-            btn.attr('disabled', true);
-            $.get(`/ui/git/open?repo=${repo}&type=${type}`, () => btn.attr('disabled', false));
+            $.get(`/ui/git/open?repo=${repo}&type=${type}`, () => console.log('Show repo'));
         },
         repoClone: function(repo) {
             const btn = document.getElementById(repo);
@@ -500,92 +420,29 @@ export function initRepoVue() {
 export function initPrVue(baseFilter, baseSort) {
     return new Vue({
         el: '#prVue',
-        delimiters: ['[[', ']]'],
+        mixins: [baseMethods],
         data: {
-            allPrs: null,
-            errorMessage: ''
+            path: 'pr'
         },
         mounted: function(){
-         this.checkCache();
-     },
-     methods: {
-        checkCache: function () {
-            let currApp = this;
-            let intervalCheck = setInterval(function() {
-                const param = new Date().getTime();
-                axios.get(`/ui/checkCache`)
-                .then(function (response) {
-                    if(response.data) {
-                        $('#bar').fadeOut();
-                        clearInterval(intervalCheck); 
-                        currApp.getAllProjects(baseFilter, baseSort);
-                    }
-                })
-                .catch(function () {
-                    console.log("Error in loading projects.");
-                })
-            }, 100);
-        },
-        sortAndFilter: function(filter, sort) {
-            let currApp = this;
-            currApp.getAllProjects(filter, sort);
-        },
-        getAllProjects: function (filter, sort) {
-            let currApp = this;
-            axios.get(`/ui/pr/show-all?filter=${filter}&sort=${sort}`)
-            .then(function (response) {
-                currApp.allPrs = response.data;
-            })
-            .catch(function () {
-               console.log("Error in loading projects.");
-           })
-        },
-    }
-});
+           this.checkCache(baseFilter, baseSort);
+       },
+       methods: {
+       }
+   });
 }
+
 export function initIssueVue(baseFilters, baseSort) {
     return new Vue({
         el: '#issueVue',
-        delimiters: ['[[', ']]'],
+        mixins: [baseMethods],
         data: {
-            allIssues: null,
-            errorMessage: '',
+            path: 'issue'
         },
         mounted: function(){
-         this.checkCache();
-     },
-     methods: {
-        checkCache: function () {
-            let currApp = this;
-            let intervalCheck = setInterval(function() {
-                const param = new Date().getTime();
-                axios.get(`/ui/checkCache`)
-                .then(function (response) {
-                    if(response.data) {
-                        $('#bar').fadeOut();
-                        clearInterval(intervalCheck); 
-                        currApp.getAllProjects(baseFilters, baseSort);
-                    }
-                })
-                .catch(function () {
-                    console.log("Error in loading projects.");
-                })
-            }, 100);
-        },
-        sortAndFilter: function(filter, sort) {
-            let currApp = this;
-            currApp.getAllProjects(filter, sort);
-        },
-        getAllProjects: function (filter, sort) {
-            let currApp = this;
-            axios.get(`/ui/issue/show-all?filter=${filter}&sort=${sort}`)
-            .then(function (response) {
-                currApp.allIssues = response.data;
-            })
-            .catch(function () {
-               console.log("Error in loading projects.");
-           })
-        },
-    }
-});
+           this.checkCache(baseFilters, baseSort);
+       },
+       methods: {
+       }
+   });
 }

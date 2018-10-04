@@ -10,10 +10,10 @@
         <table class="table table-striped table-bordered">
             <thead>
             <tr>
-                <th><a v-on:click="sort('name')" href="#">Repository</a></th>
-                <th><a v-on:click="sort('pr:desc')" href="#">PR</a></th>
-                <th><a v-on:click="sort('issue:desc')" href="#">issues</a></th>
-                <th><a v-on:click="sort('date:desc')" href="#">last push</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'name')" href="#">Repository</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'pr:desc')" href="#">PR</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'issue:desc')" href="#">issues</a></th>
+                <th><a v-on:click="sortAndFilter(null, 'date:desc')" href="#">last push</a></th>
                 <th>milestones</th>
                 <th>local copy
                     <button type="button" class="btn btn-sm btn-outline-primary" id="btn-folder-setup">
@@ -31,7 +31,7 @@
             </tr>
             </thead>
             <tbody>
-                <tr v-for="repo in allRepos">
+                <tr v-for="repo in allItems">
                     <td>
                         <a :href="repo.url" target="_blank">[[repo.name]]</a>
                         <a v-if="repo.parent !== null" :href="repo.parent.url" target="_blank" class="badge badge-secondary">parent</a>
@@ -69,7 +69,7 @@
 
 </div>
 <script type="module">
-    import { initRepoVue } from '/js/functions.js?12345';
+    import { initRepoVue } from '/js/functions.js';
     initRepoVue();
 </script>
 

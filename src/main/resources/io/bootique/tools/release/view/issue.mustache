@@ -18,7 +18,7 @@
             </tr>
             </thead>
             <tbody>
-                <tr v-for="issue in allIssues">
+                <tr v-for="issue in allItems">
                     <td>
                         <a :href="issue.url" target="_blank">[[issue.title]]</a>
                         <a :href="issue.url" target="_blank" class="badge badge-secondary">#[[issue.number]]</a>
@@ -44,7 +44,7 @@
     </div>
 </div>
 <script type="module">
-    import { initIssueVue } from '/js/functions.js?12345';
-    initIssueVue('{{defaultFilters}}', '{{defaultSort}}');
+    import { initIssueVue } from '/js/functions.js';
+    initIssueVue('{{filters}}', '{{sort}}');
 </script>
 {{> footer}}

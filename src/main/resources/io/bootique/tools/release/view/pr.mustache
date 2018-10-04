@@ -17,7 +17,7 @@
             </tr>
             </thead>
             <tbody>
-                <tr v-for="pr in allPrs">
+                <tr v-for="pr in allItems">
                     <td>
                         <a :href="pr.url" target="_blank">[[pr.title]]</a>
                         <a :href="pr.url" target="_blank" class="badge badge-secondary">#[[pr.number]]</a>
@@ -37,7 +37,7 @@
     </div>
 </div>
 <script type="module">
-    import { initPrVue } from '/js/functions.js?12';
+    import { initPrVue } from '/js/functions.js';
     initPrVue('{{filter}}', '{{sort}}');
 </script>
 {{> footer}}

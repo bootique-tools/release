@@ -73,9 +73,9 @@ public class RepoController extends BaseController {
     }
 
     @GET
-    @Path("/show-all")
+    @Path("repo/show-all")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Repository> showAll(@QueryParam("sort") String sort) {
+    public List<Repository> showAll(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
         Organization organization = gitHubApi.getCurrentOrganization();
         return contentService.getRepositories(organization, r -> true, getComparator(sort));
     }
