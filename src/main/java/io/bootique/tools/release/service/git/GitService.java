@@ -19,11 +19,15 @@ public interface GitService {
 
     void addAndCommit(Repository repository);
 
-    void createBranch(Repository repository, String name);
+    void createBranch(Repository repository, String branchTitle);
 
     String getCurrentBranchName(String name);
 
-    boolean getStatus(String name);
+    boolean getStatus(String namet);
+
+    String[] getBranches(String name);
+
+    String checkoutBranch(Repository repository, String branchTitle);
 
     enum GitStatus {
         OK,

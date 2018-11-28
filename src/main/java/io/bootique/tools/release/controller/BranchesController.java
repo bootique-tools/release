@@ -60,9 +60,31 @@ public class BranchesController extends DefaultBaseController{
                 }
                 return "";
             } catch (DesktopException ex) {
+                project.setBranchName(gitService.getCurrentBranchName(project.getRepository().getName()));
                 throw new JobException(ex.getMessage(), ex);
             }
         };
         startJob(repoProcessor, selectedModules);
     }
+
+    @GET
+    @Path("/checkoutBranch")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void checkoutBranch(@QueryParam("branchTitle") String title,
+                             @QueryParam("selectedModules") String selectedModules) throws IOException {
+        Function<Project, String> repoProcessor = project -> {
+            try {
+                Repository repository = project.getRepository();
+                gitService.checkoutBranch(repository, title);
+                project.setBranchName(title);
+                return "";
+            } catch (DesktopException ex) {
+                project.setBranchName(gitService.getCurrentBranchName(project.getRepository().getName()));
+                throw new JobException(ex.getMessage(), ex);
+            }
+        };
+        startJob(repoProcessor, selectedModules);
+    }
+
 }

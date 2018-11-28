@@ -474,15 +474,15 @@ export function initBranchView() {
             },
         },
         methods: {
-            createBranches: function() {
+            startTask: function(task) {
                 let currApp = this;
                 currApp.progress = 0;
-                axios.get(`/ui/branches/createBranch?branchTitle=${this.branchTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
+                axios.get(`/ui/branches/${String(task)}?branchTitle=${this.branchTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                 .then(function (response) {
                     currApp.checkStatus();
                 })
                 .catch(function () {
-                   console.log("Error in creating branches.");
+                   console.log("Error in " + task);
                })
             },
         }

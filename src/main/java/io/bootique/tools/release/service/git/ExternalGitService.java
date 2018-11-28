@@ -2,6 +2,7 @@ package io.bootique.tools.release.service.git;
 
 import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.release.ReleaseService;
@@ -70,10 +71,10 @@ public class ExternalGitService implements GitService {
     }
 
     @Override
-    public void createBranch(Repository repository, String name) {
+    public void createBranch(Repository repository, String branchTitle) {
         Path target = getBasePathOrThrow().resolve(repository.getName());
-        desktopService.runCommand(target, "git", "checkout", "-b", name);
-        desktopService.runCommand(target, "git", "push", "-u", "origin", name);
+        desktopService.runCommand(target, "git", "checkout", "-b", branchTitle);
+        desktopService.runCommand(target, "git", "push", "-u", "origin", branchTitle);
     }
 
     @Override
@@ -86,6 +87,30 @@ public class ExternalGitService implements GitService {
     public boolean getStatus(String name) {
         Path target = getBasePathOrThrow().resolve(name);
         return desktopService.runCommand(target, "git", "status").contains("nothing to commit, working tree clean");
+    }
+
+    @Override
+    public String[] getBranches(String name) {
+        Path target = getBasePathOrThrow().resolve(name);
+        return desktopService.runCommand(target, "git", "branch").split("\n");
+    }
+
+    @Override
+    public String checkoutBranch(Repository repository, String branchTitle) {
+        Path target = getBasePathOrThrow().resolve(repository.getName());
+        String[] branches = getBranches(repository.getName());
+        for(String branch : branches) {
+            branch = branch.replaceAll("\\s","");
+            branch = branch.startsWith("*") ? branch.substring(1) : branch;
+            if(branch.equals(branchTitle)) {
+                if(getStatus(repository.getName())) {
+                    return desktopService.runCommand(target, "git", "checkout", branchTitle);
+                } else {
+                    throw new DesktopException("You have uncommited changes in " + repository.getName());
+                }
+            }
+        }
+        throw new DesktopException("Error while checkout to " + branchTitle + " in " + repository.getName() + ". Branch not found.");
     }
 
     private Path getBasePathOrThrow() {

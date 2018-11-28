@@ -2,11 +2,14 @@
 
 <div id="branchVue">
     <div class="row" style="margin-top:2rem;">
-        <div class="col-sm-6" style="text-align:center;">
+        <div class="col-sm-4" style="text-align:center;">
             <input type="text" v-model="branchTitle" placeholder="Branch New Title"/>
         </div>
-        <div class="col-sm-6" style="text-align:center;">
-            <button v-bind:disabled="showButton" type="submit" class="btn btn-sm btn-outline-primary" v-on:click="createBranches()">Create branch</button>
+        <div class="col-sm-4" style="text-align:center;">
+            <button v-bind:disabled="showButton" type="submit" class="btn btn-sm btn-outline-primary" v-on:click="startTask('createBranch')">Create branch</button>
+        </div>
+        <div class="col-sm-4" style="text-align:center;">
+            <button v-bind:disabled="showButton" type="submit" class="btn btn-sm btn-outline-primary" v-on:click="startTask('checkoutBranch')">Checkout branch</button>
         </div>
     </div>
     <div class="progress-style">
@@ -70,7 +73,7 @@
 
 
 <script type="module">
-    import { initBranchView } from '/js/functions.js';
+    import { initBranchView } from '/js/functions.js?1234';
     initBranchView();
 </script>
 
