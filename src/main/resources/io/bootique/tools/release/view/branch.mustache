@@ -1,0 +1,77 @@
+{{> header}}
+
+<div id="branchVue">
+    <div class="row" style="margin-top:2rem;">
+        <div class="col-sm-6" style="text-align:center;">
+            <input type="text" v-model="branchTitle" placeholder="Branch New Title"/>
+        </div>
+        <div class="col-sm-6" style="text-align:center;">
+            <button v-bind:disabled="showButton" type="submit" class="btn btn-sm btn-outline-primary" v-on:click="createBranches()">Create branch</button>
+        </div>
+    </div>
+    <div class="progress-style">
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" v-bind:style="{width: progress + '%' }">
+                [[Math.round(progress)]]
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="projects">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <tr>
+                            <th>Select All <input type="checkbox" v-model="checked"></th>
+                            <th>Module</th>
+                            <th>Version</th>
+                            <th>Current branch</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="module in allItems">
+                            <td><input type="checkbox" v-bind:id="module.repository.name" v-bind:value="module.repository.name"  v-model.lazy="selectedModules"></td>
+                            <td><label v-bind:for="module.repository.name"><a v-bind:href="module.repository.url" target="_blank">[[module.repository.name]]</a></label></td>
+                            <td>[[module.rootModule.version]]</td>
+                            <td>[[module.branchName]]</td>
+                            <td>
+                                [[statusMap.get(module)]]
+                            </td>
+                            <td>
+                                <button v-if="errorMap.get(module)" class="btn btn-sm btn-outline-primary btn-verify-results" data-toggle="modal" :data-target="'.verify-result-' + module.rootModule.id">
+                                    <i class="far fa-eye"></i>
+                                </button>
+                                <div v-bind:class="'modal fade verify-result-' + module.rootModule.id" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content p-2 m-2">
+                                            <pre><code>[[errorMap.get(module)]]</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p style="text-align:center">[[errorMessage]]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="progress-style">
+        <div id="bar" class="indeterminate-progress-bar active">
+            <div class="progress-block single-segment"></div>
+        </div>
+    </div>
+</div>
+
+
+
+<script type="module">
+    import { initBranchView } from '/js/functions.js';
+    initBranchView();
+</script>
+
+{{> footer}}

@@ -5,8 +5,8 @@ function incrementLast(v) {
 }
 
 const baseMethods = {
- delimiters: ['[[', ']]'],
- data: {
+   delimiters: ['[[', ']]'],
+   data: {
     allItems: null,
     errorMessage: '',
 },
@@ -39,12 +39,12 @@ methods: {
             currApp.allItems = response.data;
             currApp.additionalMethod(currApp);
             if(currApp.allItems.length === 0) {
-                currApp.errorMessage = "Please clone all repositories to you local repositories!";
+                currApp.errorMessage = "Please clone all repositories to your local repositories!";
             }
         })
         .catch(function () {
-         console.log("Error in loading projects.");
-     })
+           console.log("Error in loading projects.");
+       })
     },
     additionalMethod: function(data) {},
 }
@@ -91,7 +91,7 @@ export function initRelease() {
                     currApp.selectedModules = [];
                     currApp.allItems = response.data;
                     if(currApp.allItems.length === 0) {
-                        currApp.errorMessage = "Please clone all repositories to you local repositories!";
+                        currApp.errorMessage = "Please clone all repositories to your local repositories!";
                     } else {
                         for(let i = 0; i < currApp.allItems.length; i++) {
                             if(currApp.allItems[i].disable === false){
@@ -106,8 +106,8 @@ export function initRelease() {
                     }
                 })
                 .catch(function () {
-                 console.log("Show projects for version error. Can't show projects for this version.");
-             })
+                   console.log("Show projects for version error. Can't show projects for this version.");
+               })
             },
             moduleSelect: function (project) {
                 let currApp = this;
@@ -132,8 +132,8 @@ export function initRelease() {
                     }
                 })
                 .catch(function () {
-                 console.log("Selection error. Can't display selected projects.");
-             })
+                   console.log("Selection error. Can't display selected projects.");
+               })
             },
             sendForm: function() {
                 $("#release-form").submit();
@@ -203,9 +203,9 @@ export function initMavenVue() {
             path: 'release'
         },
         mounted: function(){
-           this.checkCache(null, null);
-       },
-       methods: {
+         this.checkCache(null, null);
+     },
+     methods: {
         additionalMethod: function(app) {
             app.verifyButton = false;
         },
@@ -242,153 +242,6 @@ export function initMavenVue() {
 });
 }
 
-
-export function initMilestoneView() {
-    return new Vue({
-        el: '#milestonesVue',
-        mixins: [baseMethods],
-        data: {
-            milestoneTitle: '',
-            milestoneNewTitle: '',
-            selectedModules: [],
-            showButton: true,
-            checked: false,
-            progress: 0,
-            statusMap: null,
-            errorMap: null,
-            milestones: null,
-            currentAction: '',
-            showModalButton: true,
-            disableSelection: true,
-            path: 'milestone'
-        },
-        mounted: function(){
-           this.checkCache(null, null);
-           this.statusMap = new Map();
-           this.errorMap = new Map();
-       },
-       watch: {
-        selectedModules: function (val) {
-            this.disableStartButton();
-        },
-        milestoneTitle: function(val) {
-            this.disableActionButton();
-        },
-        milestoneNewTitle: function(val) {
-            this.disableActionButton();
-        },
-        checked: function(val) {
-            let currApp = this;
-            currApp.selectedModules = [];
-            if(val === true) {
-                console.log(currApp.allItems.length);
-                for(var i = 0; i < currApp.allItems.length; i++) {
-                    currApp.selectedModules.push(currApp.allItems[i].repository.name);
-                }
-            }
-        }
-    },
-    methods: {
-        disableActionButton: function() {
-            let currApp = this;
-            if(currApp.currentAction === 'Create') {
-                if(currApp.milestoneNewTitle) {
-                    currApp.showModalButton = false;
-                } else {
-                    currApp.showModalButton = true;
-                }
-            } else if(currApp.currentAction === 'Close') {
-                if(currApp.milestoneTitle) {
-                    currApp.showModalButton = false;
-                } else {
-                    currApp.showModalButton = true;
-                }
-            } else {
-                if(currApp.milestoneNewTitle && currApp.milestoneTitle) {
-                    currApp.showModalButton = false;
-                } else {
-                    currApp.showModalButton = true;
-                }
-            }
-        },
-        disableStartButton: function() {
-            let currApp = this;
-            if(currApp.selectedModules.length !== 0) {
-                currApp.showButton = false;
-            } else {
-                currApp.showButton = true;
-            }
-        },
-        getMilestones: function(val) {
-            let currApp = this;
-            currApp.disableSelection = true;
-            currApp.currentAction = val;
-            currApp.milestoneTitle = '';
-            currApp.milestoneNewTitle = '';
-            currApp.controlUI(val);
-            axios.get(`/ui/milestone/getMilestones?selectedModules=${JSON.stringify(currApp.selectedModules)}`)
-            .then(function (response) {
-                currApp.milestones = response.data;
-                currApp.disableSelection = false;
-            })
-            .catch(function () {
-             console.log("Error in getting milestones.");
-         })
-            $("#milestone-modal").modal('show');
-        },
-        controlUI: function(val) {
-            if(val === 'Create') {
-                $(".milestone-new-title").css('display', 'block');
-                $(".milestone-combo-box").css('display', 'none');
-            } else if(val === 'Close') {
-                $(".milestone-new-title").css('display', 'none');
-                $(".milestone-combo-box").css('display', 'block');
-            } else {
-                $(".milestone-new-title").css('display', 'block');
-                $(".milestone-combo-box").css('display', 'block');
-            }
-        },
-        start: function(val) {
-            let currApp = this;
-            axios.get(`/ui/milestone/${String(val).toLowerCase()}?milestoneTitle=${this.milestoneTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}&milestoneNewTitle=${this.milestoneNewTitle}`)
-            .then(function (response) {
-                currApp.checkStatus();
-                $("#milestone-modal").modal('hide');
-            })
-            .catch(function () {
-             console.log("Error in creating milestones.");
-         })
-        },
-        checkStatus: function() {
-          let currApp = this;
-          let intervalCheck = setInterval(function() {
-            const param = new Date().getTime();
-            axios.get(`/ui/release/process/status?time=${param}`)
-            .then(function (response) {
-              currApp.progress = response.data.percent.percent;
-              for(let i = 0 ; i < currApp.allItems.length; i++) {
-                for(let j = 0; j < response.data.results.length; j++) {
-                    if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
-                        currApp.allItems[i] = response.data.results[j].data;
-                        currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
-                        currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
-                    }
-                }
-            }
-
-            if(response.data.percent.percent === 100) {
-                clearInterval(intervalCheck); 
-            }
-        })
-            .catch(function (){
-              console.log("Error in checking status.");
-          })
-        }, 100);
-      },
-  }
-});
-}
-
 export function initRepoVue() {
     return new Vue({
         el: '#repoVue',
@@ -397,9 +250,9 @@ export function initRepoVue() {
             path: 'repo'
         },
         mounted: function(){
-           this.checkCache(null, null);
-       },
-       methods: {       
+         this.checkCache(null, null);
+     },
+     methods: {       
         repoView: function(repo, type) {
             $.get(`/ui/git/open?repo=${repo}&type=${type}`, () => console.log('Show repo'));
         },
@@ -425,11 +278,11 @@ export function initPrVue(baseFilter, baseSort) {
             path: 'pr'
         },
         mounted: function(){
-           this.checkCache(baseFilter, baseSort);
-       },
-       methods: {
-       }
-   });
+         this.checkCache(baseFilter, baseSort);
+     },
+     methods: {
+     }
+ });
 }
 
 export function initIssueVue(baseFilters, baseSort) {
@@ -440,9 +293,198 @@ export function initIssueVue(baseFilters, baseSort) {
             path: 'issue'
         },
         mounted: function(){
-           this.checkCache(baseFilters, baseSort);
-       },
-       methods: {
-       }
-   });
+         this.checkCache(baseFilters, baseSort);
+     },
+     methods: {
+     }
+ });
+}
+
+const defaultBaseMethods = {
+   delimiters: ['[[', ']]'],
+   mixins: [baseMethods],
+   data: {
+    selectedModules: [],
+    statusMap: null,
+    errorMap: null,
+    showButton: true,
+    progress: 0,
+},
+mounted: function(){
+ this.checkCache(null, null);
+ this.statusMap = new Map();
+ this.errorMap = new Map();
+},
+watch: {
+    checked: function(val) {
+        let currApp = this;
+        currApp.selectedModules = [];
+        if(val === true) {
+            for(var i = 0; i < currApp.allItems.length; i++) {
+                currApp.selectedModules.push(currApp.allItems[i].repository.name);
+            }
+        }
+    },
+},
+methods: {
+    disableStartButton: function() {
+        let currApp = this;
+        if(currApp.selectedModules.length !== 0) {
+            currApp.showButton = false;
+        } else {
+            currApp.showButton = true;
+        }
+    },
+    checkStatus: function() {
+      let currApp = this;
+      let intervalCheck = setInterval(function() {
+        const param = new Date().getTime();
+        axios.get(`/ui/release/process/status?time=${param}`)
+        .then(function (response) {
+          currApp.progress = response.data.percent.percent;
+          for(let i = 0 ; i < currApp.allItems.length; i++) {
+            for(let j = 0; j < response.data.results.length; j++) {
+                if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
+                    currApp.allItems[i] = response.data.results[j].data;
+                    currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
+                    currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
+                }
+            }
+        }
+
+        if(response.data.percent.percent === 100) {
+            clearInterval(intervalCheck);
+        }
+    })
+        .catch(function (){
+          console.log("Error in checking status.");
+      })
+    }, 100);
+  },
+}
+}
+
+export function initMilestoneView() {
+    return new Vue({
+        el: '#milestonesVue',
+        mixins: [defaultBaseMethods],
+        data: {
+            milestoneTitle: '',
+            milestoneNewTitle: '',
+            checked: false,
+            milestones: null,
+            currentAction: '',
+            showModalButton: true,
+            disableSelection: true,
+            path: 'milestone'
+        },
+        watch: {
+            selectedModules: function (val) {
+                this.disableStartButton();
+            },
+            milestoneTitle: function(val) {
+                this.disableActionButton();
+            },
+            milestoneNewTitle: function(val) {
+                this.disableActionButton();
+            },
+        },
+        methods: {
+            disableActionButton: function() {
+                let currApp = this;
+                if(currApp.currentAction === 'Create') {
+                    if(currApp.milestoneNewTitle) {
+                        currApp.showModalButton = false;
+                    } else {
+                        currApp.showModalButton = true;
+                    }
+                } else if(currApp.currentAction === 'Close') {
+                    if(currApp.milestoneTitle) {
+                        currApp.showModalButton = false;
+                    } else {
+                        currApp.showModalButton = true;
+                    }
+                } else {
+                    if(currApp.milestoneNewTitle && currApp.milestoneTitle) {
+                        currApp.showModalButton = false;
+                    } else {
+                        currApp.showModalButton = true;
+                    }
+                }
+            },
+            getMilestones: function(val) {
+                let currApp = this;
+                currApp.disableSelection = true;
+                currApp.currentAction = val;
+                currApp.milestoneTitle = '';
+                currApp.milestoneNewTitle = '';
+                currApp.controlUI(val);
+                axios.get(`/ui/milestone/getMilestones?selectedModules=${JSON.stringify(currApp.selectedModules)}`)
+                .then(function (response) {
+                    currApp.milestones = response.data;
+                    currApp.disableSelection = false;
+                })
+                .catch(function () {
+                   console.log("Error in getting milestones.");
+               })
+                $("#milestone-modal").modal('show');
+            },
+            controlUI: function(val) {
+                if(val === 'Create') {
+                    $(".milestone-new-title").css('display', 'block');
+                    $(".milestone-combo-box").css('display', 'none');
+                } else if(val === 'Close') {
+                    $(".milestone-new-title").css('display', 'none');
+                    $(".milestone-combo-box").css('display', 'block');
+                } else {
+                    $(".milestone-new-title").css('display', 'block');
+                    $(".milestone-combo-box").css('display', 'block');
+                }
+            },
+            start: function(val) {
+                let currApp = this;
+                axios.get(`/ui/milestone/${String(val).toLowerCase()}?milestoneTitle=${this.milestoneTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}&milestoneNewTitle=${this.milestoneNewTitle}`)
+                .then(function (response) {
+                    currApp.checkStatus();
+                    $("#milestone-modal").modal('hide');
+                })
+                .catch(function () {
+                   console.log("Error in creating milestones.");
+               })
+            },
+        }
+    });
+}
+
+export function initBranchView() {
+    return new Vue({
+        el: '#branchVue',
+        mixins: [defaultBaseMethods],
+        data: {
+            checked: false,
+            branchTitle: '',
+            path: 'branches'
+        },
+        watch: {
+            selectedModules: function (val) {
+                this.disableStartButton();
+            },
+            branchTitle: function (val) {
+                this.disableStartButton();
+            },
+        },
+        methods: {
+            createBranches: function() {
+                let currApp = this;
+                currApp.progress = 0;
+                axios.get(`/ui/branches/createBranch?branchTitle=${this.branchTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
+                .then(function (response) {
+                    currApp.checkStatus();
+                })
+                .catch(function () {
+                   console.log("Error in creating branches.");
+               })
+            },
+        }
+    });
 }

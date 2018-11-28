@@ -69,6 +69,25 @@ public class ExternalGitService implements GitService {
         desktopService.runCommand(target, "git", "push", "origin", "master");
     }
 
+    @Override
+    public void createBranch(Repository repository, String name) {
+        Path target = getBasePathOrThrow().resolve(repository.getName());
+        desktopService.runCommand(target, "git", "checkout", "-b", name);
+        desktopService.runCommand(target, "git", "push", "-u", "origin", name);
+    }
+
+    @Override
+    public String getCurrentBranchName(String name) {
+        Path target = getBasePathOrThrow().resolve(name);
+        return desktopService.runCommand(target, "git", "rev-parse", "--abbrev-ref", "HEAD").replace("\n", "");
+    }
+
+    @Override
+    public boolean getStatus(String name) {
+        Path target = getBasePathOrThrow().resolve(name);
+        return desktopService.runCommand(target, "git", "status").contains("nothing to commit, working tree clean");
+    }
+
     private Path getBasePathOrThrow() {
         return preferenceService.get(BASE_PATH_PREFERENCE);
     }

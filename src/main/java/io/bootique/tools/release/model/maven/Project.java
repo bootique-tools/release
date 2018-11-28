@@ -24,6 +24,8 @@ public class Project implements Comparable<Project> {
 
     private Set<Project> dependencies;
 
+    private String branchName;
+
     public Project(){}
 
     public Project(Repository repository, Path path, Module rootModule) {
@@ -100,5 +102,13 @@ public class Project implements Comparable<Project> {
 
     public void setDisable(boolean disable) {
         this.disable = disable;
+    }
+
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
     }
 }

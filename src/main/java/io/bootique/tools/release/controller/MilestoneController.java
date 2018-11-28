@@ -6,11 +6,9 @@ import io.bootique.tools.release.model.github.Issue;
 import io.bootique.tools.release.model.github.Milestone;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.github.GitHubRestAPI;
-import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.view.MilestonesView;
@@ -32,16 +30,13 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Path("milestone")
-public class MilestoneController extends BaseController {
+public class MilestoneController extends DefaultBaseController {
 
     @Inject
     private ObjectMapper objectMapper;
 
     @Inject
     private MavenService mavenService;
-
-    @Inject
-    private BatchJobService jobService;
 
     @Inject
     private GitHubRestAPI gitHubRestAPI;
@@ -138,12 +133,6 @@ public class MilestoneController extends BaseController {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Project> showAll() {
         return getProjects(project -> true);
-    }
-
-    private void startJob(Function<Project, String> proc, String selectedModules) throws IOException {
-        List<Project> allProjects = getSelectedProjects(selectedModules);
-        BatchJobDescriptor<Project, String> descriptor = new BatchJobDescriptor<>(allProjects, proc);
-        preferences.set(BatchJobService.CURRENT_JOB_ID, jobService.submit(descriptor).getId());
     }
 
     private List<Project> getProjects(Predicate<Project> predicate) {

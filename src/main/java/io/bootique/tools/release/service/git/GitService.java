@@ -19,6 +19,12 @@ public interface GitService {
 
     void addAndCommit(Repository repository);
 
+    void createBranch(Repository repository, String name);
+
+    String getCurrentBranchName(String name);
+
+    boolean getStatus(String name);
+
     enum GitStatus {
         OK,
         NEED_UPDATE,
