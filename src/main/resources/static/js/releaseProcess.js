@@ -49,6 +49,7 @@
         },
         checkStatus: function() {
           let currApp = this;
+          currApp.progress = 0;
           let intervalCheck = setInterval(function() {
             const param = new Date().getTime();
             axios.get(`/ui/release/process/status?time=${param}`)

@@ -37,9 +37,9 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
                 <a href="/ui/rollback/start" style="display:{{finishStep}};">
-                    <button type="button" class="btn btn-default" id="modal-btn-yes">Confirm</button>
+                    <button type="button" class="btn btn-success" id="modal-btn-yes">Confirm</button>
                 </a>
             </div>
         </div>
@@ -48,7 +48,7 @@
 
 
 <script type="module">
-    import { initReleaseProcess } from '/js/releaseProcess.js';
+    import { initReleaseProcess } from '/js/releaseProcess.js?123445678';
     initReleaseProcess('{{releaseId}}');
 </script>
 {{> footer}}

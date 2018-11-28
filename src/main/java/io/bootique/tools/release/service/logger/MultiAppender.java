@@ -33,7 +33,7 @@ public class MultiAppender extends AppenderBase<ILoggingEvent>{
 
     void createAppenderMap(ReleaseDescriptor releaseDescriptor, String loggerPath) {
         PatternLayoutEncoder ple = new PatternLayoutEncoder();
-        ple.setPattern("%date %level [%thread] %logger{10} [%file:%line] %msg%n");
+        ple.setPattern("%date - %msg%n");
         ple.setContext(context);
         ple.start();
 

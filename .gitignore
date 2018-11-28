@@ -4,3 +4,4 @@ target
 .DS_Store
 release-status
 release-manager.yml
+*.log

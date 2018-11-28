@@ -5,7 +5,8 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>WARN</level>
+            <level>ERROR</level>
         </filter>
     </appender>
 
@@ -13,11 +14,21 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
         </filter>
+        <filter class="io.bootique.tools.release.service.logger.FileLoggerFilter" />
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
     </appender>
 
     <root>
         <appender-ref ref="STDOUT" />
         <appender-ref ref="multiAppender"/>
+        <appender-ref ref="FILE" />
     </root>
 
     <logger name="io.bootique.jersey.client.instrumented.ClientTimingFilter" level="OFF"/>
