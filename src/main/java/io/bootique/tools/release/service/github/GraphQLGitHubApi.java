@@ -41,6 +41,11 @@ public class GraphQLGitHubApi implements GitHubApi {
     }
 
     @Override
+    public IssueCollection getClosedIssueCollection(Repository repository, int id) {
+        return getFromCache("issue-closed-" + id + "-" + repository.getName());
+    }
+
+    @Override
     public PullRequestCollection getPullRequestCollection(Repository repo) {
         return getFromCache("pr:" + repo.getName());
     }

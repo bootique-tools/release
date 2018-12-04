@@ -87,6 +87,34 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
     }
 
     @Override
+    public IssueCollection getClosedIssueCollection(Repository repository, int id) {
+        String repoName = repository.getName();
+        int count = getClosedIssuesCount(repoName);
+        RepositoryContainer repositoryContainer = loadQuery("closed-issues",
+                Map.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                        , "name", repoName
+                        , "totalCount", count > 100 ? 100 : count
+                        , "milestoneNumber", id),
+                RepositoryContainer.class);
+        if(repositoryContainer == null) {
+            return null;
+        }
+
+        return updateCache("issue-closed-" + id + "-" + repoName, repositoryContainer.getRepository().getMilestone().getIssueCollection());
+    }
+
+    private int getClosedIssuesCount(String repoName) {
+        RepositoryContainer repositoryContainer = loadQuery("closed-issues-count",
+                Map.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                        , "name", repoName),
+                RepositoryContainer.class);
+        if(repositoryContainer == null) {
+            return 0;
+        }
+        return repositoryContainer.getRepository().getIssueCollection().getTotalCount();
+    }
+
+    @Override
     public PullRequestCollection getPullRequestCollection(Repository repo) {
         String repoName = repo.getName();
         RepositoryContainer repository = loadQuery("pr",

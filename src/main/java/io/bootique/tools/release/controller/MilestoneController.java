@@ -137,7 +137,8 @@ public class MilestoneController extends DefaultBaseController {
 
     private List<Project> getProjects(Predicate<Project> predicate) {
         Organization organization = gitHubApi.getCurrentOrganization();
-        contentService.getMilestones(organization).forEach(milestone ->
+        contentService.getMilestones(organization)
+                .forEach(milestone ->
                 milestone.setIssues(
                         contentService.getIssues(organization,
                                 List.of(issue -> (milestone.equals(issue.getMilestone()) && milestone.getRepository().equals(issue.getRepository()))),

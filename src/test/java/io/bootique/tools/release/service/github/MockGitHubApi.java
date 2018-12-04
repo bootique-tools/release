@@ -42,6 +42,11 @@ public class MockGitHubApi implements GitHubApi{
     }
 
     @Override
+    public IssueCollection getClosedIssueCollection(Repository repository, int id) {
+        return null;
+    }
+
+    @Override
     public PullRequestCollection getPullRequestCollection(Repository repo) {
         return null;
     }

@@ -3,6 +3,7 @@ package io.bootique.tools.release.model.github;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MilestoneCollection {
 

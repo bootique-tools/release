@@ -1,13 +1,14 @@
 query ($owner: String!, $name: String!, $totalCount: Int!) {
   repository(owner:$owner, name:$name) {
      name
-      milestones(first: $totalCount, states: OPEN) {
+      milestones(first: $totalCount) {
         totalCount
         nodes {
           id
           url
           title
           number
+          state
         }
       }
     }

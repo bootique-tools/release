@@ -488,3 +488,42 @@ export function initBranchView() {
         }
     });
 }
+
+export function initReadmeView() {
+    return new Vue({
+        el: '#readmeVue',
+        delimiters: ['[[', ']]'],
+        data: {
+            milestoneTitle: '',
+            readme: '',
+            disableButton: true
+        },
+        watch: {
+            milestoneTitle: function (val) {
+                this.disableGenerateButton();
+            },
+        },
+        methods: {
+            disableGenerateButton: function(val) {
+                let currApp = this;
+                if(currApp.milestoneTitle) {
+                    currApp.disableButton = false;
+                } else {
+                    currApp.disableButton = true;
+                }
+            },
+            generate: function() {
+                let currApp = this;
+                $('#bar').fadeIn();
+                axios.get(`/ui/readme/generate?milestoneTitle=${currApp.milestoneTitle}`)
+                .then(function (response) {
+                    currApp.readme = response.data;
+                    $('#bar').fadeOut();
+                })
+                .catch(function () {
+                   console.log("Error in generating readme");
+               })
+            }
+        },
+    });
+}

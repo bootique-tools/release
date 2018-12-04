@@ -42,7 +42,7 @@
                             <td>
                                 <ul>
                                     <li v-for="milestone in module.repository.milestones.nodes">Milestone: <a v-bind:href="milestone.url" target="_blank">[[milestone.title]]</a>
-                                        - issues count: <a :href="'/ui/issue?filter=m:' + milestone.title + ',r:' + module.repository.name">[[milestone.issues.length]]</a></li>
+                                        - issues count: <a :href="'/ui/issue?filter=m:' + milestone.title + ',r:' + module.repository.name">[[milestone.issuesList.length]]</a></li>
                                 </ul>
                             </td>
 

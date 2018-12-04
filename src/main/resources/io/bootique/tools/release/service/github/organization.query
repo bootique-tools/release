@@ -28,7 +28,7 @@ query ($name: String!) {
         issues(first: 0, states: OPEN) {
           totalCount
         }
-        milestones(first: 0, states: OPEN) {
+        milestones(first: 0) {
           totalCount
         }
       }

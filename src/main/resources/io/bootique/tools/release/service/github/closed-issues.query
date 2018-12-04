@@ -1,0 +1,15 @@
+query($owner:String!, $name:String!, $totalCount: Int!, $milestoneNumber:Int!) {
+  repository(owner:$owner,name:$name) {
+    milestone(number:$milestoneNumber) {
+      state
+      issues(first: $totalCount) {
+        nodes{
+          id
+          url
+          number
+          title
+        }
+      }
+    }
+  }
+}

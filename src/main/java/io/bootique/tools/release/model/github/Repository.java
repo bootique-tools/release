@@ -59,6 +59,8 @@ public class Repository extends GitHubEntity implements Comparable<Repository> {
     @JsonProperty("milestones")
     private MilestoneCollection milestoneCollection;
 
+    private Milestone milestone;
+
     @JsonProperty("issues")
     private IssueCollection issueCollection;
 
@@ -228,5 +230,13 @@ public class Repository extends GitHubEntity implements Comparable<Repository> {
     @Override
     public String toString() {
         return "Repository{" + name + ", status: " + localStatus + '}';
+    }
+
+    public Milestone getMilestone() {
+        return milestone;
+    }
+
+    public void setMilestone(Milestone milestone) {
+        this.milestone = milestone;
     }
 }

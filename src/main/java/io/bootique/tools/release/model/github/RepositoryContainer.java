@@ -4,7 +4,6 @@ public class RepositoryContainer {
 
     private Repository repository;
 
-
     public Repository getRepository() {
         return repository;
     }

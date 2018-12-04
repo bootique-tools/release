@@ -5,6 +5,8 @@ import com.google.inject.name.Named;
 import io.bootique.job.BaseJob;
 import io.bootique.job.JobMetadata;
 import io.bootique.job.runnable.JobResult;
+import io.bootique.tools.release.model.github.Milestone;
+import io.bootique.tools.release.model.github.MilestoneCollection;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.service.github.GitHubApi;

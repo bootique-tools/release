@@ -1,6 +1,7 @@
 package io.bootique.tools.release.model.github;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,11 +16,16 @@ public class Milestone extends GitHubEntity implements Comparable<Milestone> {
 
     private String title;
     private int number;
+    private String state;
 
     @JsonIgnore
     private Repository repository;
 
+    @JsonProperty("issuesList")
     private List<Issue> issues = new ArrayList<>();
+
+    @JsonProperty("issues")
+    private IssueCollection issueCollection;
 
     public String getTitle() {
         return title;
@@ -45,10 +51,12 @@ public class Milestone extends GitHubEntity implements Comparable<Milestone> {
         this.issues.addAll(issues);
     }
 
+    @JsonProperty("issuesList")
     public void setIssues(List<Issue> issues) {
         this.issues = issues;
     }
 
+    @JsonProperty("issuesList")
     public List<Issue> getIssues() {
         return issues;
     }
@@ -83,5 +91,23 @@ public class Milestone extends GitHubEntity implements Comparable<Milestone> {
     @Override
     public String toString() {
         return "{milestone " + title + '}';
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    @JsonProperty("issues")
+    public IssueCollection getIssueCollection() {
+        return issueCollection;
+    }
+
+    @JsonProperty("issues")
+    public void setIssueCollection(IssueCollection issueCollection) {
+        this.issueCollection = issueCollection;
     }
 }
