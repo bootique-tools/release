@@ -41,6 +41,7 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
                 throw new JobException("NO_POM", "No pom.xml for repo " + repo);
             }
             String[] prepareArgs = {
+                    "-DpreparationGoals=clean",
                     "-B", // non-interactive batch mode
                     "release:prepare",
                     "-P", "gpg", // gpg signing profile
@@ -55,6 +56,7 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
             );
 
             String[] performArgs = {
+                    "-Darguments=-Dmaven.test.skip=true",
                     "-B", // non-interactive batch mode
                     "release:perform",
                     "-P", "gpg", // gpg signing profile
