@@ -20,5 +20,4 @@ public interface GitHubApi {
     IssueCollection getClosedIssueCollection(Repository repository, int id);
 
     PullRequestCollection getPullRequestCollection(Repository repo);
-
 }

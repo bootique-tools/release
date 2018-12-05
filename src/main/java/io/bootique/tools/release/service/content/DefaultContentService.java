@@ -61,10 +61,6 @@ public class DefaultContentService implements ContentService {
         }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
             MilestoneCollection milestoneCollection = gitHubApi.getMilestoneCollection(repository);
-            milestoneCollection.setMilestones(milestoneCollection.getMilestones()
-                    .stream()
-                    .filter(milestone -> milestone.getState().equals("OPEN"))
-                    .collect(Collectors.toList()));
             repository.setMilestoneCollection(milestoneCollection);
         }
         organization.setMilestonesRepo();

@@ -1,6 +1,7 @@
 package io.bootique.tools.release.service.github;
 
 import io.bootique.tools.release.model.github.IssueCollection;
+import io.bootique.tools.release.model.github.Milestone;
 import io.bootique.tools.release.model.github.MilestoneCollection;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.PullRequestCollection;
@@ -9,6 +10,9 @@ import io.bootique.tools.release.model.github.User;
 import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.util.RequestCache;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class GraphQLGitHubApi implements GitHubApi {
 
@@ -33,7 +37,14 @@ public class GraphQLGitHubApi implements GitHubApi {
 
     @Override
     public MilestoneCollection getMilestoneCollection(Repository repository) {
-        return getFromCache("milestones:" + repository.getName());
+        MilestoneCollection milestoneCollection = getFromCache("milestones:" + repository.getName());
+        if(milestoneCollection != null) {
+            milestoneCollection.setMilestones(milestoneCollection.getMilestones()
+                    .stream()
+                    .filter(milestone -> milestone.getState() != null && milestone.getState().equalsIgnoreCase("open"))
+                    .collect(Collectors.toList()));
+        }
+        return milestoneCollection;
     }
 
     public IssueCollection getIssueCollection(Repository repository) {
@@ -49,7 +60,6 @@ public class GraphQLGitHubApi implements GitHubApi {
     public PullRequestCollection getPullRequestCollection(Repository repo) {
         return getFromCache("pr:" + repo.getName());
     }
-
 
     @SuppressWarnings("unchecked")
     private <T> T getFromCache(String key) {

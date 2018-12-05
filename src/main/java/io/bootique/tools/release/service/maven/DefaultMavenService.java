@@ -7,6 +7,7 @@ import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.maven.Dependency;
 import io.bootique.tools.release.model.maven.Module;
 import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
@@ -49,6 +50,9 @@ public class DefaultMavenService implements MavenService {
     @Inject
     PreferenceService preferences;
 
+    @Inject
+    ContentService contentService;
+
     @Override
     public boolean isMavenProject(Repository repository) {
         Path path = preferences.get(GitService.BASE_PATH_PREFERENCE);
@@ -58,7 +62,8 @@ public class DefaultMavenService implements MavenService {
     @Override
     public List<Project> getProjects(Organization organization, Predicate<Project> predicate) {
         return sort(organization
-                .getRepositoryCollection().getRepositories().stream()
+                .getRepositoryCollection().getRepositories()
+                .stream()
                 .filter(this::isMavenProject)
                 .map(this::createProject)
                 .filter(predicate)

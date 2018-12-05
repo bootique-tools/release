@@ -149,7 +149,7 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T updateCache(String key, T object) {
+    private  <T> T updateCache(String key, T object) {
         return (T) contentService.getRepoCache().compute(key, (k, oldEntry) -> new RequestCache<>(object)).getObject();
     }
 

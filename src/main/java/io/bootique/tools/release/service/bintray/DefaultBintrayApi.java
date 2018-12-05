@@ -108,7 +108,6 @@ public class DefaultBintrayApi implements BintrayApi {
             throw new DesktopException("Can't process response.", e);
         }
 
-
         LOGGER.debug("Created repository... Response is " + response.getStatus() + '\n'
                 + "Message: " + response.readEntity(String.class));
     }
