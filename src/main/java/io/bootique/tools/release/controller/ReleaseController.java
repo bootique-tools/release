@@ -115,17 +115,19 @@ public class ReleaseController extends BaseController {
         Optional<Project> haveProject = allProjects.stream()
                 .filter(p -> selectedProject.equals(p.getRepository().getName()))
                 .findFirst();
-
-        if(haveProject.isPresent()) {
-            Project currentProject = haveProject.get();
-            allProjects.forEach(project -> {
-                if(state && currentProject.getDependencies().contains(project) && !selectedProjectsResp.contains(project)) {
-                    selectedProjectsResp.add(project);
-                } else if(!state && project.getDependencies().contains(currentProject)) {
-                    selectedProjectsResp.remove(project);
-                }
-            });
-        }
+        haveProject.ifPresent(project -> buildOrder(selectedProjectsResp, state, project, allProjects));
         return selectedProjectsResp;
+    }
+
+    private void buildOrder(List<Project> selectedProjectsResp, boolean state, Project currentProject, List<Project> allProjects) {
+        allProjects.forEach(project -> {
+            if(state && currentProject.getDependencies().contains(project) && !selectedProjectsResp.contains(project)) {
+                selectedProjectsResp.add(project);
+                buildOrder(selectedProjectsResp, true, project, allProjects);
+            } else if(!state && project.getDependencies().contains(currentProject)) {
+                selectedProjectsResp.remove(project);
+                buildOrder(selectedProjectsResp, false, project, allProjects);
+            }
+        });
     }
 }

@@ -28,7 +28,6 @@ public class ReleaseProcessController extends BaseReleaseController {
                                              @FormParam("mode") boolean mode) throws IOException {
 
         List<Project> selectedProjects = getSelectedProjects(selected);
-
         prepareRelease(
                 createDescriptor(
                         version,

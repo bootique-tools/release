@@ -50,9 +50,6 @@ public class DefaultMavenService implements MavenService {
     @Inject
     PreferenceService preferences;
 
-    @Inject
-    ContentService contentService;
-
     @Override
     public boolean isMavenProject(Repository repository) {
         Path path = preferences.get(GitService.BASE_PATH_PREFERENCE);
@@ -66,8 +63,10 @@ public class DefaultMavenService implements MavenService {
                 .stream()
                 .filter(this::isMavenProject)
                 .map(this::createProject)
+                .collect(Collectors.toList()))
+                .stream()
                 .filter(predicate)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
     }
 
     private static Document readDocument(URL url) {

@@ -12,6 +12,7 @@ import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 abstract class BaseController {
