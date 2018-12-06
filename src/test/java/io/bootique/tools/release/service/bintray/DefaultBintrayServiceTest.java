@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DefaultBintrayServiceTest {
 
@@ -35,8 +36,8 @@ class DefaultBintrayServiceTest {
     void testBintrayRequest() {
         Repository repository = new Repository();
         repository.setName("dummy-api");
-        Response response = defaultBintrayApi.getRepository(repository);
-        assertEquals(response.getStatus(), 200);
+        boolean response = defaultBintrayApi.getRepository(repository);
+        assertTrue(response);
     }
 
     @Test

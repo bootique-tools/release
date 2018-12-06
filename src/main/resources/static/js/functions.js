@@ -5,136 +5,205 @@ function incrementLast(v) {
 }
 
 const baseMethods = {
-   delimiters: ['[[', ']]'],
-   data: {
-    allItems: null,
-    errorMessage: '',
-},
-methods: {
-    checkCache: function (filter, sort) {
-        let currApp = this;
-        let intervalCheck = setInterval(function() {
-            const param = new Date().getTime();
-            axios.get(`/ui/checkCache`)
-            .then(function (response) {
-                if(response.data) {
-                    $('#bar').fadeOut();
-                    clearInterval(intervalCheck); 
-                    currApp.getAllProjects(filter, sort);
-                }
-            })
-            .catch(function () {
-                console.log("Error in loading projects.");
-            })
-        }, 100);
+    delimiters: ['[[', ']]'],
+    data: {
+        allItems: null,
+        errorMessage: '',
     },
-    sortAndFilter: function(filter, sort) {
-        let currApp = this;
-        currApp.getAllProjects(filter, sort);
-    },
-    getAllProjects: function (filter, sort) {
-        let currApp = this;
-        axios.get(`/ui/${currApp.path}/show-all?filter=${filter}&sort=${sort}`)
-        .then(function (response) {
-            currApp.allItems = response.data;
-            currApp.additionalMethod(currApp);
-            if(currApp.allItems.length === 0) {
-                currApp.errorMessage = "Please clone all repositories to your local repositories!";
-            }
-        })
-        .catch(function () {
-           console.log("Error in loading projects.");
-       })
-    },
-    additionalMethod: function(data) {},
-}
-}
-
-export function initRelease() {
-    return new Vue({
-        el: '#releaseVue',
-        mixins: [baseMethods],
-        data: {
-            currentVersion: '',
-            releaseVersion: '',
-            nextDevVersion: '',
-            versions: null,
-            selectedModules: [],
-            startRelease: true,
-            mode: false,
-            path: 'release'
-        },
-        mounted: function(){
-            this.checkCache(null, null);
-        },
-        watch: {
-            releaseVersion: function (val) {
-                let parsing = val.split("-");
-                this.nextDevVersion = incrementLast(parsing[0]) + '-SNAPSHOT';
-            }
-        },
-        methods: {
-            additionalMethod: function(currApp) {
-                let versionSet = new Set();
-                for(let i = 0; i < currApp.allItems.length; i++) {
-                    versionSet.add(currApp.allItems[i].rootModule.version);
-                }
-                currApp.versions = Array.from(versionSet);
-            },
-            versionSelector: function () {
-                let currApp = this;
-                const vSelector = document.getElementById('vSelector');
-                this.currentVersion = vSelector.options[vSelector.selectedIndex].text;
-                this.releaseVersion = this.currentVersion.split("-")[0];
-                axios.get(`/ui/release/show-projects?version=${this.currentVersion}`)
+    methods: {
+        checkCache: function (filter, sort) {
+            let currApp = this;
+            let intervalCheck = setInterval(function() {
+                const param = new Date().getTime();
+                axios.get(`/ui/checkCache`)
                 .then(function (response) {
-                    currApp.selectedModules = [];
-                    currApp.allItems = response.data;
-                    if(currApp.allItems.length === 0) {
-                        currApp.errorMessage = "Please clone all repositories to your local repositories!";
-                    } else {
-                        for(let i = 0; i < currApp.allItems.length; i++) {
-                            if(currApp.allItems[i].disable === false){
-                                currApp.selectedModules.push(currApp.allItems[i].repository.name);
-                            }
-                        }
-                        if(currApp.selectedModules.length === 0) {
-                            currApp.startRelease = true;
-                        } else {
-                            currApp.startRelease = false;
-                        }
+                    if(response.data) {
+                        $('#bar').fadeOut();
+                        clearInterval(intervalCheck); 
+                        currApp.getAllProjects(filter, sort);
                     }
                 })
                 .catch(function () {
-                   console.log("Show projects for version error. Can't show projects for this version.");
-               })
-            },
-            moduleSelect: function (project) {
-                let currApp = this;
-                let state = false;
-                for(let i = 0; i < currApp.selectedModules.length; i++){
-                    if(project === currApp.selectedModules[i]){
-                        state = true;
+                    console.log("Error in loading projects.");
+                })
+            }, 100);
+        },
+        sortAndFilter: function(filter, sort) {
+            let currApp = this;
+            currApp.getAllProjects(filter, sort);
+        },
+        getAllProjects: function (filter, sort) {
+            let currApp = this;
+            axios.get(`/ui/${currApp.path}/show-all?filter=${filter}&sort=${sort}`)
+            .then(function (response) {
+                currApp.allItems = response.data;
+                currApp.additionalMethod(currApp);
+                if(currApp.allItems.length === 0) {
+                    currApp.errorMessage = "Please clone all repositories to your local repositories!";
+                }
+            })
+            .catch(function () {
+             console.log("Error in loading projects.");
+         })
+        },
+        additionalMethod: function(data) {},
+    }
+}
+
+const defaultBaseMethods = {
+    delimiters: ['[[', ']]'],
+    mixins: [baseMethods],
+    data: {
+        selectedModules: [],
+        statusMap: null,
+        errorMap: null,
+        showButton: true,
+        progress: 0,
+    },
+    mounted: function(){
+        this.checkCache(null, null);
+        this.statusMap = new Map();
+        this.errorMap = new Map();
+    },
+    watch: {
+        checked: function(val) {
+            let currApp = this;
+            currApp.selectedModules = [];
+            if(val === true) {
+                for(var i = 0; i < currApp.allItems.length; i++) {
+                    currApp.selectedModules.push(currApp.allItems[i].repository.name);
+                }
+            }
+        },
+    },
+    methods: {
+        disableStartButton: function() {
+            let currApp = this;
+            if(currApp.selectedModules.length !== 0) {
+                currApp.showButton = false;
+            } else {
+                currApp.showButton = true;
+            }
+        },
+        checkStatus: function() {
+          let currApp = this;
+          let intervalCheck = setInterval(function() {
+            const param = new Date().getTime();
+            axios.get(`/ui/release/process/status?time=${param}`)
+            .then(function (response) {
+              currApp.progress = response.data.percent.percent;
+              for(let i = 0 ; i < currApp.allItems.length; i++) {
+                for(let j = 0; j < response.data.results.length; j++) {
+                    if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
+                        currApp.allItems[i] = response.data.results[j].data;
+                        currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
+                        currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
                     }
                 }
-                axios.get(`/ui/release/select-projects?version=${this.currentVersion}&projects=${JSON.stringify(currApp.selectedModules)}&selectedProject=${project}&state=${state}`)
-                .then(function (response) {
-                    currApp.selectedModules = [];
-                    const currList = response.data;
-                    for(let i = 0; i < currList.length; i++){
-                        currApp.selectedModules.push(currList[i].repository.name);
-                    }
+            }
 
+            if(response.data.percent.percent === 100) {
+                clearInterval(intervalCheck);
+            }
+        })
+            .catch(function (){
+              console.log("Error in checking status.");
+          })
+        }, 100);
+      },
+  }
+}
+
+const releaseBaseMethods = {
+    delimiters: ['[[', ']]'],
+    mixins: [defaultBaseMethods],
+    data: {
+        currentVersion: '',
+        releaseVersion: '',
+        nextDevVersion: '',
+        versions: null,
+        startRelease: true,
+        path: 'release'
+    },
+    watch: {
+        releaseVersion: function (val) {
+            let parsing = val.split("-");
+            this.nextDevVersion = incrementLast(parsing[0]) + '-SNAPSHOT';
+        }
+    },
+    methods: {
+        additionalMethod: function(currApp) {
+            let versionSet = new Set();
+            for(let i = 0; i < currApp.allItems.length; i++) {
+                versionSet.add(currApp.allItems[i].rootModule.version);
+            }
+            currApp.versions = Array.from(versionSet);
+        },
+        versionSelector: function () {
+            let currApp = this;
+            const vSelector = document.getElementById('vSelector');
+            this.currentVersion = vSelector.options[vSelector.selectedIndex].text;
+            this.releaseVersion = this.currentVersion.split("-")[0];
+            axios.get(`/ui/release/show-projects?version=${this.currentVersion}`)
+            .then(function (response) {
+                currApp.selectedModules = [];
+                currApp.allItems = response.data;
+                if(currApp.allItems.length === 0) {
+                    currApp.errorMessage = "Please clone all repositories to your local repositories!";
+                } else {
+                    for(let i = 0; i < currApp.allItems.length; i++) {
+                        if(currApp.allItems[i].disable === false){
+                            currApp.selectedModules.push(currApp.allItems[i].repository.name);
+                        }
+                    }
                     if(currApp.selectedModules.length === 0) {
                         currApp.startRelease = true;
                     } else {
                         currApp.startRelease = false;
                     }
-                })
-                .catch(function () {
-                   console.log("Selection error. Can't display selected projects.");
-               })
-            },
+                }
+            })
+            .catch(function () {
+             console.log("Show projects for version error. Can't show projects for this version.");
+         })
+        },
+        moduleSelect: function (project) {
+            let currApp = this;
+            let state = false;
+            for(let i = 0; i < currApp.selectedModules.length; i++){
+                if(project === currApp.selectedModules[i]){
+                    state = true;
+                }
+            }
+            axios.get(`/ui/release/select-projects?version=${this.currentVersion}&projects=${JSON.stringify(currApp.selectedModules)}&selectedProject=${project}&state=${state}`)
+            .then(function (response) {
+                currApp.selectedModules = [];
+                const currList = response.data;
+                for(let i = 0; i < currList.length; i++){
+                    currApp.selectedModules.push(currList[i].repository.name);
+                }
+
+                if(currApp.selectedModules.length === 0) {
+                    currApp.startRelease = true;
+                } else {
+                    currApp.startRelease = false;
+                }
+            })
+            .catch(function () {
+             console.log("Selection error. Can't display selected projects.");
+         })
+        },
+    }
+}
+
+export function initRelease() {
+    return new Vue({
+        el: '#releaseVue',
+        mixins: [releaseBaseMethods],
+        data: {
+            mode: false
+        },
+        methods: {
             sendForm: function() {
                 $("#release-form").submit();
                 $("#confirm-modal").modal('hide');
@@ -203,9 +272,9 @@ export function initMavenVue() {
             path: 'release'
         },
         mounted: function(){
-         this.checkCache(null, null);
-     },
-     methods: {
+           this.checkCache(null, null);
+       },
+       methods: {
         additionalMethod: function(app) {
             app.verifyButton = false;
         },
@@ -250,9 +319,9 @@ export function initRepoVue() {
             path: 'repo'
         },
         mounted: function(){
-         this.checkCache(null, null);
-     },
-     methods: {       
+           this.checkCache(null, null);
+       },
+       methods: {       
         repoView: function(repo, type) {
             $.get(`/ui/git/open?repo=${repo}&type=${type}`, () => console.log('Show repo'));
         },
@@ -278,11 +347,11 @@ export function initPrVue(baseFilter, baseSort) {
             path: 'pr'
         },
         mounted: function(){
-         this.checkCache(baseFilter, baseSort);
-     },
-     methods: {
-     }
- });
+           this.checkCache(baseFilter, baseSort);
+       },
+       methods: {
+       }
+   });
 }
 
 export function initIssueVue(baseFilters, baseSort) {
@@ -293,75 +362,11 @@ export function initIssueVue(baseFilters, baseSort) {
             path: 'issue'
         },
         mounted: function(){
-         this.checkCache(baseFilters, baseSort);
-     },
-     methods: {
-     }
- });
-}
-
-const defaultBaseMethods = {
-   delimiters: ['[[', ']]'],
-   mixins: [baseMethods],
-   data: {
-    selectedModules: [],
-    statusMap: null,
-    errorMap: null,
-    showButton: true,
-    progress: 0,
-},
-mounted: function(){
- this.checkCache(null, null);
- this.statusMap = new Map();
- this.errorMap = new Map();
-},
-watch: {
-    checked: function(val) {
-        let currApp = this;
-        currApp.selectedModules = [];
-        if(val === true) {
-            for(var i = 0; i < currApp.allItems.length; i++) {
-                currApp.selectedModules.push(currApp.allItems[i].repository.name);
-            }
-        }
-    },
-},
-methods: {
-    disableStartButton: function() {
-        let currApp = this;
-        if(currApp.selectedModules.length !== 0) {
-            currApp.showButton = false;
-        } else {
-            currApp.showButton = true;
-        }
-    },
-    checkStatus: function() {
-      let currApp = this;
-      let intervalCheck = setInterval(function() {
-        const param = new Date().getTime();
-        axios.get(`/ui/release/process/status?time=${param}`)
-        .then(function (response) {
-          currApp.progress = response.data.percent.percent;
-          for(let i = 0 ; i < currApp.allItems.length; i++) {
-            for(let j = 0; j < response.data.results.length; j++) {
-                if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
-                    currApp.allItems[i] = response.data.results[j].data;
-                    currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
-                    currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
-                }
-            }
-        }
-
-        if(response.data.percent.percent === 100) {
-            clearInterval(intervalCheck);
-        }
-    })
-        .catch(function (){
-          console.log("Error in checking status.");
-      })
-    }, 100);
-  },
-}
+           this.checkCache(baseFilters, baseSort);
+       },
+       methods: {
+       }
+   });
 }
 
 export function initMilestoneView() {
@@ -425,8 +430,8 @@ export function initMilestoneView() {
                     currApp.disableSelection = false;
                 })
                 .catch(function () {
-                   console.log("Error in getting milestones.");
-               })
+                 console.log("Error in getting milestones.");
+             })
                 $("#milestone-modal").modal('show');
             },
             controlUI: function(val) {
@@ -449,8 +454,8 @@ export function initMilestoneView() {
                     $("#milestone-modal").modal('hide');
                 })
                 .catch(function () {
-                   console.log("Error in creating milestones.");
-               })
+                 console.log("Error in creating milestones.");
+             })
             },
         }
     });
@@ -482,8 +487,8 @@ export function initBranchView() {
                     currApp.checkStatus();
                 })
                 .catch(function () {
-                   console.log("Error in " + task);
-               })
+                 console.log("Error in " + task);
+             })
             },
         }
     });
@@ -521,9 +526,31 @@ export function initReadmeView() {
                     $('#bar').fadeOut();
                 })
                 .catch(function () {
-                   console.log("Error in generating readme");
-               })
+                 console.log("Error in generating readme");
+             })
             }
+        },
+    });
+}
+
+export function initValidationView() {
+    return new Vue({
+        el: '#validationVue',
+        mixins: [releaseBaseMethods],
+        data: {
+
+        },
+        methods: {
+            validate: function () {
+                let currApp = this;
+                axios.get(`/ui/validation/validate?releaseVersion=${currApp.releaseVersion}&nextDevVersion=${currApp.nextDevVersion}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
+                .then(function (response) {
+                    currApp.checkStatus();
+                })
+                .catch(function () {
+                 console.log("Error while validation.");
+             })
+            },
         },
     });
 }

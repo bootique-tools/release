@@ -44,12 +44,13 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
                     "-DpreparationGoals=clean",
                     "-B", // non-interactive batch mode
                     "release:prepare",
+                    "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
                     "-P", "gpg", // gpg signing profile
                     "-Ddummy.version=" + releaseDescriptor.getReleaseVersion(),
                     "-Dtag=" + releaseDescriptor.getReleaseVersion(),
                     "-DreleaseVersion=" + releaseDescriptor.getReleaseVersion(),
                     "-DdevelopmentVersion=" + releaseDescriptor.getDevVersion(),
-                    "-DdryRun=true"
+                    "-DdryRun=true" // NEED TO REMOVE
             };
             desktopService.runMavenCommand(
                     preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), prepareArgs
@@ -59,12 +60,13 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
                     "-Darguments=-Dmaven.test.skip=true",
                     "-B", // non-interactive batch mode
                     "release:perform",
+                    "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
                     "-P", "gpg", // gpg signing profile
                     "-Ddummy.version=" + releaseDescriptor.getReleaseVersion(),
                     "-Dtag=" + releaseDescriptor.getReleaseVersion(),
                     "-DreleaseVersion=" + releaseDescriptor.getReleaseVersion(),
                     "-DdevelopmentVersion=" + releaseDescriptor.getDevVersion(),
-                    "-DdryRun=true"
+                    "-DdryRun=true" //NEED TO REMOVE
             };
             desktopService.runMavenCommand(
                     preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), performArgs

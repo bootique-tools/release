@@ -15,7 +15,7 @@ public interface BintrayApi {
 
     void syncWithCentral(Repository repository, String releaseVersion);
 
-    Response getRepository(Repository repository);
+    boolean getRepository(Repository repository);
 
     void createRepository(Repository repository);
 

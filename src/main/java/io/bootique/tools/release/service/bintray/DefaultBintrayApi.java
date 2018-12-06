@@ -74,15 +74,16 @@ public class DefaultBintrayApi implements BintrayApi {
     }
 
     @Override
-    public Response getRepository(Repository repository) {
+    public boolean getRepository(Repository repository) {
         LOGGER.debug("Check repository:" + repository.getName() + " in Bintray.");
         Response response = buildGet("/packages/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + repository.getName());
         LOGGER.debug("Check repository... Response is " + response.getStatus() + '\n'
                 + "Message: " + response.readEntity(String.class));
         if(response.getStatus() != 200) {
-            createRepository(repository);
+            LOGGER.warn(repository.getName() + " hasn't got Bintray repo.");
+            return false;
         }
-        return response;
+        return true;
     }
 
     @Override

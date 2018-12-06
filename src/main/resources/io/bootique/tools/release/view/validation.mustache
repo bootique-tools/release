@@ -1,0 +1,80 @@
+{{> header}}
+<div class="release-fields" id="validationVue">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3">
+                <h4>Current version</h4>
+                <select v-model="currentVersion" id="vSelector" class="form-control" v-on:change="versionSelector">
+                    <option v-for="version in versions" >[[version]]</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <h4>Release version</h4>
+                <input type="text" v-model="releaseVersion"/>
+            </div>
+            <div class="col-sm-3">
+                <h4>Next dev version</h4>
+                <input type="text" v-model="nextDevVersion"/>
+            </div>
+            <div class="col-sm-3" style="padding-top:30px; trxt-align:center;">
+                <button type="submit" class="btn btn-md btn-outline-primary" v-bind:disabled="startRelease" v-on:click="validate()">Validate</button>
+            </div>
+        </div>
+        <div class="progress-style">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" v-bind:style="{width: progress + '%' }">
+                    [[Math.round(progress)]]
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="projects">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Check</th>
+                                <th>Module</th>
+                                <th>Version</th>
+                                <th>Status</th>
+                                <th>Result</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="module in allItems">
+                                <td><input type="checkbox" v-bind:disabled="module.disable" v-bind:id="module.repository.name" v-bind:value="module.repository.name" v-on:change="moduleSelect(module.repository.name)" v-model.lazy="selectedModules"></td>
+                                <td><label v-bind:for="module.repository.name">[[module.repository.name]]</label></td>
+                                <td>[[module.rootModule.version]]</td>
+                                <td>
+                                    [[statusMap.get(module)]]
+                                </td>
+                                <td>
+                                    <button v-if="errorMap.get(module)" class="btn btn-sm btn-outline-primary btn-verify-results" data-toggle="modal" :data-target="'.verify-result-' + module.rootModule.id">
+                                        <i class="far fa-eye"></i>
+                                    </button>
+                                    <div v-bind:class="'modal fade verify-result-' + module.rootModule.id" tabindex="-1" role="dialog" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content p-2 m-2" style="text-align:left;">
+                                                <pre><code>[[errorMap.get(module)]]</code></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <p style="text-align:center">[[errorMessage]]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initValidationView } from '/js/functions.js?1234';
+    initValidationView();
+</script>
+
+{{> footer}}

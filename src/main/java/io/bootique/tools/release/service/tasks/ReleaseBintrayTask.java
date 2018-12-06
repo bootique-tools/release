@@ -26,7 +26,9 @@ public class ReleaseBintrayTask implements Function<Repository, String> {
     public String apply(Repository repo) {
         try {
             loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_BINTRAY_CHECK));
-            bintrayApi.getRepository(repo);
+            if(!bintrayApi.getRepository(repo)) {
+                throw new DesktopException("Bintray repo missed.");
+            }
             releaseService.saveRelease();
             return "";
         } catch (DesktopException ex) {
