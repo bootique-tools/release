@@ -27,7 +27,7 @@ public class ReleasePullTask implements Function<Repository, String> {
         try {
             loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_PULL));
             gitService.update(repo);
-            releaseService.saveRelease();
+            releaseService.saveRelease(repo);
             return "";
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);

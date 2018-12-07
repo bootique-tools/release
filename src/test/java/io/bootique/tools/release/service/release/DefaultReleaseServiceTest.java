@@ -55,6 +55,7 @@ class DefaultReleaseServiceTest {
                 RollbackStage.NO_ROLLBACK,
                 false
         );
+        releaseDescriptor.setLastSuccessReleaseStage(ReleaseStage.RELEASE_PULL);
         releaseService.createReleaseDescriptor(releaseDescriptor);
         releaseService.gitHubApi = mockGitHubApi;
     }
@@ -64,10 +65,12 @@ class DefaultReleaseServiceTest {
     void releaseServiceTest(@TempDirectory.TempDir Path path) throws IOException {
         Path savePath = path.resolve(Paths.get("release-status" + File.separator + "persist"));
         mockPreferenceService.set(ReleaseService.SAVE_PATH, savePath.toString());
-        releaseService.saveRelease();
+        Repository repository = new Repository();
+        repository.setName("Test");
+        releaseService.saveRelease(repository);
         assertTrue(Files.exists(Paths.get(mockPreferenceService.get(ReleaseService.SAVE_PATH),
                 releaseService.getReleaseDescriptor().getReleaseVersion(),
-                releaseService.getReleaseDescriptor().getReleaseVersion() + ".txt")));
+                releaseService.getReleaseDescriptor().getReleaseVersion() + ".json")));
 
         Path pathLock = Paths.get(mockPreferenceService.get(ReleaseService.SAVE_PATH),
                 "lock.txt");

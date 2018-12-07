@@ -33,7 +33,7 @@ public class ReleaseInstallTask implements Function<Repository, String> {
             loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_INSTALL));
             desktopService.runMavenCommand(
                     preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), "clean", "install", "-B");
-            releaseService.saveRelease();
+            releaseService.saveRelease(repo);
             return "";
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);

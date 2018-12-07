@@ -2,6 +2,7 @@ package io.bootique.tools.release.model.github;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.service.git.GitService;
 
 import java.time.LocalDateTime;
@@ -222,6 +223,14 @@ public class Repository extends GitHubEntity implements Comparable<Repository> {
         this.description = description;
     }
 
+    public Milestone getMilestone() {
+        return milestone;
+    }
+
+    public void setMilestone(Milestone milestone) {
+        this.milestone = milestone;
+    }
+
     @Override
     public int compareTo(Repository o) {
         return name.compareTo(o.getName());
@@ -232,11 +241,12 @@ public class Repository extends GitHubEntity implements Comparable<Repository> {
         return "Repository{" + name + ", status: " + localStatus + '}';
     }
 
-    public Milestone getMilestone() {
-        return milestone;
-    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    public void setMilestone(Milestone milestone) {
-        this.milestone = milestone;
+        Repository repo = (Repository) o;
+        return getName().equals(repo.getName());
     }
 }

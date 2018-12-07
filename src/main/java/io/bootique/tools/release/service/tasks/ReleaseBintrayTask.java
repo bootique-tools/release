@@ -29,7 +29,7 @@ public class ReleaseBintrayTask implements Function<Repository, String> {
             if(!bintrayApi.getRepository(repo)) {
                 throw new DesktopException("Bintray repo missed.");
             }
-            releaseService.saveRelease();
+            releaseService.saveRelease(repo);
             return "";
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);

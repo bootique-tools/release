@@ -1,5 +1,6 @@
 package io.bootique.tools.release.service.release;
 
+import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 
 public class MockReleaseService implements ReleaseService {
@@ -22,7 +23,7 @@ public class MockReleaseService implements ReleaseService {
     }
 
     @Override
-    public void saveRelease() {
+    public void saveRelease(Repository repository) {
 
     }
 

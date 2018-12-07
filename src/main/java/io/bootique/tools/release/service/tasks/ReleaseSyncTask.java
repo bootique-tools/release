@@ -30,7 +30,7 @@ public class ReleaseSyncTask implements Function<Repository, String> {
             loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_SYNC));
             bintrayApi.publishUploadedContent(repo, releaseDescriptor.getReleaseVersion());
             bintrayApi.syncWithCentral(repo, releaseDescriptor.getReleaseVersion());
-            releaseService.saveRelease();
+            releaseService.saveRelease(repo);
             return "";
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);

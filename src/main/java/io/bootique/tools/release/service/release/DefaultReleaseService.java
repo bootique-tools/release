@@ -1,7 +1,9 @@
 package io.bootique.tools.release.service.release;
 
 import ch.qos.logback.classic.Logger;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.job.BatchJob;
@@ -98,13 +100,21 @@ public class DefaultReleaseService implements ReleaseService{
     }
 
     @Override
-    public void saveRelease() {
+    public void saveRelease(Repository repository) {
         if(!preferences.have(ReleaseService.SAVE_PATH)) {
             throw new DesktopException("Can't save release.");
         }
+
+        List<Project> projectToRelease = releaseDescriptor.getProjectList();
+        releaseDescriptor.setLastSuccessReleasedRepository(repository);
+        if(repository.getName().equals(projectToRelease
+                .get(projectToRelease.size() - 1).getRepository().getName())) {
+            releaseDescriptor.setLastSuccessReleaseStage(releaseDescriptor.getCurrentReleaseStage());
+        }
+
         Path path = Paths.get(preferences.get(ReleaseService.SAVE_PATH), releaseDescriptor.getReleaseVersion());
         Path lockPath = Paths.get(preferences.get(ReleaseService.SAVE_PATH), "lock.txt");
-        Path pathFile = path.resolve(releaseDescriptor.getReleaseVersion() + ".txt");
+        Path pathFile = path.resolve(releaseDescriptor.getReleaseVersion() + ".json");
         try {
             if(!Files.exists(path)) {
                 Files.createDirectories(path);
@@ -116,8 +126,8 @@ public class DefaultReleaseService implements ReleaseService{
             if(!Files.exists(pathFile)) {
                 Files.createFile(pathFile);
             }
-            String json = objectMapper.writeValueAsString(releaseDescriptor);
-            Files.write(pathFile, json.getBytes());
+            ObjectWriter writer = objectMapper.writer(new DefaultPrettyPrinter());
+            writer.writeValue(pathFile.toFile(), releaseDescriptor);
         }  catch (IOException e) {
             throw new DesktopException("Can't save release. ", e);
         }
@@ -144,11 +154,11 @@ public class DefaultReleaseService implements ReleaseService{
                 if(lockList.size() != 1){
                     throw new DesktopException("Can't load last release.");
                 }
-                Path path = Paths.get(preferences.get(ReleaseService.SAVE_PATH), lockList.get(0), lockList.get(0) + ".txt");
+                Path path = Paths.get(preferences.get(ReleaseService.SAVE_PATH), lockList.get(0), lockList.get(0) + ".json");
                 byte[] jsonDescriptor = Files.readAllBytes(path);
                 releaseDescriptor = objectMapper.readValue(jsonDescriptor, ReleaseDescriptor.class);
                 releaseDescriptor.getProjectList().forEach(project -> project.getRepository().setOrganization(gitHubApi.getCurrentOrganization()));
-                return true;
+                return releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.RELEASE_PULL || releaseDescriptor.getLastSuccessReleaseStage() != null;
             } catch (IOException e) {
                 throw new DesktopException("Can't load last release. ", e);
             }
@@ -159,12 +169,13 @@ public class DefaultReleaseService implements ReleaseService{
     @Override
     public void nextReleaseStage() {
         if(!preferences.have(BatchJobService.CURRENT_JOB_ID)) {
+            releaseDescriptor.resolveStages();
             startJob(releaseMap.get(releaseDescriptor.getCurrentReleaseStage()));
         } else {
             long jobId = preferences.get(BatchJobService.CURRENT_JOB_ID);
             BatchJob<Repository, String> job = jobService.getJobById(jobId);
             if (job.isDone()) {
-                releaseDescriptor.setCurrentReleaseStage(ReleaseStage.getNext(releaseDescriptor.getCurrentReleaseStage()));
+                releaseDescriptor.resolveStages();
                 startJob(releaseMap.get(releaseDescriptor.getCurrentReleaseStage()));
             }
         }
@@ -216,6 +227,13 @@ public class DefaultReleaseService implements ReleaseService{
         List<Repository> repositories = new ArrayList<>();
         for (Project project : releaseDescriptor.getProjectList()) {
             repositories.add(project.getRepository());
+        }
+        if(releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE) {
+            Repository repository = releaseDescriptor.getLastSuccessReleasedRepository();
+            if (repository != null) {
+                int index = repositories.indexOf(repository);
+                repositories = repositories.subList(index + 1, repositories.size());
+            }
         }
         BatchJobDescriptor<Repository, String> descriptor = new BatchJobDescriptor<>(repositories,
                 proc,

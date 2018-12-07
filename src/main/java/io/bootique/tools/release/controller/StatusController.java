@@ -3,13 +3,18 @@ package io.bootique.tools.release.controller;
 import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.job.BatchJob;
+import io.bootique.tools.release.model.job.BatchJobResult;
+import io.bootique.tools.release.model.job.BatchJobStatus;
+import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
+import io.bootique.tools.release.service.job.BatchForkJoinTask;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.JobRespnse;
 import io.bootique.tools.release.service.release.ReleaseService;
 import io.bootique.tools.release.view.ReleaseStatusMsg;
+import io.bootique.value.Percent;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,6 +22,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/release/process")
 public class StatusController extends BaseController{
@@ -42,10 +48,27 @@ public class StatusController extends BaseController{
             return null;
         }
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
+        List<BatchJobResult<Repository, String>> jobResults = new ArrayList<>();
+        if(releaseDescriptor != null &&
+                job.getTotal() != releaseDescriptor.getProjectList().size() &&
+                releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE) {
+            List<Repository> repositories = releaseDescriptor.getProjectList().stream()
+                    .map(Project::getRepository)
+                    .collect(Collectors.toList());
+            int index = repositories.indexOf(job.getResults().get(0).getData());
+            repositories.subList(0, index).forEach(repository ->
+                    jobResults.add(new BatchJobResult<>(BatchJobStatus.SUCCESS, repository, "")));
+        }
+        jobResults.addAll(job.getResults());
         return releaseDescriptor == null ?
                 new JobRespnse<>(job.getProgress(), job.getResults()) :
-                new JobRespnse<>(job.getProgress(), job.getResults(), releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE ?
+                new JobRespnse<>(getProgress(job.getDone(), releaseDescriptor.getProjectList().size(), job.getTotal()),
+                        jobResults, releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE ?
                         releaseDescriptor.getCurrentReleaseStage().getText() : releaseDescriptor.getCurrentRollbackStage().getText());
+    }
+
+    private Percent getProgress(int done, int all, int total) {
+        return new Percent(((double)done + all - total) / all);
     }
 
     @GET
@@ -58,11 +81,17 @@ public class StatusController extends BaseController{
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
         ReleaseStage releaseStage = releaseDescriptor.getCurrentReleaseStage();
         RollbackStage rollbackStage = releaseDescriptor.getCurrentRollbackStage();
-        if((releaseStage == ReleaseStage.RELEASE_SYNC || rollbackStage == RollbackStage.ROLLBACK_MVN) && job.isDone()) {
+        if((releaseStage == ReleaseStage.RELEASE_SYNC && isDone(job, releaseDescriptor)) || (rollbackStage == RollbackStage.ROLLBACK_MVN && job.isDone())) {
             releaseService.deleteLock();
             return true;
         }
         return false;
+    }
+
+    private boolean isDone(BatchJob<Repository, String> job, ReleaseDescriptor releaseDescriptor) {
+        Repository repo = releaseDescriptor.getLastSuccessReleasedRepository();
+        List<Project> projects = releaseDescriptor.getProjectList();
+        return job.isDone() && repo != null && repo.equals(projects.get(projects.size() - 1).getRepository());
     }
 
     @GET

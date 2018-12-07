@@ -58,11 +58,10 @@ public class ReleaseController extends BaseController {
     @Path("/continue-release")
     public ReleaseContinueView continueRelease(){
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
-        String currentStage;
-        currentStage = releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE ?
-                releaseDescriptor.getCurrentReleaseStage().getText() :
+        String lastSuccessStage = releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE ?
+                releaseDescriptor.getLastSuccessReleaseStage().getText() :
                 releaseDescriptor.getCurrentRollbackStage().getText();
-        return new ReleaseContinueView(gitHubApi.getCurrentUser(), gitHubApi.getCurrentOrganization(), releaseDescriptor.getReleaseVersion(), currentStage, releaseDescriptor.getProjectList());
+        return new ReleaseContinueView(gitHubApi.getCurrentUser(), gitHubApi.getCurrentOrganization(), releaseDescriptor.getReleaseVersion(), lastSuccessStage, releaseDescriptor.getProjectList());
     }
 
     @GET

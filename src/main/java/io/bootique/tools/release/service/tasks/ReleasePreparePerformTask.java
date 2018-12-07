@@ -45,8 +45,7 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
                     "-B", // non-interactive batch mode
                     "release:prepare",
                     "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
-                    "-P", "gpg", // gpg signing profile
-                    "-Ddummy.version=" + releaseDescriptor.getReleaseVersion(),
+//                    "-Ddummy.version=" + releaseDescriptor.getReleaseVersion(),
                     "-Dtag=" + releaseDescriptor.getReleaseVersion(),
                     "-DreleaseVersion=" + releaseDescriptor.getReleaseVersion(),
                     "-DdevelopmentVersion=" + releaseDescriptor.getDevVersion(),
@@ -60,19 +59,13 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
                     "-Darguments=-Dmaven.test.skip=true",
                     "-B", // non-interactive batch mode
                     "release:perform",
-                    "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
-                    "-P", "gpg", // gpg signing profile
-                    "-Ddummy.version=" + releaseDescriptor.getReleaseVersion(),
-                    "-Dtag=" + releaseDescriptor.getReleaseVersion(),
-                    "-DreleaseVersion=" + releaseDescriptor.getReleaseVersion(),
-                    "-DdevelopmentVersion=" + releaseDescriptor.getDevVersion(),
                     "-DdryRun=true" //NEED TO REMOVE
             };
             desktopService.runMavenCommand(
                     preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), performArgs
             );
 
-            releaseService.saveRelease();
+            releaseService.saveRelease(repo);
             return "";
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);

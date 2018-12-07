@@ -1,5 +1,6 @@
 package io.bootique.tools.release.model.release;
 
+import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.maven.Project;
 
 import java.util.List;
@@ -14,6 +15,9 @@ public class ReleaseDescriptor {
 
     private ReleaseStage currentReleaseStage;
     private RollbackStage currentRollbackStage;
+
+    private Repository lastSuccessReleasedRepository;
+    private ReleaseStage lastSuccessReleaseStage;
 
     public ReleaseDescriptor(){}
 
@@ -49,7 +53,10 @@ public class ReleaseDescriptor {
         return devVersion;
     }
 
-    public ReleaseStage getCurrentReleaseStage() { return currentReleaseStage; }
+    public ReleaseStage getCurrentReleaseStage() {
+
+        return currentReleaseStage;
+    }
 
     public void setCurrentReleaseStage(ReleaseStage currentReleaseStage) { this.currentReleaseStage = currentReleaseStage; }
 
@@ -83,5 +90,28 @@ public class ReleaseDescriptor {
 
     public void setCurrentRollbackStage(RollbackStage currentRollbackStage) {
         this.currentRollbackStage = currentRollbackStage;
+    }
+
+    public Repository getLastSuccessReleasedRepository() {
+        return lastSuccessReleasedRepository;
+    }
+
+    public void setLastSuccessReleasedRepository(Repository lastSuccessReleasedRepository) {
+        this.lastSuccessReleasedRepository = lastSuccessReleasedRepository;
+    }
+
+    public ReleaseStage getLastSuccessReleaseStage() {
+        return lastSuccessReleaseStage;
+    }
+
+    public void setLastSuccessReleaseStage(ReleaseStage lastSuccessReleaseStage) {
+        this.lastSuccessReleaseStage = lastSuccessReleaseStage;
+    }
+
+    public void resolveStages() {
+        if(lastSuccessReleasedRepository != null && lastSuccessReleasedRepository.getName().equals(projectList.get(projectList.size() - 1).getRepository().getName())) {
+            currentReleaseStage = ReleaseStage.getNext(lastSuccessReleaseStage);
+            lastSuccessReleasedRepository = null;
+        }
     }
 }
