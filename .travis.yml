@@ -1,22 +1,14 @@
 language: java
 
 jdk:
-  - oraclejdk8
-  - oraclejdk9
-  - oraclejdk10
-  - oraclejdk-ea
-  - openjdk8
-  - openjdk9
-  - openjdk10
+  - openjdk11
   - openjdk-ea
 
 matrix:
   allow_failures:
     - jdk: openjdk-ea
-    - jdk: oraclejdk-ea
 
-script:
-  - mvn clean verify
+script: mvn clean verify
 
 install: true
 

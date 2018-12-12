@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.bootique.parent</groupId>
         <artifactId>bootique-parent</artifactId>
-        <version>0.13-SNAPSHOT</version>
+        <version>0.13</version>
     </parent>
 
     <groupId>io.bootique.tools</groupId>
@@ -15,15 +15,14 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <jetty-version>9.3.6.v20151106</jetty-version>
-        <jackson-version>2.9.5</jackson-version>
-        <maven.compiler.source>10</maven.compiler.source>
-        <maven.compiler.target>10</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jetty.version>9.4.12.v20180830</jetty.version>
+        <jackson.version>2.9.5</jackson.version>
+        <junit.jupiter.version>5.3.2</junit.jupiter.version>
+        <junit.pioneer.version>0.3.0</junit.pioneer.version>
+
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
         <main.class>io.bootique.tools.release.Application</main.class>
-        <jersey.media.json-version>2.27</jersey.media.json-version>
-        <junit.jupiter-version>5.3.0-M1</junit.jupiter-version>
-        <surefire.provider-version>1.3.0-M1</surefire.provider-version>
     </properties>
 
     <dependencyManagement>
@@ -31,7 +30,7 @@
             <dependency>
                 <groupId>io.bootique.bom</groupId>
                 <artifactId>bootique-bom</artifactId>
-                <version>0.26-SNAPSHOT</version>
+                <version>1.0.RC1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -56,45 +55,35 @@
             <artifactId>bootique-job</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty-version}</version>
+            <groupId>io.bootique.jersey</groupId>
+            <artifactId>bootique-jersey-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
-            <version>${jetty-version}</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jdk8</artifactId>
-            <version>${jackson-version}</version>
+            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson-version}</version>
+            <version>${jackson.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
-            <version>${jersey.media.json-version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.jupiter-version}</version>
+            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit-pioneer</groupId>
             <artifactId>junit-pioneer</artifactId>
-            <version>0.1.2</version>
+            <version>${junit.pioneer.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -113,14 +102,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <dependencies>
                     <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>${surefire.provider-version}</version>
-                    </dependency>
-                    <dependency>
                         <groupId>org.junit.jupiter</groupId>
                         <artifactId>junit-jupiter-engine</artifactId>
-                        <version>${junit.jupiter-version}</version>
+                        <version>${junit.jupiter.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
