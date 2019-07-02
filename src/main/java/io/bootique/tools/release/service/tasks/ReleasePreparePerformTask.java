@@ -44,22 +44,23 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
                     "-DpreparationGoals=clean",
                     "-B", // non-interactive batch mode
                     "release:prepare",
+                    "-P", "gpg",
                     "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
-//                    "-Ddummy.version=" + releaseDescriptor.getReleaseVersion(),
                     "-Dtag=" + releaseDescriptor.getReleaseVersion(),
                     "-DreleaseVersion=" + releaseDescriptor.getReleaseVersion(),
                     "-DdevelopmentVersion=" + releaseDescriptor.getDevVersion(),
-                    "-DdryRun=true" // NEED TO REMOVE
+                    // "-DdryRun=true"
             };
             desktopService.runMavenCommand(
                     preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), prepareArgs
             );
 
             String[] performArgs = {
-                    "-Darguments=-Dmaven.test.skip=true",
+                    "-Darguments=-DskipTests",
                     "-B", // non-interactive batch mode
                     "release:perform",
-                    "-DdryRun=true" //NEED TO REMOVE
+                    "-P", "gpg",
+                    // "-DdryRun=true"
             };
             desktopService.runMavenCommand(
                     preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), performArgs
