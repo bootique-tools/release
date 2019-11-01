@@ -34,7 +34,7 @@ public class SimpleGraphQLService implements GraphQLService {
                 .registerModule(new JavaTimeModule())
                 .registerModule(new Jdk8Module());
 
-        httpClient = new HttpClient(new SslContextFactory());
+        httpClient = new HttpClient(new SslContextFactory.Client.Client());
         httpClient.start();
     }
 
