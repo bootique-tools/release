@@ -34,10 +34,25 @@
 	<name>bootique-framework-parent</name>
 	<description>Parent of Bootique core framework and Bootique docs.</description>
 
+	<properties>
+		<bootique.version>${project.version}</bootique.version>
+	</properties>
+
 	<modules>
 		<module>bootique</module>
 		<module>bootique-test</module>
 		<module>bootique-test-badspi-it</module>
+		<module>bootique-curator</module>
 	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.bootique</groupId>
+				<artifactId>bootique-framework-parent</artifactId>
+				<version>${bootique.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 </project>

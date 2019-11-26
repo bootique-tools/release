@@ -1,8 +1,9 @@
 package io.bootique.tools.release;
 
+import java.util.function.Function;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Binder;
-import com.google.inject.Module;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -37,7 +38,11 @@ import io.bootique.tools.release.service.console.DefaultConsoleReleaseService;
 import io.bootique.tools.release.service.console.DefaultConsoleRollbackService;
 import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.content.DefaultContentService;
-import io.bootique.tools.release.service.desktop.*;
+import io.bootique.tools.release.service.desktop.DesktopService;
+import io.bootique.tools.release.service.desktop.GenericDesktopService;
+import io.bootique.tools.release.service.desktop.LinuxDesktopService;
+import io.bootique.tools.release.service.desktop.MacOSService;
+import io.bootique.tools.release.service.desktop.WindowsDesktopService;
 import io.bootique.tools.release.service.git.ExternalGitService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;
@@ -66,9 +71,9 @@ import io.bootique.tools.release.service.tasks.ReleasePullTask;
 import io.bootique.tools.release.service.tasks.ReleaseSyncTask;
 import io.bootique.tools.release.service.tasks.RollbackBintrayTask;
 import io.bootique.tools.release.service.tasks.RollbackMvnGitTask;
+import io.bootique.tools.release.service.validation.DefaultValidatePomService;
+import io.bootique.tools.release.service.validation.ValidatePomService;
 import org.glassfish.jersey.jackson.JacksonFeature;
-
-import java.util.function.Function;
 
 //--config="release-manager.yml" --server
 public class Application implements Module {
@@ -101,7 +106,8 @@ public class Application implements Module {
         binder.bind(ConsoleRollbackService.class).to(DefaultConsoleRollbackService.class).in(Singleton.class);
         binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).in(Singleton.class);
         binder.bind(ContentService.class).to(DefaultContentService.class).in(Singleton.class);
-        binder.bind(CreateReadmeService.class).to(DefaultCreateReadmeService.class);
+        binder.bind(CreateReadmeService.class).to(DefaultCreateReadmeService.class).in(Singleton.class);
+        binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).in(Singleton.class);
         JettyModule.extend(binder).useDefaultServlet();
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)

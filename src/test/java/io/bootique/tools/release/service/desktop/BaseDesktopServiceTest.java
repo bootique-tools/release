@@ -54,9 +54,9 @@ class BaseDesktopServiceTest {
         Files.walkFileTree(path, new CopyDirVisitor(path, tempPath, StandardCopyOption.REPLACE_EXISTING));
         String result = "[INFO] Scanning for projects...\n" +
                 "[INFO] \n" +
-                "[INFO] ------------------------------------------------------------------------\n" +
+                "[INFO] ----------------------< dummy-org-api:dummy-api >-----------------------\n" +
                 "[INFO] Building dummy-api 1.0.6-SNAPSHOT\n" +
-                "[INFO] ------------------------------------------------------------------------\n" +
+                "[INFO] --------------------------------[ jar ]---------------------------------\n" +
                 "[INFO] \n" +
                 "[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ dummy-api ---\n" +
                 "[INFO] \n" +

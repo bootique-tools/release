@@ -1,6 +1,7 @@
 package io.bootique.tools.release.controller;
 
 import com.google.inject.Inject;
+import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.service.bintray.BintrayApi;
@@ -8,6 +9,7 @@ import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.JobException;
+import io.bootique.tools.release.service.validation.ValidatePomService;
 import io.bootique.tools.release.view.ValidationView;
 
 import javax.ws.rs.GET;
@@ -16,16 +18,21 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 @Path("/validation")
 public class ValidationController extends DefaultBaseController {
-    
+
     @Inject
     private BintrayApi bintrayApi;
 
     @Inject
     private DesktopService desktopService;
+
+    @Inject
+    private ValidatePomService validatePomService;
 
     @GET
     public ValidationView home() {
@@ -69,4 +76,22 @@ public class ValidationController extends DefaultBaseController {
         };
         startJob(repoProcessor, selectedModules);
     }
+
+    @GET
+    @Path("/pom")
+    public String validatePom() {
+        List<Project> allProjects = getAllProjects();
+        List<String> failedRepos = new ArrayList<>();
+        for(Project project : allProjects) {
+            Repository repository = project.getRepository();
+            String repoName = repository.getName();
+            failedRepos.addAll(validatePomService.validatePom(repoName));
+        }
+        if(failedRepos.isEmpty()) {
+            return "All poms are valid.";
+        }
+
+        return "Failed poms: " + String.join(",", failedRepos);
+    }
+
 }

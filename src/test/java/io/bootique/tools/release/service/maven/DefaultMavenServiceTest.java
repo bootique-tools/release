@@ -63,10 +63,11 @@ class DefaultMavenServiceTest {
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);
         Module rootModule = service.resolveModule(destPath);
         Set<Module> moduleSet = service.getModules(rootModule, destPath);
-        assertEquals(4, moduleSet.size());
-        List<String> names = Arrays.asList("bootique-framework-parent", "bootique", "bootique-test", "bootique-test-badspi-it");
+        assertEquals(5, moduleSet.size());
+        List<String> names = Arrays.asList("bootique-framework-parent", "bootique",
+                "bootique-test", "bootique-test-badspi-it", "bootique-curator");
         for(Module module : moduleSet) {
-            assertEquals("io.bootique", module.getGroup());
+            assertTrue(module.getGroup().startsWith("io.bootique"));
             assertEquals("0.26-SNAPSHOT", module.getVersion());
             assertTrue(names.contains(module.getId()));
         }
@@ -83,11 +84,12 @@ class DefaultMavenServiceTest {
         repository.setName("bootique");
         Project project = service.createProject(repository);
         assertNotNull(project);
-        assertEquals(4, project.getModules().size());
+        assertEquals(5, project.getModules().size());
 
-        List<String> names = Arrays.asList("bootique-framework-parent", "bootique", "bootique-test", "bootique-test-badspi-it");
+        List<String> names = Arrays.asList("bootique-framework-parent", "bootique",
+                "bootique-test", "bootique-test-badspi-it", "bootique-curator");
         for(Module module : project.getModules()) {
-            assertEquals("io.bootique", module.getGroup());
+            assertTrue(module.getGroup().startsWith("io.bootique"));
             assertEquals("0.26-SNAPSHOT", module.getVersion());
             assertTrue(names.contains(module.getId()));
         }

@@ -54,9 +54,20 @@ function initConfirmModal() {
     });
 }
 
+function initValidatePom() {
+    $("#validate-pom").on("click", function(){
+        $.get("/ui/validation/pom")
+            .done(function( data ) {
+                $("#validation-content > p").text(data);
+                $("#validation-modal").modal('show');
+            });
+    });
+}
+
 function init() {
     initFolderSetup();
     initRepoButtons();
     initMilestonesButtons();
     initConfirmModal();
+    initValidatePom();
 }

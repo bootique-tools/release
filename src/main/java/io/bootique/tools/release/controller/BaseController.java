@@ -19,7 +19,7 @@ abstract class BaseController {
 
     @Inject
     PreferenceService preferences;
-    
+
     @Inject
     GitHubApi gitHubApi;
 
@@ -40,6 +40,11 @@ abstract class BaseController {
         Organization organization = gitHubApi.getCurrentOrganization();
         return mavenService.getProjects(organization, project ->
                 selectedProjectsId.contains(project.getRepository().getName()));
+    }
+
+    List<Project> getAllProjects() {
+        Organization organization = gitHubApi.getCurrentOrganization();
+        return mavenService.getProjects(organization, project -> true);
     }
 
     boolean haveMissingRepos(Organization organization) {
