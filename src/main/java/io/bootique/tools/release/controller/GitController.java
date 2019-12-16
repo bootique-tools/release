@@ -1,12 +1,12 @@
 package io.bootique.tools.release.controller;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;

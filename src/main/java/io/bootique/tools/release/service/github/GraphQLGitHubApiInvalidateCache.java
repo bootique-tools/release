@@ -14,6 +14,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.inject.Provider;
 
 public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
 
@@ -23,14 +24,14 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
 
     private PreferenceService preferences;
 
-    private ContentService contentService;
+    private Provider<ContentService> contentServiceProvider;
 
     private final Map<String, String> queries = new ConcurrentHashMap<>();
 
-    public GraphQLGitHubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferences, ContentService contentService) {
+    public GraphQLGitHubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferences, Provider<ContentService> contentServiceProvider) {
         this.graphQLService = graphQLService;
         this.preferences = preferences;
-        this.contentService = contentService;
+        this.contentServiceProvider = contentServiceProvider;
     }
 
     @Override
@@ -150,7 +151,7 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
 
     @SuppressWarnings("unchecked")
     private  <T> T updateCache(String key, T object) {
-        return (T) contentService.getRepoCache().compute(key, (k, oldEntry) -> new RequestCache<>(object)).getObject();
+        return (T) contentServiceProvider.get().getRepoCache().compute(key, (k, oldEntry) -> new RequestCache<>(object)).getObject();
     }
 
     private<T> T loadQuery(String key, Map<String, Object> map, Class<T> tClass) {

@@ -1,6 +1,5 @@
 package io.bootique.tools.release.service.tasks;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.service.preferences.PreferenceService;
@@ -12,6 +11,7 @@ import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.release.ReleaseService;
 
 import java.util.function.Function;
+import javax.inject.Inject;
 
 public class ReleaseInstallTask implements Function<Repository, String> {
 

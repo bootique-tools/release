@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.inject.Inject;
 import io.bootique.jersey.client.HttpTargets;
 import io.bootique.tools.release.model.github.Milestone;
 import io.bootique.tools.release.model.github.Repository;
@@ -13,6 +12,7 @@ import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 
+import javax.inject.Inject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;

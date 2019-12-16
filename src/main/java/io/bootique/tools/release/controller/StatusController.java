@@ -1,6 +1,5 @@
 package io.bootique.tools.release.controller;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.job.BatchJob;
 import io.bootique.tools.release.model.job.BatchJobResult;
@@ -16,6 +15,7 @@ import io.bootique.tools.release.service.release.ReleaseService;
 import io.bootique.tools.release.view.ReleaseStatusMsg;
 import io.bootique.value.Percent;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;

@@ -1,5 +1,6 @@
 package io.bootique.tools.release.service.validation;
 
+import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.qos.logback.classic.Logger;
-import com.google.inject.Inject;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.PreferenceService;

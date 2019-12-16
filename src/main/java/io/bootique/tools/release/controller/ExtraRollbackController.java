@@ -1,12 +1,12 @@
 package io.bootique.tools.release.controller;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.central.MvnCentralService;
 import io.bootique.tools.release.view.ExtraRollbackView;
 
+import javax.inject.Inject;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;

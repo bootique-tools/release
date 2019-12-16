@@ -2,9 +2,9 @@ package io.bootique.tools.release.controller;
 
 import java.nio.file.Paths;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.service.desktop.DesktopService;
 
+import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;

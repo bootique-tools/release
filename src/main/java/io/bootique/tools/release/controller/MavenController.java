@@ -1,6 +1,5 @@
 package io.bootique.tools.release.controller;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
@@ -13,6 +12,7 @@ import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.view.MavenView;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import java.util.List;

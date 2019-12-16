@@ -1,6 +1,5 @@
 package io.bootique.tools.release.service.tasks;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
@@ -14,6 +13,7 @@ import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.release.ReleaseService;
 
 import java.util.function.Function;
+import javax.inject.Inject;
 
 public class ReleasePreparePerformTask implements Function<Repository, String> {
 

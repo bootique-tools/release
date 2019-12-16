@@ -1,6 +1,5 @@
 package io.bootique.tools.release.controller;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.service.job.BatchJobService;
@@ -8,6 +7,7 @@ import io.bootique.tools.release.service.job.BatchJobService;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
+import javax.inject.Inject;
 
 class DefaultBaseController extends BaseController {
 

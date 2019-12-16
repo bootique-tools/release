@@ -1,10 +1,10 @@
 package io.bootique.tools.release.controller;
 
 import java.nio.file.Paths;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.view.ToolCheckView;
 

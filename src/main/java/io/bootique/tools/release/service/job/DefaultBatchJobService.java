@@ -1,6 +1,5 @@
 package io.bootique.tools.release.service.job;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.job.BatchJob;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.job.BatchJobResult;
@@ -16,6 +15,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 
 public class DefaultBatchJobService implements BatchJobService {
 

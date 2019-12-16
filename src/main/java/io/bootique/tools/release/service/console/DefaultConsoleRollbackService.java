@@ -1,7 +1,6 @@
 package io.bootique.tools.release.service.console;
 
 import ch.qos.logback.classic.Logger;
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.function.Function;
+import javax.inject.Inject;
 
 public class DefaultConsoleRollbackService implements ConsoleRollbackService {
 

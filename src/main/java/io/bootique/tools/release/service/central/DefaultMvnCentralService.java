@@ -3,11 +3,11 @@ package io.bootique.tools.release.service.central;
 import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
 import io.bootique.jersey.client.HttpTargets;
 import io.bootique.tools.release.model.maven.Project;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;

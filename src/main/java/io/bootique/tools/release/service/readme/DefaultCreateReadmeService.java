@@ -1,7 +1,5 @@
 package io.bootique.tools.release.service.readme;
 
-import com.google.inject.Inject;
-import com.google.inject.name.Named;
 import io.bootique.tools.release.model.github.Issue;
 import io.bootique.tools.release.model.github.IssueCollection;
 import io.bootique.tools.release.model.github.Milestone;
@@ -10,6 +8,8 @@ import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.service.github.GitHubApi;
 
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 public class DefaultCreateReadmeService implements CreateReadmeService {
 

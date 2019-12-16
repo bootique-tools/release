@@ -1,6 +1,5 @@
 package io.bootique.tools.release.service.content;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Issue;
 import io.bootique.tools.release.model.github.IssueCollection;
 import io.bootique.tools.release.model.github.Milestone;
@@ -20,18 +19,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class DefaultContentService implements ContentService {
 
     @Inject
-    private GitHubApi gitHubApi;
+    private Provider<GitHubApi> gitHubApiProvider;
 
     @Inject
-    private GitService gitService;
+    private Provider<GitService> gitService;
 
     @Inject
-    private PreferenceService preferenceService;
+    private Provider<PreferenceService> preferenceService;
 
     private final Map<String, RequestCache<?>> repoCache = new ConcurrentHashMap<>();
 
@@ -46,7 +46,7 @@ public class DefaultContentService implements ContentService {
             return Collections.emptyList();
         }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            IssueCollection issueCollection = gitHubApi.getIssueCollection(repository);
+            IssueCollection issueCollection = gitHubApiProvider.get().getIssueCollection(repository);
             repository.setIssueCollection(issueCollection);
         }
         organization.setIssuesRepo();
@@ -60,7 +60,7 @@ public class DefaultContentService implements ContentService {
             return Collections.emptyList();
         }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            MilestoneCollection milestoneCollection = gitHubApi.getMilestoneCollection(repository);
+            MilestoneCollection milestoneCollection = gitHubApiProvider.get().getMilestoneCollection(repository);
             repository.setMilestoneCollection(milestoneCollection);
         }
         organization.setMilestonesRepo();
@@ -73,7 +73,7 @@ public class DefaultContentService implements ContentService {
             return Collections.emptyList();
         }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            PullRequestCollection pullRequestCollection = gitHubApi.getPullRequestCollection(repository);
+            PullRequestCollection pullRequestCollection = gitHubApiProvider.get().getPullRequestCollection(repository);
             repository.setPullRequestCollection(pullRequestCollection);
         }
         organization.setPRsRepo();
@@ -88,8 +88,8 @@ public class DefaultContentService implements ContentService {
         }
         List<Repository> repositoryList = organization.getRepositories(predicate, comparator);
         repositoryList.forEach(r -> {
-            if (preferenceService.have(GitService.BASE_PATH_PREFERENCE)) {
-                r.setLocalStatus(gitService.status(r));
+            if (preferenceService.get().have(GitService.BASE_PATH_PREFERENCE)) {
+                r.setLocalStatus(gitService.get().status(r));
             }
         });
         return repositoryList;
@@ -97,7 +97,7 @@ public class DefaultContentService implements ContentService {
 
     @Override
     public Repository getRepository(String organizationName, String name) {
-        Organization organization = gitHubApi.getCurrentOrganization();
+        Organization organization = gitHubApiProvider.get().getCurrentOrganization();
         List<Repository> repositories = organization
                 .getRepositories(repo -> repo.getName().equals(name), Repository::compareTo);
         if(repositories.size() != 1) {
@@ -108,7 +108,7 @@ public class DefaultContentService implements ContentService {
 
     @Override
     public boolean haveCache() {
-        Organization organization = gitHubApi.getCurrentOrganization();
+        Organization organization = gitHubApiProvider.get().getCurrentOrganization();
         if(organization == null) {
             return false;
         }

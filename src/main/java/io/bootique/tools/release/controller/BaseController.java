@@ -1,7 +1,6 @@
 package io.bootique.tools.release.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.maven.Project;
@@ -12,8 +11,8 @@ import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 
 abstract class BaseController {
 

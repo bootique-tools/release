@@ -1,12 +1,12 @@
 package io.bootique.tools.release.controller;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.readme.CreateReadmeService;
 import io.bootique.tools.release.view.ReadmeView;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;

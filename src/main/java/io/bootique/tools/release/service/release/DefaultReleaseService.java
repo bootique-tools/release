@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.job.BatchJob;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
@@ -33,6 +32,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 public class DefaultReleaseService implements ReleaseService{
 
@@ -51,10 +52,10 @@ public class DefaultReleaseService implements ReleaseService{
     GitHubApi gitHubApi;
 
     @Inject
-    Map<ReleaseStage, Function<Repository, String>> releaseMap;
+    Provider<Map<ReleaseStage, Function<Repository, String>>> releaseMap;
 
     @Inject
-    Map<RollbackStage, Function<Repository, String>> rollbackMap;
+    Provider<Map<RollbackStage, Function<Repository, String>>> rollbackMap;
 
     private ReleaseDescriptor releaseDescriptor;
 
@@ -170,13 +171,13 @@ public class DefaultReleaseService implements ReleaseService{
     public void nextReleaseStage() {
         if(!preferences.have(BatchJobService.CURRENT_JOB_ID)) {
             releaseDescriptor.resolveStages();
-            startJob(releaseMap.get(releaseDescriptor.getCurrentReleaseStage()));
+            startJob(releaseMap.get().get(releaseDescriptor.getCurrentReleaseStage()));
         } else {
             long jobId = preferences.get(BatchJobService.CURRENT_JOB_ID);
             BatchJob<Repository, String> job = jobService.getJobById(jobId);
             if (job.isDone()) {
                 releaseDescriptor.resolveStages();
-                startJob(releaseMap.get(releaseDescriptor.getCurrentReleaseStage()));
+                startJob(releaseMap.get().get(releaseDescriptor.getCurrentReleaseStage()));
             }
         }
     }
@@ -184,13 +185,13 @@ public class DefaultReleaseService implements ReleaseService{
     @Override
     public void nextRollbackStage() {
         if(!preferences.have(BatchJobService.CURRENT_JOB_ID)) {
-            startJob(rollbackMap.get(releaseDescriptor.getCurrentRollbackStage()));
+            startJob(rollbackMap.get().get(releaseDescriptor.getCurrentRollbackStage()));
         } else {
             long jobId = preferences.get(BatchJobService.CURRENT_JOB_ID);
             BatchJob<Repository, String> job = jobService.getJobById(jobId);
             if(job.isDone()) {
                 releaseDescriptor.setCurrentRollbackStage(RollbackStage.getNext(releaseDescriptor.getCurrentRollbackStage()));
-                startJob(rollbackMap.get(releaseDescriptor.getCurrentRollbackStage()));
+                startJob(rollbackMap.get().get(releaseDescriptor.getCurrentRollbackStage()));
             }
         }
     }

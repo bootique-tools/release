@@ -1,19 +1,15 @@
 package io.bootique.tools.release;
 
-import java.util.function.Function;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Binder;
-import com.google.inject.Module;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.google.inject.TypeLiteral;
-import com.google.inject.multibindings.MapBinder;
-import com.google.inject.name.Named;
 import io.bootique.BQCoreModule;
 import io.bootique.Bootique;
 import io.bootique.command.CommandDecorator;
 import io.bootique.config.ConfigurationFactory;
+import io.bootique.di.BQModule;
+import io.bootique.di.Binder;
+import io.bootique.di.MapBuilder;
+import io.bootique.di.Provides;
+import io.bootique.di.TypeLiteral;
 import io.bootique.jersey.JerseyModule;
 import io.bootique.jersey.client.HttpTargets;
 import io.bootique.jetty.JettyModule;
@@ -75,8 +71,13 @@ import io.bootique.tools.release.service.validation.DefaultValidatePomService;
 import io.bootique.tools.release.service.validation.ValidatePomService;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
+import java.util.function.Function;
+import javax.inject.Named;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+
 //--config="release-manager.yml" --server
-public class Application implements Module {
+public class Application implements BQModule {
     public static void main(String[] args) {
         Bootique
                 .app(args)
@@ -95,19 +96,20 @@ public class Application implements Module {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind(GraphQLService.class).to(SimpleGraphQLService.class).in(Singleton.class);
-        binder.bind(GitHubRestAPI.class).to(GitHubRestV3API.class).in(Singleton.class);
-        binder.bind(GitService.class).to(ExternalGitService.class).in(Singleton.class);
-        binder.bind(MavenService.class).to(DefaultMavenService.class).in(Singleton.class);
-        binder.bind(BatchJobService.class).to(DefaultBatchJobService.class).in(Singleton.class);
-        binder.bind(ReleaseService.class).to(DefaultReleaseService.class).in(Singleton.class);
-        binder.bind(LoggerService.class).to(DefaultLoggerService.class).in(Singleton.class);
-        binder.bind(ConsoleReleaseService.class).to(DefaultConsoleReleaseService.class).in(Singleton.class);
-        binder.bind(ConsoleRollbackService.class).to(DefaultConsoleRollbackService.class).in(Singleton.class);
-        binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).in(Singleton.class);
-        binder.bind(ContentService.class).to(DefaultContentService.class).in(Singleton.class);
-        binder.bind(CreateReadmeService.class).to(DefaultCreateReadmeService.class).in(Singleton.class);
-        binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).in(Singleton.class);
+        binder.bind(GraphQLService.class).to(SimpleGraphQLService.class).inSingletonScope();
+        binder.bind(GitHubRestAPI.class).to(GitHubRestV3API.class).inSingletonScope();
+        binder.bind(GitService.class).to(ExternalGitService.class).inSingletonScope();
+        binder.bind(MavenService.class).to(DefaultMavenService.class).inSingletonScope();
+        binder.bind(BatchJobService.class).to(DefaultBatchJobService.class).inSingletonScope();
+        binder.bind(ReleaseService.class).to(DefaultReleaseService.class).inSingletonScope();
+        binder.bind(LoggerService.class).to(DefaultLoggerService.class).inSingletonScope();
+        binder.bind(ConsoleReleaseService.class).to(DefaultConsoleReleaseService.class).inSingletonScope();
+        binder.bind(ConsoleRollbackService.class).to(DefaultConsoleRollbackService.class).inSingletonScope();
+        binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).inSingletonScope();
+        binder.bind(ContentService.class).to(DefaultContentService.class).inSingletonScope();
+        binder.bind(CreateReadmeService.class).to(DefaultCreateReadmeService.class).inSingletonScope();
+        binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
+        binder.bind(ObjectMapper.class);
         JettyModule.extend(binder).useDefaultServlet();
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)
@@ -129,25 +131,25 @@ public class Application implements Module {
         JobModule.extend(binder).addJob(QueryJob.class);
     }
 
-    private static MapBinder<ReleaseStage, Function<Repository, String>> contributeReleaseFunctionClass(Binder binder) {
+    private static MapBuilder<ReleaseStage, Function<Repository, String>> contributeReleaseFunctionClass(Binder binder) {
         TypeLiteral<Function<Repository, String>> type = new TypeLiteral<>() {};
         TypeLiteral<ReleaseStage> key = new TypeLiteral<>() {};
-        return MapBinder.newMapBinder(binder, key, type);
+        return binder.bindMap(key, type);
     }
 
-    private static MapBinder<RollbackStage, Function<Repository, String>> contributeRollbackFunctionClass(Binder binder) {
+    private static MapBuilder<RollbackStage, Function<Repository, String>> contributeRollbackFunctionClass(Binder binder) {
         TypeLiteral<Function<Repository, String>> type = new TypeLiteral<>() {
         };
         TypeLiteral<RollbackStage> key = new TypeLiteral<>() {};
-        return MapBinder.newMapBinder(binder, key, type);
+        return binder.bindMap(key, type);
     }
 
     private static void setReleaseFunctionClass(Binder binder, ReleaseStage releaseStage,  Class<? extends Function<Repository, String>> functionClass) {
-        contributeReleaseFunctionClass(binder).addBinding(releaseStage).to(functionClass);
+        contributeReleaseFunctionClass(binder).put(releaseStage, functionClass);
     }
 
     private static void setRollbackFunctionClass(Binder binder, RollbackStage rollbackStage, Class<? extends Function<Repository, String>> functionClass) {
-        contributeRollbackFunctionClass(binder).addBinding(rollbackStage).to(functionClass);
+        contributeRollbackFunctionClass(binder).put(rollbackStage, functionClass);
     }
 
     @Provides
@@ -191,8 +193,8 @@ public class Application implements Module {
     @Provides
     @Singleton
     @Named("updateCache")
-    GitHubApi provideGitGubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferenceService, ContentService contentService) {
-        return new GraphQLGitHubApiInvalidateCache(graphQLService, preferenceService, contentService);
+    GitHubApi provideGitGubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferenceService, Provider<ContentService> contentServiceProvider) {
+        return new GraphQLGitHubApiInvalidateCache(graphQLService, preferenceService, contentServiceProvider);
     }
 
 }

@@ -1,7 +1,6 @@
 package io.bootique.tools.release.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
@@ -12,6 +11,7 @@ import io.bootique.tools.release.service.release.ReleaseService;
 import io.bootique.tools.release.view.ReleaseContinueView;
 import io.bootique.tools.release.view.ReleaseView;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

@@ -1,6 +1,5 @@
 package io.bootique.tools.release.controller;
 
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Issue;
 import io.bootique.tools.release.model.github.Label;
 import io.bootique.tools.release.model.github.Milestone;
@@ -8,6 +7,7 @@ import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.view.IssueView;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;

@@ -1,13 +1,11 @@
 package io.bootique.tools.release.service.maven;
 
 import ch.qos.logback.classic.Logger;
-import com.google.inject.Inject;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.Repository;
 import io.bootique.tools.release.model.maven.Dependency;
 import io.bootique.tools.release.model.maven.Module;
 import io.bootique.tools.release.model.maven.Project;
-import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
@@ -18,6 +16,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.inject.Inject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
