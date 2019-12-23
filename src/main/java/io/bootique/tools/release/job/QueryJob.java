@@ -10,13 +10,12 @@ import io.bootique.tools.release.service.github.GitHubApi;
 import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 
 public class QueryJob extends BaseJob {
 
     @Inject
     @Named("updateCache")
-    private Provider<GitHubApi> gitHubApiProvider;
+    private GitHubApi gitHubApi;
 
     public QueryJob() {
         super(JobMetadata.build(QueryJob.class));
@@ -24,7 +23,7 @@ public class QueryJob extends BaseJob {
 
     @Override
     public JobResult run(Map<String, Object> map) {
-        GitHubApi gitHubApi = gitHubApiProvider.get();
+        GitHubApi gitHubApi = this.gitHubApi;
         gitHubApi.getCurrentUser();
         Organization organization = gitHubApi.getCurrentOrganization();
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {

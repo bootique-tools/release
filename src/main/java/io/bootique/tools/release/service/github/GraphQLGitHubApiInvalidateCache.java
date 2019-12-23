@@ -24,14 +24,14 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
 
     private PreferenceService preferences;
 
-    private Provider<ContentService> contentServiceProvider;
+    private ContentService contentService;
 
     private final Map<String, String> queries = new ConcurrentHashMap<>();
 
-    public GraphQLGitHubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferences, Provider<ContentService> contentServiceProvider) {
+    public GraphQLGitHubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferences, ContentService contentService) {
         this.graphQLService = graphQLService;
         this.preferences = preferences;
-        this.contentServiceProvider = contentServiceProvider;
+        this.contentService = contentService;
     }
 
     @Override
@@ -151,7 +151,7 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
 
     @SuppressWarnings("unchecked")
     private  <T> T updateCache(String key, T object) {
-        return (T) contentServiceProvider.get().getRepoCache().compute(key, (k, oldEntry) -> new RequestCache<>(object)).getObject();
+        return (T) contentService.getRepoCache().compute(key, (k, oldEntry) -> new RequestCache<>(object)).getObject();
     }
 
     private<T> T loadQuery(String key, Map<String, Object> map, Class<T> tClass) {

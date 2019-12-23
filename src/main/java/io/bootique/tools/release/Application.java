@@ -73,7 +73,6 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 
 import java.util.function.Function;
 import javax.inject.Named;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
 //--config="release-manager.yml" --server
@@ -109,7 +108,7 @@ public class Application implements BQModule {
         binder.bind(ContentService.class).to(DefaultContentService.class).inSingletonScope();
         binder.bind(CreateReadmeService.class).to(DefaultCreateReadmeService.class).inSingletonScope();
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
-        binder.bind(ObjectMapper.class);
+
         JettyModule.extend(binder).useDefaultServlet();
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)
@@ -193,8 +192,8 @@ public class Application implements BQModule {
     @Provides
     @Singleton
     @Named("updateCache")
-    GitHubApi provideGitGubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferenceService, Provider<ContentService> contentServiceProvider) {
-        return new GraphQLGitHubApiInvalidateCache(graphQLService, preferenceService, contentServiceProvider);
+    GitHubApi provideGitGubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferenceService, ContentService contentService) {
+        return new GraphQLGitHubApiInvalidateCache(graphQLService, preferenceService, contentService);
     }
 
 }

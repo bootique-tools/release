@@ -9,7 +9,6 @@ import io.bootique.tools.release.service.release.ReleaseService;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class ExternalGitService implements GitService {
 
@@ -20,7 +19,7 @@ public class ExternalGitService implements GitService {
     private PreferenceService preferenceService;
 
     @Inject
-    private Provider<ReleaseService> releaseService;
+    private ReleaseService releaseService;
 
     @Override
     public void clone(Repository repository) {
@@ -68,7 +67,7 @@ public class ExternalGitService implements GitService {
         Path target = getBasePathOrThrow().resolve(repository.getName());
         desktopService.runCommand(target, "git", "add", ".");
         desktopService.runCommand(target, "git", "commit", "-m", "rollback the release of "
-                + releaseService.get().getReleaseDescriptor().getReleaseVersion());
+                + releaseService.getReleaseDescriptor().getReleaseVersion());
         desktopService.runCommand(target, "git", "push", "origin", "master");
     }
 

@@ -52,10 +52,10 @@ public class DefaultReleaseService implements ReleaseService{
     GitHubApi gitHubApi;
 
     @Inject
-    Provider<Map<ReleaseStage, Function<Repository, String>>> releaseMap;
+    Map<ReleaseStage, Function<Repository, String>> releaseMap;
 
     @Inject
-    Provider<Map<RollbackStage, Function<Repository, String>>> rollbackMap;
+    Map<RollbackStage, Function<Repository, String>> rollbackMap;
 
     private ReleaseDescriptor releaseDescriptor;
 
@@ -171,13 +171,13 @@ public class DefaultReleaseService implements ReleaseService{
     public void nextReleaseStage() {
         if(!preferences.have(BatchJobService.CURRENT_JOB_ID)) {
             releaseDescriptor.resolveStages();
-            startJob(releaseMap.get().get(releaseDescriptor.getCurrentReleaseStage()));
+            startJob(releaseMap.get(releaseDescriptor.getCurrentReleaseStage()));
         } else {
             long jobId = preferences.get(BatchJobService.CURRENT_JOB_ID);
             BatchJob<Repository, String> job = jobService.getJobById(jobId);
             if (job.isDone()) {
                 releaseDescriptor.resolveStages();
-                startJob(releaseMap.get().get(releaseDescriptor.getCurrentReleaseStage()));
+                startJob(releaseMap.get(releaseDescriptor.getCurrentReleaseStage()));
             }
         }
     }
@@ -185,13 +185,13 @@ public class DefaultReleaseService implements ReleaseService{
     @Override
     public void nextRollbackStage() {
         if(!preferences.have(BatchJobService.CURRENT_JOB_ID)) {
-            startJob(rollbackMap.get().get(releaseDescriptor.getCurrentRollbackStage()));
+            startJob(rollbackMap.get(releaseDescriptor.getCurrentRollbackStage()));
         } else {
             long jobId = preferences.get(BatchJobService.CURRENT_JOB_ID);
             BatchJob<Repository, String> job = jobService.getJobById(jobId);
             if(job.isDone()) {
                 releaseDescriptor.setCurrentRollbackStage(RollbackStage.getNext(releaseDescriptor.getCurrentRollbackStage()));
-                startJob(rollbackMap.get().get(releaseDescriptor.getCurrentRollbackStage()));
+                startJob(rollbackMap.get(releaseDescriptor.getCurrentRollbackStage()));
             }
         }
     }

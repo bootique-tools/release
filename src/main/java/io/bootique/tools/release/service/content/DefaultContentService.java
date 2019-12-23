@@ -20,18 +20,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class DefaultContentService implements ContentService {
 
     @Inject
-    private Provider<GitHubApi> gitHubApiProvider;
+    private GitHubApi gitHubApi;
 
     @Inject
-    private Provider<GitService> gitService;
+    private GitService gitService;
 
     @Inject
-    private Provider<PreferenceService> preferenceService;
+    private PreferenceService preferenceService;
 
     private final Map<String, RequestCache<?>> repoCache = new ConcurrentHashMap<>();
 
@@ -46,7 +45,7 @@ public class DefaultContentService implements ContentService {
             return Collections.emptyList();
         }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            IssueCollection issueCollection = gitHubApiProvider.get().getIssueCollection(repository);
+            IssueCollection issueCollection = gitHubApi.getIssueCollection(repository);
             repository.setIssueCollection(issueCollection);
         }
         organization.setIssuesRepo();
@@ -60,7 +59,7 @@ public class DefaultContentService implements ContentService {
             return Collections.emptyList();
         }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            MilestoneCollection milestoneCollection = gitHubApiProvider.get().getMilestoneCollection(repository);
+            MilestoneCollection milestoneCollection = gitHubApi.getMilestoneCollection(repository);
             repository.setMilestoneCollection(milestoneCollection);
         }
         organization.setMilestonesRepo();
@@ -73,7 +72,7 @@ public class DefaultContentService implements ContentService {
             return Collections.emptyList();
         }
         for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            PullRequestCollection pullRequestCollection = gitHubApiProvider.get().getPullRequestCollection(repository);
+            PullRequestCollection pullRequestCollection = gitHubApi.getPullRequestCollection(repository);
             repository.setPullRequestCollection(pullRequestCollection);
         }
         organization.setPRsRepo();
@@ -88,8 +87,8 @@ public class DefaultContentService implements ContentService {
         }
         List<Repository> repositoryList = organization.getRepositories(predicate, comparator);
         repositoryList.forEach(r -> {
-            if (preferenceService.get().have(GitService.BASE_PATH_PREFERENCE)) {
-                r.setLocalStatus(gitService.get().status(r));
+            if (preferenceService.have(GitService.BASE_PATH_PREFERENCE)) {
+                r.setLocalStatus(gitService.status(r));
             }
         });
         return repositoryList;
@@ -97,7 +96,7 @@ public class DefaultContentService implements ContentService {
 
     @Override
     public Repository getRepository(String organizationName, String name) {
-        Organization organization = gitHubApiProvider.get().getCurrentOrganization();
+        Organization organization = gitHubApi.getCurrentOrganization();
         List<Repository> repositories = organization
                 .getRepositories(repo -> repo.getName().equals(name), Repository::compareTo);
         if(repositories.size() != 1) {
@@ -108,7 +107,7 @@ public class DefaultContentService implements ContentService {
 
     @Override
     public boolean haveCache() {
-        Organization organization = gitHubApiProvider.get().getCurrentOrganization();
+        Organization organization = gitHubApi.getCurrentOrganization();
         if(organization == null) {
             return false;
         }
