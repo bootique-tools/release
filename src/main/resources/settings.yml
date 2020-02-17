@@ -11,7 +11,38 @@ mvc:
   templateBase: "classpath:"
 
 log:
-  useLogbackConfig: true
+  appenders:
+    - type: console
+      name: STDOUT
+      target: stderr
+      logFormat: '%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
+      filters:
+        - type: threshold
+          level: info
+
+    - type: file
+      name: FILE
+      logFormat: '%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n'
+      file: logs.log
+      append: false
+
+    - type: custom
+      name: multiAppender
+      className: io.bootique.tools.release.service.logger.MultiAppender
+      filters:
+        - type: threshold
+          level: debug
+        - type: custom
+          className: io.bootique.tools.release.service.logger.FileLoggerFilter
+
+  appenderRefs:
+    - STDOUT
+    - FILE
+    - multiAppender
+
+  loggers:
+    io.bootique.jersey.client.instrumented.ClientTimingFilter:
+      level: error
 
 preferences:
   organizationName: bootique

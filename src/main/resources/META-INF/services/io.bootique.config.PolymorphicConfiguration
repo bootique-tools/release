@@ -1,0 +1,2 @@
+io.bootique.tools.release.service.logger.CustomAppenderFactory
+io.bootique.tools.release.service.logger.CustomAppenderFilterFactory
