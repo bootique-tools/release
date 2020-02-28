@@ -40,6 +40,6 @@ public class CustomAppenderFactory extends AppenderFactory {
         appender.setName(getName());
         appender.setContext(context);
         createFilters(appender);
-        return asAsync(appender);
+        return appender;
     }
 }
