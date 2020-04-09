@@ -16,10 +16,10 @@ public class BaseRequestFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext containerRequestContext) {
-        String output = desktopService.runCommand(Paths.get(System.getProperty("user.home")), "gpg", "--list-secret-keys", "--keyid-format", "LONG");
-        if(output.isEmpty() || output.contains("gpg: no ultimately trusted keys found")) {
-            containerRequestContext.abortWith(Response.serverError().entity("No GPG key. Please generate.").build());
-        }
+//        String output = desktopService.runCommand(Paths.get(System.getProperty("user.home")), "gpg", "--list-secret-keys", "--keyid-format", "LONG");
+//        if(output.isEmpty() || output.contains("gpg: no ultimately trusted keys found")) {
+//            containerRequestContext.abortWith(Response.serverError().entity("No GPG key. Please generate.").build());
+//        }
     }
 
 }

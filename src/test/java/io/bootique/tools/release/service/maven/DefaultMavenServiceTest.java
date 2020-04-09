@@ -12,8 +12,7 @@ import io.bootique.tools.release.util.CopyDirVisitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junitpioneer.jupiter.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(TempDirectory.class)
 class DefaultMavenServiceTest {
 
     private MockDesktopService mockDesktopService = new MockDesktopService();
@@ -57,7 +55,7 @@ class DefaultMavenServiceTest {
 
     @Test
     @DisplayName("Get set of modules test")
-    void testSetOfModules(@TempDirectory.TempDir Path destPath) throws IOException {
+    void testSetOfModules(@TempDir Path destPath) throws IOException {
         Path srcPath = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "bootique");
         Files.walkFileTree(srcPath, new CopyDirVisitor(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING));
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);
@@ -75,7 +73,7 @@ class DefaultMavenServiceTest {
 
     @Test
     @DisplayName("Create project test")
-    void createProject(@TempDirectory.TempDir Path path) throws IOException {
+    void createProject(@TempDir Path path) throws IOException {
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
         mockPreferenceService.set(MavenService.ORGANIZATION_GROUP_ID, "io.bootique");
         Path preparePom = Paths.get("src" + File.separator + "test" + File.separator + "resources");
@@ -185,7 +183,7 @@ class DefaultMavenServiceTest {
 
     @Test
     @DisplayName("Get all projects test")
-    void getProjectsTest(@TempDirectory.TempDir Path destPath) throws IOException {
+    void getProjectsTest(@TempDir Path destPath) throws IOException {
         Path srcPath = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "dummy-org-00");
         Files.walkFileTree(srcPath, new CopyDirVisitor(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING));
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);

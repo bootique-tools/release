@@ -1,8 +1,5 @@
 package io.bootique.tools.release.view;
 
-import java.util.List;
-
-import io.bootique.tools.release.model.github.Issue;
 import io.bootique.tools.release.model.github.Organization;
 import io.bootique.tools.release.model.github.User;
 

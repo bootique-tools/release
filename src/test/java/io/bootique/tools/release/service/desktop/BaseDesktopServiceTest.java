@@ -4,8 +4,7 @@ import io.bootique.tools.release.util.CopyDirVisitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junitpioneer.jupiter.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.nio.file.StandardCopyOption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(TempDirectory.class)
 class BaseDesktopServiceTest {
 
     private DesktopService desktopService;
@@ -49,7 +47,7 @@ class BaseDesktopServiceTest {
 
     @Test
     @DisplayName("Running maven command test")
-    void testRunningMavenCommand(@TempDirectory.TempDir Path tempPath) throws IOException {
+    void testRunningMavenCommand(@TempDir Path tempPath) throws IOException {
         Path path = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "dummy-org-00" + File.separator + "dummy-api");
         Files.walkFileTree(path, new CopyDirVisitor(path, tempPath, StandardCopyOption.REPLACE_EXISTING));
         String result = "[INFO] Scanning for projects...\n" +

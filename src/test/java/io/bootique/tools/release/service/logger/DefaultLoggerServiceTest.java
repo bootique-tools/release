@@ -10,8 +10,7 @@ import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junitpioneer.jupiter.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -22,7 +21,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(TempDirectory.class)
 class DefaultLoggerServiceTest {
 
     private DefaultLoggerService loggerService;
@@ -31,7 +29,7 @@ class DefaultLoggerServiceTest {
     private Repository repository;
 
     @BeforeEach
-    void createService(@TempDirectory.TempDir Path tempDirectory) {
+    void createService(@TempDir Path tempDirectory) {
         Path path = tempDirectory.resolve(Paths.get( "release-status" + File.separator + "logs"));
         mockPreferenceService.set(LoggerService.LOGGER_BASE_PATH, path.toString());
         loggerService = new DefaultLoggerService();

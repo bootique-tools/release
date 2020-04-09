@@ -13,8 +13,7 @@ import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junitpioneer.jupiter.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,7 +29,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(TempDirectory.class)
 class DefaultReleaseServiceTest {
 
     private DefaultReleaseService releaseService;
@@ -62,7 +60,7 @@ class DefaultReleaseServiceTest {
 
     @Test
     @DisplayName("Release save, check active and delete test.")
-    void releaseServiceTest(@TempDirectory.TempDir Path path) throws IOException {
+    void releaseServiceTest(@TempDir Path path) throws IOException {
         Path savePath = path.resolve(Paths.get("release-status" + File.separator + "persist"));
         mockPreferenceService.set(ReleaseService.SAVE_PATH, savePath.toString());
         Repository repository = new Repository();
@@ -88,7 +86,7 @@ class DefaultReleaseServiceTest {
 
     @Test
     @DisplayName("Rollback pom test")
-    void rollbackPomTest(@TempDirectory.TempDir Path path) throws IOException {
+    void rollbackPomTest(@TempDir Path path) throws IOException {
         Path preparePom = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "rollbackPom" + File.separator + "prepare" + File.separator + "pom.xml");
         Path resultPom = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "rollbackPom" + File.separator + "result" + File.separator + "pom.xml");
         mockPreferenceService.set(ReleaseService.SAVE_PATH, path.toString());
