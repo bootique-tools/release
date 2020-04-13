@@ -105,9 +105,10 @@ const defaultBaseMethods = {
             if(response.data.percent.percent === 100) {
                 clearInterval(intervalCheck);
             }
-        })
+            })
             .catch(function (){
               console.log("Error in checking status.");
+              window.sessionStorage.removeItem('showProcess');
           })
         }, 100);
       },
@@ -259,6 +260,65 @@ export function initExtraRollback() {
     });
 }
 
+ const showProcessGlobal = Vue.observable({ showProcessGlobal: false })
+
+ Object.defineProperty(Vue.prototype, '$showProcessGlobal', {
+   configurable: true,
+   get () {
+     return showProcessGlobal.showProcessGlobal
+   },
+   set (value) {
+     showProcessGlobal.showProcessGlobal = value
+   }
+ })
+
+
+ export function jobProgress() {
+     return new Vue({
+           el: '#jobProgress',
+           data: {
+               percentProgress: null,
+               showLink: false,
+               lastJobLink: null
+           },
+           beforeMount(){
+               if (sessionStorage.showProcess) {
+                   this.showJobProgress();
+               }
+           },
+           watch: {
+               $showProcessGlobal () {
+                   if(this.$showProcessGlobal){
+                       this.showJobProgress();
+                   }
+               }
+           },
+           methods: {
+              showJobProgress: function() {
+                let currApp = this;
+                let intervalCheck = setInterval(function() {
+                     axios.get(`/ui/progress`)
+                     .then(function (response) {
+                        currApp.showLink = true;
+                        currApp.percentProgress = response.data.percent.percent.toFixed(2) + '%';
+                        currApp.lastJobLink = response.data.controllerName;
+                        if(currApp.percentProgress === '100%') {
+                            clearInterval(intervalCheck);
+                            window.sessionStorage.removeItem('showProcess');
+                        }
+                     })
+                }, 1200);
+              },
+              disableLink: function() {
+                let currApp = this;
+                if(currApp.percentProgress === '100%') {
+                    currApp.showLink = false;
+                }
+              }
+
+           }
+     });
+ }
 
 export function initMavenVue() {
     return new Vue({
@@ -271,9 +331,14 @@ export function initMavenVue() {
             verifyButton: true,
             path: 'release'
         },
+         beforeMount(){
+            if (sessionStorage.showProcess) {
+                this.verify();
+            }
+         },
         mounted: function(){
            this.checkCache(null, null);
-       },
+        },
        methods: {
         additionalMethod: function(app) {
             app.verifyButton = false;
@@ -281,12 +346,15 @@ export function initMavenVue() {
         verify: function() {
             let currApp = this;
             currApp.showProcess = true;
+            sessionStorage.showProcess = currApp.showProcess;
+            this.$showProcessGlobal = currApp.showProcess;
             axios.get(`/ui/maven/verify`)
             .then(function (response) {
                 currApp.checkStatus();
             })
             .catch(function () {
                 console.log("Error start mvn verify.");
+                 window.sessionStorage.removeItem('showProcess');
             })
         },
         checkStatus: function() {
@@ -297,18 +365,19 @@ export function initMavenVue() {
             .then(function (response) {
               currApp.progress = response.data.percent.percent;
               currApp.statusArr = response.data.results;
-              currApp.stageName = response.data.name; 
+              currApp.stageName = response.data.name;
               if(response.data.percent.percent === 100) {
-                clearInterval(intervalCheck); 
-            }
-        })
+                clearInterval(intervalCheck);
+              }
+            })
             .catch(function (){
               console.log("Error in checking status.");
-          })
-        }, 1200);
-      },
-  }
-});
+              window.sessionStorage.removeItem('showProcess');
+            })
+          }, 1200);
+        },
+        }
+    });
 }
 
 export function initRepoVue() {
@@ -537,18 +606,25 @@ export function initValidationView() {
     return new Vue({
         el: '#validationVue',
         mixins: [releaseBaseMethods],
-        data: {
-
+        beforeMount(){
+            let currApp = this;
+            if (sessionStorage.showProcess) {
+                currApp.checkStatus();
+            }
         },
         methods: {
             validate: function () {
                 let currApp = this;
+                sessionStorage.showProcess = true;
+                this.$showProcessGlobal = true;
                 axios.get(`/ui/validation/validate?releaseVersion=${currApp.releaseVersion}&nextDevVersion=${currApp.nextDevVersion}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                 .then(function (response) {
                     currApp.checkStatus();
                 })
                 .catch(function () {
                  console.log("Error while validation.");
+                 window.sessionStorage.removeItem('showProcess');
+                 this.$showProcessGlobal = false;
              })
             },
         },

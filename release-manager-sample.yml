@@ -4,8 +4,8 @@ maven-central:
   close: 0
 
 preferences:
-  gitHubToken: token
-  basePath: path
+  gitHubToken: 3bcd4fe1d3bf734bbdff06d6181d2970cd0385ed
+  basePath: somebasepath
 
 jerseyclient:
   auth:

@@ -32,6 +32,8 @@ import java.util.function.Predicate;
 @Path("milestone")
 public class MilestoneController extends DefaultBaseController {
 
+    private final String CONTROLLER_NAME = "milestone";
+
     @Inject
     private ObjectMapper objectMapper;
 
@@ -87,7 +89,7 @@ public class MilestoneController extends DefaultBaseController {
                 throw new JobException(ex.getMessage(), ex);
             }
         };
-        startJob(repoProcessor, selectedModules);
+        startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
     }
 
     @GET
@@ -106,7 +108,7 @@ public class MilestoneController extends DefaultBaseController {
                 throw new JobException(ex.getMessage(), ex);
             }
         };
-        startJob(repoProcessor, selectedModules);
+        startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
     }
 
     @GET
@@ -125,7 +127,7 @@ public class MilestoneController extends DefaultBaseController {
                 throw new JobException(ex.getMessage(), ex);
             }
         };
-        startJob(repoProcessor, selectedModules);
+        startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
     }
 
     @GET

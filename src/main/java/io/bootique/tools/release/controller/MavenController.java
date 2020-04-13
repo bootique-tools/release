@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 @Path("maven")
 public class MavenController extends BaseController {
 
+    private static final String CONTROLLER_NAME = "maven";
+
     @Inject
     private MavenService mavenService;
 
@@ -63,7 +65,7 @@ public class MavenController extends BaseController {
             }
         };
 
-        BatchJobDescriptor<Repository, String> descriptor = new BatchJobDescriptor<>(repositories, repoProcessor);
+        BatchJobDescriptor<Repository, String> descriptor = BatchJobDescriptor.builder().data(repositories).processor(repoProcessor).url(CONTROLLER_NAME).build();
         preferences.set(BatchJobService.CURRENT_JOB_ID, jobService.submit(descriptor).getId());
     }
 }

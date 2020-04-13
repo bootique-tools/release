@@ -1,23 +1,50 @@
 package io.bootique.tools.release.model.job;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.function.Function;
 
 public class BatchJobDescriptor<T, R> {
 
-    private final Collection<T> data;
-    private final Function<T, R> processor;
-    private final ErrorPolicy errorPolicy;
+    private Collection<T> data;
+    private Function<T, R> processor;
+    private ErrorPolicy errorPolicy;
+    private String controllerName;
 
-    public BatchJobDescriptor(Collection<T> data, Function<T, R> processor, ErrorPolicy errorPolicy) {
-        this.data = Objects.requireNonNull(data);
-        this.processor = Objects.requireNonNull(processor);
-        this.errorPolicy = Objects.requireNonNull(errorPolicy);
+    public static Builder builder(){
+        return new Builder().errorPolicy(ErrorPolicy.SKIP_ON_ERROR);
     }
 
-    public BatchJobDescriptor(Collection<T> data, Function<T, R> processor) {
-        this(data, processor, ErrorPolicy.SKIP_ON_ERROR);
+    public static class Builder {
+
+        private BatchJobDescriptor descriptor;
+
+        protected Builder() {
+            this.descriptor = new BatchJobDescriptor();
+        }
+
+        public Builder data(Collection data) {
+            this.descriptor.data = data;
+            return this;
+        }
+
+        public Builder processor(Function processor) {
+            this.descriptor.processor = processor;
+            return this;
+        }
+
+        public Builder errorPolicy(ErrorPolicy errorPolicy) {
+            this.descriptor.errorPolicy = errorPolicy;
+            return this;
+        }
+
+        public Builder url(String url) {
+            this.descriptor.controllerName = url;
+            return this;
+        }
+
+        public BatchJobDescriptor build(){
+            return descriptor;
+        }
     }
 
     public Collection<T> getData() {
@@ -37,4 +64,10 @@ public class BatchJobDescriptor<T, R> {
     public ErrorPolicy getErrorPolicy() {
         return errorPolicy;
     }
+
+    public String getControllerName() {
+        return controllerName;
+    }
+
+
 }
