@@ -65,7 +65,7 @@ public class MavenController extends BaseController {
             }
         };
 
-        BatchJobDescriptor<Repository, String> descriptor = BatchJobDescriptor.builder().data(repositories).processor(repoProcessor).url(CONTROLLER_NAME).build();
+        BatchJobDescriptor<Repository, String> descriptor = BatchJobDescriptor.builder().data(repositories).processor(repoProcessor).controllerName(CONTROLLER_NAME).build();
         preferences.set(BatchJobService.CURRENT_JOB_ID, jobService.submit(descriptor).getId());
     }
 }

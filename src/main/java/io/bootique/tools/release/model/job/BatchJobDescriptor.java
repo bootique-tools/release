@@ -37,7 +37,7 @@ public class BatchJobDescriptor<T, R> {
             return this;
         }
 
-        public Builder url(String url) {
+        public Builder controllerName(String url) {
             this.descriptor.controllerName = url;
             return this;
         }

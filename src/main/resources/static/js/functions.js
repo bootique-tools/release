@@ -303,7 +303,7 @@ export function initExtraRollback() {
                      .then(function (response) {
                         currApp.showLink = true;
                         currApp.percentProgress = response.data.percent.percent.toFixed(2) + '%';
-                        currApp.lastJobLink = response.data.controllerName;
+                        currApp.lastJobLink = response.data.name;
                         if(currApp.percentProgress === '100%') {
                             clearInterval(intervalCheck);
                             window.sessionStorage.removeItem('showProcess');
