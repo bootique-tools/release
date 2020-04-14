@@ -44,7 +44,7 @@ const baseMethods = {
             })
             .catch(function () {
              console.log("Error in loading projects.");
-         })
+            })
         },
         additionalMethod: function(data) {},
     }
@@ -92,27 +92,29 @@ const defaultBaseMethods = {
             axios.get(`/ui/release/process/status?time=${param}`)
             .then(function (response) {
               currApp.progress = response.data.percent.percent;
-              for(let i = 0 ; i < currApp.allItems.length; i++) {
-                for(let j = 0; j < response.data.results.length; j++) {
-                    if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
-                        currApp.allItems[i] = response.data.results[j].data;
-                        currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
-                        currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
+              if(currApp.allItems != null){
+                for(let i = 0 ; i < currApp.allItems.length; i++) {
+                    for(let j = 0; j < response.data.results.length; j++) {
+                        if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
+                            currApp.allItems[i] = response.data.results[j].data;
+                            currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
+                            currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
+                        }
                     }
                 }
-            }
-
-            if(response.data.percent.percent === 100) {
+              }
+              if(response.data.percent.percent === 100) {
                 clearInterval(intervalCheck);
-            }
+                window.sessionStorage.removeItem('showProcess');
+              }
             })
             .catch(function (){
               console.log("Error in checking status.");
               window.sessionStorage.removeItem('showProcess');
-          })
-        }, 100);
-      },
-  }
+            })
+          }, 100);
+        },
+    }
 }
 
 const releaseBaseMethods = {
@@ -282,7 +284,7 @@ export function initExtraRollback() {
                lastJobLink: null
            },
            beforeMount(){
-               if (sessionStorage.showProcess) {
+               if (sessionStorage.showProcess != null) {
                    this.showJobProgress();
                }
            },
@@ -332,7 +334,7 @@ export function initMavenVue() {
             path: 'release'
         },
          beforeMount(){
-            if (sessionStorage.showProcess) {
+            if (sessionStorage.showProcess === 'initMavenVue') {
                 this.verify();
             }
          },
@@ -346,8 +348,8 @@ export function initMavenVue() {
         verify: function() {
             let currApp = this;
             currApp.showProcess = true;
-            sessionStorage.showProcess = currApp.showProcess;
-            this.$showProcessGlobal = currApp.showProcess;
+            sessionStorage.showProcess = 'initMavenVue';
+            this.$showProcessGlobal = true;
             axios.get(`/ui/maven/verify`)
             .then(function (response) {
                 currApp.checkStatus();
@@ -452,6 +454,12 @@ export function initMilestoneView() {
             disableSelection: true,
             path: 'milestone'
         },
+        beforeMount(){
+            let currApp = this;
+            if (sessionStorage.showProcess === 'initMilestoneView') {
+            currApp.checkStatus();
+            }
+        },
         watch: {
             selectedModules: function (val) {
                 this.disableStartButton();
@@ -517,6 +525,7 @@ export function initMilestoneView() {
             },
             start: function(val) {
                 let currApp = this;
+                sessionStorage.showProcess = 'initMilestoneView';
                 axios.get(`/ui/milestone/${String(val).toLowerCase()}?milestoneTitle=${this.milestoneTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}&milestoneNewTitle=${this.milestoneNewTitle}`)
                 .then(function (response) {
                     currApp.checkStatus();
@@ -524,6 +533,7 @@ export function initMilestoneView() {
                 })
                 .catch(function () {
                  console.log("Error in creating milestones.");
+                 window.sessionStorage.removeItem('showProcess');
              })
             },
         }
@@ -539,6 +549,12 @@ export function initBranchView() {
             branchTitle: '',
             path: 'branches'
         },
+        beforeMount(){
+            let currApp = this;
+            if (sessionStorage.showProcess === 'initBranchView') {
+            currApp.checkStatus();
+            }
+        },
         watch: {
             selectedModules: function (val) {
                 this.disableStartButton();
@@ -550,6 +566,7 @@ export function initBranchView() {
         methods: {
             startTask: function(task) {
                 let currApp = this;
+                sessionStorage.showProcess = 'initBranchView';
                 currApp.progress = 0;
                 axios.get(`/ui/branches/${String(task)}?branchTitle=${this.branchTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                 .then(function (response) {
@@ -557,6 +574,7 @@ export function initBranchView() {
                 })
                 .catch(function () {
                  console.log("Error in " + task);
+                 window.sessionStorage.removeItem('showProcess');
              })
             },
         }
@@ -608,14 +626,14 @@ export function initValidationView() {
         mixins: [releaseBaseMethods],
         beforeMount(){
             let currApp = this;
-            if (sessionStorage.showProcess) {
+            if (sessionStorage.showProcess === 'initValidationView') {
                 currApp.checkStatus();
             }
         },
         methods: {
             validate: function () {
                 let currApp = this;
-                sessionStorage.showProcess = true;
+                sessionStorage.showProcess = 'initValidationView';
                 this.$showProcessGlobal = true;
                 axios.get(`/ui/validation/validate?releaseVersion=${currApp.releaseVersion}&nextDevVersion=${currApp.nextDevVersion}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                 .then(function (response) {
@@ -624,7 +642,6 @@ export function initValidationView() {
                 .catch(function () {
                  console.log("Error while validation.");
                  window.sessionStorage.removeItem('showProcess');
-                 this.$showProcessGlobal = false;
              })
             },
         },

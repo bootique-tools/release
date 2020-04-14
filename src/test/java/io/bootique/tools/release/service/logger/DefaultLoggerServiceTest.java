@@ -49,7 +49,7 @@ class DefaultLoggerServiceTest {
         );
     }
 
-   /* @Test
+    @Test
     @DisplayName("Prepare logger test")
     void prepareLoggerTest() {
         assertNull(loggerService.getMultiAppender());
@@ -87,5 +87,5 @@ class DefaultLoggerServiceTest {
             }
             assertTrue(Files.exists(loggerRollbackPath.resolve(rollbackStage.name() + ".log")));
         }
-    }*/
+    }
 }

@@ -47,7 +47,7 @@ class BaseDesktopServiceTest {
         assertEquals(result.trim(), "test");
     }
 
- /*   @Test
+    @Test
     @DisplayName("Running maven command test")
     void testRunningMavenCommand(@TempDirectory.TempDir Path tempPath) throws IOException {
         Path path = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "dummy-org-00" + File.separator + "dummy-api");
@@ -61,14 +61,14 @@ class BaseDesktopServiceTest {
                 "[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ dummy-api ---\n" +
                 "[INFO] \n" +
                 "[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ dummy-api ---\n" +
-                "[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!\n" +
+                "[WARNING] Using platform encoding (US-ASCII actually) to copy filtered resources, i.e. build is platform dependent!\n" +
                 "[INFO] skip non existing resourceDirectory " + "/private" + tempPath.toString() + "/src/main/resources\n" +
                 "[INFO] \n" +
                 "[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ dummy-api ---\n" +
                 "[INFO] No sources to compile\n" +
                 "[INFO] \n" +
                 "[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ dummy-api ---\n" +
-                "[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!\n" +
+                "[WARNING] Using platform encoding (US-ASCII actually) to copy filtered resources, i.e. build is platform dependent!\n" +
                 "[INFO] skip non existing resourceDirectory " + "/private" + tempPath.toString() + "/src/test/resources\n" +
                 "[INFO] \n" +
                 "[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ dummy-api ---\n" +
@@ -88,5 +88,5 @@ class BaseDesktopServiceTest {
         for(int i = 0; i < resArr.length - 9; i++) {
             assertEquals(resArr[i], outputArr[i]);
         }
-    }*/
+    }
 }
