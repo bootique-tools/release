@@ -14,7 +14,6 @@ const baseMethods = {
         checkCache: function (filter, sort) {
             let currApp = this;
             let intervalCheck = setInterval(function() {
-                const param = new Date().getTime();
                 axios.get(`/ui/checkCache`)
                 .then(function (response) {
                     if(response.data) {
@@ -79,7 +78,7 @@ const defaultBaseMethods = {
     methods: {
         disableStartButton: function() {
             let currApp = this;
-            if(currApp.selectedModules.length !== 0) {
+            if(currApp.selectedModules.length !== 0 && sessionStorage.showProcess == null) {
                 currApp.showButton = false;
             } else {
                 currApp.showButton = true;
@@ -88,8 +87,7 @@ const defaultBaseMethods = {
         checkStatus: function() {
           let currApp = this;
           let intervalCheck = setInterval(function() {
-            const param = new Date().getTime();
-            axios.get(`/ui/release/process/status?time=${param}`)
+            axios.get(`/ui/release/process/status`)
             .then(function (response) {
               currApp.progress = response.data.percent.percent;
               if(currApp.allItems != null){
@@ -186,7 +184,7 @@ const releaseBaseMethods = {
                     currApp.selectedModules.push(currList[i].repository.name);
                 }
 
-                if(currApp.selectedModules.length === 0) {
+                if(currApp.selectedModules.length === 0 && sessionStorage.showProcess != null) {
                     currApp.startRelease = true;
                 } else {
                     currApp.startRelease = false;
@@ -333,17 +331,21 @@ export function initMavenVue() {
             verifyButton: true,
             path: 'release'
         },
-         beforeMount(){
-            if (sessionStorage.showProcess === 'initMavenVue') {
-                this.verify();
-            }
-         },
+        beforeMount(){
+           if (sessionStorage.showProcess === 'initMavenVue') {
+               this.verify();
+           }
+        },
         mounted: function(){
            this.checkCache(null, null);
         },
-       methods: {
+        methods: {
         additionalMethod: function(app) {
+        if (sessionStorage.showProcess != null) {
+            this.verifyButton = true;
+        } else {
             app.verifyButton = false;
+        }
         },
         verify: function() {
             let currApp = this;
@@ -362,8 +364,7 @@ export function initMavenVue() {
         checkStatus: function() {
           let currApp = this;
           let intervalCheck = setInterval(function() {
-            const param = new Date().getTime();
-            axios.get(`/ui/release/process/status?time=${param}`)
+            axios.get(`/ui/release/process/status`)
             .then(function (response) {
               currApp.progress = response.data.percent.percent;
               currApp.statusArr = response.data.results;
