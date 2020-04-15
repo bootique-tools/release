@@ -8,9 +8,8 @@ import io.bootique.tools.release.model.maven.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
-import io.bootique.tools.release.service.job.BatchForkJoinTask;
 import io.bootique.tools.release.service.job.BatchJobService;
-import io.bootique.tools.release.service.job.JobRespnse;
+import io.bootique.tools.release.service.job.JobResponse;
 import io.bootique.tools.release.service.release.ReleaseService;
 import io.bootique.tools.release.view.ReleaseStatusMsg;
 import io.bootique.value.Percent;
@@ -42,7 +41,7 @@ public class StatusController extends BaseController{
 
     @GET
     @Path("/status")
-    public JobRespnse status() {
+    public JobResponse status() {
         BatchJob<Repository, String> job = jobService.getCurrentJob();
         if(job == null){
             return null;
@@ -61,10 +60,10 @@ public class StatusController extends BaseController{
         }
         jobResults.addAll(job.getResults());
         return releaseDescriptor == null ?
-                new JobRespnse<>(job.getProgress(), job.getResults()) :
-                new JobRespnse<>(getProgress(job.getDone(), releaseDescriptor.getProjectList().size(), job.getTotal()),
-                        jobResults, releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE ?
-                        releaseDescriptor.getCurrentReleaseStage().getText() : releaseDescriptor.getCurrentRollbackStage().getText());
+                JobResponse.builder().percent(job.getProgress()).results(job.getResults()).build() :
+                JobResponse.builder().percent(getProgress(job.getDone(), releaseDescriptor.getProjectList().size(), job.getTotal()))
+                        .results(jobResults).name(releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE ?
+                        releaseDescriptor.getCurrentReleaseStage().getText() : releaseDescriptor.getCurrentRollbackStage().getText()).build();
     }
 
     private Percent getProgress(int done, int all, int total) {

@@ -21,6 +21,8 @@ import java.util.function.Function;
 @Path("branches")
 public class BranchesController extends DefaultBaseController{
 
+    private final String CONTROLLER_NAME = "branches";
+
     @GET
     public BranchesView home() {
         return new BranchesView(gitHubApi.getCurrentUser(), gitHubApi.getCurrentOrganization());
@@ -64,7 +66,7 @@ public class BranchesController extends DefaultBaseController{
                 throw new JobException(ex.getMessage(), ex);
             }
         };
-        startJob(repoProcessor, selectedModules);
+        startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
     }
 
     @GET
@@ -84,7 +86,7 @@ public class BranchesController extends DefaultBaseController{
                 throw new JobException(ex.getMessage(), ex);
             }
         };
-        startJob(repoProcessor, selectedModules);
+        startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
     }
 
 }

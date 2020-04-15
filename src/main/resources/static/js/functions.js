@@ -14,7 +14,6 @@ const baseMethods = {
         checkCache: function (filter, sort) {
             let currApp = this;
             let intervalCheck = setInterval(function() {
-                const param = new Date().getTime();
                 axios.get(`/ui/checkCache`)
                 .then(function (response) {
                     if(response.data) {
@@ -44,7 +43,7 @@ const baseMethods = {
             })
             .catch(function () {
              console.log("Error in loading projects.");
-         })
+            })
         },
         additionalMethod: function(data) {},
     }
@@ -79,7 +78,7 @@ const defaultBaseMethods = {
     methods: {
         disableStartButton: function() {
             let currApp = this;
-            if(currApp.selectedModules.length !== 0) {
+            if(currApp.selectedModules.length !== 0 && sessionStorage.showProcess == null) {
                 currApp.showButton = false;
             } else {
                 currApp.showButton = true;
@@ -88,30 +87,32 @@ const defaultBaseMethods = {
         checkStatus: function() {
           let currApp = this;
           let intervalCheck = setInterval(function() {
-            const param = new Date().getTime();
-            axios.get(`/ui/release/process/status?time=${param}`)
+            axios.get(`/ui/release/process/status`)
             .then(function (response) {
               currApp.progress = response.data.percent.percent;
-              for(let i = 0 ; i < currApp.allItems.length; i++) {
-                for(let j = 0; j < response.data.results.length; j++) {
-                    if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
-                        currApp.allItems[i] = response.data.results[j].data;
-                        currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
-                        currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
+              if(currApp.allItems != null){
+                for(let i = 0 ; i < currApp.allItems.length; i++) {
+                    for(let j = 0; j < response.data.results.length; j++) {
+                        if(currApp.allItems[i].repository.name === response.data.results[j].data.repository.name) {
+                            currApp.allItems[i] = response.data.results[j].data;
+                            currApp.statusMap.set(currApp.allItems[i], response.data.results[j].status);
+                            currApp.errorMap.set(currApp.allItems[i], response.data.results[j].result);
+                        }
                     }
                 }
-            }
-
-            if(response.data.percent.percent === 100) {
+              }
+              if(response.data.percent.percent === 100) {
                 clearInterval(intervalCheck);
-            }
-        })
+                window.sessionStorage.removeItem('showProcess');
+              }
+            })
             .catch(function (){
               console.log("Error in checking status.");
-          })
-        }, 100);
-      },
-  }
+              window.sessionStorage.removeItem('showProcess');
+            })
+          }, 100);
+        },
+    }
 }
 
 const releaseBaseMethods = {
@@ -183,7 +184,7 @@ const releaseBaseMethods = {
                     currApp.selectedModules.push(currList[i].repository.name);
                 }
 
-                if(currApp.selectedModules.length === 0) {
+                if(currApp.selectedModules.length === 0 && sessionStorage.showProcess != null) {
                     currApp.startRelease = true;
                 } else {
                     currApp.startRelease = false;
@@ -259,6 +260,65 @@ export function initExtraRollback() {
     });
 }
 
+ const showProcessGlobal = Vue.observable({ showProcessGlobal: false })
+
+ Object.defineProperty(Vue.prototype, '$showProcessGlobal', {
+   configurable: true,
+   get () {
+     return showProcessGlobal.showProcessGlobal
+   },
+   set (value) {
+     showProcessGlobal.showProcessGlobal = value
+   }
+ })
+
+
+ export function jobProgress() {
+     return new Vue({
+           el: '#jobProgress',
+           data: {
+               percentProgress: null,
+               showLink: false,
+               lastJobLink: null
+           },
+           beforeMount(){
+               if (sessionStorage.showProcess != null) {
+                   this.showJobProgress();
+               }
+           },
+           watch: {
+               $showProcessGlobal () {
+                   if(this.$showProcessGlobal){
+                       this.showJobProgress();
+                   }
+               }
+           },
+           methods: {
+              showJobProgress: function() {
+                let currApp = this;
+                let intervalCheck = setInterval(function() {
+                     axios.get(`/ui/progress`)
+                     .then(function (response) {
+                        currApp.showLink = true;
+                        currApp.percentProgress = response.data.percent.percent.toFixed(2) + '%';
+                        currApp.lastJobLink = response.data.name;
+                        if(currApp.percentProgress === '100%') {
+                            clearInterval(intervalCheck);
+                            window.sessionStorage.removeItem('showProcess');
+                        }
+                     })
+                }, 1200);
+              },
+              disableLink: function() {
+                let currApp = this;
+                if(currApp.percentProgress === '100%') {
+                    currApp.showLink = false;
+                }
+              }
+
+           }
+     });
+ }
 
 export function initMavenVue() {
     return new Vue({
@@ -271,44 +331,56 @@ export function initMavenVue() {
             verifyButton: true,
             path: 'release'
         },
+        beforeMount(){
+           if (sessionStorage.showProcess === 'initMavenVue') {
+               this.verify();
+           }
+        },
         mounted: function(){
            this.checkCache(null, null);
-       },
-       methods: {
+        },
+        methods: {
         additionalMethod: function(app) {
+        if (sessionStorage.showProcess != null) {
+            this.verifyButton = true;
+        } else {
             app.verifyButton = false;
+        }
         },
         verify: function() {
             let currApp = this;
             currApp.showProcess = true;
+            sessionStorage.showProcess = 'initMavenVue';
+            this.$showProcessGlobal = true;
             axios.get(`/ui/maven/verify`)
             .then(function (response) {
                 currApp.checkStatus();
             })
             .catch(function () {
                 console.log("Error start mvn verify.");
+                 window.sessionStorage.removeItem('showProcess');
             })
         },
         checkStatus: function() {
           let currApp = this;
           let intervalCheck = setInterval(function() {
-            const param = new Date().getTime();
-            axios.get(`/ui/release/process/status?time=${param}`)
+            axios.get(`/ui/release/process/status`)
             .then(function (response) {
               currApp.progress = response.data.percent.percent;
               currApp.statusArr = response.data.results;
-              currApp.stageName = response.data.name; 
+              currApp.stageName = response.data.name;
               if(response.data.percent.percent === 100) {
-                clearInterval(intervalCheck); 
-            }
-        })
+                clearInterval(intervalCheck);
+              }
+            })
             .catch(function (){
               console.log("Error in checking status.");
-          })
-        }, 1200);
-      },
-  }
-});
+              window.sessionStorage.removeItem('showProcess');
+            })
+          }, 1200);
+        },
+        }
+    });
 }
 
 export function initRepoVue() {
@@ -383,6 +455,12 @@ export function initMilestoneView() {
             disableSelection: true,
             path: 'milestone'
         },
+        beforeMount(){
+            let currApp = this;
+            if (sessionStorage.showProcess === 'initMilestoneView') {
+            currApp.checkStatus();
+            }
+        },
         watch: {
             selectedModules: function (val) {
                 this.disableStartButton();
@@ -448,6 +526,7 @@ export function initMilestoneView() {
             },
             start: function(val) {
                 let currApp = this;
+                sessionStorage.showProcess = 'initMilestoneView';
                 axios.get(`/ui/milestone/${String(val).toLowerCase()}?milestoneTitle=${this.milestoneTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}&milestoneNewTitle=${this.milestoneNewTitle}`)
                 .then(function (response) {
                     currApp.checkStatus();
@@ -455,6 +534,7 @@ export function initMilestoneView() {
                 })
                 .catch(function () {
                  console.log("Error in creating milestones.");
+                 window.sessionStorage.removeItem('showProcess');
              })
             },
         }
@@ -470,6 +550,12 @@ export function initBranchView() {
             branchTitle: '',
             path: 'branches'
         },
+        beforeMount(){
+            let currApp = this;
+            if (sessionStorage.showProcess === 'initBranchView') {
+            currApp.checkStatus();
+            }
+        },
         watch: {
             selectedModules: function (val) {
                 this.disableStartButton();
@@ -481,6 +567,7 @@ export function initBranchView() {
         methods: {
             startTask: function(task) {
                 let currApp = this;
+                sessionStorage.showProcess = 'initBranchView';
                 currApp.progress = 0;
                 axios.get(`/ui/branches/${String(task)}?branchTitle=${this.branchTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                 .then(function (response) {
@@ -488,6 +575,7 @@ export function initBranchView() {
                 })
                 .catch(function () {
                  console.log("Error in " + task);
+                 window.sessionStorage.removeItem('showProcess');
              })
             },
         }
@@ -537,18 +625,24 @@ export function initValidationView() {
     return new Vue({
         el: '#validationVue',
         mixins: [releaseBaseMethods],
-        data: {
-
+        beforeMount(){
+            let currApp = this;
+            if (sessionStorage.showProcess === 'initValidationView') {
+                currApp.checkStatus();
+            }
         },
         methods: {
             validate: function () {
                 let currApp = this;
+                sessionStorage.showProcess = 'initValidationView';
+                this.$showProcessGlobal = true;
                 axios.get(`/ui/validation/validate?releaseVersion=${currApp.releaseVersion}&nextDevVersion=${currApp.nextDevVersion}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                 .then(function (response) {
                     currApp.checkStatus();
                 })
                 .catch(function () {
                  console.log("Error while validation.");
+                 window.sessionStorage.removeItem('showProcess');
              })
             },
         },

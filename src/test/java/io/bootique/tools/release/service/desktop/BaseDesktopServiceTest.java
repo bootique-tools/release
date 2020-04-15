@@ -58,15 +58,15 @@ class BaseDesktopServiceTest {
                 "[INFO] \n" +
                 "[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ dummy-api ---\n" +
                 "[INFO] \n" +
-                "[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ dummy-api ---\n" +
-                "[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!\n" +
+                "[INFO] --- maven-resources-plugin:3.1.0:resources (default-resources) @ dummy-api ---\n" +
+                "[INFO] Using 'UTF-8' encoding to copy filtered resources.\n" +
                 "[INFO] skip non existing resourceDirectory " + "/private" + tempPath.toString() + "/src/main/resources\n" +
                 "[INFO] \n" +
                 "[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ dummy-api ---\n" +
                 "[INFO] No sources to compile\n" +
                 "[INFO] \n" +
-                "[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ dummy-api ---\n" +
-                "[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!\n" +
+                "[INFO] --- maven-resources-plugin:3.1.0:testResources (default-testResources) @ dummy-api ---\n" +
+                "[INFO] Using 'UTF-8' encoding to copy filtered resources.\n" +
                 "[INFO] skip non existing resourceDirectory " + "/private" + tempPath.toString() + "/src/test/resources\n" +
                 "[INFO] \n" +
                 "[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ dummy-api ---\n" +

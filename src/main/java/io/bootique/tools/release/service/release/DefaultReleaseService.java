@@ -236,9 +236,10 @@ public class DefaultReleaseService implements ReleaseService{
                 repositories = repositories.subList(index + 1, repositories.size());
             }
         }
-        BatchJobDescriptor<Repository, String> descriptor = new BatchJobDescriptor<>(repositories,
-                proc,
-                ErrorPolicy.ABORT_ALL_ON_ERROR);
+
+        BatchJobDescriptor<Repository, String> descriptor = BatchJobDescriptor.builder().data(repositories)
+                .processor(proc).errorPolicy(ErrorPolicy.ABORT_ALL_ON_ERROR).build();
+
         preferences.set(BatchJobService.CURRENT_JOB_ID, jobService.submit(descriptor).getId());
     }
 
