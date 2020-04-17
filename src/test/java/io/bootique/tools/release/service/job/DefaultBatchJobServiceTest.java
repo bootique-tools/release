@@ -27,17 +27,16 @@ class DefaultBatchJobServiceTest {
     void testSubmit() throws Exception {
         CountDownLatch latch = new CountDownLatch(4);
 
-        BatchJobDescriptor<String, Void> descriptor = new BatchJobDescriptor<>(
-                Arrays.asList("str1", "str2", "str3", "str4"),
-                str -> {
+        BatchJobDescriptor<String, Void> descriptor = BatchJobDescriptor.builder()
+                .data(Arrays.asList("str1", "str2", "str3", "str4"))
+                .processor(str -> {
                     try {
                         System.out.println(str);
                         return null;
                     } finally {
                         latch.countDown();
                     }
-                }
-        );
+                }).build();
 
         BatchJob<String, Void> job = batchJobService.submit(descriptor);
 

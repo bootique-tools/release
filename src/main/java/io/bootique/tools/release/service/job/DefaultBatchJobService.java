@@ -44,7 +44,7 @@ public class DefaultBatchJobService implements BatchJobService {
                 .map(task -> (BatchForkJoinTask<BatchJobResult<T, R>>)task)
                 .collect(Collectors.toList());
 
-        BatchJob<T, R> job = new BatchJob<>(JOB_ID_SEQUENCE.getAndIncrement(), tasks);
+        BatchJob<T, R> job = new BatchJob<>(JOB_ID_SEQUENCE.getAndIncrement(), tasks, descriptor);
         jobMap.put(job.getId(), job);
         return job;
     }

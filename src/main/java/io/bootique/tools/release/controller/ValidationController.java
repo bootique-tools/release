@@ -24,6 +24,8 @@ import java.util.function.Function;
 @Path("/validation")
 public class ValidationController extends DefaultBaseController {
 
+    private final String CONTROLLER_NAME = "validation";
+
     @Inject
     private BintrayApi bintrayApi;
 
@@ -73,7 +75,7 @@ public class ValidationController extends DefaultBaseController {
                 throw new JobException(ex.getMessage(), ex);
             }
         };
-        startJob(repoProcessor, selectedModules);
+        startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
     }
 
     @GET

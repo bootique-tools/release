@@ -48,15 +48,23 @@
                 <li class="nav-item">
                     <a class="nav-link" id="validate-pom" href="#">Validate pom</a>
                 </li>
+                <li class="nav-item" id="jobProgress" v-if="showLink">
+                    <a class="nav-link" :href="`/ui/${lastJobLink}`" v-on:click="disableLink">Current Job <span class="badge badge-secondary" v-html="percentProgress"></span></a>
+                </li>
                 {{/organization}}
             </ul>
-
 
             {{#user}}
              <span class="navbar-text"><a href="{{url}}" target="_blank" title="Current user: {{login}} ({{name}})">{{login}}</a></span>&nbsp;&nbsp;
             {{/user}}
         </div>
     </nav>
+
+<script type="module">
+    import { jobProgress } from '/js/functions.js';
+    jobProgress();
+</script>
+
 </div>
 <div class="container-fluid" style="margin-top: 4rem;">
     <div class="row">
