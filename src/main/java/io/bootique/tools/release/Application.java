@@ -21,7 +21,6 @@ import io.bootique.tools.release.command.ConsoleReleaseCommand;
 import io.bootique.tools.release.command.ConsoleRollbackCommand;
 import io.bootique.tools.release.controller.BaseRequestFilter;
 import io.bootique.tools.release.controller.websocket.JobProgressWebSocket;
-import io.bootique.tools.release.controller.websocket.JobProgressWebSocketAdapter;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.job.QueryJob;
 import io.bootique.tools.release.model.github.Repository;
@@ -112,7 +111,7 @@ public class Application implements BQModule {
         binder.bind(CreateReadmeService.class).to(DefaultCreateReadmeService.class).inSingletonScope();
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
 
-        JettyModule.extend(binder).useDefaultServlet().addServlet(JobProgressWebSocketAdapter.class);
+        JettyModule.extend(binder).useDefaultServlet();
         JettyWebSocketModule.extend(binder)
                 .addEndpoint(JobProgressWebSocket.class);
 
