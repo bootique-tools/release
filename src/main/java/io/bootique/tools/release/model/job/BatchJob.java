@@ -1,14 +1,10 @@
 package io.bootique.tools.release.model.job;
 
-import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.bootique.tools.release.controller.websocket.CallbackListener;
+import io.bootique.tools.release.controller.websocket.EndOfTaskListener;
 import io.bootique.tools.release.service.job.BatchForkJoinTask;
 import io.bootique.value.Percent;
-import org.slf4j.LoggerFactory;
 
-import javax.websocket.EncodeException;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -18,34 +14,29 @@ import java.util.stream.Collectors;
 
 public class BatchJob<T, R> {
 
-    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(BatchJob.class);
     private final long id;
     private final long startTimeNanos;
-    private BatchJobDescriptor<T, R> batchJobDescriptor;
+    private final BatchJobDescriptor<T, R> batchJobDescriptor;
 
     @JsonIgnore
-    private List<BatchForkJoinTask<BatchJobResult<T, R>>> tasks;
+    private final List<BatchForkJoinTask<BatchJobResult<T, R>>> tasks;
 
-    private CallbackListener endOfTaskListener;
+    private EndOfTaskListener endOfTaskListener;
 
-    private Runnable listener = () -> {
-        try {
-            endOfTaskListener.updateProgress();
-        } catch (EncodeException | IOException e) {
-            LOGGER.error(e.getMessage());
-        }
+    private final Runnable taskEndListener = () -> {
+        endOfTaskListener.update();
     };
 
     public BatchJob(long id, List<BatchForkJoinTask<BatchJobResult<T, R>>> tasks, BatchJobDescriptor<T, R> batchJobDescriptor) {
         this.id = id;
         this.startTimeNanos = System.nanoTime();
         this.tasks = tasks;
-        this.tasks.forEach(t -> t.setListener(listener));
+        this.tasks.forEach(t -> t.setListener(taskEndListener));
         this.batchJobDescriptor = batchJobDescriptor;
     }
 
-    public void addListener(CallbackListener callbackListener) {
-        this.endOfTaskListener = callbackListener;
+    public void addListener(EndOfTaskListener taskEndListener) {
+        this.endOfTaskListener = taskEndListener;
     }
 
     public long getId() {
