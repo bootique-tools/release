@@ -15,11 +15,11 @@ import java.io.IOException;
 
 public class EndOfTaskListener {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(EndOfTaskListener.class);
-    private Session session;
-    private JobResponse.Builder builder = JobResponse.builder();
-    private BatchJobService jobService;
+    private final Session session;
+    private final JobResponse.Builder builder = JobResponse.builder();
+    private final BatchJobService jobService;
 
     public EndOfTaskListener(Session session, BatchJobService jobService) {
         this.session = session;
