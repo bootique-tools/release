@@ -31,7 +31,7 @@ public class JobProgressWebSocket {
     @OnError
     public void onError(Throwable t) throws IOException {
         session.close();
-        LOGGER.error(t.getMessage());
+        LOGGER.error(t.getMessage(), t);
     }
 
     @OnClose

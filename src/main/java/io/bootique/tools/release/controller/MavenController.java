@@ -58,9 +58,8 @@ public class MavenController extends BaseController {
             }
             try {
                 desktopService.runMavenCommand(
-                        preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), "clean",
-                        // "install",
-                        "-B", "-q"
+                        preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()),
+                        "clean", "install", "-B", "-q"
                 );
                 return "";
             } catch (DesktopException ex) {

@@ -63,6 +63,6 @@ scheduler:
   threadPoolSize: 3
   triggers:
   - job: query
-    initialDelayMs: 300
+    initialDelay: 300ms
     # run every 5 minutes
-    fixedDelayMs: 300000
+    fixedDelay: 300000ms
