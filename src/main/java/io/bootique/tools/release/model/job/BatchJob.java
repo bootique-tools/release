@@ -1,14 +1,13 @@
 package io.bootique.tools.release.model.job;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.service.job.BatchForkJoinTask;
 import io.bootique.value.Percent;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinTask;
 import java.util.stream.Collectors;
 
@@ -16,16 +15,27 @@ public class BatchJob<T, R> {
 
     private final long id;
     private final long startTimeNanos;
-    private BatchJobDescriptor<T, R> batchJobDescriptor;
+    private final BatchJobDescriptor<T, R> batchJobDescriptor;
 
     @JsonIgnore
     private final List<BatchForkJoinTask<BatchJobResult<T, R>>> tasks;
+
+    @JsonIgnore
+    private final Collection<Runnable> endOfTaskListeners = new ArrayList<>();
+
+    @JsonIgnore
+    private final Runnable taskEndListener = () -> endOfTaskListeners.forEach(Runnable::run);
 
     public BatchJob(long id, List<BatchForkJoinTask<BatchJobResult<T, R>>> tasks, BatchJobDescriptor<T, R> batchJobDescriptor) {
         this.id = id;
         this.startTimeNanos = System.nanoTime();
         this.tasks = tasks;
+        this.tasks.forEach(t -> t.setListener(taskEndListener));
         this.batchJobDescriptor = batchJobDescriptor;
+    }
+
+    public void addListener(Runnable taskEndListener) {
+        this.endOfTaskListeners.add(taskEndListener);
     }
 
     public long getId() {
@@ -68,7 +78,7 @@ public class BatchJob<T, R> {
                 .map(task -> {
                     try {
                         return task.isDone() ? task.get() : task.getInitialState();
-                    } catch (InterruptedException | ExecutionException | CancellationException ex) {
+                    } catch (Exception ex) {
                         return task.getInitialState();
                     }
                 })

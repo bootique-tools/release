@@ -14,11 +14,13 @@ import io.bootique.jersey.JerseyModule;
 import io.bootique.jersey.client.HttpTargets;
 import io.bootique.jetty.JettyModule;
 import io.bootique.jetty.command.ServerCommand;
+import io.bootique.jetty.websocket.JettyWebSocketModule;
 import io.bootique.job.command.ScheduleCommand;
 import io.bootique.job.runtime.JobModule;
 import io.bootique.tools.release.command.ConsoleReleaseCommand;
 import io.bootique.tools.release.command.ConsoleRollbackCommand;
 import io.bootique.tools.release.controller.BaseRequestFilter;
+import io.bootique.tools.release.controller.websocket.JobProgressWebSocket;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.job.QueryJob;
 import io.bootique.tools.release.model.github.Repository;
@@ -110,6 +112,9 @@ public class Application implements BQModule {
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
 
         JettyModule.extend(binder).useDefaultServlet();
+        JettyWebSocketModule.extend(binder)
+                .addEndpoint(JobProgressWebSocket.class);
+
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)
                 .addResource(BaseRequestFilter.class)

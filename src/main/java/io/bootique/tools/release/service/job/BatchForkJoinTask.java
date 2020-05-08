@@ -9,10 +9,15 @@ public class BatchForkJoinTask<T> extends ForkJoinTask<T> implements RunnableFut
 
     private final Callable<? extends T> callable;
     private volatile T result;
+    private Runnable listener;
 
     BatchForkJoinTask(Callable<? extends T> callable, T initialState) {
         this.callable = Objects.requireNonNull(callable);
         this.result = initialState;
+    }
+
+    public void setListener(Runnable listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -38,6 +43,8 @@ public class BatchForkJoinTask<T> extends ForkJoinTask<T> implements RunnableFut
             throw err;
         } catch (Exception ex) {
             throw new RuntimeException(ex);
+        } finally {
+            listener.run();
         }
     }
 
@@ -45,5 +52,4 @@ public class BatchForkJoinTask<T> extends ForkJoinTask<T> implements RunnableFut
     public final void run() {
         invoke();
     }
-
 }

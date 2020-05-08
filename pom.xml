@@ -15,8 +15,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <jetty.version>9.4.27.v20200227</jetty.version>
-        <jackson.version>2.10.3</jackson.version>
+        <jetty.version>9.4.28.v20200408</jetty.version>
+        <jackson.version>2.10.2</jackson.version>
         <junit.jupiter.version>5.6.1</junit.jupiter.version>
         <bq.version>2.0-SNAPSHOT</bq.version>
 
@@ -38,6 +38,10 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>io.bootique.jetty</groupId>
+            <artifactId>bootique-jetty-websocket</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.bootique.mvc</groupId>
             <artifactId>bootique-mvc-mustache</artifactId>
@@ -79,6 +83,7 @@
             <artifactId>bootique-test-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

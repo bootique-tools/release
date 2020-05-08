@@ -16,6 +16,18 @@ public class JobResponse<T, R> {
         return new Builder();
     }
 
+    public Percent getPercent() {
+        return percent;
+    }
+
+    public List<BatchJobResult<T, R>> getResults() {
+        return results;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public static class Builder {
 
         private JobResponse jobResponse;
@@ -42,17 +54,5 @@ public class JobResponse<T, R> {
         public JobResponse build(){
             return jobResponse;
         }
-    }
-
-    public Percent getPercent() {
-        return percent;
-    }
-
-    public List<BatchJobResult<T, R>> getResults() {
-        return results;
-    }
-
-    public String getName() {
-        return name;
     }
 }
