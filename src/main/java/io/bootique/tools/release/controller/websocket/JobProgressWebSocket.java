@@ -12,7 +12,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
-@ServerEndpoint(value = "/job-progress-web-socket")
+@ServerEndpoint(value = "/job-progress")
 public class JobProgressWebSocket {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(JobProgressWebSocket.class);

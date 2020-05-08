@@ -14,6 +14,7 @@ import io.bootique.tools.release.view.MavenView;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.util.List;
 import java.util.function.Function;
@@ -38,7 +39,7 @@ public class MavenController extends BaseController {
         return new MavenView(gitHubApi.getCurrentUser(), gitHubApi.getCurrentOrganization());
     }
 
-    @GET
+    @POST
     @Path("verify")
     public void verifyAll() {
         Organization organization = gitHubApi.getCurrentOrganization();
@@ -57,7 +58,9 @@ public class MavenController extends BaseController {
             }
             try {
                 desktopService.runMavenCommand(
-                        preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), "clean", "install", "-B", "-q"
+                        preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), "clean",
+                        // "install",
+                        "-B", "-q"
                 );
                 return "";
             } catch (DesktopException ex) {
