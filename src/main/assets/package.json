@@ -1,0 +1,37 @@
+{
+  "name": "bootique.release",
+  "description": "Bootique.io release automation tool",
+  "version": "1.0.0",
+  "repository": "https://github.com/bootique-tools/release",
+  "main": "main.js",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "autoprefixer": "9.7.6",
+    "css-loader": "3.4.2",
+    "exports-loader": "^0.7.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "file-loader": "5.1.0",
+    "html-webpack-plugin": "3.2.0",
+    "node-sass": "^4.13.1",
+    "postcss-loader": "3.0.0",
+    "rimraf": "3.0.2",
+    "sass": "1.26.2",
+    "sass-loader": "^8.0.2",
+    "style-loader": "1.2.1",
+    "url-loader": "4.1.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "bootstrap": "^4.4.1",
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1",
+    "vue": "^2.6.11",
+    "axios": "^0.19.2",
+    "@fortawesome/fontawesome-free": "^5.13.0"
+  },
+  "scripts": {
+    "build": "webpack -p --env.NODE_ENV production --env.SOURCE_MAP source-map",
+    "build:watch": "webpack --watch --env.NODE_ENV development --env.SOURCE_MAP eval-source-map"
+  }
+}

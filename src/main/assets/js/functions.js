@@ -1,3 +1,6 @@
+import Vue from 'vue/dist/vue'
+import axios from 'axios/dist/axios'
+
 function incrementLast(v) {
     return v.replace(/[0-9]+(?!.*[0-9])/, function (match) {
         return parseInt(match, 10) + 1;

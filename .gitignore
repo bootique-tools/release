@@ -5,4 +5,5 @@ target
 release-status
 release-manager.yml
 *.log
-/local-repository/
+node
+node_modules

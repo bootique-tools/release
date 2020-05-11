@@ -1,0 +1,122 @@
+@import "bootstrap-bundle";
+
+.login-outer-div {
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+.login-card {
+    top: 50%;
+    width: 23.1rem;
+    margin-left: -12rem;
+    margin-top: -10em;
+    display: inline-block;
+}
+
+.release-fields {
+    margin-top: 10rem;
+    text-align: center;
+}
+
+.release-fields select, .release-fields input {
+    width: 70%;
+    margin: 0 auto;
+    background: #f2f2f2;
+}
+
+.release-btn {
+    margin-top: 2rem;
+}
+
+.projects {
+    margin-top: 2rem;
+}
+
+.progress-style {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.table-pull-style {
+    margin-top: 2rem;
+}
+
+.indeterminate-progress-bar, .indeterminate-progress-bar > .progress-block {
+    border: 1px none;
+}
+
+.indeterminate-progress-bar {
+    height: 20px;
+    margin: 0.5em;
+    background-color: #F2F2F2;
+}
+
+.indeterminate-progress-bar > .progress-block {
+    -webkit-animation-name: none;
+    -webkit-animation-duration: 1.5s;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-delay: 0s;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-direction: alternate;
+    -webkit-animation-play-state: paused;
+
+    animation-name: none;
+    animation-duration: 1.5s;
+    animation-timing-function: linear;
+    animation-delay: 0s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-play-state: paused;
+}
+
+.indeterminate-progress-bar.active > .progress-block {
+    -webkit-animation-name: bar-movement;
+    -webkit-animation-play-state: running;
+
+    animation-name: bar-movement;
+    animation-play-state: running;
+}
+
+@-webkit-keyframes bar-movement {
+    from {
+        left: -1px;
+    }
+    to {
+        left: calc(75% + 1px);
+    }
+}
+
+@keyframes bar-movement {
+    from {
+        left: -1px;
+    }
+    to {
+        left: calc(75% + 1px);
+    }
+}
+
+.progress-block {
+    position: relative;
+    top: -1px;
+    left: -1px;
+    width: 25%;
+    height: 100%;
+    background: #51A3EE;
+}
+
+.verify-button {
+    margin-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.buttons-block {
+    padding-bottom: 2rem;
+}
+
+#confirm-modal p {
+    padding: 10px;
+    font-weight: 500;
+    text-align: left;
+}
