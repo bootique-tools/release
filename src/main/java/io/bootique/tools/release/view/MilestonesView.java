@@ -1,7 +1,7 @@
 package io.bootique.tools.release.view;
 
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.User;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.User;
 
 public class MilestonesView extends BaseView {
 

@@ -48,6 +48,7 @@ preferences:
   organizationName: bootique
   organizationGroupId: io.bootique
   bintrayOrganizationName: bootique
+  groupIdPattern: dummy-org
 
 jerseyclient:
   targets:
@@ -65,4 +66,4 @@ scheduler:
   - job: query
     initialDelay: 300ms
     # run every 5 minutes
-    fixedDelay: 300000ms
+    fixedDelay: 1800000ms

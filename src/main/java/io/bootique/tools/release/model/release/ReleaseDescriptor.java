@@ -1,7 +1,7 @@
 package io.bootique.tools.release.model.release;
 
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.maven.persistent.Project;
 
 import java.util.List;
 
@@ -19,7 +19,8 @@ public class ReleaseDescriptor {
     private Repository lastSuccessReleasedRepository;
     private ReleaseStage lastSuccessReleaseStage;
 
-    public ReleaseDescriptor(){}
+    public ReleaseDescriptor() {
+    }
 
     public ReleaseDescriptor(String fromVersion,
                              String releaseVersion,
@@ -58,7 +59,9 @@ public class ReleaseDescriptor {
         return currentReleaseStage;
     }
 
-    public void setCurrentReleaseStage(ReleaseStage currentReleaseStage) { this.currentReleaseStage = currentReleaseStage; }
+    public void setCurrentReleaseStage(ReleaseStage currentReleaseStage) {
+        this.currentReleaseStage = currentReleaseStage;
+    }
 
     public void setDevVersion(String devVersion) {
         this.devVersion = devVersion;
@@ -109,7 +112,7 @@ public class ReleaseDescriptor {
     }
 
     public void resolveStages() {
-        if(lastSuccessReleasedRepository != null && lastSuccessReleasedRepository.getName().equals(projectList.get(projectList.size() - 1).getRepository().getName())) {
+        if (lastSuccessReleasedRepository != null && lastSuccessReleasedRepository.getName().equals(projectList.get(projectList.size() - 1).getRepository().getName())) {
             currentReleaseStage = ReleaseStage.getNext(lastSuccessReleaseStage);
             lastSuccessReleasedRepository = null;
         }

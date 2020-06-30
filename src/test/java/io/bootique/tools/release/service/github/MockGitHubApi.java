@@ -1,38 +1,63 @@
 package io.bootique.tools.release.service.github;
 
-import io.bootique.tools.release.model.github.*;
+import io.bootique.tools.release.model.persistent.*;
+import io.bootique.tools.release.service.preferences.PreferenceService;
+import org.apache.cayenne.ObjectContext;
 
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class MockGitHubApi implements GitHubApi{
+
+    private ObjectContext context;
+
+    public MockGitHubApi(ObjectContext context) {
+        this.context = context;
+    }
+
     @Override
     public User getCurrentUser() {
         return null;
     }
 
     @Override
+    public PreferenceService getPreferences() {
+        return null;
+    }
+
+    @Override
     public Organization getCurrentOrganization(){
-        Organization organization = new Organization();
+        Organization organization = context.newObject(Organization.class);
         organization.setName("dummy-org-00");
 
-        Repository repository = new Repository();
+        Repository repository = context.newObject(Repository.class);
         repository.setName("dummy-api");
-        Repository repository1 = new Repository();
+        Repository repository1 = context.newObject(Repository.class);
         repository1.setName("dummy-app");
-        Repository repository2 = new Repository();
+        Repository repository2 = context.newObject(Repository.class);
         repository2.setName("dummy-module1");
         RepositoryCollection repositoryCollection = new RepositoryCollection();
         repositoryCollection.setRepositories(Arrays.asList(repository, repository1, repository2));
         organization.setRepositoryCollection(repositoryCollection);
+        organization.addToRepositories(repository);
+        organization.addToRepositories(repository1);
+        organization.addToRepositories(repository2);
+
         return organization;
     }
 
     @Override
+    public RepositoryCollection getCurrentRepositoryCollection(Organization organization) {
+        return null;
+    }
+
+    @Override
     public MilestoneCollection getMilestoneCollection(Repository repository) {
+        return null;
+    }
+
+    @Override
+    public List<Milestone> getMilestones(Repository repository) {
         return null;
     }
 
@@ -42,8 +67,13 @@ public class MockGitHubApi implements GitHubApi{
     }
 
     @Override
-    public IssueCollection getClosedIssueCollection(Repository repository, int id) {
+    public Boolean isUpdate() {
         return null;
+    }
+
+    @Override
+    public void setUpdate(Boolean update) {
+
     }
 
     @Override

@@ -1,6 +1,8 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.maven.Project;
+import io.agrest.Ag;
+import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
@@ -11,7 +13,9 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -22,10 +26,10 @@ public class ReleaseProcessController extends BaseReleaseController {
     @POST
     @Path("/create-descriptor")
     public Response createDescriptor(@FormParam("fromVersion") String version,
-                                             @FormParam("releaseVersion") String releaseVersion,
-                                             @FormParam("devVersion") String devVersion,
-                                             @FormParam("projects") String selected,
-                                             @FormParam("mode") boolean mode) throws IOException {
+                                     @FormParam("releaseVersion") String releaseVersion,
+                                     @FormParam("devVersion") String devVersion,
+                                     @FormParam("projects") String selected,
+                                     @FormParam("mode") boolean mode) throws IOException {
 
         List<Project> selectedProjects = getSelectedProjects(selected);
         prepareRelease(
@@ -45,10 +49,19 @@ public class ReleaseProcessController extends BaseReleaseController {
 
     @GET
     @Path("/current-step")
-    public BaseView currentStep() {
+    public BaseView currentStep(@Context UriInfo uriInfo) {
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
+
+        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        for (Repository repository : organization.getRepositories()) {
+            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
+            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
+            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
+        }
+        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+
         return new ReleaseProcessView(gitHubApi.getCurrentUser(),
-                gitHubApi.getCurrentOrganization(), releaseDescriptor.getCurrentReleaseStage(), releaseDescriptor.isAutoReleaseMode());
+                organization, releaseDescriptor.getCurrentReleaseStage(), releaseDescriptor.isAutoReleaseMode());
     }
 
     @GET

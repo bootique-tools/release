@@ -4,8 +4,8 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.bootique.jersey.client.HttpTargets;
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,8 @@ public class DefaultBintrayApi implements BintrayApi {
     private String password;
     private int close;
 
-    DefaultBintrayApi(){}
+    DefaultBintrayApi() {
+    }
 
     public DefaultBintrayApi(HttpTargets httpTargets, ObjectMapper objectMapper, PreferenceService preferenceService, String username, String password, int close) {
         this.targets = httpTargets;
@@ -42,8 +43,10 @@ public class DefaultBintrayApi implements BintrayApi {
     public void publishUploadedContent(Repository repository, String releaseVersion) {
         LOGGER.debug("Publish content of " + repository.getName() + " in Bintray.");
 
+        System.out.println("\nxpublishUploadedContent\n");
+
         Response response = buildPost("/content/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + repository.getName() + "/" + releaseVersion + "/publish", "");
-        if(response.getStatus() != 200) {
+        if (response.getStatus() != 200) {
             throw new DesktopException("Exit code: " + response.getStatus() + "\n" + response.readEntity(String.class));
         }
         LOGGER.debug("Content was published. Response is " + response.getStatus() + '\n'
@@ -66,7 +69,7 @@ public class DefaultBintrayApi implements BintrayApi {
             throw new DesktopException("Can't process response.", e);
         }
 
-        if(response.getStatus() != 200) {
+        if (response.getStatus() != 200) {
             throw new DesktopException("Exit code: " + response.getStatus() + "\n" + response.readEntity(String.class));
         }
         LOGGER.debug("Synced with maven central. Response is " + response.getStatus() + '\n'
@@ -79,7 +82,7 @@ public class DefaultBintrayApi implements BintrayApi {
         Response response = buildGet("/packages/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + repository.getName());
         LOGGER.debug("Check repository... Response is " + response.getStatus() + '\n'
                 + "Message: " + response.readEntity(String.class));
-        if(response.getStatus() != 200) {
+        if (response.getStatus() != 200) {
             LOGGER.warn(repository.getName() + " hasn't got Bintray repo.");
             return false;
         }
@@ -102,7 +105,7 @@ public class DefaultBintrayApi implements BintrayApi {
         Response response;
         try {
             response = buildPost("/packages/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases", objectMapper.writeValueAsString(map));
-            if(response.getStatus() != 201) {
+            if (response.getStatus() != 201) {
                 throw new DesktopException("Exit code: " + response.getStatus() + "\n" + response.readEntity(String.class));
             }
         } catch (JsonProcessingException e) {
@@ -119,7 +122,7 @@ public class DefaultBintrayApi implements BintrayApi {
         Response response = buildGet("/packages/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + repository.getName() + "/versions/" + releaseVersion);
         LOGGER.debug("Getting repository... Response is " + response.getStatus() + '\n'
                 + "Message: " + response.readEntity(String.class));
-        if(response.getStatus() == 200) {
+        if (response.getStatus() == 200) {
             deleteVersion(repository, releaseVersion);
         }
     }
@@ -127,7 +130,7 @@ public class DefaultBintrayApi implements BintrayApi {
     private void deleteVersion(Repository repository, String releaseVersion) {
         LOGGER.debug("Delete repository " + repository.getName() + " from Bintray.");
         Response response = buildDelete("/packages/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + repository.getName() + "/versions/" + releaseVersion);
-        if(response.getStatus() != 200) {
+        if (response.getStatus() != 200) {
             throw new DesktopException("Exit code: " + response.getStatus() + "\n" + response.readEntity(String.class));
         }
         LOGGER.debug("Deleted repository... Response is " + response.getStatus() + '\n'
@@ -167,6 +170,6 @@ public class DefaultBintrayApi implements BintrayApi {
         Response response = targets.newTarget("bintray")
                 .path("/packages/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + project.getRootModule().getId())
                 .request().buildGet().invoke();
-        return (Map<String, String>)response.readEntity(HashMap.class);
+        return (Map<String, String>) response.readEntity(HashMap.class);
     }
 }

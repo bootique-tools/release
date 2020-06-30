@@ -1,7 +1,6 @@
 package io.bootique.tools.release.service.readme;
 
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.persistent.Repository;
 
 import java.util.List;
 

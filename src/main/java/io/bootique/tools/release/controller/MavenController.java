@@ -1,9 +1,11 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.Repository;
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.agrest.DataResponse;
+import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
@@ -16,6 +18,8 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,24 +40,32 @@ public class MavenController extends BaseController {
 
     @GET
     public MavenView home() {
-        return new MavenView(gitHubApi.getCurrentUser(), gitHubApi.getCurrentOrganization());
+        AgRequest agRequest = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
+        for (Repository repository : organization.getRepositories()) {
+            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
+            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
+            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
+        }
+        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+        return new MavenView(gitHubApi.getCurrentUser(), organization);
     }
 
     @POST
     @Path("verify")
-    public void verifyAll() {
-        Organization organization = gitHubApi.getCurrentOrganization();
-        List<Project> projects = mavenService.getProjects(organization, p -> true);
-        List<Repository> repositories = projects.stream()
+    public void verifyAll(@Context UriInfo uriInfo) {
+        AgRequest agRequest = Ag.request(configuration).build();
+        DataResponse<Project> projects = getProjects(agRequest, project -> true);
+        List<Repository> repositories = projects.getObjects().stream()
                 .map(Project::getRepository)
                 .collect(Collectors.toList());
 
-        if(jobService.getCurrentJob() != null && !jobService.getCurrentJob().isDone()){
+        if (jobService.getCurrentJob() != null && !jobService.getCurrentJob().isDone()) {
             return;
         }
 
         Function<Repository, String> repoProcessor = repo -> {
-            if(!mavenService.isMavenProject(repo)) {
+            if (!mavenService.isMavenProject(repo)) {
                 return "NO_POM"; // throw new JobException("NO_POM", "No pom.xml for repo " + repo);
             }
             try {

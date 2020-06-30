@@ -1,7 +1,7 @@
 package io.bootique.tools.release.controller.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.job.BatchJob;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.JobResponse;

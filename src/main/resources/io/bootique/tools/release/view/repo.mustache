@@ -1,19 +1,21 @@
 {{> header}}
 
-<div id="repoVue">
-    <div class="progress-style">
-        <div id="bar" class="indeterminate-progress-bar active">
-            <div class="progress-block single-segment"></div>
-        </div>
+<div class="progress-style">
+    <div id="bar" class="indeterminate-progress-bar active">
+        <div class="progress-block single-segment"></div>
     </div>
+</div>
+
+<div id="repoVue">
+
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead>
             <tr>
-                <th><a v-on:click="sortAndFilter(null, 'name')" href="#">Repository</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'pr:desc')" href="#">PR</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'issue:desc')" href="#">issues</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'date:desc')" href="#">last push</a></th>
+                <th><a v-on:click="sortAndFilter('name', null, null)" href="#">Repository</a></th>
+                <th><a v-on:click="sortAndFilter('pullRequests', null, null)" href="#">PR</a></th>
+                <th><a v-on:click="sortAndFilter('issues', null, null)" href="#">issues</a></th>
+                <th><a v-on:click="sortAndFilter('pushedAt', null, null)" href="#">last push</a></th>
                 <th>milestones</th>
                 <th>local copy
                     <button type="button" class="btn btn-sm btn-outline-primary" id="btn-folder-setup">
@@ -31,31 +33,31 @@
             </tr>
             </thead>
             <tbody>
-                <tr v-for="repo in allItems">
+                <tr v-for="repo in allItems.data">
                     <td>
                         <a :href="repo.url" target="_blank">[[repo.name]]</a>
                         <a v-if="repo.parent !== null" :href="repo.parent.url" target="_blank" class="badge badge-secondary">parent</a>
                     </td>
                     <td>
-                        <a :href="'/ui/pr?filter=r:' + repo.name">[[repo.pullRequests.totalCount]]</a>
+                        <a :href="'/ui/pr?filter=repository.name&field=' + repo.name">[[repo.pullRequests.length]]</a>
                     </td>
                     <td>
-                        <a :href="'/ui/issue?filter=r:' + repo.name">[[repo.issues.totalCount]]</a>
+                        <a :href="'/ui/issue?filter=repository.name&field=' + repo.name">[[repo.issues.length]]</a>
                     </td>
                     <td>
                         [[repo.pushedAtStr]]
                     </td>
                     <td>
-                        &nbsp;<a href="/ui/milestone" class="badge badge-secondary">Total count: [[repo.milestones.totalCount]]</a>
+                        &nbsp;<a href="/ui/milestone" class="badge badge-secondary">Total count: [[repo.milestones.length]]</a>
                     </td>
                     <td>
-                        <button v-if="repo.haveLocalRepo" type="button" class="btn btn-sm btn-outline-primary repo-view" v-on:click="repoView(repo.name, 'viewer')">
+                        <button v-if="repo.lStatus != 'MISSING'" type="button" class="btn btn-sm btn-outline-primary repo-view" v-on:click="repoView(repo.name, 'viewer')">
                             <i class="fas fa-folder-open"></i>
                         </button>
-                        <button v-if="repo.haveLocalRepo" type="button" class="btn btn-sm btn-outline-secondary repo-view" v-on:click="repoView(repo.name, 'terminal')">
+                        <button v-if="repo.lStatus != 'MISSING'" type="button" class="btn btn-sm btn-outline-secondary repo-view" v-on:click="repoView(repo.name, 'terminal')">
                             <i class="fas fa-terminal"></i>
                         </button>
-                        <button v-if="repo.haveLocalRepo" type="button" class="btn btn-sm btn-outline-secondary repo-update" :id="repo.name" v-on:click="repoUpdate(repo.name)">
+                        <button v-if="repo.lStatus != 'MISSING'" type="button" class="btn btn-sm btn-outline-secondary repo-update" :id="repo.name" v-on:click="repoUpdate(repo.name)">
                             <i class="fas fa-sync"></i>
                         </button>
                         <button v-else type="button" class="btn btn-sm btn-outline-primary repo-clone" :id="repo.name" v-on:click="repoClone(repo.name)">

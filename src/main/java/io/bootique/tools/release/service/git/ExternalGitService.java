@@ -1,6 +1,6 @@
 package io.bootique.tools.release.service.git;
 
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.preferences.PreferenceService;

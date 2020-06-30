@@ -1,8 +1,8 @@
 package io.bootique.tools.release.service.console;
 
 import ch.qos.logback.classic.Logger;
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
@@ -30,11 +30,11 @@ public class DefaultConsoleRollbackService implements ConsoleRollbackService {
 
     @Override
     public boolean checkReadyForRollback() {
-        if(!releaseService.hasCurrentActiveRelease()) {
+        if (!releaseService.hasCurrentActiveRelease()) {
             LOGGER.info("No release to rollback.");
             return false;
         }
-        if(releaseService.getReleaseDescriptor().getCurrentReleaseStage() == ReleaseStage.RELEASE_SYNC) {
+        if (releaseService.getReleaseDescriptor().getCurrentReleaseStage() == ReleaseStage.RELEASE_SYNC) {
             LOGGER.info("Can't rollback because current stage is sync with maven central. ");
             return false;
         }
@@ -47,12 +47,12 @@ public class DefaultConsoleRollbackService implements ConsoleRollbackService {
         loggerService.prepareLogger(releaseService.getReleaseDescriptor());
         releaseDescriptor.setCurrentReleaseStage(ReleaseStage.NO_RELEASE);
 
-        for(RollbackStage rollbackStage : RollbackStage.values()) {
-            if(rollbackStage == RollbackStage.NO_ROLLBACK) {
+        for (RollbackStage rollbackStage : RollbackStage.values()) {
+            if (rollbackStage == RollbackStage.NO_ROLLBACK) {
                 continue;
             }
             releaseDescriptor.setCurrentRollbackStage(rollbackStage);
-            for(Project project : releaseDescriptor.getProjectList()) {
+            for (Project project : releaseDescriptor.getProjectList()) {
                 try {
                     rollbackMap.get(rollbackStage).apply(project.getRepository());
                     LOGGER.info("Current stage: " + rollbackStage + ". " + project.getRepository().getName() + " - done.");
@@ -60,7 +60,7 @@ public class DefaultConsoleRollbackService implements ConsoleRollbackService {
                     throw new JobException(ex.getMessage(), ex);
                 }
             }
-            if(rollbackStage == RollbackStage.ROLLBACK_MVN) {
+            if (rollbackStage == RollbackStage.ROLLBACK_MVN) {
                 releaseService.deleteLock();
             }
         }

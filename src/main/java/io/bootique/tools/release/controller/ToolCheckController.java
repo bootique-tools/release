@@ -5,6 +5,9 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.view.ToolCheckView;
 
@@ -46,7 +49,16 @@ public class ToolCheckController extends BaseController {
             // TODO: ???
         }
 
-        return new ToolCheckView(gitHubApi.getCurrentUser(), gitHubApi.getCurrentOrganization(),
+        AgRequest agRequest = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
+        for (Repository repository : organization.getRepositories()) {
+            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
+            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
+            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
+        }
+        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+
+        return new ToolCheckView(gitHubApi.getCurrentUser(), organization,
                 javaVersion, jdk, mavenVersion);
     }
 

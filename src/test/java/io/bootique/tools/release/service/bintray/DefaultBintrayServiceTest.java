@@ -4,15 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -176,7 +175,7 @@ class DefaultBintrayServiceTest {
                 "}";
         ObjectMapper objectMapper = new ObjectMapper()
                 .registerModule(new JavaTimeModule())
-                .registerModule(new Jdk8Module());;
+                .registerModule(new Jdk8Module());
         JsonNode jsonNode = objectMapper.readTree(json);
 
         Organization organization = objectMapper.treeToValue(jsonNode.get("data").get("organization"), Organization.class);

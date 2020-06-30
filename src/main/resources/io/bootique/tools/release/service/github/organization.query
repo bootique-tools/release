@@ -4,34 +4,8 @@ query ($name: String!) {
     url
     login
     name
-    repositories(first: 100) {
+    repositories(first: 0) {
       totalCount
-      nodes {
-        name
-        description
-        id
-        url
-        sshUrl
-        updatedAt
-        pushedAt
-        parent {
-          name
-          id
-          url
-          sshUrl
-          updatedAt
-          pushedAt
-        }
-        pullRequests(first: 0, states: OPEN) {
-          totalCount
-        }
-        issues(first: 0, states: OPEN) {
-          totalCount
-        }
-        milestones(first: 0) {
-          totalCount
-        }
-      }
     }
   }
 }

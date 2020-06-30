@@ -1,14 +1,17 @@
 package io.bootique.tools.release.service.maven;
 
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Dependency;
-import io.bootique.tools.release.model.maven.Module;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.maven.persistent.Dependency;
+import io.bootique.tools.release.model.maven.persistent.Module;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.desktop.MockDesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.MockGitHubApi;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import io.bootique.tools.release.util.CopyDirVisitor;
+import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +26,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,15 +33,24 @@ class DefaultMavenServiceTest {
 
     private MockDesktopService mockDesktopService = new MockDesktopService();
     private MockPreferenceService mockPreferenceService = new MockPreferenceService();
-    private MockGitHubApi gitHubApi = new MockGitHubApi();
+    private MockGitHubApi gitHubApi;
 
     private DefaultMavenService service;
+
+    private static ObjectContext context = null;
+
 
     @BeforeEach
     void createService() {
         service = new DefaultMavenService();
         service.desktopService = mockDesktopService;
         service.preferences = mockPreferenceService;
+
+        ServerRuntime cayenneRuntime = ServerRuntime.builder()
+                .addConfig("cayenne/cayenne-project.xml")
+                .build();
+        context = cayenneRuntime.newContext();
+        gitHubApi = new MockGitHubApi(context);
     }
 
     @Test
@@ -47,7 +58,7 @@ class DefaultMavenServiceTest {
     void resolveRootModule() {
         Module module = service.resolveModule(Paths.get("."));
         assertNotNull(module);
-        assertEquals("io.bootique.tools", module.getGroup());
+        assertEquals("io.bootique.tools", module.getGroupStr());
         assertEquals("release", module.getId());
         assertEquals("1.0-SNAPSHOT", module.getVersion());
         assertTrue(module.getDependencies().isEmpty());
@@ -60,12 +71,12 @@ class DefaultMavenServiceTest {
         Files.walkFileTree(srcPath, new CopyDirVisitor(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING));
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);
         Module rootModule = service.resolveModule(destPath);
-        Set<Module> moduleSet = service.getModules(rootModule, destPath);
-        assertEquals(5, moduleSet.size());
+        List<Module> moduleList = service.getModules(rootModule, destPath);
+        assertEquals(5, moduleList.size());
         List<String> names = Arrays.asList("bootique-framework-parent", "bootique",
                 "bootique-test", "bootique-test-badspi-it", "bootique-curator");
-        for(Module module : moduleSet) {
-            assertTrue(module.getGroup().startsWith("io.bootique"));
+        for(Module module : moduleList) {
+            assertTrue(module.getGroupStr().startsWith("io.bootique"));
             assertEquals("0.26-SNAPSHOT", module.getVersion());
             assertTrue(names.contains(module.getId()));
         }
@@ -78,7 +89,7 @@ class DefaultMavenServiceTest {
         mockPreferenceService.set(MavenService.ORGANIZATION_GROUP_ID, "io.bootique");
         Path preparePom = Paths.get("src" + File.separator + "test" + File.separator + "resources");
         Files.walkFileTree(preparePom, new CopyDirVisitor(preparePom, path, StandardCopyOption.REPLACE_EXISTING));
-        Repository repository = new Repository();
+        Repository repository = context.newObject(Repository.class);
         repository.setName("bootique");
         Project project = service.createProject(repository);
         assertNotNull(project);
@@ -87,7 +98,7 @@ class DefaultMavenServiceTest {
         List<String> names = Arrays.asList("bootique-framework-parent", "bootique",
                 "bootique-test", "bootique-test-badspi-it", "bootique-curator");
         for(Module module : project.getModules()) {
-            assertTrue(module.getGroup().startsWith("io.bootique"));
+            assertTrue(module.getGroupStr().startsWith("io.bootique"));
             assertEquals("0.26-SNAPSHOT", module.getVersion());
             assertTrue(names.contains(module.getId()));
         }
@@ -96,89 +107,123 @@ class DefaultMavenServiceTest {
     @Test
     void sortNoDeps() {
         List<Project> projectList = new ArrayList<>();
-        Repository repository1 = new Repository();
-        repository1.setName("repo1");
-        Repository repository2 = new Repository();
-        repository2.setName("repo2");
-        Repository repository3 = new Repository();
-        repository3.setName("repo3");
+        List<Repository> repositories = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Repository repository = context.newObject(Repository.class);
+            repository.setName("repo" + i);
+            repositories.add(repository);
+        }
         Path path1 = Paths.get("/repo1/path");
 
-        Module module1 = new Module("io.test", "module1", "1.0");
-        Module module2 = new Module("io.test", "module2", "1.0");
-        Module module3 = new Module("io.test", "module3", "1.0");
-        Module module4 = new Module("io.test", "module4", "1.0");
-        Module module5 = new Module("io.test", "module5", "1.0");
+        List<Module> modules = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Module module = context.newObject(Module.class);
+            module.setGroupStr("io.test");
+            module.setId("module" + i);
+            module.setVersion("1.0");
+            modules.add(module);
+        }
 
-        Project project1 = new Project(repository1, path1, module1);
-        project1.addModule(module1);
+        List<Project> projects = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Project project = context.newObject(Project.class);
+            project.setRepository(repositories.get(i));
+            project.setPath(path1);
+            if (i == 2) {
+                i++;
+            }
+            project.setRootModule(modules.get(i));
+            projects.add(project);
+        }
 
-        Project project2 = new Project(repository2, path1, module2);
-        project2.addModule(module2);
-        project2.addModule(module3);
+        projects.get(0).addModule(modules.get(0));
 
-        Project project3 = new Project(repository3, path1, module4);
-        project3.addModule(module4);
-        project3.addModule(module5);
+        projects.get(1).addModule(modules.get(1));
+        projects.get(1).addModule(modules.get(2));
 
-        projectList.add(project3);
-        projectList.add(project1);
-        projectList.add(project2);
+        projects.get(2).addModule(modules.get(3));
+        projects.get(2).addModule(modules.get(4));
+
+        projectList.add(projects.get(2));
+        projectList.add(projects.get(0));
+        projectList.add(projects.get(1));
 
         List<Project> sortedList = service.sort(projectList);
         assertEquals(3, sortedList.size());
 
-        assertEquals(project3, sortedList.get(0));
-        assertEquals(project1, sortedList.get(1));
-        assertEquals(project2, sortedList.get(2));
+        assertEquals(projects.get(2), sortedList.get(0));
+        assertEquals(projects.get(0), sortedList.get(1));
+        assertEquals(projects.get(1), sortedList.get(2));
     }
 
     @Test
     void sortWithDeps() {
         List<Project> projectList = new ArrayList<>();
-        Repository repository1 = new Repository();
-        repository1.setName("repo1");
-        Repository repository2 = new Repository();
-        repository2.setName("repo2");
-        Repository repository3 = new Repository();
-        repository3.setName("repo3");
+        List<Repository> repositories = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Repository repository = context.newObject(Repository.class);
+            repository.setName("repo" + i);
+            repositories.add(repository);
+        }
         Path path1 = Paths.get("/repo1/path");
 
-        Module module1 = new Module("io.test", "module1", "1.0");
-        Module module2 = new Module("io.test", "module2", "1.0");
-        Module module3 = new Module("io.test", "module3", "1.0");
-        Module module4 = new Module("io.test", "module4", "1.0");
-        Module module5 = new Module("io.test", "module5", "1.0");
+        List<Module> modules = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            Module module = context.newObject(Module.class);
+            module.setGroupStr("io.test");
+            module.setId("module" + i);
+            module.setVersion("1.0");
+            modules.add(module);
+        }
 
-        Dependency dependency1 = new Dependency("io.test", "module1", "1.0", "x");
-        Dependency dependency2 = new Dependency("io.test", "module2", "1.0", "x");
-        Dependency dependency3 = new Dependency("io.test", "module3", "1.0", "x");
+        List<Dependency> dependencies = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Dependency dependency = context.newObject(Dependency.class);
+            Module module = context.newObject(Module.class);
+            module.setGroupStr("io.test");
+            module.setId("module" + i);
+            module.setVersion("1.0");
+            dependency.setModule(module);
+            dependency.setType("x");
+            dependencies.add(dependency);
+        }
 
-        Project project1 = new Project(repository1, path1, module1);
-        project1.addModule(module1);
+        List<Project> projects = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Project project = context.newObject(Project.class);
+            project.setRepository(repositories.get(i));
+            project.setPath(path1);
+            if (i == 2) {
+                i++;
+            }
+            project.setRootModule(modules.get(i));
+            projects.add(project);
+        }
 
-        Project project2 = new Project(repository2, path1, module2);
-        project2.addModule(module2);
-        project2.addModule(module3);
-        module2.addDependency(dependency1);
+        projects.get(0).addModule(modules.get(0));
 
-        Project project3 = new Project(repository3, path1, module4);
-        project3.addModule(module4);
-        project3.addModule(module5);
-        module4.addDependency(dependency1);
-        module4.addDependency(dependency2);
-        module5.addDependency(dependency3);
+        projects.get(1).addModule(modules.get(1));
+        projects.get(1).addModule(modules.get(2));
 
-        projectList.add(project3);
-        projectList.add(project1);
-        projectList.add(project2);
+        List<Dependency> dependencyList = new ArrayList<>();
+        modules.get(1).addToDependencies(dependencies.get(0));
+
+        projects.get(2).addModule(modules.get(3));
+        projects.get(2).addModule(modules.get(4));
+        modules.get(3).addToDependencies(dependencies.get(0));
+        modules.get(3).addToDependencies(dependencies.get(1));
+        modules.get(4).addToDependencies(dependencies.get(2));
+
+        projectList.add(projects.get(2));
+        projectList.add(projects.get(0));
+        projectList.add(projects.get(1));
 
         List<Project> sortedList = service.sort(projectList);
         assertEquals(3, sortedList.size());
 
-        assertEquals(project1, sortedList.get(0));
-        assertEquals(project2, sortedList.get(1));
-        assertEquals(project3, sortedList.get(2));
+        assertEquals(projects.get(0), sortedList.get(0));
+        assertEquals(projects.get(1), sortedList.get(1));
+        assertEquals(projects.get(2), sortedList.get(2));
     }
 
     @Test
@@ -187,7 +232,15 @@ class DefaultMavenServiceTest {
         Path srcPath = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "dummy-org-00");
         Files.walkFileTree(srcPath, new CopyDirVisitor(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING));
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);
-        List<Project> projects = service.getProjects(gitHubApi.getCurrentOrganization(), p -> true);
+
+        Organization organization = gitHubApi.getCurrentOrganization();
+        for (Repository repository : organization.getRepositoryCollection().getRepositories()) {
+            context.registerNewObject(repository);
+            organization.addToRepositories(repository);
+        }
+        context.registerNewObject(organization);
+
+        List<Project> projects = service.getProjects(organization, p -> true);
         assertEquals(3, projects.size());
     }
 }

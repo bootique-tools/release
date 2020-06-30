@@ -1,8 +1,8 @@
 package io.bootique.tools.release.service.logger;
 
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Module;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.maven.persistent.Module;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;

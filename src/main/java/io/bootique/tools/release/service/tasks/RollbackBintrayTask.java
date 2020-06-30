@@ -1,6 +1,6 @@
 package io.bootique.tools.release.service.tasks;
 
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.bintray.BintrayApi;

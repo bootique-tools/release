@@ -1,10 +1,7 @@
 package io.bootique.tools.release.view;
 
-import java.util.List;
-
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.PullRequest;
-import io.bootique.tools.release.model.github.User;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.User;
 
 public class PullRequestView extends BaseView {
 

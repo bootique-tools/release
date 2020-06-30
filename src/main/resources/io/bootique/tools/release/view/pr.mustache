@@ -1,35 +1,37 @@
 {{> header}}
-<div id="prVue">
-    <div class="progress-style">
-        <div id="bar" class="indeterminate-progress-bar active">
-            <div class="progress-block single-segment"></div>
-        </div>
+
+<div class="progress-style">
+    <div id="bar" class="indeterminate-progress-bar active">
+        <div class="progress-block single-segment"></div>
     </div>
+</div>
+
+<div id="prVue">
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead>
             <tr>
-                <th><a v-on:click="sortAndFilter(null, 'title')" href="#">Title</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'author')" href="#">Author</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'date:desc')" href="#">Created</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'labels')" href="#">Labels</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'repo')" href="#">Repository</a></th>
+                <th><a v-on:click="sortAndFilter('title', null, null)" href="#">Title</a></th>
+                <th><a v-on:click="sortAndFilter('author.login', null, null)" href="#">Author</a></th>
+                <th><a v-on:click="sortAndFilter('createdAt', null, null)" href="#">Created</a></th>
+                <th><a v-on:click="sortAndFilter('labels', null, null)" href="#">Labels</a></th>
+                <th><a v-on:click="sortAndFilter('repository.name', null, null)" href="#">Repository</a></th>
             </tr>
             </thead>
             <tbody>
-                <tr v-for="pr in allItems">
+                <tr v-for="pr in allItems.data">
                     <td>
                         <a :href="pr.url" target="_blank">[[pr.title]]</a>
                         <a :href="pr.url" target="_blank" class="badge badge-secondary">#[[pr.number]]</a>
                     </td>
-                    <td><a v-on:click="sortAndFilter('a:' + pr.author.login, null)" href="#">[[pr.author.login]]</a></td>
+                    <td><a v-on:click="sortAndFilter(null, 'author.login', pr.author.login)" href="#">[[pr.author.login]]</a></td>
                     <td>[[pr.createdAtStr]]</td>
                     <td>
-                        <a v-for="label in pr.labels.nodes" v-on:click="sortAndFilter('l:' + label.name, null)" href="#" class="badge" :style="'color: white; text-decoration: none; background-color: #' + label.color">[[label.name]]</a>&nbsp;
+                        <a v-for="label in pr.labels.nodes" v-on:click="sortAndFilter(null, 'labels.name', label.name)" href="#" class="badge" :style="'color: white; text-decoration: none; background-color: #' + label.color">[[label.name]]</a>&nbsp;
                     </td>
                     <td>
-                        <a v-on:click="sortAndFilter('r:' + pr.repoName, null)" href="#">[[pr.repoName]]</a>
-                        <a v-if="pr.parent !== null" :href="pr.parent.url" target="_blank" class="badge badge-secondary">parent</a>
+                        <a v-on:click="sortAndFilter(null, 'pr.repoName', pr.repoName)" href="#">[[pr.repoName]]</a>
+                        <a v-if="pr.repository.parent !== null" :href="pr.repository.parent.url" target="_blank" class="badge badge-secondary">parent</a>
                     </td>
                 </tr>
             </tbody>

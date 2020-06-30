@@ -1,8 +1,8 @@
 package io.bootique.tools.release.view;
 
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.github.User;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.persistent.User;
 import io.bootique.tools.release.model.job.BatchJob;
 
 public class VerifyJobView extends BaseView {

@@ -23,6 +23,7 @@ public class PreferenceCredentialFactory {
     private String gitHubToken;
     private String basePath;
     private String bintrayOrganizationName;
+    private String groupIdPattern;
 
     private String logsPath;
     private String savePath;
@@ -40,6 +41,11 @@ public class PreferenceCredentialFactory {
     @BQConfigProperty("Github token")
     public void setGitHubToken(String gitHubToken) {
         this.gitHubToken = gitHubToken;
+    }
+
+    @BQConfigProperty("Pattern group id")
+    public void setGroupIdPattern(String groupIdPattern) {
+        this.groupIdPattern = groupIdPattern;
     }
 
     @BQConfigProperty
@@ -78,6 +84,10 @@ public class PreferenceCredentialFactory {
 
         if(!preferences.have(MavenService.ORGANIZATION_GROUP_ID)) {
             preferences.set(MavenService.ORGANIZATION_GROUP_ID, organizationGroupId); // io.bootique
+        }
+
+        if(!preferences.have(MavenService.GROUP_ID_PATTERN)) {
+            preferences.set(MavenService.GROUP_ID_PATTERN, groupIdPattern); // io.bootique
         }
 
         if(!preferences.have(GitHubApi.AUTH_TOKEN_PREFERENCE)) {

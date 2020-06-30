@@ -1,9 +1,8 @@
 package io.bootique.tools.release.view;
 
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.User;
-import io.bootique.tools.release.model.maven.Project;
-
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.User;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import java.util.List;
 
 public class ReleaseContinueView extends BaseView{

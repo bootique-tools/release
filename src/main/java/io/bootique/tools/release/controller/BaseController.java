@@ -1,9 +1,12 @@
 package io.bootique.tools.release.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Project;
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.agrest.DataResponse;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;
@@ -11,8 +14,13 @@ import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.Context;
 
 abstract class BaseController {
 
@@ -34,26 +42,57 @@ abstract class BaseController {
     @Inject
     ContentService contentService;
 
+    @Context
+    Configuration configuration;
+
     List<Project> getSelectedProjects(String selectedProjects) throws IOException {
         List selectedProjectsId = objectMapper.readValue(selectedProjects, List.class);
-        Organization organization = gitHubApi.getCurrentOrganization();
-        return mavenService.getProjects(organization, project ->
-                selectedProjectsId.contains(project.getRepository().getName()));
+        AgRequest agRequest = Ag.request(configuration).build();
+
+        DataResponse<Project> projects = Ag.select(Project.class, configuration).request(agRequest).get();
+
+        return projects.getObjects().stream().filter(project ->
+                selectedProjectsId.contains(project.getRepository().getName())).collect(Collectors.toList());
     }
 
     List<Project> getAllProjects() {
-        Organization organization = gitHubApi.getCurrentOrganization();
+        AgRequest agRequest = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
         return mavenService.getProjects(organization, project -> true);
     }
 
     boolean haveMissingRepos(Organization organization) {
-        for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
+        for (Repository repository : organization.getRepositories()) {
             if (preferences.have(GitService.BASE_PATH_PREFERENCE)) {
-                if(gitService.status(repository) == GitService.GitStatus.MISSING) {
+                if (gitService.status(repository) == GitService.GitStatus.MISSING) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+
+    protected DataResponse<Project> getProjects(AgRequest agRequest, Predicate<Project> predicate) {
+
+        DataResponse<Project> projectDataResponse = Ag.select(Project.class, configuration).request(agRequest).get();
+
+        if (projectDataResponse.getObjects().size() == 0) {
+
+            AgRequest agRequestOrganization = Ag.request(configuration).build();
+            Organization organization = Ag.select(Organization.class, configuration).request(agRequestOrganization).get().getObjects().get(0);
+            List<Project> projects = haveMissingRepos(organization) ? new ArrayList<>() :
+                    mavenService.getProjects(organization, predicate);
+            projects.forEach(project -> {
+                project.setBranchName(gitService.getCurrentBranchName(project.getRepository().getName()));
+                project.setDisable(true);
+            });
+
+            organization.getObjectContext().commitChanges();
+
+            projectDataResponse = getProjects(agRequest, predicate);
+        }
+
+        return projectDataResponse;
     }
 }

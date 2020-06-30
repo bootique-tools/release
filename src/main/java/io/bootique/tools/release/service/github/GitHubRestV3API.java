@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.bootique.jersey.client.HttpTargets;
-import io.bootique.tools.release.model.github.Milestone;
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Milestone;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.preferences.PreferenceService;
+import org.apache.cayenne.ObjectId;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 
 import javax.inject.Inject;
@@ -40,10 +41,10 @@ public class GitHubRestV3API implements GitHubRestAPI {
 
     /**
      * {
-     *     "title":         "v1.0",                                 (required)
-     *     "state":         "open",                                 (optional)
-     *     "description":   "Tracking milestone for version 1.0",   (optional)
-     *     "due_on":        "2012-10-09T23:39:01Z"                  (optional)
+     * "title":         "v1.0",                                 (required)
+     * "state":         "open",                                 (optional)
+     * "description":   "Tracking milestone for version 1.0",   (optional)
+     * "due_on":        "2012-10-09T23:39:01Z"                  (optional)
      * }
      */
     @Override
@@ -52,12 +53,12 @@ public class GitHubRestV3API implements GitHubRestAPI {
         data.put("title", title);
         data.put("description", description);
 
-       Response response = prepareRequest(
-               "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones")
-               .buildPost(Entity.json(mapper.writeValueAsString(data)))
-               .invoke();
+        Response response = prepareRequest(
+                "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones")
+                .buildPost(Entity.json(mapper.writeValueAsString(data)))
+                .invoke();
 
-        if(response.getStatus() != 201) {
+        if (response.getStatus() != 201) {
             throw new DesktopException("Can't create milestone for " + repository.getName());
         }
         return jsonToMilestone(repository, mapper.readTree(response.readEntity(String.class)));
@@ -69,10 +70,18 @@ public class GitHubRestV3API implements GitHubRestAPI {
         data.put("state", state);
         data.put("description", description);
 
+        if (state.equals("closed")) {
+            repository.getMilestones().forEach(milestone -> {
+                if (milestone.getTitle().equals(title)) {
+                    milestone.setState("CLOSED");
+                }
+            });
+        }
+
         Response response;
         try {
             response = prepareRequest(
-                    "/repos/"+ repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones/" + id)
+                    "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones/" + id)
                     .build("PATCH", Entity.json(mapper.writeValueAsString(data)))
                     .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
                     .invoke();
@@ -80,7 +89,7 @@ public class GitHubRestV3API implements GitHubRestAPI {
             throw new DesktopException(e.getMessage());
         }
 
-        if(response.getStatus() != 200) {
+        if (response.getStatus() != 200) {
             throw new DesktopException("Can't patch milestone for " + repository.getName());
         }
     }
@@ -95,7 +104,7 @@ public class GitHubRestV3API implements GitHubRestAPI {
         patchMilestone(repository, title, description, "closed", repository.getMilestoneId(title));
     }
 
-    private Invocation.Builder prepareRequest(String path){
+    private Invocation.Builder prepareRequest(String path) {
         String token = preferences.get(GitHubApi.AUTH_TOKEN_PREFERENCE);
         return targets
                 .newTarget("github")
@@ -110,11 +119,10 @@ public class GitHubRestV3API implements GitHubRestAPI {
         milestone.setRepository(repository);
         milestone.setNumber(json.get("number").asInt());
         milestone.setTitle(json.get("title").asText());
-        milestone.setId(json.get("id").asText());
         milestone.setUrl(json.get("html_url").asText());
         milestone.setState(json.get("state").asText());
+        milestone.setObjectId(new ObjectId("Milestone", json.get("id").asText().getBytes()));
         return milestone;
     }
-
 
 }

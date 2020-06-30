@@ -1,17 +1,21 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.github.Repository;
+import io.agrest.*;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -46,27 +50,28 @@ public class GitController extends BaseController {
     }
 
     @Path("clone")
-    @GET
-    public Response clone(@QueryParam("repo") String repoName) {
+    @POST
+    public SimpleResponse clone(@QueryParam("repo") String repoName) {
         return checkAndRun(repoName, r -> gitService.clone(r));
     }
 
     @Path("update")
-    @GET
-    public Response update(@QueryParam("repo") String repoName) {
+    @POST
+    public SimpleResponse update(@QueryParam("repo") String repoName) {
         return checkAndRun(repoName, r -> gitService.update(r));
     }
 
     @Path("update_all")
     @GET
-    public Response updateAll() {
+    public Response updateAll(@Context UriInfo uriInfo) {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             return Response.status(Response.Status.PRECONDITION_FAILED)
                     .entity("Path should be set via /ui/git/select_path query.")
                     .build();
         }
 
-        gitHubApi.getCurrentOrganization()
+        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).getOne().getObjects().get(0);
+        organization
                 .getRepositoryCollection()
                 .getRepositories()
                 .stream()
@@ -78,14 +83,15 @@ public class GitController extends BaseController {
 
     @Path("clone_all")
     @GET
-    public Response cloneAll() {
+    public Response cloneAll(@Context UriInfo uriInfo) {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             return Response.status(Response.Status.PRECONDITION_FAILED)
                     .entity("Path should be set via /ui/git/select_path query.")
                     .build();
         }
 
-        gitHubApi.getCurrentOrganization()
+        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).getOne().getObjects().get(0);
+        organization
                 .getRepositoryCollection()
                 .getRepositories()
                 .stream()
@@ -97,7 +103,7 @@ public class GitController extends BaseController {
 
     @Path("open")
     @GET
-    public Response open(@QueryParam("repo") String repoName, @QueryParam("type") String type) {
+    public SimpleResponse open(@QueryParam("repo") String repoName, @QueryParam("type") String type) {
         java.nio.file.Path path = preferences.get(GitService.BASE_PATH_PREFERENCE);
         Consumer<Repository> action = "terminal".equals(type)
                 ? r -> desktopService.openTerminal(path.resolve(r.getName()))
@@ -105,20 +111,25 @@ public class GitController extends BaseController {
         return checkAndRun(repoName, action);
     }
 
-    private Response checkAndRun(String repoName, Consumer<Repository> action) {
+    private SimpleResponse checkAndRun(String repoName, Consumer<Repository> action) {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
-            return Response.status(Response.Status.PRECONDITION_FAILED)
-                    .entity("Path should be set via /ui/git/select_path query.")
-                    .build();
+            return new SimpleResponse(false, "Path should be set via /ui/git/select_path query.");
         }
 
-        Repository repository = contentService.getRepository(preferences.get(GitHubApi.ORGANIZATION_PREFERENCE), repoName);
+        AgRequest agRequest = Ag.request(configuration)
+                .cayenneExp("[\"name like $b\",\"" + repoName + "\"]")
+                .build();
+        Repository repository = Ag.select(Repository.class, configuration).request(agRequest).getOne().getObjects().get(0);
         if(repository == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            SimpleResponse simpleResponse = new SimpleResponse(false, "Not Found");
+            simpleResponse.setStatus(Response.Status.NOT_FOUND);
+            return simpleResponse;
         }
+
 
         action.accept(repository);
-        return Response.ok().build();
+        String data = "{ \"lStatus\" : \"" + GitService.GitStatus.OK.name() + "\" }";
+        return Ag.update(Repository.class, configuration).id(repository.getObjectId().getIdSnapshot().get("ID_PK")).sync(data);
     }
 
 }

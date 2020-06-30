@@ -1,8 +1,8 @@
 package io.bootique.tools.release.view;
 
 import io.bootique.mvc.AbstractView;
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.User;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.User;
 
 public abstract class BaseView extends AbstractView {
 

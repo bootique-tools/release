@@ -1,0 +1,34 @@
+query ($name: String!, $totalCount: Int!) {
+  organization(login: $name) {
+      name
+      repositories(first: $totalCount) {
+        totalCount
+        nodes {
+          name
+          description
+          id
+          url
+          sshUrl
+          updatedAt
+          pushedAt
+          parent {
+            name
+            id
+            url
+            sshUrl
+            updatedAt
+            pushedAt
+          }
+          pullRequests(first: 0, states: OPEN) {
+            totalCount
+          }
+          issues(first: 0, states: OPEN) {
+            totalCount
+          }
+          milestones(first: 0) {
+            totalCount
+          }
+        }
+      }
+    }
+}

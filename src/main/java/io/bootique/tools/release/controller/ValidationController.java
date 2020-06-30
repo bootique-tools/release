@@ -1,7 +1,9 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Project;
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.bootique.tools.release.model.persistent.*;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.bintray.BintrayApi;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
@@ -13,9 +15,7 @@ import io.bootique.tools.release.view.ValidationView;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,19 +37,26 @@ public class ValidationController extends DefaultBaseController {
 
     @GET
     public ValidationView home() {
-        return new ValidationView(gitHubApi.getCurrentUser(), gitHubApi.getCurrentOrganization());
+        AgRequest agRequest = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
+        for (Repository repository : organization.getRepositories()) {
+            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
+            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
+            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
+        }
+        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+        return new ValidationView(gitHubApi.getCurrentUser(), organization);
     }
 
     @GET
     @Path("/validate")
-    @Produces(MediaType.APPLICATION_JSON)
-    public void validate(@QueryParam("releaseVersion") String releaseVersion,
-                         @QueryParam("nextDevVersion") String nextDevVersion,
-                         @QueryParam("selectedModules") String selectedModules) throws IOException {
+    public String validate(@QueryParam("releaseVersion") String releaseVersion,
+                           @QueryParam("nextDevVersion") String nextDevVersion,
+                           @QueryParam("selectedModules") String selectedModules) throws IOException {
         Function<Project, String> repoProcessor = project -> {
             try {
                 Repository repo = project.getRepository();
-                if(!bintrayApi.getRepository(repo)) {
+                if (!bintrayApi.getRepository(repo)) {
                     bintrayApi.createRepository(repo);
                     throw new DesktopException("Bintray repo was created.");
                 }
@@ -76,6 +83,7 @@ public class ValidationController extends DefaultBaseController {
             }
         };
         startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
+        return "";
     }
 
     @GET
@@ -83,12 +91,12 @@ public class ValidationController extends DefaultBaseController {
     public String validatePom() {
         List<Project> allProjects = getAllProjects();
         List<String> failedRepos = new ArrayList<>();
-        for(Project project : allProjects) {
+        for (Project project : allProjects) {
             Repository repository = project.getRepository();
             String repoName = repository.getName();
             failedRepos.addAll(validatePomService.validatePom(repoName));
         }
-        if(failedRepos.isEmpty()) {
+        if (failedRepos.isEmpty()) {
             return "All poms are valid.";
         }
 

@@ -3,6 +3,7 @@ package io.bootique.tools.release;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.bootique.BQCoreModule;
 import io.bootique.Bootique;
+import io.bootique.cayenne.CayenneModule;
 import io.bootique.command.CommandDecorator;
 import io.bootique.config.ConfigurationFactory;
 import io.bootique.di.BQModule;
@@ -14,16 +15,15 @@ import io.bootique.jersey.JerseyModule;
 import io.bootique.jersey.client.HttpTargets;
 import io.bootique.jetty.JettyModule;
 import io.bootique.jetty.command.ServerCommand;
-import io.bootique.jetty.websocket.JettyWebSocketModule;
 import io.bootique.job.command.ScheduleCommand;
 import io.bootique.job.runtime.JobModule;
+import io.bootique.meta.application.OptionMetadata;
 import io.bootique.tools.release.command.ConsoleReleaseCommand;
 import io.bootique.tools.release.command.ConsoleRollbackCommand;
 import io.bootique.tools.release.controller.BaseRequestFilter;
-import io.bootique.tools.release.controller.websocket.JobProgressWebSocket;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.job.QueryJob;
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.bintray.BintrayApi;
@@ -73,12 +73,13 @@ import io.bootique.tools.release.service.validation.DefaultValidatePomService;
 import io.bootique.tools.release.service.validation.ValidatePomService;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
+
 import java.util.function.Function;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 //--config="release-manager.yml" --server
-public class Application implements BQModule {
+public class Application implements BQModule  {
     public static void main(String[] args) {
         Bootique
                 .app(args)
@@ -93,6 +94,21 @@ public class Application implements BQModule {
                 .args("--config=classpath:settings.yml")
                 .exec()
                 .exit();
+    }
+
+    private static OptionMetadata datasourceOption() {
+        return OptionMetadata.builder("datasource")
+                .description("Select datasource to use. By default 'derby' is used. Optional.")
+                .valueOptionalWithDefault("derby", "derby")
+                .build();
+    }
+
+    private static OptionMetadata createSchemaOption() {
+        return OptionMetadata.builder("create-schema")
+                .description("Create schema. False by default. Optional.")
+                .shortName('r')
+                .valueOptionalWithDefault("true | false", "true")
+                .build();
     }
 
     @Override
@@ -112,13 +128,11 @@ public class Application implements BQModule {
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
 
         JettyModule.extend(binder).useDefaultServlet();
-        JettyWebSocketModule.extend(binder)
-                .addEndpoint(JobProgressWebSocket.class);
 
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)
                 .addResource(BaseRequestFilter.class)
-                .addPackage(RepoController.class);
+                .addPackage(RepoController.class.getPackage());
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_PULL, ReleasePullTask.class);
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_INSTALL, ReleaseInstallTask.class);
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_BINTRAY_CHECK, ReleaseBintrayTask.class);
@@ -130,7 +144,14 @@ public class Application implements BQModule {
         BQCoreModule.extend(binder).addCommand(ConsoleRollbackCommand.class);
 
         BQCoreModule.extend(binder)
+                .addOption(datasourceOption())
+                .addOption(createSchemaOption())
+                .mapConfigPath("datasource", "cayenne.datasource")
+                .mapConfigPath("create-schema", "cayenne.createSchema")
                 .decorateCommand(ServerCommand.class, CommandDecorator.beforeRun(ScheduleCommand.class));
+
+        CayenneModule.extend(binder)
+                .addProject("cayenne/cayenne-project.xml");
 
         JobModule.extend(binder).addJob(QueryJob.class);
     }
@@ -174,7 +195,9 @@ public class Application implements BQModule {
 
     @Singleton
     @Provides
-    public BintrayApi createBintrayApi(ConfigurationFactory configurationFactory, HttpTargets httpTargets, ObjectMapper objectMapper, PreferenceService preferenceService) {
+    public BintrayApi createBintrayApi(ConfigurationFactory configurationFactory,
+                                       HttpTargets httpTargets,
+                                       ObjectMapper objectMapper, PreferenceService preferenceService) {
         return configurationFactory
                 .config(BintrayCredentialFactory.class, "maven-central")
                 .createBintrayApi(httpTargets, objectMapper, preferenceService);

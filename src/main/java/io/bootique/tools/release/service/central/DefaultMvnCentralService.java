@@ -4,7 +4,7 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.bootique.jersey.client.HttpTargets;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
@@ -21,12 +21,12 @@ public class DefaultMvnCentralService implements MvnCentralService {
 
     @Override
     public boolean isSync(String version, List<Project> projects) {
-        for(Project project : projects) {
+        for (Project project : projects) {
             Response response = targets
                     .newTarget("mvncentral")
                     .path("/solrsearch/select")
                     .queryParam("q", "g:%22"
-                            + project.getRootModule().getGroup()
+                            + project.getRootModule().getGroupStr()
                             + "%22 AND a:%22"
                             + project.getRootModule().getId()
                             + "%22 AND v:%22"
@@ -38,7 +38,7 @@ public class DefaultMvnCentralService implements MvnCentralService {
                     .buildGet()
                     .invoke();
 
-            if(response.getStatus() != 200) {
+            if (response.getStatus() != 200) {
                 return true;
             }
             try {

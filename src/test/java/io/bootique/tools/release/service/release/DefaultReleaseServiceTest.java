@@ -1,15 +1,17 @@
 package io.bootique.tools.release.service.release;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Module;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.maven.persistent.Module;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.MockGitHubApi;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
+import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,14 +37,21 @@ class DefaultReleaseServiceTest {
 
     private MockPreferenceService mockPreferenceService = new MockPreferenceService();
 
-    private MockGitHubApi mockGitHubApi = new MockGitHubApi();
+    private ObjectContext context;
 
     @BeforeEach
     void createService() {
         releaseService = new DefaultReleaseService();
         releaseService.objectMapper = new ObjectMapper();
         releaseService.preferences = mockPreferenceService;
-        Repository repository = new Repository();
+
+        ServerRuntime cayenneRuntime = ServerRuntime.builder()
+                .addConfig("cayenne/cayenne-project.xml")
+                .build();
+        context = cayenneRuntime.newContext();
+        releaseService.gitHubApi = new MockGitHubApi(context);
+
+        Repository repository = context.newObject(Repository.class);
         Project project = new Project(repository, Paths.get(""), new Module());
         ReleaseDescriptor releaseDescriptor = new ReleaseDescriptor(
                 "1.0.5-SNAPSHOT",
@@ -55,7 +64,6 @@ class DefaultReleaseServiceTest {
         );
         releaseDescriptor.setLastSuccessReleaseStage(ReleaseStage.RELEASE_PULL);
         releaseService.createReleaseDescriptor(releaseDescriptor);
-        releaseService.gitHubApi = mockGitHubApi;
     }
 
     @Test
@@ -63,7 +71,7 @@ class DefaultReleaseServiceTest {
     void releaseServiceTest(@TempDir Path path) throws IOException {
         Path savePath = path.resolve(Paths.get("release-status" + File.separator + "persist"));
         mockPreferenceService.set(ReleaseService.SAVE_PATH, savePath.toString());
-        Repository repository = new Repository();
+        Repository repository = context.newObject(Repository.class);
         repository.setName("Test");
         releaseService.saveRelease(repository);
         assertTrue(Files.exists(Paths.get(mockPreferenceService.get(ReleaseService.SAVE_PATH),

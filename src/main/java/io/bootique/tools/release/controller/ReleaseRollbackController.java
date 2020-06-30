@@ -1,5 +1,8 @@
 package io.bootique.tools.release.controller;
 
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
@@ -39,8 +42,18 @@ public class ReleaseRollbackController extends BaseController {
     @GET
     @Path("/current-step")
     public ReleaseRollbackView currentStep() {
+
+        AgRequest agRequest = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
+        for (Repository repository : organization.getRepositories()) {
+            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
+            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
+            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
+        }
+        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+
         return new ReleaseRollbackView(gitHubApi.getCurrentUser(),
-                gitHubApi.getCurrentOrganization(), releaseService.getReleaseDescriptor().getCurrentRollbackStage());
+                organization, releaseService.getReleaseDescriptor().getCurrentRollbackStage());
     }
 
 }

@@ -1,6 +1,6 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;

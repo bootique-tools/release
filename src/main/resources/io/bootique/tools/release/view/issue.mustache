@@ -1,41 +1,44 @@
 {{> header}}
-<div id="issueVue">
-    <div class="progress-style">
-        <div id="bar" class="indeterminate-progress-bar active">
-            <div class="progress-block single-segment"></div>
-        </div>
+
+<div class="progress-style">
+    <div id="bar" class="indeterminate-progress-bar active">
+        <div class="progress-block single-segment"></div>
     </div>
+</div>
+
+<div id="issueVue">
+
     <div class="table-responsive">
         <table class="table table-striped table-bordered">
             <thead>
             <tr>
-                <th><a v-on:click="sortAndFilter(null, 'title')" href="#">Title</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'author')" href="#">Author</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'date:desc')" href="#">Created</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'milestone')" href="#">Milestone</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'labels')" href="#">Labels</a></th>
-                <th><a v-on:click="sortAndFilter(null, 'repo')" href="#">Repository</a></th>
+                <th><a v-on:click="sortAndFilter('title', null, null)" href="#">Title</a></th>
+                <th><a v-on:click="sortAndFilter('author.login', null, null)" href="#">Author</a></th>
+                <th><a v-on:click="sortAndFilter('createdAt', null, null)" href="#">Created</a></th>
+                <th><a v-on:click="sortAndFilter('milestone.title', null, null)" href="#">Milestone</a></th>
+                <th><a v-on:click="sortAndFilter('labels', null, null)" href="#">Labels</a></th>
+                <th><a v-on:click="sortAndFilter('repository.name', null, null)" href="#">Repository</a></th>
             </tr>
             </thead>
             <tbody>
-                <tr v-for="issue in allItems">
+                <tr v-for="issue in allItems.data">
                     <td>
                         <a :href="issue.url" target="_blank">[[issue.title]]</a>
                         <a :href="issue.url" target="_blank" class="badge badge-secondary">#[[issue.number]]</a>
                     </td>
                     <td>
-                        <a v-on:click="sortAndFilter('a:' + issue.author.login, null)" href="#">[[issue.author.login]]</a>
+                        <a v-on:click="sortAndFilter(null, 'author.login', issue.author.login)" href="#">[[issue.author.login]]</a>
                     </td>
                     <td>
                         [[issue.createdAtStr]]
                     </td>
-                    <td><a v-if="issue.milestone !== null" v-on:click="sortAndFilter('m:' + issue.milestone.title, null)" href="#" class="badge badge-secondary">[[issue.milestone.title]]</a></td>
+                    <td><a v-if="issue.milestone !== null" v-on:click="sortAndFilter(null, 'milestone.title', issue.milestone.title)" href="#" class="badge badge-secondary">[[issue.milestone.title]]</a></td>
                     <td>
-                        <a v-for="label in issue.labels.nodes" v-on:click="sortAndFilter('l:' + label.name, null)" href="#" class="badge" :style="'color: white; text-decoration: none; background-color: #' + label.color">[[label.name]]</a>&nbsp;
+                        <a v-for="label in issue.labels" v-on:click="sortAndFilter(null, 'labels.name', label.name)" href="#" class="badge" :style="'color: white; text-decoration: none; background-color: #' + label.color">[[label.name]]</a>&nbsp;
                     </td>
                     <td>
-                        <a v-on:click="sortAndFilter('r:' + issue.repoName, null)" href="#">[[issue.repoName]]</a>
-                        <a v-if="issue.parent !== null" :href="issue.parent.url" target="_blank" class="badge badge-secondary">parent</a>
+                        <a v-on:click="sortAndFilter(null, 'repoName', issue.repoName)" href="#">[[issue.repoName]]</a>
+                        <a v-if="issue.repository.parent !== null" :href="issue.repository.parent.url" target="_blank" class="badge badge-secondary">parent</a>
                     </td>
                 </tr>
             </tbody>
@@ -44,6 +47,6 @@
     </div>
 </div>
 <script type="module">
-    initIssueVue('{{filters}}', '{{sort}}');
+    initIssueVue('{{sort}}','{{filters}}','{{field}}');
 </script>
 {{> footer}}

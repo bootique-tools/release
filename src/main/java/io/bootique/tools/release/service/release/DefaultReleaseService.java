@@ -4,16 +4,18 @@ import ch.qos.logback.classic.Logger;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.maven.dto.RepositoryDTO;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.job.BatchJob;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.job.BatchJobResult;
 import io.bootique.tools.release.model.job.BatchJobStatus;
 import io.bootique.tools.release.model.job.ErrorPolicy;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
+import io.bootique.tools.release.model.release.dto.ReleaseDescriptorDTO;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;
@@ -33,7 +35,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class DefaultReleaseService implements ReleaseService{
 
@@ -58,6 +59,8 @@ public class DefaultReleaseService implements ReleaseService{
     Map<RollbackStage, Function<Repository, String>> rollbackMap;
 
     private ReleaseDescriptor releaseDescriptor;
+
+    private ReleaseDescriptorDTO releaseDescriptorDTO;
 
     public DefaultReleaseService() {
     }
@@ -128,7 +131,7 @@ public class DefaultReleaseService implements ReleaseService{
                 Files.createFile(pathFile);
             }
             ObjectWriter writer = objectMapper.writer(new DefaultPrettyPrinter());
-            writer.writeValue(pathFile.toFile(), releaseDescriptor);
+            writer.writeValue(pathFile.toFile(), ReleaseDescriptorDTO.fromModel(releaseDescriptor));
         }  catch (IOException e) {
             throw new DesktopException("Can't save release. ", e);
         }
@@ -157,9 +160,9 @@ public class DefaultReleaseService implements ReleaseService{
                 }
                 Path path = Paths.get(preferences.get(ReleaseService.SAVE_PATH), lockList.get(0), lockList.get(0) + ".json");
                 byte[] jsonDescriptor = Files.readAllBytes(path);
-                releaseDescriptor = objectMapper.readValue(jsonDescriptor, ReleaseDescriptor.class);
-                releaseDescriptor.getProjectList().forEach(project -> project.getRepository().setOrganization(gitHubApi.getCurrentOrganization()));
-                return releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.RELEASE_PULL || releaseDescriptor.getLastSuccessReleaseStage() != null;
+                releaseDescriptorDTO = objectMapper.readValue(jsonDescriptor, ReleaseDescriptorDTO.class);
+                releaseDescriptor = ReleaseDescriptorDTO.toModel(releaseDescriptorDTO);
+                return releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.RELEASE_PULL || releaseDescriptorDTO.getLastSuccessReleaseStage() != null;
             } catch (IOException e) {
                 throw new DesktopException("Can't load last release. ", e);
             }
@@ -237,7 +240,7 @@ public class DefaultReleaseService implements ReleaseService{
             }
         }
 
-        BatchJobDescriptor<Repository, String> descriptor = BatchJobDescriptor.builder().data(repositories)
+        BatchJobDescriptor<RepositoryDTO, String> descriptor = BatchJobDescriptor.builder().data(repositories)
                 .processor(proc).errorPolicy(ErrorPolicy.ABORT_ALL_ON_ERROR).build();
 
         preferences.set(BatchJobService.CURRENT_JOB_ID, jobService.submit(descriptor).getId());

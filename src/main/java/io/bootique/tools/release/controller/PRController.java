@@ -1,17 +1,19 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.github.Label;
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.PullRequest;
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.agrest.DataResponse;
+import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.view.PullRequestView;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 import java.util.Comparator;
-import java.util.List;
 import java.util.function.Predicate;
 
 @Path("/pr")
@@ -23,12 +25,19 @@ public class PRController extends BaseController {
 
     @GET
     public PullRequestView home(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
-        Organization organization = gitHubApi.getCurrentOrganization();
+        AgRequest agRequest = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
+        for (Repository repository : organization.getRepositories()) {
+            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
+            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
+            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
+        }
+        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
         return new PullRequestView(gitHubApi.getCurrentUser(), organization, filter, sort);
     }
 
     private Predicate<PullRequest> getPredicate(String filter) {
-        if(filter == null || filter.isEmpty()) {
+        if (filter == null || filter.isEmpty()) {
             return DEFAULT_FILTER;
         }
 
@@ -39,15 +48,15 @@ public class PRController extends BaseController {
             case "r":
                 return pr -> pr.getRepository().getName().equals(filterParts[1]);
             case "l":
-                Label label = new Label(filterParts[1], "");
-                return pr -> pr.getLabels().getLabels().contains(label);
+                Label label = new Label();
+                return pr -> pr.getLabels().contains(label);
             default:
                 return DEFAULT_FILTER;
         }
     }
 
     private Comparator<PullRequest> getComparator(String sort) {
-        if(sort == null || sort.isEmpty()) {
+        if (sort == null || sort.isEmpty()) {
             return DEFAULT_COMPARATOR;
         }
 
@@ -69,14 +78,14 @@ public class PRController extends BaseController {
                 break;
             case "labels":
                 comparator = Comparator
-                        .<PullRequest>comparingInt(i -> i.getLabels().getTotalCount()).reversed()
+                        .<PullRequest>comparingInt(i -> i.getLabels().size()).reversed()
                         .thenComparing(Comparator.comparing(PullRequest::getCreatedAt).reversed());
                 break;
             default:
                 return DEFAULT_COMPARATOR;
         }
 
-        if(sortSpec.length > 1 && "desc".equals(sortSpec[1])) {
+        if (sortSpec.length > 1 && "desc".equals(sortSpec[1])) {
             comparator = comparator.reversed();
         }
 
@@ -86,8 +95,8 @@ public class PRController extends BaseController {
     @GET
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<PullRequest> showAll(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
-        Organization organization = gitHubApi.getCurrentOrganization();
-        return contentService.getPullRequests(organization, getPredicate(filter), getComparator(sort));
+    public DataResponse<PullRequest> showAll(@Context UriInfo uriInfo) {
+        DataResponse<PullRequest> pullRequestDataResponse = Ag.select(PullRequest.class, configuration).uri(uriInfo).get();
+        return pullRequestDataResponse;
     }
 }

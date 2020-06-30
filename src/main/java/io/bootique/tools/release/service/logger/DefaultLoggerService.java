@@ -2,6 +2,7 @@ package io.bootique.tools.release.service.logger;
 
 import ch.qos.logback.classic.Logger;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
+import io.bootique.tools.release.model.release.dto.ReleaseDescriptorDTO;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.slf4j.LoggerFactory;
 

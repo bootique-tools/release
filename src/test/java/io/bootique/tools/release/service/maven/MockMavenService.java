@@ -1,9 +1,9 @@
 package io.bootique.tools.release.service.maven;
 
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.Repository;
-import io.bootique.tools.release.model.maven.Module;
-import io.bootique.tools.release.model.maven.Project;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.maven.persistent.Module;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +30,7 @@ public class MockMavenService implements MavenService {
 
     @Override
     public List<Project> getProjects(Organization organization, Predicate<Project> predicate) {
-        Repository repository = new Repository();
+        Repository repository = organization.getObjectContext().newObject(Repository.class);
         repository.setName("test");
         return Stream.of(new Project(repository, Paths.get(repository.getName()), new Module(repository.getName(), repository.getName(),"1.0.2")))
                 .filter(predicate)

@@ -1,9 +1,9 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.github.Issue;
-import io.bootique.tools.release.model.github.Label;
-import io.bootique.tools.release.model.github.Milestone;
-import io.bootique.tools.release.model.github.Organization;
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.agrest.DataResponse;
+import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.view.IssueView;
 
@@ -12,7 +12,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -29,9 +31,18 @@ public class IssueController extends BaseController {
     private static final Comparator<Issue> DEFAULT_COMPARATOR = Comparator.comparing(Issue::getCreatedAt).reversed();
 
     @GET
-    public IssueView home(@QueryParam("filter") String filters, @QueryParam("sort") String sort) {
-        Organization organization = gitHubApi.getCurrentOrganization();
-        return new IssueView(gitHubApi.getCurrentUser(), organization, filters, sort);
+    public IssueView home(@QueryParam("sort") String sort, @QueryParam("filter") String filters, @QueryParam("field") String field) {
+
+        AgRequest agRequest = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
+        for (Repository repository : organization.getRepositories()) {
+            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
+            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
+            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
+        }
+        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+
+        return new IssueView(gitHubApi.getCurrentUser(), organization, sort, filters, field);
     }
 
     private List<Predicate<Issue>> getPredicates(String filters) {
@@ -44,7 +55,7 @@ public class IssueController extends BaseController {
     }
 
     private Predicate<Issue> getPredicate(String filter) {
-        if(filter == null || filter.isEmpty()) {
+        if (filter == null || filter.isEmpty()) {
             return DEFAULT_FILTER;
         }
 
@@ -57,15 +68,15 @@ public class IssueController extends BaseController {
             case "r":
                 return issue -> issue.getRepository().getName().equals(filterParts[1]);
             case "l":
-                Label label = new Label(filterParts[1], "");
-                return issue -> issue.getLabels().getLabels().contains(label);
+                Label label = new Label();
+                return issue -> issue.getLabels().contains(label);
             default:
                 return DEFAULT_FILTER;
         }
     }
 
     private Comparator<Issue> getComparator(String sort) {
-        if(sort == null || sort.isEmpty()) {
+        if (sort == null || sort.isEmpty()) {
             return DEFAULT_COMPARATOR;
         }
 
@@ -86,13 +97,13 @@ public class IssueController extends BaseController {
                 comparator = (i1, i2) -> {
                     Milestone m1 = i1.getMilestone();
                     Milestone m2 = i2.getMilestone();
-                    if(m1 == null && m2 == null) {
+                    if (m1 == null && m2 == null) {
                         return i1.getCreatedAt().compareTo(i2.getCreatedAt());
                     }
-                    if(m1 == null) {
+                    if (m1 == null) {
                         return 1;
                     }
-                    if(m2 == null) {
+                    if (m2 == null) {
                         return -1;
                     }
                     return m1.compareTo(m2);
@@ -100,7 +111,7 @@ public class IssueController extends BaseController {
                 break;
             case "labels":
                 comparator = Comparator
-                        .<Issue>comparingInt(i -> i.getLabels().getTotalCount()).reversed()
+                        .<Issue>comparingInt(i -> i.getLabels().size()).reversed()
                         .thenComparing(Comparator.comparing(Issue::getCreatedAt).reversed());
                 break;
             case "date":
@@ -110,7 +121,7 @@ public class IssueController extends BaseController {
                 return DEFAULT_COMPARATOR;
         }
 
-        if(sortSpec.length > 1 && "desc".equals(sortSpec[1])) {
+        if (sortSpec.length > 1 && "desc".equals(sortSpec[1])) {
             comparator = comparator.reversed();
         }
 
@@ -120,8 +131,8 @@ public class IssueController extends BaseController {
     @GET
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Issue> showAll(@QueryParam("filter") String filters, @QueryParam("sort") String sort) {
-        Organization organization = gitHubApi.getCurrentOrganization();
-        return contentService.getIssues(organization, getPredicates(filters), getComparator(sort));
+    public DataResponse<Issue> showAll(@Context UriInfo uriInfo) {
+        DataResponse<Issue> issueDataResponse = Ag.select(Issue.class, configuration).uri(uriInfo).get();
+        return issueDataResponse;
     }
 }

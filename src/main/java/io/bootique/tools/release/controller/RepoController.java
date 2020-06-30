@@ -1,7 +1,9 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.Repository;
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.agrest.DataResponse;
+import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.view.RepoView;
 
 import javax.ws.rs.GET;
@@ -9,9 +11,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.*;
 import java.util.Comparator;
-import java.util.List;
 
 @Path("/")
 public class RepoController extends BaseController {
@@ -20,9 +21,16 @@ public class RepoController extends BaseController {
 
     @GET
     public RepoView home(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
-        Organization organization = gitHubApi.getCurrentOrganization();
-        return new RepoView(gitHubApi.getCurrentUser(),
-                organization);
+        AgRequest agRequest = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
+        for (Repository repository : organization.getRepositories()) {
+            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
+            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
+            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
+        }
+        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+
+        return new RepoView(gitHubApi.getCurrentUser(), organization);
     }
 
     /**
@@ -34,7 +42,7 @@ public class RepoController extends BaseController {
     }
 
     private Comparator<Repository> getComparator(String sort) {
-        if(sort == null || sort.isEmpty()) {
+        if (sort == null || sort.isEmpty()) {
             return DEFAULT_COMPARATOR;
         }
 
@@ -58,7 +66,7 @@ public class RepoController extends BaseController {
                 return DEFAULT_COMPARATOR;
         }
 
-        if(sortSpec.length > 1 && "desc".equals(sortSpec[1])) {
+        if (sortSpec.length > 1 && "desc".equals(sortSpec[1])) {
             comparator = comparator.reversed();
         }
 
@@ -69,14 +77,13 @@ public class RepoController extends BaseController {
     @Path("/checkCache")
     @Produces(MediaType.APPLICATION_JSON)
     public boolean checkCache() {
-        return contentService.haveCache();
+        return contentService.haveCache(configuration);
     }
 
     @GET
     @Path("repo/show-all")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Repository> showAll(@QueryParam("filter") String filter, @QueryParam("sort") String sort) {
-        Organization organization = gitHubApi.getCurrentOrganization();
-        return contentService.getRepositories(organization, r -> true, getComparator(sort));
+    public DataResponse<Repository> getAll(@Context UriInfo uriInfo) {
+        return Ag.select(Repository.class, configuration).uri(uriInfo).get();
     }
 }

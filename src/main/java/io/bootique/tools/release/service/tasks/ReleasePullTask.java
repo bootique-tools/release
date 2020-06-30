@@ -1,6 +1,6 @@
 package io.bootique.tools.release.service.tasks;
 
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.git.GitService;

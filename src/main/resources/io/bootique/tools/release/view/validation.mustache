@@ -42,7 +42,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="module in allItems">
+                            <tr v-for="module in allItems.data">
                                 <td><input type="checkbox" v-bind:disabled="module.disable" v-bind:id="module.repository.name" v-bind:value="module.repository.name" v-on:change="moduleSelect(module.repository.name)" v-model.lazy="selectedModules"></td>
                                 <td><label v-bind:for="module.repository.name">[[module.repository.name]]</label></td>
                                 <td>[[module.rootModule.version]]</td>

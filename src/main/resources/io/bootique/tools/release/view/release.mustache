@@ -31,7 +31,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="module in allItems">
+                            <tr v-for="module in allItems.data">
                                 <td><input type="checkbox" v-bind:disabled="module.disable" v-bind:id="module.repository.name" v-bind:value="module.repository.name" v-on:change="moduleSelect(module.repository.name)" v-model.lazy="selectedModules"></td>
                                 <td><label v-bind:for="module.repository.name">[[module.repository.name]]</label></td>
                                 <td>[[module.rootModule.version]]</td>
@@ -54,25 +54,19 @@
                     </table>
                 </div>
                 <div class="text-center release-btn">
-                    <form class="" action="/ui/release/create-descriptor" method="post" id="release-form">
+                    <form class="" action="/ui/release/create-descriptor" method="post" id="release-form" @submit="sendForm">
                         <input class="form-control mr-sm-2" type="hidden" placeholder="" name="fromVersion" v-model="currentVersion">
                         <input class="form-control mr-sm-2" type="hidden" placeholder="" name="releaseVersion" v-model="releaseVersion">
                         <input class="form-control mr-sm-2" type="hidden" placeholder="" name="devVersion" v-model="nextDevVersion">
                         <input class="form-control mr-sm-2" type="hidden" placeholder="" name="projects" v-model="JSON.stringify(selectedModules)">
                         <input class="form-control mr-sm-2" type="hidden" placeholder="" name="mode" v-model="mode">
-                        <button class="btn btn-outline-success" id="btn-confirm" data-target="#confirm-modal" type="button" v-bind:disabled="startRelease">Start release</button>
+                        <button class="btn btn-outline-success" id="btn-confirm" data-target="#confirm-modal" type="submit" v-bind:disabled="startRelease">Start release</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="progress-style">
-            <div id="bar" class="indeterminate-progress-bar active">
-                <div class="progress-block single-segment"></div>
-            </div>
-        </div>
     </div>
-
     <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="confirm-modal">
         <div class="modal-dialog modal-md">
             <div class="modal-content">
@@ -99,6 +93,12 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="progress-style">
+    <div id="bar" class="indeterminate-progress-bar active">
+        <div class="progress-block single-segment"></div>
     </div>
 </div>
 

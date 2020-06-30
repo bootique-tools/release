@@ -1,7 +1,10 @@
 package io.bootique.tools.release.service.github;
 
-import io.bootique.tools.release.model.github.*;
+import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.service.preferences.Preference;
+import io.bootique.tools.release.service.preferences.PreferenceService;
+
+import java.util.List;
 
 public interface GitHubApi {
 
@@ -11,13 +14,21 @@ public interface GitHubApi {
 
     User getCurrentUser();
 
+    PreferenceService getPreferences();
+
     Organization getCurrentOrganization();
+
+    RepositoryCollection getCurrentRepositoryCollection(Organization organization);
 
     MilestoneCollection getMilestoneCollection(Repository repo);
 
+    List<Milestone> getMilestones(Repository repository);
+
     IssueCollection getIssueCollection(Repository repo);
 
-    IssueCollection getClosedIssueCollection(Repository repository, int id);
+    Boolean isUpdate();
+
+    void setUpdate(Boolean update);
 
     PullRequestCollection getPullRequestCollection(Repository repo);
 }

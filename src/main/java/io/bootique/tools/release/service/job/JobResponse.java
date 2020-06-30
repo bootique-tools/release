@@ -1,6 +1,6 @@
 package io.bootique.tools.release.service.job;
 
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.job.BatchJobResult;
 import io.bootique.value.Percent;
 

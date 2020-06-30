@@ -1,13 +1,14 @@
 package io.bootique.tools.release.service.content;
 
-import io.bootique.tools.release.model.github.Issue;
-import io.bootique.tools.release.model.github.IssueCollection;
-import io.bootique.tools.release.model.github.Milestone;
-import io.bootique.tools.release.model.github.MilestoneCollection;
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.PullRequest;
-import io.bootique.tools.release.model.github.PullRequestCollection;
-import io.bootique.tools.release.model.github.Repository;
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.agrest.DataResponse;
+import io.bootique.tools.release.model.persistent.Issue;
+import io.bootique.tools.release.model.persistent.Milestone;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.PullRequest;
+import io.bootique.tools.release.model.persistent.PullRequestCollection;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.preferences.PreferenceService;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import javax.inject.Inject;
+import javax.ws.rs.core.Configuration;
 
 public class DefaultContentService implements ContentService {
 
@@ -41,48 +43,36 @@ public class DefaultContentService implements ContentService {
 
     @Override
     public List<Issue> getIssues(Organization organization, List<Predicate<Issue>> predicates, Comparator<Issue> comparator) {
-        if(organization == null) {
+        if (organization == null) {
             return Collections.emptyList();
         }
-        for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            IssueCollection issueCollection = gitHubApi.getIssueCollection(repository);
-            repository.setIssueCollection(issueCollection);
-        }
-        organization.setIssuesRepo();
-
         return organization.getIssues(predicates, comparator);
     }
 
     @Override
     public List<Milestone> getMilestones(Organization organization) {
-        if(organization == null) {
+        if (organization == null) {
             return Collections.emptyList();
         }
-        for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            MilestoneCollection milestoneCollection = gitHubApi.getMilestoneCollection(repository);
-            repository.setMilestoneCollection(milestoneCollection);
+        for (Repository repository : organization.getRepositories()) {
+            List<Milestone> milestones = gitHubApi.getMilestones(repository);
+            repository.getMilestones().clear();
+            repository.addToMilestones(milestones);
         }
-        organization.setMilestonesRepo();
         return organization.getMilestones();
     }
 
     @Override
     public List<PullRequest> getPullRequests(Organization organization, Predicate<PullRequest> predicate, Comparator<PullRequest> comparator) {
-        if(organization == null) {
+        if (organization == null) {
             return Collections.emptyList();
         }
-        for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            PullRequestCollection pullRequestCollection = gitHubApi.getPullRequestCollection(repository);
-            repository.setPullRequestCollection(pullRequestCollection);
-        }
-        organization.setPRsRepo();
-
         return organization.getPullRequests(predicate, comparator);
     }
 
     @Override
     public List<Repository> getRepositories(Organization organization, Predicate<Repository> predicate, Comparator<Repository> comparator) {
-        if(organization == null) {
+        if (organization == null) {
             return Collections.emptyList();
         }
         List<Repository> repositoryList = organization.getRepositories(predicate, comparator);
@@ -99,27 +89,20 @@ public class DefaultContentService implements ContentService {
         Organization organization = gitHubApi.getCurrentOrganization();
         List<Repository> repositories = organization
                 .getRepositories(repo -> repo.getName().equals(name), Repository::compareTo);
-        if(repositories.size() != 1) {
+        if (repositories.size() != 1) {
             return null;
         }
         return repositories.get(0);
     }
 
     @Override
-    public boolean haveCache() {
-        Organization organization = gitHubApi.getCurrentOrganization();
-        if(organization == null) {
+    public boolean haveCache(Configuration configuration) {
+        AgRequest agRequest = Ag.request(configuration).build();
+        DataResponse<Organization> organizations = Ag.select(Organization.class, configuration).request(agRequest).get();
+        if (organizations.getObjects().size() == 0 ||
+                organizations.getObjects().get(0).getRepositories().size() == 0) {
             return false;
         }
-        for(Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            String repoName = repository.getName();
-            if(repoCache.get("milestones:" + repoName) == null ||
-                    repoCache.get("issue:" + repoName) == null ||
-                    repoCache.get("pr:" + repoName) == null) {
-                return false;
-            }
-        }
-
         return true;
     }
 }

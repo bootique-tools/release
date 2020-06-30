@@ -1,12 +1,13 @@
 package io.bootique.tools.release.service.content;
 
-import io.bootique.tools.release.model.github.Issue;
-import io.bootique.tools.release.model.github.Milestone;
-import io.bootique.tools.release.model.github.Organization;
-import io.bootique.tools.release.model.github.PullRequest;
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Issue;
+import io.bootique.tools.release.model.persistent.Milestone;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.PullRequest;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.util.RequestCache;
 
+import javax.ws.rs.core.Configuration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -26,5 +27,5 @@ public interface ContentService {
 
     Repository getRepository(String organizationName, String name);
 
-    boolean haveCache();
+    boolean haveCache(Configuration configuration);
 }

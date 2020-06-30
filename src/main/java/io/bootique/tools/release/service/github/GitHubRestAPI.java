@@ -1,7 +1,7 @@
 package io.bootique.tools.release.service.github;
 
-import io.bootique.tools.release.model.github.Milestone;
-import io.bootique.tools.release.model.github.Repository;
+import io.bootique.tools.release.model.persistent.Milestone;
+import io.bootique.tools.release.model.persistent.Repository;
 
 import java.io.IOException;
 
