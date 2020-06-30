@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.BaseDataObject;
 import org.apache.cayenne.exp.Property;
 
@@ -17,23 +18,24 @@ public abstract class _GitHubEntity extends BaseDataObject {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> ID = Property.create("id", String.class);
+    public static final Property<String> GITHUB_ID = Property.create("githubId", String.class);
     public static final Property<String> URL = Property.create("url", String.class);
 
-    protected String id;
+    @JsonProperty("id")
+    protected String githubId;
     protected String url;
 
 
-    public void setId(String id) {
-        beforePropertyWrite("id", this.id, id);
-        this.id = id;
+    public void setGithubId(String githubId) {
+        beforePropertyWrite("githubId", this.githubId, githubId);
+        this.githubId = githubId;
     }
 
-    public String getId() {
-        beforePropertyRead("id");
-        return this.id;
+    public String getGithubId() {
+        beforePropertyRead("githubId");
+        return this.githubId;
     }
 
     public void setUrl(String url) {
@@ -53,8 +55,8 @@ public abstract class _GitHubEntity extends BaseDataObject {
         }
 
         switch(propName) {
-            case "id":
-                return this.id;
+            case "githubId":
+                return this.githubId;
             case "url":
                 return this.url;
             default:
@@ -69,8 +71,8 @@ public abstract class _GitHubEntity extends BaseDataObject {
         }
 
         switch (propName) {
-            case "id":
-                this.id = (String)val;
+            case "githubId":
+                this.githubId = (String)val;
                 break;
             case "url":
                 this.url = (String)val;
@@ -91,14 +93,14 @@ public abstract class _GitHubEntity extends BaseDataObject {
     @Override
     protected void writeState(ObjectOutputStream out) throws IOException {
         super.writeState(out);
-        out.writeObject(this.id);
+        out.writeObject(this.githubId);
         out.writeObject(this.url);
     }
 
     @Override
     protected void readState(ObjectInputStream in) throws IOException, ClassNotFoundException {
         super.readState(in);
-        this.id = (String)in.readObject();
+        this.githubId = (String)in.readObject();
         this.url = (String)in.readObject();
     }
 

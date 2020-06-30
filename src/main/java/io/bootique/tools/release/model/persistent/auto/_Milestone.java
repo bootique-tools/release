@@ -23,7 +23,7 @@ public abstract class _Milestone extends GitHubEntity {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_M_PK_COLUMN = "ID_PK_M";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<Integer> NUMBER = Property.create("number", Integer.class);
     public static final Property<String> STATE = Property.create("state", String.class);

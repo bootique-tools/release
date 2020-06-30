@@ -59,7 +59,7 @@ class DefaultMavenServiceTest {
         Module module = service.resolveModule(Paths.get("."));
         assertNotNull(module);
         assertEquals("io.bootique.tools", module.getGroupStr());
-        assertEquals("release", module.getId());
+        assertEquals("release", module.getGithubId());
         assertEquals("1.0-SNAPSHOT", module.getVersion());
         assertTrue(module.getDependencies().isEmpty());
     }
@@ -78,7 +78,7 @@ class DefaultMavenServiceTest {
         for(Module module : moduleList) {
             assertTrue(module.getGroupStr().startsWith("io.bootique"));
             assertEquals("0.26-SNAPSHOT", module.getVersion());
-            assertTrue(names.contains(module.getId()));
+            assertTrue(names.contains(module.getGithubId()));
         }
     }
 
@@ -100,7 +100,7 @@ class DefaultMavenServiceTest {
         for(Module module : project.getModules()) {
             assertTrue(module.getGroupStr().startsWith("io.bootique"));
             assertEquals("0.26-SNAPSHOT", module.getVersion());
-            assertTrue(names.contains(module.getId()));
+            assertTrue(names.contains(module.getGithubId()));
         }
     }
 
@@ -119,7 +119,7 @@ class DefaultMavenServiceTest {
         for (int i = 0; i < 5; i++) {
             Module module = context.newObject(Module.class);
             module.setGroupStr("io.test");
-            module.setId("module" + i);
+            module.setGithubId("module" + i);
             module.setVersion("1.0");
             modules.add(module);
         }
@@ -171,7 +171,7 @@ class DefaultMavenServiceTest {
         for (int i = 0; i < 5; i++) {
             Module module = context.newObject(Module.class);
             module.setGroupStr("io.test");
-            module.setId("module" + i);
+            module.setGithubId("module" + i);
             module.setVersion("1.0");
             modules.add(module);
         }
@@ -181,7 +181,7 @@ class DefaultMavenServiceTest {
             Dependency dependency = context.newObject(Dependency.class);
             Module module = context.newObject(Module.class);
             module.setGroupStr("io.test");
-            module.setId("module" + i);
+            module.setGithubId("module" + i);
             module.setVersion("1.0");
             dependency.setModule(module);
             dependency.setType("x");

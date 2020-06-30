@@ -23,7 +23,7 @@ public abstract class _PullRequest extends RepositoryNode {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<User> AUTHOR = Property.create("author", User.class);
     public static final Property<List<Label>> LABELS = Property.create("labels", List.class);

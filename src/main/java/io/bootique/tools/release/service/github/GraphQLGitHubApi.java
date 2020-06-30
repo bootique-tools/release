@@ -70,16 +70,6 @@ public class GraphQLGitHubApi implements GitHubApi {
     }
 
     @Override
-    public Boolean isUpdate() {
-        return false;
-    }
-
-    @Override
-    public void setUpdate(Boolean update) {
-
-    }
-
-    @Override
     public PullRequestCollection getPullRequestCollection(Repository repo) {
         return getFromCache("pr:" + repo.getName());
     }

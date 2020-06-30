@@ -3,14 +3,10 @@ package io.bootique.tools.release.command;
 import io.bootique.cli.Cli;
 import io.bootique.command.CommandOutcome;
 import io.bootique.command.CommandWithMetadata;
-import io.bootique.job.JobMetadata;
 import io.bootique.meta.application.CommandMetadata;
 import io.bootique.meta.application.OptionMetadata;
-import io.bootique.tools.release.job.QueryJob;
 import io.bootique.tools.release.service.console.ConsoleReleaseService;
 import io.bootique.tools.release.service.desktop.DesktopException;
-import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.configuration.server.ServerRuntime;
 
 import java.util.List;
 import javax.inject.Inject;
@@ -21,17 +17,9 @@ public class ConsoleReleaseCommand extends CommandWithMetadata{
     @Inject
     private Provider<ConsoleReleaseService> provider;
 
-//    private Provider<ServerRuntime> runtimeProvider;
-
     public ConsoleReleaseCommand() {
         super(createMetadata());
     }
-
-//    @Inject
-//    public ConsoleReleaseCommand(Provider<ServerRuntime> runtimeProvider) {
-//        super(createMetadata());
-//        this.runtimeProvider = runtimeProvider;
-//    }
 
     private static CommandMetadata createMetadata() {
         return CommandMetadata.builder(ConsoleReleaseCommand.class)
@@ -59,11 +47,6 @@ public class ConsoleReleaseCommand extends CommandWithMetadata{
 
     @Override
     public CommandOutcome run(Cli cli) {
-//
-//        ServerRuntime runtime = runtimeProvider.get();
-//
-//        ObjectContext context = runtime.newContext();
-
         String fromVersion = cli.optionString("fromVersion");
         String releaseVersion = cli.optionString("releaseVersion");
         String devVersion = cli.optionString("devVersion");

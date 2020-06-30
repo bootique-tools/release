@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.exp.Property;
 
@@ -25,7 +24,7 @@ public abstract class _Issue extends RepositoryNode {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<User> AUTHOR = Property.create("author", User.class);
     public static final Property<Milestone> ISSUES_LIST = Property.create("issuesList", Milestone.class);
@@ -39,7 +38,6 @@ public abstract class _Issue extends RepositoryNode {
     protected Object labels;
     @JsonProperty("milestone")
     protected Object milestone;
-//    @JsonIgnore
     protected Object repository;
 
     public void setAuthor(User author) {

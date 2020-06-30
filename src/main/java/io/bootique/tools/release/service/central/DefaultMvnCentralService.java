@@ -28,7 +28,7 @@ public class DefaultMvnCentralService implements MvnCentralService {
                     .queryParam("q", "g:%22"
                             + project.getRootModule().getGroupStr()
                             + "%22 AND a:%22"
-                            + project.getRootModule().getId()
+                            + project.getRootModule().getGithubId()
                             + "%22 AND v:%22"
                             + version
                             + "%22")

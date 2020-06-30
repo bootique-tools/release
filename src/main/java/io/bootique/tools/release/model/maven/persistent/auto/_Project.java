@@ -22,7 +22,7 @@ public abstract class _Project extends BaseDataObject {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<String> BRANCH_NAME = Property.create("branchName", String.class);
     public static final Property<Boolean> DISABLE = Property.create("disable", Boolean.class);

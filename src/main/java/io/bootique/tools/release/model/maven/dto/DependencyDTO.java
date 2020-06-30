@@ -17,8 +17,8 @@ public class DependencyDTO {
 
     private void init(Dependency dependency) {
         this.type = dependency.getType();
-        this.moduleName = dependency.getModule().getId();
-        this.rootModuleName = dependency.getRootModule().getId();
+        this.moduleName = dependency.getModule().getGithubId();
+        this.rootModuleName = dependency.getRootModule().getGithubId();
     }
 
     private void convertFromDTO(Dependency dependency) {

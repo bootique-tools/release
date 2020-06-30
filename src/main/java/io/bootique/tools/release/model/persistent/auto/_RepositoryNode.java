@@ -21,7 +21,7 @@ public abstract class _RepositoryNode extends GitHubEntity {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<Integer> COMMENTS_COUNT = Property.create("commentsCount", Integer.class);
     public static final Property<LocalDateTime> CREATED_AT = Property.create("createdAt", LocalDateTime.class);

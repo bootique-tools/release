@@ -3,7 +3,6 @@ package io.bootique.tools.release.model.maven.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.persistent.Issue;
 import io.bootique.tools.release.model.persistent.Milestone;
-import io.bootique.tools.release.model.persistent.Repository;
 
 import java.util.ArrayList;
 import java.util.List;

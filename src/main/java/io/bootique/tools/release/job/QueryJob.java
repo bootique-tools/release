@@ -33,6 +33,8 @@ public class QueryJob extends BaseJob {
 
     private Provider<ServerRuntime> runtimeProvider;
 
+    private Boolean update;
+
     public QueryJob() {
         super(JobMetadata.build(QueryJob.class));
     }
@@ -41,6 +43,7 @@ public class QueryJob extends BaseJob {
     public QueryJob(Provider<ServerRuntime> runtimeProvider) {
         super(JobMetadata.build(QueryJob.class));
         this.runtimeProvider = runtimeProvider;
+        this.update = false;
     }
 
     @Override
@@ -50,7 +53,7 @@ public class QueryJob extends BaseJob {
         ObjectContext context = runtime.newContext();
         GitHubApi gitHubApi = this.gitHubApi;
 
-        if (this.gitHubApi.isUpdate()) {
+        if (this.update) {
             getCurrents(context);
         } else {
             List<Organization> organizations = ObjectSelect.query(Organization.class)
@@ -61,7 +64,7 @@ public class QueryJob extends BaseJob {
             }
         }
 
-        gitHubApi.setUpdate(true);
+        this.update = true;
         return JobResult.success(getMetadata());
     }
 
@@ -77,7 +80,7 @@ public class QueryJob extends BaseJob {
 
         getRepositories(objectContext, organization);
 
-        if (organization.getObjectId().getIdSnapshot().get("ID_PK") == null) {
+        if (organization.getObjectId().getIdSnapshot().get("ID") == null) {
             for (Repository repository : organization.getRepositoryCollection().getRepositories()) {
                 if (preferenceService.have(GitService.BASE_PATH_PREFERENCE)) {
                     repository.setLocalStatus(gitService.status(repository));
@@ -111,8 +114,8 @@ public class QueryJob extends BaseJob {
         for (Issue issue : issueCollection.getIssues()) {
             issue.setObjectContext(context);
             if (issue.getMilestone() != null) {
-                if (milestoneMap.containsKey(issue.getMilestone().getId())) {
-                    issue.setMilestone(milestoneMap.get(issue.getMilestone().getId()));
+                if (milestoneMap.containsKey(issue.getMilestone().getGithubId())) {
+                    issue.setMilestone(milestoneMap.get(issue.getMilestone().getGithubId()));
                 } else {
                     issue.getMilestone().setObjectContext(context);
                     context.registerNewObject(issue.getMilestone());
@@ -144,7 +147,7 @@ public class QueryJob extends BaseJob {
             }
             repository.addToMilestones(milestone);
             context.registerNewObject(milestone);
-            milestoneMap.put(milestone.getId(), milestone);
+            milestoneMap.put(milestone.getGithubId(), milestone);
         }
     }
 

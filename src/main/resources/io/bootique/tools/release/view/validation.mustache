@@ -50,10 +50,10 @@
                                     [[statusMap.get(module)]]
                                 </td>
                                 <td>
-                                    <button v-if="errorMap.get(module)" class="btn btn-sm btn-outline-primary btn-verify-results" data-toggle="modal" :data-target="'.verify-result-' + module.rootModule.id">
+                                    <button v-if="errorMap.get(module)" class="btn btn-sm btn-outline-primary btn-verify-results" data-toggle="modal" :data-target="'.verify-result-' + module.rootModule.githubId">
                                         <i class="far fa-eye"></i>
                                     </button>
-                                    <div v-bind:class="'modal fade verify-result-' + module.rootModule.id" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div v-bind:class="'modal fade verify-result-' + module.rootModule.githubId" tabindex="-1" role="dialog" aria-hidden="true">
                                         <div class="modal-dialog modal-lg">
                                             <div class="modal-content p-2 m-2" style="text-align:left;">
                                                 <pre><code>[[errorMap.get(module)]]</code></pre>

@@ -129,7 +129,7 @@ public class GitController extends BaseController {
 
         action.accept(repository);
         String data = "{ \"lStatus\" : \"" + GitService.GitStatus.OK.name() + "\" }";
-        return Ag.update(Repository.class, configuration).id(repository.getObjectId().getIdSnapshot().get("ID_PK")).sync(data);
+        return Ag.update(Repository.class, configuration).id(repository.getObjectId().getIdSnapshot().get("ID")).sync(data);
     }
 
 }

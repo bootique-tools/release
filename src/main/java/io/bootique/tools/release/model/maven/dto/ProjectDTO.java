@@ -2,9 +2,6 @@ package io.bootique.tools.release.model.maven.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.release.ReleaseDescriptor;
-import io.bootique.tools.release.model.release.dto.ReleaseDescriptorDTO;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,6 @@
 package io.bootique.tools.release.model.maven.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Milestone;
 import io.bootique.tools.release.model.persistent.Repository;
 

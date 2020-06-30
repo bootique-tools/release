@@ -21,7 +21,7 @@ public class DependencyTest {
         Module module = dependency.getModule();
         assertNotNull(module);
         assertEquals("group1", module.getGroupStr());
-        assertEquals("id1", module.getId());
+        assertEquals("id1", module.getGithubId());
         assertEquals("1.0", module.getVersion());
     }
 

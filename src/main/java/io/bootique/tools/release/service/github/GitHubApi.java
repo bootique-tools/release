@@ -26,9 +26,5 @@ public interface GitHubApi {
 
     IssueCollection getIssueCollection(Repository repo);
 
-    Boolean isUpdate();
-
-    void setUpdate(Boolean update);
-
     PullRequestCollection getPullRequestCollection(Repository repo);
 }

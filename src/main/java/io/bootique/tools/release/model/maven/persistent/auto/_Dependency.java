@@ -19,7 +19,7 @@ public abstract class _Dependency extends BaseDataObject {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<String> TYPE = Property.create("type", String.class);
     public static final Property<Module> MODULE = Property.create("module", Module.class);

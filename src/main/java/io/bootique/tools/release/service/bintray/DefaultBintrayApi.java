@@ -42,9 +42,6 @@ public class DefaultBintrayApi implements BintrayApi {
     @Override
     public void publishUploadedContent(Repository repository, String releaseVersion) {
         LOGGER.debug("Publish content of " + repository.getName() + " in Bintray.");
-
-        System.out.println("\nxpublishUploadedContent\n");
-
         Response response = buildPost("/content/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + repository.getName() + "/" + releaseVersion + "/publish", "");
         if (response.getStatus() != 200) {
             throw new DesktopException("Exit code: " + response.getStatus() + "\n" + response.readEntity(String.class));
@@ -168,7 +165,7 @@ public class DefaultBintrayApi implements BintrayApi {
     @SuppressWarnings("unchecked")
     public Map<String, String> getPackageInfo(Project project) {
         Response response = targets.newTarget("bintray")
-                .path("/packages/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + project.getRootModule().getId())
+                .path("/packages/" + preferenceService.get(BintrayApi.BINTRAY_ORG_NAME) + "/releases/" + project.getRootModule().getGithubId())
                 .request().buildGet().invoke();
         return (Map<String, String>) response.readEntity(HashMap.class);
     }

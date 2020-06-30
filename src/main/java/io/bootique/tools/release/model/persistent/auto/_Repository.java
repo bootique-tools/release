@@ -27,7 +27,7 @@ public abstract class _Repository extends GitHubEntity {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<String> DESCRIPTION = Property.create("description", String.class);
     public static final Property<String> L_STATUS = Property.create("lStatus", String.class);

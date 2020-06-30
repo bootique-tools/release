@@ -4,24 +4,24 @@
 	 xsi:schemaLocation="http://cayenne.apache.org/schema/10/modelMap https://cayenne.apache.org/schema/10/modelMap.xsd"
 	 project-version="10">
 	<property name="defaultPackage" value="io.bootique.tools.release.model.persistent"/>
-	<db-entity name="Dependency">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+	<db-entity name="Dependency" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="module_id" type="INTEGER" length="10"/>
 		<db-attribute name="rootModule_id" type="INTEGER" length="10"/>
 		<db-attribute name="type" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="GitHubEntity">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+	<db-entity name="GitHubEntity" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Issue">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+	<db-entity name="Issue" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="author_id" type="INTEGER" length="10"/>
 		<db-attribute name="commentsCount" type="INTEGER" length="10"/>
 		<db-attribute name="createdAt" type="DATE"/>
 		<db-attribute name="createdAtStr" type="VARCHAR" length="255"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="milestone_id" type="INTEGER" length="10"/>
 		<db-attribute name="number" type="INTEGER" length="10"/>
 		<db-attribute name="repoName" type="VARCHAR" length="255"/>
@@ -29,40 +29,40 @@
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Label">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+	<db-entity name="Label" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="color" type="VARCHAR" length="255"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="issue_id" type="INTEGER" length="10"/>
 		<db-attribute name="name" type="VARCHAR" length="255"/>
 		<db-attribute name="pullRequest_id" type="INTEGER" length="10"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Milestone">
-		<db-attribute name="ID_PK_M" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+	<db-entity name="Milestone" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="number" type="INTEGER" length="10"/>
 		<db-attribute name="repository_id" type="INTEGER" length="10"/>
 		<db-attribute name="state" type="VARCHAR" length="255"/>
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Module">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+	<db-entity name="Module" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="groupStr" type="VARCHAR" length="255"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="project_id" type="INTEGER" length="10"/>
 		<db-attribute name="version" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Organization">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+	<db-entity name="Organization" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="login" type="VARCHAR" length="255"/>
 		<db-attribute name="name" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Project">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+	<db-entity name="Project" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="branchName" type="VARCHAR" length="255"/>
 		<db-attribute name="disable" type="BOOLEAN"/>
 		<db-attribute name="pathStr" type="VARCHAR" length="255"/>
@@ -70,23 +70,23 @@
 		<db-attribute name="repository_id" type="INTEGER" length="10"/>
 		<db-attribute name="version" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="PullRequest">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+	<db-entity name="PullRequest" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="author_id" type="INTEGER" length="10"/>
 		<db-attribute name="commentsCount" type="INTEGER" length="10"/>
 		<db-attribute name="createdAt" type="DATE"/>
 		<db-attribute name="createdAtStr" type="VARCHAR" length="255"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="number" type="INTEGER" length="10"/>
 		<db-attribute name="repoName" type="VARCHAR" length="255"/>
 		<db-attribute name="repository_id" type="INTEGER" length="10"/>
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Repository">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+	<db-entity name="Repository" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="description" type="VARCHAR" length="255"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="lStatus" type="VARCHAR" length="255"/>
 		<db-attribute name="name" type="VARCHAR" length="255"/>
 		<db-attribute name="organization_id" type="INTEGER" length="10"/>
@@ -97,8 +97,8 @@
 		<db-attribute name="updatedAt" type="DATE"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="RepositoryNode">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+	<db-entity name="RepositoryNode" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="author_id" type="INTEGER" length="10"/>
 		<db-attribute name="commentsCount" type="INTEGER" length="10"/>
 		<db-attribute name="createdAt" type="DATE"/>
@@ -108,9 +108,9 @@
 		<db-attribute name="repository_id" type="INTEGER" length="10"/>
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="User">
-		<db-attribute name="ID_PK" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
-		<db-attribute name="id" type="VARCHAR" length="255"/>
+	<db-entity name="User" schema="github">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="login" type="VARCHAR" length="255"/>
 		<db-attribute name="name" type="VARCHAR" length="255"/>
 		<db-attribute name="type" type="VARCHAR" length="255"/>
@@ -121,7 +121,7 @@
 		<obj-attribute name="type" type="java.lang.String" db-attribute-path="type"/>
 	</obj-entity>
 	<obj-entity name="GitHubEntity" abstract="true" className="io.bootique.tools.release.model.persistent.GitHubEntity" dbEntityName="GitHubEntity">
-		<obj-attribute name="id" type="java.lang.String" db-attribute-path="id"/>
+		<obj-attribute name="githubId" type="java.lang.String" db-attribute-path="github_id"/>
 		<obj-attribute name="url" type="java.lang.String" db-attribute-path="url"/>
 	</obj-entity>
 	<obj-entity name="Issue" superEntityName="RepositoryNode" className="io.bootique.tools.release.model.persistent.Issue" dbEntityName="Issue"/>
@@ -136,7 +136,7 @@
 	</obj-entity>
 	<obj-entity name="Module" className="io.bootique.tools.release.model.maven.persistent.Module" dbEntityName="Module">
 		<obj-attribute name="groupStr" type="java.lang.String" db-attribute-path="groupStr"/>
-		<obj-attribute name="id" type="java.lang.String" db-attribute-path="id"/>
+		<obj-attribute name="githubId" type="java.lang.String" db-attribute-path="github_id"/>
 		<obj-attribute name="version" type="java.lang.String" db-attribute-path="version"/>
 	</obj-entity>
 	<obj-entity name="Organization" superEntityName="GitHubEntity" className="io.bootique.tools.release.model.persistent.Organization" dbEntityName="Organization">
@@ -167,7 +167,7 @@
 		<obj-attribute name="repoName" type="java.lang.String" db-attribute-path="repoName"/>
 		<obj-attribute name="repositoryId" type="int" db-attribute-path="repository_id"/>
 		<obj-attribute name="title" type="java.lang.String" db-attribute-path="title"/>
-		<attribute-override name="id" db-attribute-path="id"/>
+		<attribute-override name="githubId" db-attribute-path="github_id"/>
 		<attribute-override name="url" db-attribute-path="url"/>
 	</obj-entity>
 	<obj-entity name="User" superEntityName="GitHubEntity" className="io.bootique.tools.release.model.persistent.User" dbEntityName="User">
@@ -177,162 +177,162 @@
 	</obj-entity>
 
 	<db-relationship name="module" source="Dependency" target="Module">
-		<db-attribute-pair source="module_id" target="ID_PK"/>
+		<db-attribute-pair source="module_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="rootModule" source="Dependency" target="Module">
-		<db-attribute-pair source="rootModule_id" target="ID_PK"/>
+		<db-attribute-pair source="rootModule_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_User" source="GitHubEntity" target="User" toDependentPK="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_RepositoryNode" source="GitHubEntity" target="RepositoryNode" toDependentPK="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Organization" source="GitHubEntity" target="Organization" toDependentPK="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Label" source="GitHubEntity" target="Label" toDependentPK="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Milestone" source="GitHubEntity" target="Milestone" toDependentPK="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK_M"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Repository" source="GitHubEntity" target="Repository" toDependentPK="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="repositoryNode_Issue" source="Issue" target="RepositoryNode" toMany="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="author" source="Issue" target="User">
-		<db-attribute-pair source="author_id" target="ID_PK"/>
+		<db-attribute-pair source="author_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="labels" source="Issue" target="Label" toMany="true">
-		<db-attribute-pair source="ID_PK" target="issue_id"/>
+		<db-attribute-pair source="ID" target="issue_id"/>
 	</db-relationship>
 	<db-relationship name="repository" source="Issue" target="Repository">
-		<db-attribute-pair source="repository_id" target="ID_PK"/>
+		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="milestone" source="Issue" target="Milestone">
-		<db-attribute-pair source="milestone_id" target="ID_PK_M"/>
+		<db-attribute-pair source="milestone_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Label" source="Label" target="GitHubEntity" toMany="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="labels_pr" source="Label" target="PullRequest">
-		<db-attribute-pair source="pullRequest_id" target="ID_PK"/>
+		<db-attribute-pair source="pullRequest_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="labels_i" source="Label" target="Issue">
-		<db-attribute-pair source="issue_id" target="ID_PK"/>
+		<db-attribute-pair source="issue_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Milestone" source="Milestone" target="GitHubEntity" toMany="true">
-		<db-attribute-pair source="ID_PK_M" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="issues" source="Milestone" target="Issue" toMany="true">
-		<db-attribute-pair source="ID_PK_M" target="milestone_id"/>
+		<db-attribute-pair source="ID" target="milestone_id"/>
 	</db-relationship>
 	<db-relationship name="repository" source="Milestone" target="Repository">
-		<db-attribute-pair source="repository_id" target="ID_PK"/>
+		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="dependencies" source="Module" target="Dependency" toMany="true">
-		<db-attribute-pair source="ID_PK" target="rootModule_id"/>
+		<db-attribute-pair source="ID" target="rootModule_id"/>
 	</db-relationship>
 	<db-relationship name="module" source="Module" target="Dependency" toMany="true">
-		<db-attribute-pair source="ID_PK" target="module_id"/>
+		<db-attribute-pair source="ID" target="module_id"/>
 	</db-relationship>
 	<db-relationship name="modules" source="Module" target="Project">
-		<db-attribute-pair source="project_id" target="ID_PK"/>
+		<db-attribute-pair source="project_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="project" source="Module" target="Project">
-		<db-attribute-pair source="project_id" target="ID_PK"/>
+		<db-attribute-pair source="project_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="repositories" source="Organization" target="Repository" toMany="true">
-		<db-attribute-pair source="ID_PK" target="organization_id"/>
+		<db-attribute-pair source="ID" target="organization_id"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Organization" source="Organization" target="GitHubEntity" toMany="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="modules" source="Project" target="Module" toMany="true">
-		<db-attribute-pair source="ID_PK" target="project_id"/>
+		<db-attribute-pair source="ID" target="project_id"/>
 	</db-relationship>
 	<db-relationship name="rootModule" source="Project" target="Module">
-		<db-attribute-pair source="ID_PK" target="project_id"/>
+		<db-attribute-pair source="ID" target="project_id"/>
 	</db-relationship>
 	<db-relationship name="dependencies" source="Project" target="Project" toMany="true">
-		<db-attribute-pair source="ID_PK" target="project_id"/>
+		<db-attribute-pair source="ID" target="project_id"/>
 	</db-relationship>
 	<db-relationship name="dependenciesSet" source="Project" target="Project">
-		<db-attribute-pair source="project_id" target="ID_PK"/>
+		<db-attribute-pair source="project_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="repository" source="Project" target="Repository">
-		<db-attribute-pair source="repository_id" target="ID_PK"/>
+		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="labels" source="PullRequest" target="Label" toMany="true">
-		<db-attribute-pair source="ID_PK" target="pullRequest_id"/>
+		<db-attribute-pair source="ID" target="pullRequest_id"/>
 	</db-relationship>
 	<db-relationship name="repository" source="PullRequest" target="Repository">
-		<db-attribute-pair source="repository_id" target="ID_PK"/>
+		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="author" source="PullRequest" target="User">
-		<db-attribute-pair source="author_id" target="ID_PK"/>
+		<db-attribute-pair source="author_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="repositoryNode_PR" source="PullRequest" target="RepositoryNode" toMany="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Repository" source="Repository" target="GitHubEntity" toMany="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="organization" source="Repository" target="Organization">
-		<db-attribute-pair source="organization_id" target="ID_PK"/>
+		<db-attribute-pair source="organization_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="parent" source="Repository" target="Repository">
-		<db-attribute-pair source="ID_PK" target="parent_id"/>
+		<db-attribute-pair source="ID" target="parent_id"/>
 	</db-relationship>
 	<db-relationship name="child" source="Repository" target="Repository" toMany="true">
-		<db-attribute-pair source="parent_id" target="ID_PK"/>
+		<db-attribute-pair source="parent_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="milestones" source="Repository" target="Milestone" toMany="true">
-		<db-attribute-pair source="ID_PK" target="repository_id"/>
+		<db-attribute-pair source="ID" target="repository_id"/>
 	</db-relationship>
 	<db-relationship name="issues" source="Repository" target="Issue" toMany="true">
-		<db-attribute-pair source="ID_PK" target="repository_id"/>
+		<db-attribute-pair source="ID" target="repository_id"/>
 	</db-relationship>
 	<db-relationship name="pullRequests" source="Repository" target="PullRequest" toMany="true">
-		<db-attribute-pair source="ID_PK" target="repository_id"/>
+		<db-attribute-pair source="ID" target="repository_id"/>
 	</db-relationship>
 	<db-relationship name="project" source="Repository" target="Project" toMany="true">
-		<db-attribute-pair source="ID_PK" target="repository_id"/>
+		<db-attribute-pair source="ID" target="repository_id"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_RepositoryNode" source="RepositoryNode" target="GitHubEntity" toMany="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="repositoryNode_Issue" source="RepositoryNode" target="Issue" toDependentPK="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="repositoryNode_PR" source="RepositoryNode" target="PullRequest" toDependentPK="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_User" source="User" target="GitHubEntity" toMany="true">
-		<db-attribute-pair source="ID_PK" target="ID_PK"/>
+		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="author_pr" source="User" target="PullRequest" toMany="true">
-		<db-attribute-pair source="ID_PK" target="author_id"/>
+		<db-attribute-pair source="ID" target="author_id"/>
 	</db-relationship>
 	<db-relationship name="author_i" source="User" target="Issue" toMany="true">
-		<db-attribute-pair source="ID_PK" target="author_id"/>
+		<db-attribute-pair source="ID" target="author_id"/>
 	</db-relationship>
 
 	<db-relationship name="issuesList" source="Issue" target="Milestone" toMany="true">
-		<db-attribute-pair source="milestone_id" target="ID_PK_M"/>
+		<db-attribute-pair source="milestone_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="issuesList" source="Milestone" target="Issue">
-		<db-attribute-pair source="ID_PK_M" target="milestone_id"/>
+		<db-attribute-pair source="ID" target="milestone_id"/>
 	</db-relationship>
 
 	<db-relationship name="milestone" source="Repository" target="Milestone">
-		<db-attribute-pair source="ID_PK" target="repository_id"/>
+		<db-attribute-pair source="ID" target="repository_id"/>
 	</db-relationship>
 	<db-relationship name="milestone" source="Milestone" target="Repository" toMany="true">
-		<db-attribute-pair source="repository_id" target="ID_PK"/>
+		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
 
 	<obj-relationship name="module" source="Dependency" target="Module" deleteRule="Nullify" db-relationship-path="module"/>

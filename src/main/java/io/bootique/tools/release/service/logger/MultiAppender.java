@@ -4,12 +4,10 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.FileAppender;
-import io.bootique.tools.release.model.maven.dto.ProjectDTO;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
-import io.bootique.tools.release.model.release.dto.ReleaseDescriptorDTO;
 
 import java.io.File;
 import java.util.Arrays;

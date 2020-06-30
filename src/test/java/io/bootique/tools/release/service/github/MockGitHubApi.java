@@ -67,16 +67,6 @@ public class MockGitHubApi implements GitHubApi{
     }
 
     @Override
-    public Boolean isUpdate() {
-        return null;
-    }
-
-    @Override
-    public void setUpdate(Boolean update) {
-
-    }
-
-    @Override
     public PullRequestCollection getPullRequestCollection(Repository repo) {
         return null;
     }

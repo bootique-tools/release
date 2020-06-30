@@ -17,10 +17,8 @@ import io.bootique.jetty.JettyModule;
 import io.bootique.jetty.command.ServerCommand;
 import io.bootique.job.command.ScheduleCommand;
 import io.bootique.job.runtime.JobModule;
-import io.bootique.meta.application.OptionMetadata;
 import io.bootique.tools.release.command.ConsoleReleaseCommand;
 import io.bootique.tools.release.command.ConsoleRollbackCommand;
-import io.bootique.tools.release.controller.BaseRequestFilter;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.job.QueryJob;
 import io.bootique.tools.release.model.persistent.Repository;
@@ -85,30 +83,9 @@ public class Application implements BQModule  {
                 .app(args)
                 .autoLoadModules()
                 .module(Application.class)
-//                .args("--server")
-//                .args("--release",
-//                        "--fromVersion=0.26-SNAPSHOT",
-//                        "--releaseVersion=0.26",
-//                        "--devVersion=0.27-SNAPSHOT")
-//                .args("--rollback")
                 .args("--config=classpath:settings.yml")
                 .exec()
                 .exit();
-    }
-
-    private static OptionMetadata datasourceOption() {
-        return OptionMetadata.builder("datasource")
-                .description("Select datasource to use. By default 'derby' is used. Optional.")
-                .valueOptionalWithDefault("derby", "derby")
-                .build();
-    }
-
-    private static OptionMetadata createSchemaOption() {
-        return OptionMetadata.builder("create-schema")
-                .description("Create schema. False by default. Optional.")
-                .shortName('r')
-                .valueOptionalWithDefault("true | false", "true")
-                .build();
     }
 
     @Override
@@ -131,7 +108,6 @@ public class Application implements BQModule  {
 
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)
-                .addResource(BaseRequestFilter.class)
                 .addPackage(RepoController.class.getPackage());
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_PULL, ReleasePullTask.class);
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_INSTALL, ReleaseInstallTask.class);
@@ -144,10 +120,6 @@ public class Application implements BQModule  {
         BQCoreModule.extend(binder).addCommand(ConsoleRollbackCommand.class);
 
         BQCoreModule.extend(binder)
-                .addOption(datasourceOption())
-                .addOption(createSchemaOption())
-                .mapConfigPath("datasource", "cayenne.datasource")
-                .mapConfigPath("create-schema", "cayenne.createSchema")
                 .decorateCommand(ServerCommand.class, CommandDecorator.beforeRun(ScheduleCommand.class));
 
         CayenneModule.extend(binder)

@@ -108,7 +108,7 @@ public class Organization extends _Organization {
 
         Organization organization = (Organization) o;
 
-        if (this.getId().equals(organization.getId())
+        if (this.getGithubId().equals(organization.getGithubId())
                 && this.getLogin().equals(organization.getLogin())
                 && this.getName().equals(organization.getName())
                 && this.getUrl().equals(organization.getUrl())

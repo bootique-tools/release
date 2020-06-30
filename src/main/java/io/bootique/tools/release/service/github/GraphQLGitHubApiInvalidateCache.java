@@ -26,28 +26,15 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
 
     private final Map<String, String> queries = new ConcurrentHashMap<>();
 
-    private Boolean update;
-
     public GraphQLGitHubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferences, ContentService contentService) {
         this.graphQLService = graphQLService;
         this.preferences = preferences;
         this.contentService = contentService;
-        this.update = false;
     }
 
     @Override
     public PreferenceService getPreferences() {
         return preferences;
-    }
-
-    @Override
-    public Boolean isUpdate() {
-        return update;
-    }
-
-    @Override
-    public void setUpdate(Boolean update) {
-        this.update = update;
     }
 
     @Override

@@ -14,12 +14,12 @@ public class Module extends _Module implements Comparable<Module> {
     }
 
     public Module(String id) {
-        super.setId(id);
+        super.setGithubId(id);
     }
 
-    public Module(String groupStr, String id, String version) {
+    public Module(String groupStr, String githubId, String version) {
         this.groupStr = Objects.requireNonNull(groupStr);
-        this.id = Objects.requireNonNull(id);
+        this.githubId = Objects.requireNonNull(githubId);
         this.version = Objects.requireNonNull(version);
         this.dependencies = new ArrayList<>();
     }
@@ -36,13 +36,13 @@ public class Module extends _Module implements Comparable<Module> {
         Module module = (Module) o;
 
         if (!groupStr.equals(module.groupStr)) return false;
-        return id.equals(module.id);
+        return githubId.equals(module.githubId);
     }
 
     @Override
     public int hashCode() {
         int result = groupStr.hashCode();
-        result = 31 * result + id.hashCode();
+        result = 31 * result + githubId.hashCode();
         return result;
     }
 
@@ -52,14 +52,14 @@ public class Module extends _Module implements Comparable<Module> {
         if (res != 0) {
             return res;
         }
-        return id.compareTo(o.id);
+        return githubId.compareTo(o.githubId);
     }
 
     @Override
     public String toString() {
         return "Module{" +
                 "groupStr='" + groupStr + '\'' +
-                ", id='" + id + '\'' +
+                ", id='" + githubId + '\'' +
                 ", version='" + version + '\'' +
                 '}';
     }

@@ -7,7 +7,6 @@ import io.bootique.tools.release.model.persistent.Issue;
 import io.bootique.tools.release.model.persistent.Milestone;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.PullRequest;
-import io.bootique.tools.release.model.persistent.PullRequestCollection;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApi;

@@ -22,10 +22,10 @@ public abstract class _Module extends BaseDataObject {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<String> GROUP_STR = Property.create("groupStr", String.class);
-    public static final Property<String> ID = Property.create("id", String.class);
+    public static final Property<String> GITHUB_ID = Property.create("githubId", String.class);
     public static final Property<String> VERSION = Property.create("version", String.class);
     public static final Property<List<Dependency>> DEPENDENCIES = Property.create("dependencies", List.class);
     public static final Property<List<Dependency>> MODULE = Property.create("module", List.class);
@@ -33,7 +33,7 @@ public abstract class _Module extends BaseDataObject {
     public static final Property<Project> PROJECT = Property.create("project", Project.class);
 
     protected String groupStr;
-    protected String id;
+    protected String githubId;
     protected String version;
 
     protected Object dependencies;
@@ -52,14 +52,14 @@ public abstract class _Module extends BaseDataObject {
         return this.groupStr;
     }
 
-    public void setId(String id) {
-        beforePropertyWrite("id", this.id, id);
-        this.id = id;
+    public void setGithubId(String githubId) {
+        beforePropertyWrite("githubId", this.githubId, githubId);
+        this.githubId = githubId;
     }
 
-    public String getId() {
-        beforePropertyRead("id");
-        return this.id;
+    public String getGithubId() {
+        beforePropertyRead("githubId");
+        return this.githubId;
     }
 
     public void setVersion(String version) {
@@ -123,8 +123,8 @@ public abstract class _Module extends BaseDataObject {
         switch(propName) {
             case "groupStr":
                 return this.groupStr;
-            case "id":
-                return this.id;
+            case "githubId":
+                return this.githubId;
             case "version":
                 return this.version;
             case "dependencies":
@@ -150,8 +150,8 @@ public abstract class _Module extends BaseDataObject {
             case "groupStr":
                 this.groupStr = (String)val;
                 break;
-            case "id":
-                this.id = (String)val;
+            case "githubId":
+                this.githubId = (String)val;
                 break;
             case "version":
                 this.version = (String)val;
@@ -185,7 +185,7 @@ public abstract class _Module extends BaseDataObject {
     protected void writeState(ObjectOutputStream out) throws IOException {
         super.writeState(out);
         out.writeObject(this.groupStr);
-        out.writeObject(this.id);
+        out.writeObject(this.githubId);
         out.writeObject(this.version);
         out.writeObject(this.dependencies);
         out.writeObject(this.module);
@@ -197,7 +197,7 @@ public abstract class _Module extends BaseDataObject {
     protected void readState(ObjectInputStream in) throws IOException, ClassNotFoundException {
         super.readState(in);
         this.groupStr = (String)in.readObject();
-        this.id = (String)in.readObject();
+        this.githubId = (String)in.readObject();
         this.version = (String)in.readObject();
         this.dependencies = in.readObject();
         this.module = in.readObject();

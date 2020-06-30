@@ -18,7 +18,7 @@ public abstract class _Label extends GitHubEntity {
 
     private static final long serialVersionUID = 1L; 
 
-    public static final String ID_PK_PK_COLUMN = "ID_PK";
+    public static final String ID_PK_COLUMN = "ID";
 
     public static final Property<String> COLOR = Property.create("color", String.class);
     public static final Property<String> NAME = Property.create("name", String.class);

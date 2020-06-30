@@ -92,7 +92,7 @@ public class DefaultMavenService implements MavenService {
         Path projectPath = basePath.resolve(repository.getName());
 
         Module rootModule = resolveModule(projectPath);
-        moduleMap.put(rootModule.getId(), rootModule);
+        moduleMap.put(rootModule.getGithubId(), rootModule);
         Project project = new Project(repository, projectPath, rootModule);
         project.setModules(getModules(rootModule, projectPath));
 
