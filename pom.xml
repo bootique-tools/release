@@ -19,6 +19,7 @@
         <jackson.version>2.10.3</jackson.version>
         <junit.jupiter.version>5.6.1</junit.jupiter.version>
         <bq.version>2.0-SNAPSHOT</bq.version>
+        <cayenne.version>4.1.RC2</cayenne.version>
 
         <frontend.plugin.version>1.10.0</frontend.plugin.version>
         <node.version>v12.16.3</node.version>
@@ -54,7 +55,18 @@
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.19</version>
+                <version>8.0.20</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>3.25.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.9.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -85,6 +97,15 @@
             <artifactId>bootique-job</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.bootique.agrest</groupId>
+            <artifactId>bootique-agrest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.bootique.jdbc</groupId>
+            <artifactId>bootique-jdbc-hikaricp</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-client</artifactId>
             <version>${jetty.version}</version>
@@ -100,68 +121,35 @@
             <version>${jackson.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.bootique</groupId>
-            <artifactId>bootique-test-junit5</artifactId>
-            <scope>test</scope>
-            <version>${bq.version}</version>
-        </dependency>
-
-        <!--  CAYENNE  -->
+        <!--  Cayenne  -->
         <dependency>
             <groupId>org.apache.cayenne</groupId>
             <artifactId>cayenne-server</artifactId>
-            <version>4.1.RC2</version>
+            <version>${cayenne.version}</version>
         </dependency>
 
-        <!--  SLF4J  -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.29</version>
-        </dependency>
-
-        <!--  MYSQL  -->
+        <!--  Db connectors  -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
-
-        <!--  AGREST    -->
         <dependency>
-            <groupId>io.bootique.agrest</groupId>
-            <artifactId>bootique-agrest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.agrest</groupId>
-            <artifactId>agrest</artifactId>
-            <scope>compile</scope>
-            <version>3.3</version>
-        </dependency>
-        <dependency>
-            <groupId>io.bootique.cayenne</groupId>
-            <artifactId>bootique-cayenne</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.bootique.jersey</groupId>
-            <artifactId>bootique-jersey-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.bootique.jersey</groupId>
-            <artifactId>bootique-jersey</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.bootique.jdbc</groupId>
-            <artifactId>bootique-jdbc-hikaricp</artifactId>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
         </dependency>
 
+        <!-- Test -->
+        <dependency>
+            <groupId>io.bootique</groupId>
+            <artifactId>bootique-test-junit5</artifactId>
+            <scope>test</scope>
+            <version>${bq.version}</version> <!-- TODO: remove version once junit5 is in bom -->
+        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
-            <version>1.9.0</version>
+            <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>

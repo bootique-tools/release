@@ -4,18 +4,18 @@
 	 xsi:schemaLocation="http://cayenne.apache.org/schema/10/modelMap https://cayenne.apache.org/schema/10/modelMap.xsd"
 	 project-version="10">
 	<property name="defaultPackage" value="io.bootique.tools.release.model.persistent"/>
-	<db-entity name="Dependency" schema="github">
+	<db-entity name="Dependency">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="module_id" type="INTEGER" length="10"/>
 		<db-attribute name="rootModule_id" type="INTEGER" length="10"/>
 		<db-attribute name="type" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="GitHubEntity" schema="github">
+	<db-entity name="GitHubEntity">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Issue" schema="github">
+	<db-entity name="Issue">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="author_id" type="INTEGER" length="10"/>
 		<db-attribute name="commentsCount" type="INTEGER" length="10"/>
@@ -29,7 +29,7 @@
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Label" schema="github">
+	<db-entity name="Label">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="color" type="VARCHAR" length="255"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
@@ -38,7 +38,7 @@
 		<db-attribute name="pullRequest_id" type="INTEGER" length="10"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Milestone" schema="github">
+	<db-entity name="Milestone">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="number" type="INTEGER" length="10"/>
@@ -47,21 +47,21 @@
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Module" schema="github">
+	<db-entity name="Module">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="groupStr" type="VARCHAR" length="255"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="project_id" type="INTEGER" length="10"/>
 		<db-attribute name="version" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Organization" schema="github">
+	<db-entity name="Organization">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="login" type="VARCHAR" length="255"/>
 		<db-attribute name="name" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Project" schema="github">
+	<db-entity name="Project">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="branchName" type="VARCHAR" length="255"/>
 		<db-attribute name="disable" type="BOOLEAN"/>
@@ -70,7 +70,7 @@
 		<db-attribute name="repository_id" type="INTEGER" length="10"/>
 		<db-attribute name="version" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="PullRequest" schema="github">
+	<db-entity name="PullRequest">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="author_id" type="INTEGER" length="10"/>
 		<db-attribute name="commentsCount" type="INTEGER" length="10"/>
@@ -83,7 +83,7 @@
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Repository" schema="github">
+	<db-entity name="Repository">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="description" type="VARCHAR" length="255"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
@@ -97,7 +97,7 @@
 		<db-attribute name="updatedAt" type="DATE"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="RepositoryNode" schema="github">
+	<db-entity name="RepositoryNode">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="author_id" type="INTEGER" length="10"/>
 		<db-attribute name="commentsCount" type="INTEGER" length="10"/>
@@ -108,7 +108,7 @@
 		<db-attribute name="repository_id" type="INTEGER" length="10"/>
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="User" schema="github">
+	<db-entity name="User">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="login" type="VARCHAR" length="255"/>

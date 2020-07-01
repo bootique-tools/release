@@ -161,15 +161,15 @@ public class QueryJob extends BaseJob {
     }
 
     private void deleteAll(ObjectContext objectContext) {
-        SQLExec.query("delete from github.Label").update(objectContext);
-        SQLExec.query("delete from github.Issue").update(objectContext);
-        SQLExec.query("delete from github.Milestone").update(objectContext);
-        SQLExec.query("delete from github.PullRequest").update(objectContext);
-        SQLExec.query("delete from github.Dependency").update(objectContext);
-        SQLExec.query("delete from github.Module").update(objectContext);
-        SQLExec.query("delete from github.Project").update(objectContext);
-        SQLExec.query("delete from github.Repository").update(objectContext);
-        SQLExec.query("delete from github.Organization").update(objectContext);
-        SQLExec.query("delete from github.User").update(objectContext);
+        SQLExec.query("delete from Label").update(objectContext);
+        SQLExec.query("delete from Issue").update(objectContext);
+        SQLExec.query("delete from Milestone").update(objectContext);
+        SQLExec.query("delete from PullRequest").update(objectContext);
+        SQLExec.query("delete from Dependency").update(objectContext);
+        SQLExec.query("delete from Module").update(objectContext);
+        SQLExec.query("delete from Project").update(objectContext);
+        SQLExec.query("delete from Repository").update(objectContext);
+        SQLExec.query("delete from Organization").update(objectContext);
+        SQLExec.query("delete from User").update(objectContext);
     }
 }

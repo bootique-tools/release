@@ -133,6 +133,12 @@ public class Repository extends _Repository implements Comparable<Repository> {
         super.setLStatus(localStatus.name());
     }
 
+    public void setParent(Repository parent) {
+        if(this.objectContext != null) {
+            setToOneTarget("parent", parent, true);
+        }
+    }
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public boolean haveLocalRepo() {
         return this.lStatus != GitService.GitStatus.MISSING.toString();
