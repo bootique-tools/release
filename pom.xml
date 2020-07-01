@@ -151,6 +151,10 @@
             <groupId>io.bootique.jersey</groupId>
             <artifactId>bootique-jersey</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.bootique.jdbc</groupId>
+            <artifactId>bootique-jdbc-hikaricp</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>

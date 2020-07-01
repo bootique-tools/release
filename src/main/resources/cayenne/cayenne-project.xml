@@ -4,15 +4,4 @@
 	 xsi:schemaLocation="http://cayenne.apache.org/schema/10/domain https://cayenne.apache.org/schema/10/domain.xsd"
 	 project-version="10">
 	<map name="datamap"/>
-	<node name="datanode"
-		 factory="org.apache.cayenne.configuration.server.XMLPoolingDataSourceFactory"
-		 schema-update-strategy="org.apache.cayenne.access.dbsync.CreateIfNoSchemaStrategy">
-		<map-ref name="datamap"/>
-		<data-source>
-			<driver value="com.mysql.jdbc.Driver"/>
-			<url value="jdbc:mysql://localhost:3306/github"/>
-			<connectionPool min="1" max="1"/>
-			<login userName="" password=""/>
-		</data-source>
-	</node>
 </domain>

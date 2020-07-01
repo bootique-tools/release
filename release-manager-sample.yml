@@ -13,3 +13,16 @@ jerseyclient:
       type: basic
       username: name
       password: password
+
+jdbc:
+  mysql:
+    jdbcUrl: url
+    driverClassName: com.mysql.cj.jdbc.Driver
+    maximumPoolSize: 1
+    minimumIdle: 1
+    username: name
+    password: password
+
+cayenne:
+  datasource: mysql
+  createSchema: true
