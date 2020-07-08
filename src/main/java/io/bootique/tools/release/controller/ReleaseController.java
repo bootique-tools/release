@@ -149,7 +149,7 @@ public class ReleaseController extends BaseController {
         });
     }
 
-    private void filter(DataResponse allProjects, List<Project> selectedProjectsResp) {
+    private void filter(DataResponse<Project> allProjects, List<Project> selectedProjectsResp) {
         AgRequest agRequest = Ag.request(configuration).build();
 
         DataResponse<Project> dataResponse = getProjects(project -> true, agRequest);

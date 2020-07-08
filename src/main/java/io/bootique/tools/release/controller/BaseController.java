@@ -72,7 +72,7 @@ abstract class BaseController {
         return false;
     }
 
-    private DataResponse createProject(Predicate<Project> predicate) {
+    private DataResponse<Project> createProject(Predicate<Project> predicate) {
         AgRequest agRequestOrganization = Ag.request(configuration).build();
         Organization organization = Ag.select(Organization.class, configuration).request(agRequestOrganization).get().getObjects().get(0);
 

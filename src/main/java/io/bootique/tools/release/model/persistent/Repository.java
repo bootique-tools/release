@@ -25,10 +25,6 @@ public class Repository extends _Repository implements Comparable<Repository> {
     @JsonProperty("pullRequests")
     private PullRequestCollection pullRequestCollection;
 
-    public void addToMilestones(List<Milestone> milestones) {
-        milestones.forEach(milestone -> super.addToMilestones(milestone));
-    }
-
     @JsonIgnore
     public int getPrCount() {
         if (pullRequestCollection == null) {
@@ -105,10 +101,6 @@ public class Repository extends _Repository implements Comparable<Repository> {
         this.pushedAtStr = dateTimeFormatter.format(pushedAt);
     }
 
-    public GitService.GitStatus getLocalStatus() {
-        return GitService.GitStatus.valueOf(this.lStatus);
-    }
-
     public void setLocalStatus(GitService.GitStatus localStatus) {
         super.setLStatus(localStatus.name());
     }
@@ -125,10 +117,6 @@ public class Repository extends _Repository implements Comparable<Repository> {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public boolean haveLocalRepo() {
         return this.lStatus != GitService.GitStatus.MISSING.toString();
-    }
-
-    public boolean needLocalUpdate() {
-        return this.lStatus == GitService.GitStatus.NEED_UPDATE.toString();
     }
 
     @Override

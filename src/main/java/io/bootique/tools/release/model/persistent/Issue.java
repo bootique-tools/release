@@ -26,16 +26,6 @@ public class Issue extends _Issue {
         this.author = author;
     }
 
-    public List<Label> getLabels() {
-
-        if (labels instanceof LabelCollection) {
-            return ((LabelCollection) labels).getLabels();
-        } else {
-            return (List<Label>) labels;
-        }
-
-    }
-
     public void setLabels(LabelCollection labels) {
         this.labels = labels.getLabels();
     }

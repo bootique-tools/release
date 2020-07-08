@@ -19,16 +19,6 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
     @JsonProperty("issues")
     private IssueCollection issueCollection;
 
-    public void addIssue(Issue issue) {
-        addToIssues(issue);
-    }
-
-    public void addAllIssues(Collection<Issue> issues) {
-        for (Issue issue : issues) {
-            addToIssues(issue);
-        }
-    }
-
     @JsonProperty("issuesList")
     public void setIssues(List<Issue> issues) {
         this.issues = issues;

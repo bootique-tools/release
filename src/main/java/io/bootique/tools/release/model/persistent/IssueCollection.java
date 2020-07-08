@@ -11,14 +11,6 @@ public class IssueCollection {
     @JsonProperty("nodes")
     private List<Issue> issues;
 
-    public IssueCollection() {
-    }
-
-    public IssueCollection(int totalCount, List<Issue> issues) {
-        this.totalCount = totalCount;
-        this.issues = issues;
-    }
-
     public int getTotalCount() {
         return totalCount;
     }
