@@ -20,7 +20,7 @@ import io.bootique.job.runtime.JobModule;
 import io.bootique.tools.release.command.ConsoleReleaseCommand;
 import io.bootique.tools.release.command.ConsoleRollbackCommand;
 import io.bootique.tools.release.controller.RepoController;
-import io.bootique.tools.release.job.QueryJob;
+import io.bootique.tools.release.job.GitHubDataImportJob;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
@@ -70,7 +70,6 @@ import io.bootique.tools.release.service.tasks.RollbackMvnGitTask;
 import io.bootique.tools.release.service.validation.DefaultValidatePomService;
 import io.bootique.tools.release.service.validation.ValidatePomService;
 import org.glassfish.jersey.jackson.JacksonFeature;
-
 
 import java.util.function.Function;
 import javax.inject.Named;
@@ -125,7 +124,7 @@ public class Application implements BQModule  {
         CayenneModule.extend(binder)
                 .addProject("cayenne/cayenne-project.xml");
 
-        JobModule.extend(binder).addJob(QueryJob.class);
+        JobModule.extend(binder).addJob(GitHubDataImportJob.class);
     }
 
     private static MapBuilder<ReleaseStage, Function<Repository, String>> contributeReleaseFunctionClass(Binder binder) {

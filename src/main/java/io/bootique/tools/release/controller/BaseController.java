@@ -14,7 +14,7 @@ import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -72,17 +72,14 @@ abstract class BaseController {
         return false;
     }
 
+    private DataResponse createProject(Predicate<Project> predicate) {
+        AgRequest agRequestOrganization = Ag.request(configuration).build();
+        Organization organization = Ag.select(Organization.class, configuration).request(agRequestOrganization).get().getObjects().get(0);
 
-    protected DataResponse<Project> getProjects(AgRequest agRequest, Predicate<Project> predicate) {
+        List<Project> projects = haveMissingRepos(organization) ? Collections.emptyList() :
+                mavenService.getProjects(organization, predicate);
 
-        DataResponse<Project> projectDataResponse = Ag.select(Project.class, configuration).request(agRequest).get();
-
-        if (projectDataResponse.getObjects().size() == 0) {
-
-            AgRequest agRequestOrganization = Ag.request(configuration).build();
-            Organization organization = Ag.select(Organization.class, configuration).request(agRequestOrganization).get().getObjects().get(0);
-            List<Project> projects = haveMissingRepos(organization) ? new ArrayList<>() :
-                    mavenService.getProjects(organization, predicate);
+        if (!projects.isEmpty()) {
             projects.forEach(project -> {
                 project.setBranchName(gitService.getCurrentBranchName(project.getRepository().getName()));
                 project.setDisable(true);
@@ -90,7 +87,27 @@ abstract class BaseController {
 
             organization.getObjectContext().commitChanges();
 
-            projectDataResponse = getProjects(agRequest, predicate);
+        }
+
+        return DataResponse.forObjects(projects);
+    }
+
+    protected DataResponse<Project> getProjects(Predicate<Project> predicate, AgRequest agRequest) {
+
+        DataResponse<Project> projectDataResponse = Ag.select(Project.class, configuration).request(agRequest).get();
+
+        if (projectDataResponse.getObjects().size() == 0) {
+
+            projectDataResponse = createProject(predicate);
+
+            if (!projectDataResponse.getObjects().isEmpty()) {
+                return getProjects(predicate, agRequest);
+            }
+
+        } else {
+            List<Project> projects = projectDataResponse.getObjects().stream().filter(predicate)
+                    .collect(Collectors.toList());
+            projectDataResponse.setObjects(projects);
         }
 
         return projectDataResponse;

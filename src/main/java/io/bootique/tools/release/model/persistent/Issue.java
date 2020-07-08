@@ -41,7 +41,7 @@ public class Issue extends _Issue {
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "parent")
-    public Repository getParent() {
+    public ParentRepository getParent() {
         return getRepository().getParent();
     }
 

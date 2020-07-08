@@ -2,6 +2,7 @@ package io.bootique.tools.release.model.maven.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.maven.persistent.ProjectDependency;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,8 @@ public class ProjectDTO {
         this.repository = RepositoryDTO.fromModel(project.getRepository());
         this.rootModule = ModuleDTO.fromModel(project.getRootModule());
         this.disable = project.isDisable();
-        for (Project dependency : project.getDependencies()) {
-            dependencies.add(ProjectDTO.fromModel(dependency));
+        for (ProjectDependency dependency : project.getDependencies()) {
+            dependencies.add(ProjectDTO.fromModel(dependency.getDependencyProject()));
         }
         this.branchName = project.getBranchName();
     }

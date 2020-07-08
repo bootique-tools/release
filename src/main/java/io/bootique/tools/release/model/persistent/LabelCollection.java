@@ -2,6 +2,7 @@ package io.bootique.tools.release.model.persistent;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LabelCollection {
@@ -10,6 +11,10 @@ public class LabelCollection {
 
     @JsonProperty("nodes")
     private List<Label> labels;
+
+    public LabelCollection() {
+        labels = new ArrayList<>();
+    }
 
     public int getTotalCount() {
         return totalCount;

@@ -8,10 +8,7 @@ import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
@@ -72,7 +69,6 @@ public class GitController extends BaseController {
 
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).getOne().getObjects().get(0);
         organization
-                .getRepositoryCollection()
                 .getRepositories()
                 .stream()
                 .filter(repo -> gitService.status(repo) != GitService.GitStatus.MISSING)
@@ -82,7 +78,7 @@ public class GitController extends BaseController {
     }
 
     @Path("clone_all")
-    @GET
+    @POST
     public Response cloneAll(@Context UriInfo uriInfo) {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             return Response.status(Response.Status.PRECONDITION_FAILED)
@@ -92,12 +88,12 @@ public class GitController extends BaseController {
 
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).getOne().getObjects().get(0);
         organization
-                .getRepositoryCollection()
                 .getRepositories()
                 .stream()
                 .filter(repo -> gitService.status(repo) == GitService.GitStatus.MISSING)
                 .forEach(repo -> gitService.clone(repo));
 
+        organization.getObjectContext().commitChanges();
         return Response.ok().build();
     }
 
@@ -129,6 +125,7 @@ public class GitController extends BaseController {
 
         action.accept(repository);
         String data = "{ \"lStatus\" : \"" + GitService.GitStatus.OK.name() + "\" }";
+        repository.setLocalStatus(GitService.GitStatus.OK);
         return Ag.update(Repository.class, configuration).id(repository.getObjectId().getIdSnapshot().get("ID")).sync(data);
     }
 

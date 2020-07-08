@@ -1,7 +1,7 @@
 package io.bootique.tools.release.controller;
 
 import io.agrest.Ag;
-import io.agrest.AgRequest;
+import io.agrest.DataResponse;
 import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.readme.CreateReadmeService;
@@ -11,7 +11,8 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import java.util.List;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
 @Path("/readme")
 public class ReadmeController extends BaseController {
@@ -23,28 +24,19 @@ public class ReadmeController extends BaseController {
     private ContentService contentService;
 
     @GET
-    public ReadmeView home() {
-        AgRequest agRequest = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        for (Repository repository : organization.getRepositories()) {
-            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
-            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
-            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
-        }
-        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+    public ReadmeView home(@Context UriInfo uriInfo) {
+        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
         return new ReadmeView(gitHubApi.getCurrentUser(), organization);
     }
 
     @GET
     @Path("/generate")
-    public StringBuilder getBranch(@QueryParam("milestoneTitle") String milestoneTitle) {
-        return createReadme(milestoneTitle);
+    public StringBuilder getBranch(@Context UriInfo uriInfo, @QueryParam("milestoneTitle") String milestoneTitle) {
+        return createReadme(uriInfo, milestoneTitle);
     }
 
-    private StringBuilder createReadme(String milestoneTitle) {
-        AgRequest agRequest = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        List<Repository> repositories = contentService.getRepositories(organization, p -> true, Repository::compareTo);
-        return createReadmeService.createReadme(repositories, milestoneTitle);
+    private StringBuilder createReadme(UriInfo uriInfo, String milestoneTitle) {
+        DataResponse<Repository> dataResponse = Ag.select(Repository.class, configuration).uri(uriInfo).get();
+        return createReadmeService.createReadme(dataResponse.getObjects(), milestoneTitle);
     }
 }

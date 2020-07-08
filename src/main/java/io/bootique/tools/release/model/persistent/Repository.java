@@ -49,25 +49,13 @@ public class Repository extends _Repository implements Comparable<Repository> {
         return milestoneCollection;
     }
 
-    public void setMilestoneCollection(MilestoneCollection milestoneCollection) {
-        this.milestoneCollection = milestoneCollection;
-    }
-
-    public void addMilestoneToCollection(Milestone milestone) {
-        milestone.setObjectContext(getObjectContext());
+    public void addMilestone(Milestone milestone) {
         getObjectContext().registerNewObject(milestone);
         getObjectContext().commitChanges();
-        milestoneCollection.addMilestone(milestone);
     }
 
     public int getMilestoneId(String title) {
-        List<Milestone> milestoneList;
-        if (milestoneCollection.getMilestones() == null) {
-            milestoneList = getMilestones();
-        } else {
-            milestoneList = milestoneCollection.getMilestones();
-        }
-        for (Milestone milestone : milestoneList) {
+        for (Milestone milestone : getMilestones()) {
             if (milestone.getTitle().equals(title)) {
                 return milestone.getNumber();
             }
@@ -99,16 +87,8 @@ public class Repository extends _Repository implements Comparable<Repository> {
         return issueCollection;
     }
 
-    public void setIssueCollection(IssueCollection issueCollection) {
-        this.issueCollection = issueCollection;
-    }
-
     public PullRequestCollection getPullRequestCollection() {
         return pullRequestCollection;
-    }
-
-    public void setPullRequestCollection(PullRequestCollection pullRequestCollection) {
-        this.pullRequestCollection = pullRequestCollection;
     }
 
     @JsonIgnore
@@ -133,9 +113,12 @@ public class Repository extends _Repository implements Comparable<Repository> {
         super.setLStatus(localStatus.name());
     }
 
-    public void setParent(Repository parent) {
+    public void setParent(ParentRepository parent) {
         if(this.objectContext != null) {
-            setToOneTarget("parent", parent, true);
+            super.setParent(parent);
+        }
+        if (parent != null) {
+            super.parent = parent;
         }
     }
 

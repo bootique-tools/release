@@ -53,13 +53,6 @@ public class ReleaseProcessController extends BaseReleaseController {
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
 
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        for (Repository repository : organization.getRepositories()) {
-            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
-            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
-            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
-        }
-        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
-
         return new ReleaseProcessView(gitHubApi.getCurrentUser(),
                 organization, releaseDescriptor.getCurrentReleaseStage(), releaseDescriptor.isAutoReleaseMode());
     }

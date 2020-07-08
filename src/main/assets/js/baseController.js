@@ -74,18 +74,18 @@ export const baseMethods = {
             axios.get(`/ui/${currApp.path}/show-all${uri}`)
             .then(function (response) {
                 currApp.allItems = response.data;
-                currApp.additionalMethod(currApp);
-
-                if(currApp.allItems.data.length === 0) {
+                if(currApp.allItems.length === 0) {
                     currApp.errorMessage = "Please clone all repositories to your local repositories!";
+                } else {
+                    if (currApp.additionalMethod !== undefined) {
+                        currApp.additionalMethod(currApp);
+                    }
                 }
                 $('#bar').fadeOut();
             })
             .catch(function () {
              console.log("Error in loading projects.");
             })
-        },
-        additionalMethod: function (data) {
         },
     }
 }
@@ -108,7 +108,9 @@ export const defaultBaseMethods = {
     computed: {
         selectAll: {
             get: function () {
-                return this.allItems ? this.selectedModules.length == this.allItems.data.length : false;
+                if (this.errorMessage === "") {
+                    return this.allItems ? this.selectedModules.length == this.allItems.data.length : false;
+                }
             },
             set: function (value) {
                 var selectedModules = [];
@@ -178,6 +180,7 @@ export const releaseBaseMethods = {
             let versionSet = new Set();
             for (let i = 0; i < currApp.allItems.data.length; i++) {
                 versionSet.add(currApp.allItems.data[i].rootModule.version);
+                currApp.allItems.data[i].disable = true;
             }
             currApp.versions = Array.from(versionSet);
         },

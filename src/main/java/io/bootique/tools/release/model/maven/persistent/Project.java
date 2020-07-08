@@ -28,6 +28,7 @@ public class Project extends _Project implements Comparable<Project> {
         this.dependencies = new ArrayList<>();
         repository.getObjectContext().registerNewObject(this);
         rootModule.setProject(this);
+        rootModule.setRootModule(this);
     }
 
     public Path getPath() {
@@ -47,7 +48,7 @@ public class Project extends _Project implements Comparable<Project> {
         }
     }
 
-        public void addModule(Module module) {
+    public void addModule(Module module) {
         module.setProject(this);
         this.addToModules(module);
     }
@@ -63,6 +64,10 @@ public class Project extends _Project implements Comparable<Project> {
         } else {
             this.repository = repository;
         }
+    }
+
+    public void setDependencies(Set<ProjectDependency> set) {
+        set.forEach(project -> super.addToDependencies(project));
     }
 
     public void addDependenciesWithoutContext(List<Project> dependencies) {

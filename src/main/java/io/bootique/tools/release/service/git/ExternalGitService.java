@@ -30,6 +30,7 @@ public class ExternalGitService implements GitService {
         }
 
         desktopService.runCommand(basePath, "git", "clone", repository.getUrl());
+        repository.setLocalStatus(GitStatus.OK);
     }
 
     @Override
