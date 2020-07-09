@@ -22,8 +22,8 @@
                     <td>[[project.rootModule.version]]</td>
                     <td>
                         <ul>
-                            <li v-for="dependency in project.rootModule.dependencies">
-                                [[dependency.module.githubId]]
+                            <li v-for="dependency in project.dependencies">
+                                [[dependency.dependencyProject.rootModule.githubId]]
                             </li>
                         </ul>
                     </td>

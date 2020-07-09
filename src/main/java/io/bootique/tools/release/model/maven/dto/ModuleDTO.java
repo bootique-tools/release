@@ -1,7 +1,7 @@
 package io.bootique.tools.release.model.maven.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.bootique.tools.release.model.maven.persistent.Dependency;
+import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Module;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class ModuleDTO {
         this.group = module.getGroupStr();
         this.githubId = module.getGithubId();
         this.version = module.getVersion();
-        for (Dependency dependency : module.getDependencies()) {
+        for (ModuleDependency dependency : module.getDependencies()) {
             dependencies.add(DependencyDTO.fromModel(dependency));
         }
     }
@@ -38,7 +38,7 @@ public class ModuleDTO {
         module.setGroupStr(this.group);
         module.setGithubId(this.githubId);
         module.setVersion(this.version);
-        List<Dependency> dependencyList = new ArrayList<>();
+        List<ModuleDependency> dependencyList = new ArrayList<>();
         for (DependencyDTO dependencyDTO : this.dependencies) {
             dependencyList.add(DependencyDTO.toModel(dependencyDTO));
         }

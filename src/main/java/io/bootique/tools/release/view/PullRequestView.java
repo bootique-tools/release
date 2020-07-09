@@ -7,13 +7,14 @@ public class PullRequestView extends BaseView {
 
     private String filter;
     private String sort;
+    private String field;
 
-    public PullRequestView(User user, Organization organization, String filter, String sort) {
+    public PullRequestView(User user, Organization organization, String sort, String filter, String field) {
         super("pr", user, organization);
         this.filter = filter;
         this.sort = sort;
+        this.field = field;
     }
-
 
     public String getFilter() {
         return filter;
@@ -21,5 +22,9 @@ public class PullRequestView extends BaseView {
 
     public String getSort() {
         return sort;
+    }
+
+    public String getField() {
+        return field;
     }
 }

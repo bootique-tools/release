@@ -26,6 +26,36 @@ export function initRepoVue() {
                 const btn = document.getElementById(repo);
                 btn.disabled = true;
                 $.post(`/ui/git/update?repo=${repo}`, () => btn.disabled = false);
+            },
+            setup: function () {
+                const btn = $(this);
+                btn.attr('disabled', true);
+                $.get('/ui/git/select_path', (data) => {
+                    if (data) {
+                        location.reload();
+                    } else {
+                            btn.attr('disabled', false);
+                    }
+                });
+            },
+            updateAll: function () {
+                const btn = $(this);
+                btn.attr('disabled', true);
+                $('.repo-update').attr('disabled', true);
+                $.get('/ui/git/update_all', () => {
+                    btn.attr('disabled', false);
+                    $('.repo-update').attr('disabled', false);
+                 });
+            },
+            cloneAll: function () {
+                const btn = $(this);
+                btn.attr('disabled', true);
+                $('.repo-clone').attr('disabled', true);
+                $.post('/ui/git/clone_all', () => {
+                    btn.attr('disabled', false);
+                    $('.repo-clone').attr('disabled', false);
+                    location.reload();
+                });
             }
         }
     });

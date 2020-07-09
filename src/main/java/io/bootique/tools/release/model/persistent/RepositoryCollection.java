@@ -20,11 +20,6 @@ public class RepositoryCollection {
     public RepositoryCollection() {
     }
 
-    public RepositoryCollection(int totalCount, List<Repository> repositories) {
-        this.totalCount = totalCount;
-        this.repositories = repositories;
-    }
-
     public int getTotalCount() {
         return totalCount;
     }

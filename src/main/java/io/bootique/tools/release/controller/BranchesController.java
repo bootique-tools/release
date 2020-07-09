@@ -26,15 +26,8 @@ public class BranchesController extends DefaultBaseController {
     private final String CONTROLLER_NAME = "branches";
 
     @GET
-    public BranchesView home() {
-        AgRequest agRequest = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        for (Repository repository : organization.getRepositories()) {
-            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
-            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
-            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
-        }
-        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+    public BranchesView home(@Context UriInfo uriInfo) {
+        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
         return new BranchesView(gitHubApi.getCurrentUser(), organization);
     }
 
@@ -47,7 +40,7 @@ public class BranchesController extends DefaultBaseController {
                 .addInclude("[\"repository\",\"rootModule\"]")
                 .build();
 
-        return getProjects(agRequest, project -> true);
+        return getProjects(project -> true, agRequest);
     }
 
     @GET

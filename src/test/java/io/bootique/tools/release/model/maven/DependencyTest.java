@@ -1,6 +1,6 @@
 package io.bootique.tools.release.model.maven;
 
-import io.bootique.tools.release.model.maven.persistent.Dependency;
+import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Module;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,11 +9,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DependencyTest {
 
-    private Dependency dependency;
+    private ModuleDependency dependency;
 
     @BeforeEach
     public void createDependency() {
-        dependency = new Dependency("group1", "id1", "1.0", "test", null);
+        dependency = new ModuleDependency("group1", "id1", "1.0", "test", null);
     }
 
     @Test
@@ -32,10 +32,10 @@ public class DependencyTest {
 
     @Test
     void compareTo() {
-        Dependency dep2 = new Dependency("group1", "id1", "1.0", "compile", null);
-        Dependency dep3 = new Dependency("group1", "id1","2.0", "test", null);
-        Dependency dep4 = new Dependency("group1", "id2", "1.0", "test", null);
-        Dependency dep5 = new Dependency("group1", "id0", "1.0", "test", null);
+        ModuleDependency dep2 = new ModuleDependency("group1", "id1", "1.0", "compile", null);
+        ModuleDependency dep3 = new ModuleDependency("group1", "id1","2.0", "test", null);
+        ModuleDependency dep4 = new ModuleDependency("group1", "id2", "1.0", "test", null);
+        ModuleDependency dep5 = new ModuleDependency("group1", "id0", "1.0", "test", null);
 
         assertEquals(0, dependency.compareTo(dep2));
         assertEquals(0, dependency.compareTo(dep3));
@@ -45,9 +45,9 @@ public class DependencyTest {
 
     @Test
     void equals() {
-        Dependency dep2 = new Dependency("group1", "id1", "1.0", "compile", null);
-        Dependency dep3 = new Dependency("group1", "id1", "2.0", "test", null);
-        Dependency dep4 = new Dependency("group1", "id2", "1.0", "test", null);
+        ModuleDependency dep2 = new ModuleDependency("group1", "id1", "1.0", "compile", null);
+        ModuleDependency dep3 = new ModuleDependency("group1", "id1", "2.0", "test", null);
+        ModuleDependency dep4 = new ModuleDependency("group1", "id2", "1.0", "test", null);
 
         assertEquals(dep2, dependency);
         assertEquals(dep3, dependency);
@@ -56,9 +56,9 @@ public class DependencyTest {
 
     @Test
     void testHashCode() {
-        Dependency dep2 = new Dependency("group1", "id1", "1.0", "compile", null);
-        Dependency dep3 = new Dependency("group1", "id1", "2.0", "test", null);
-        Dependency dep4 = new Dependency("group1", "id2", "1.0", "test", null);
+        ModuleDependency dep2 = new ModuleDependency("group1", "id1", "1.0", "compile", null);
+        ModuleDependency dep3 = new ModuleDependency("group1", "id1", "2.0", "test", null);
+        ModuleDependency dep4 = new ModuleDependency("group1", "id2", "1.0", "test", null);
 
         assertEquals(dep2.hashCode(), dependency.hashCode());
         assertEquals(dep3.hashCode(), dependency.hashCode());

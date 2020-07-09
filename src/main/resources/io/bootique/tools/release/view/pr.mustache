@@ -27,7 +27,7 @@
                     <td><a v-on:click="sortAndFilter(null, 'author.login', pr.author.login)" href="#">[[pr.author.login]]</a></td>
                     <td>[[pr.createdAtStr]]</td>
                     <td>
-                        <a v-for="label in pr.labels.nodes" v-on:click="sortAndFilter(null, 'labels.name', label.name)" href="#" class="badge" :style="'color: white; text-decoration: none; background-color: #' + label.color">[[label.name]]</a>&nbsp;
+                        <a v-for="label in pr.labels" v-on:click="sortAndFilter(null, 'labels.name', label.name)" href="#" class="badge" :style="'color: white; text-decoration: none; background-color: #' + label.color">[[label.name]]</a>&nbsp;
                     </td>
                     <td>
                         <a v-on:click="sortAndFilter(null, 'pr.repoName', pr.repoName)" href="#">[[pr.repoName]]</a>
@@ -39,6 +39,6 @@
     </div>
 </div>
 <script type="module">
-    initPrVue('{{filter}}', '{{sort}}');
+    initPrVue('{{sort}}', '{{filter}}', '{{field}}');
 </script>
 {{> footer}}

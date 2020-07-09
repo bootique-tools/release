@@ -2,7 +2,7 @@ package io.bootique.tools.release.service.maven;
 
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.maven.persistent.Dependency;
+import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.desktop.MockDesktopService;
@@ -71,6 +71,7 @@ class DefaultMavenServiceTest {
         Files.walkFileTree(srcPath, new CopyDirVisitor(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING));
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);
         Module rootModule = service.resolveModule(destPath);
+        rootModule.setObjectContext(context);
         List<Module> moduleList = service.getModules(rootModule, destPath);
         assertEquals(5, moduleList.size());
         List<String> names = Arrays.asList("bootique-framework-parent", "bootique",
@@ -176,9 +177,9 @@ class DefaultMavenServiceTest {
             modules.add(module);
         }
 
-        List<Dependency> dependencies = new ArrayList<>();
+        List<ModuleDependency> dependencies = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            Dependency dependency = context.newObject(Dependency.class);
+            ModuleDependency dependency = context.newObject(ModuleDependency.class);
             Module module = context.newObject(Module.class);
             module.setGroupStr("io.test");
             module.setGithubId("module" + i);
@@ -205,7 +206,7 @@ class DefaultMavenServiceTest {
         projects.get(1).addModule(modules.get(1));
         projects.get(1).addModule(modules.get(2));
 
-        List<Dependency> dependencyList = new ArrayList<>();
+        List<ModuleDependency> dependencyList = new ArrayList<>();
         modules.get(1).addToDependencies(dependencies.get(0));
 
         projects.get(2).addModule(modules.get(3));

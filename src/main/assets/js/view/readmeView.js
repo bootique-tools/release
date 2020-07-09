@@ -22,7 +22,7 @@ export function initReadmeView() {
             generate: function () {
                 let currApp = this;
                 $('#bar').fadeIn();
-                axios.get(`/ui/readme/generate?milestoneTitle=${currApp.milestoneTitle}`)
+                axios.get(`/ui/readme/generate?cayenneExp=milestones.title="${currApp.milestoneTitle}"&milestoneTitle=${currApp.milestoneTitle}`)
                     .then(function (response) {
                         currApp.readme = response.data;
                         $('#bar').fadeOut();

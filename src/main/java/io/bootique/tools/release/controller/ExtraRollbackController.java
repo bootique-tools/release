@@ -14,7 +14,9 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -26,15 +28,8 @@ public class ExtraRollbackController extends BaseReleaseController {
     private MvnCentralService mvnCentralService;
 
     @GET
-    public ExtraRollbackView home() {
-        AgRequest agRequest = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        for (Repository repository : organization.getRepositories()) {
-            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
-            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
-            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
-        }
-        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
+    public ExtraRollbackView home(@Context UriInfo uriInfo) {
+        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
         return new ExtraRollbackView(gitHubApi.getCurrentUser(), organization);
     }
 

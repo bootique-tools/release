@@ -9,7 +9,7 @@ import org.apache.cayenne.BaseDataObject;
 import org.apache.cayenne.exp.Property;
 
 import io.bootique.tools.release.model.maven.persistent.Module;
-import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.maven.persistent.ProjectDependency;
 import io.bootique.tools.release.model.persistent.Repository;
 
 /**
@@ -27,9 +27,9 @@ public abstract class _Project extends BaseDataObject {
     public static final Property<String> BRANCH_NAME = Property.create("branchName", String.class);
     public static final Property<Boolean> DISABLE = Property.create("disable", Boolean.class);
     public static final Property<String> PATH_STR = Property.create("pathStr", String.class);
-    public static final Property<Integer> ROOT_MODULE_ID = Property.create("rootModuleId", Integer.class);
     public static final Property<String> VERSION = Property.create("version", String.class);
-    public static final Property<List<Project>> DEPENDENCIES = Property.create("dependencies", List.class);
+    public static final Property<List<ProjectDependency>> DEPENDENCIES = Property.create("dependencies", List.class);
+    public static final Property<List<ProjectDependency>> DEPENDENCY_PROJECT = Property.create("dependencyProject", List.class);
     public static final Property<List<Module>> MODULES = Property.create("modules", List.class);
     public static final Property<Repository> REPOSITORY = Property.create("repository", Repository.class);
     public static final Property<Module> ROOT_MODULE = Property.create("rootModule", Module.class);
@@ -37,10 +37,10 @@ public abstract class _Project extends BaseDataObject {
     protected String branchName;
     protected Boolean disable;
     protected String pathStr;
-    protected Integer rootModuleId;
     protected String version;
 
     protected Object dependencies;
+    protected Object dependencyProject;
     protected Object modules;
     protected Object repository;
     protected Object rootModule;
@@ -78,19 +78,6 @@ public abstract class _Project extends BaseDataObject {
         return this.pathStr;
     }
 
-    public void setRootModuleId(int rootModuleId) {
-        beforePropertyWrite("rootModuleId", this.rootModuleId, rootModuleId);
-        this.rootModuleId = rootModuleId;
-    }
-
-    public int getRootModuleId() {
-        beforePropertyRead("rootModuleId");
-        if(this.rootModuleId == null) {
-            return 0;
-        }
-        return this.rootModuleId;
-    }
-
     public void setVersion(String version) {
         beforePropertyWrite("version", this.version, version);
         this.version = version;
@@ -101,17 +88,30 @@ public abstract class _Project extends BaseDataObject {
         return this.version;
     }
 
-    public void addToDependencies(Project obj) {
+    public void addToDependencies(ProjectDependency obj) {
         addToManyTarget("dependencies", obj, true);
     }
 
-    public void removeFromDependencies(Project obj) {
+    public void removeFromDependencies(ProjectDependency obj) {
         removeToManyTarget("dependencies", obj, true);
     }
 
     @SuppressWarnings("unchecked")
-    public List<Project> getDependencies() {
-        return (List<Project>)readProperty("dependencies");
+    public List<ProjectDependency> getDependencies() {
+        return (List<ProjectDependency>)readProperty("dependencies");
+    }
+
+    public void addToDependencyProject(ProjectDependency obj) {
+        addToManyTarget("dependencyProject", obj, true);
+    }
+
+    public void removeFromDependencyProject(ProjectDependency obj) {
+        removeToManyTarget("dependencyProject", obj, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<ProjectDependency> getDependencyProject() {
+        return (List<ProjectDependency>)readProperty("dependencyProject");
     }
 
     public void addToModules(Module obj) {
@@ -156,12 +156,12 @@ public abstract class _Project extends BaseDataObject {
                 return this.disable;
             case "pathStr":
                 return this.pathStr;
-            case "rootModuleId":
-                return this.rootModuleId;
             case "version":
                 return this.version;
             case "dependencies":
                 return this.dependencies;
+            case "dependencyProject":
+                return this.dependencyProject;
             case "modules":
                 return this.modules;
             case "repository":
@@ -189,14 +189,14 @@ public abstract class _Project extends BaseDataObject {
             case "pathStr":
                 this.pathStr = (String)val;
                 break;
-            case "rootModuleId":
-                this.rootModuleId = (Integer)val;
-                break;
             case "version":
                 this.version = (String)val;
                 break;
             case "dependencies":
                 this.dependencies = val;
+                break;
+            case "dependencyProject":
+                this.dependencyProject = val;
                 break;
             case "modules":
                 this.modules = val;
@@ -226,9 +226,9 @@ public abstract class _Project extends BaseDataObject {
         out.writeObject(this.branchName);
         out.writeObject(this.disable);
         out.writeObject(this.pathStr);
-        out.writeObject(this.rootModuleId);
         out.writeObject(this.version);
         out.writeObject(this.dependencies);
+        out.writeObject(this.dependencyProject);
         out.writeObject(this.modules);
         out.writeObject(this.repository);
         out.writeObject(this.rootModule);
@@ -240,9 +240,9 @@ public abstract class _Project extends BaseDataObject {
         this.branchName = (String)in.readObject();
         this.disable = (Boolean)in.readObject();
         this.pathStr = (String)in.readObject();
-        this.rootModuleId = (Integer)in.readObject();
         this.version = (String)in.readObject();
         this.dependencies = in.readObject();
+        this.dependencyProject = in.readObject();
         this.modules = in.readObject();
         this.repository = in.readObject();
         this.rootModule = in.readObject();

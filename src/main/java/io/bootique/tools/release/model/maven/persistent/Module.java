@@ -24,7 +24,7 @@ public class Module extends _Module implements Comparable<Module> {
         this.dependencies = new ArrayList<>();
     }
 
-    public void addDependenciesWithoutContext(List<Dependency> dependencies) {
+    public void addDependenciesWithoutContext(List<ModuleDependency> dependencies) {
         this.dependencies = dependencies;
     }
 

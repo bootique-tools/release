@@ -18,15 +18,15 @@
                 <th><a v-on:click="sortAndFilter('pushedAt', null, null)" href="#">last push</a></th>
                 <th>milestones</th>
                 <th>local copy
-                    <button type="button" class="btn btn-sm btn-outline-primary" id="btn-folder-setup">
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="btn-folder-setup" v-on:click="setup()">
                         setup <i class="fas fa-folder-open"></i>
                     </button>
 
-                    <button type="submit" class="btn btn-sm btn-outline-secondary" id="btn-update-all">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" id="btn-update-all" v-on:click="updateAll()">
                         update all <i class="fas fa-sync"></i>
                     </button>
 
-                    <button type="submit" class="btn btn-sm btn-outline-secondary" id="btn-clone-all">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary" id="btn-clone-all" v-on:click="cloneAll()">
                         clone all <i class="fas fa-clone"></i>
                     </button>
                 </th>

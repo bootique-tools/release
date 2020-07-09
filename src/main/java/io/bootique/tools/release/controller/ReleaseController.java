@@ -15,11 +15,7 @@ import io.bootique.tools.release.view.ReleaseContinueView;
 import io.bootique.tools.release.view.ReleaseView;
 
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -67,13 +63,6 @@ public class ReleaseController extends BaseController {
                 releaseDescriptor.getCurrentRollbackStage().getText();
 
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        for (Repository repository : organization.getRepositories()) {
-            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
-            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
-            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
-        }
-        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
-
         return new ReleaseContinueView(gitHubApi.getCurrentUser(), organization, releaseDescriptor.getReleaseVersion(), lastSuccessStage, releaseDescriptor.getProjectList());
     }
 
@@ -81,12 +70,6 @@ public class ReleaseController extends BaseController {
     @Path("/start-release")
     public ReleaseView startRelease(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        for (Repository repository : organization.getRepositories()) {
-            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
-            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
-            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
-        }
-        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
         return new ReleaseView(gitHubApi.getCurrentUser(), organization);
     }
 
@@ -95,10 +78,10 @@ public class ReleaseController extends BaseController {
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
         AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository\",\"rootModule\",\"rootModule.dependencies.module\"]")
+                .addInclude("[\"repository\",\"rootModule\",\"dependencies.dependencyProject.rootModule\"]")
                 .build();
 
-        return getProjects(agRequest, project -> true);
+        return getProjects(project -> true, agRequest);
     }
 
     @GET
@@ -109,19 +92,15 @@ public class ReleaseController extends BaseController {
         AgRequest agRequest = Ag.request(configuration)
                 .addInclude("[\"repository\",\"rootModule\"]")
                 .build();
-        DataResponse<Project> projectDataResponse = getProjects(agRequest, project -> true);
+        DataResponse<Project> projectDataResponse = getProjects(project -> true, agRequest);
 
+        projectDataResponse.getObjects().forEach(project -> project.setDisable(true));
         projectDataResponse.getObjects().forEach(project -> {
             if (project.getVersion().equals(version)) {
                 project.setDisable(false);
-            } else {
-                project.setDisable(true);
+                checkDependencies(project);
             }
         });
-
-        if (projectDataResponse.getObjects().size() > 0) {
-            projectDataResponse.getObjects().get(0).getObjectContext().commitChanges();
-        }
 
         return projectDataResponse;
     }
@@ -135,9 +114,9 @@ public class ReleaseController extends BaseController {
         List selectedProjects = objectMapper.readValue(selected, List.class);
 
         AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository\"]")
+                .addInclude("[\"repository\",\"rootModule\",\"rootModule.dependencies\"]")
                 .build();
-        DataResponse<Project> allProjects = getProjects(agRequest, project -> true);
+        DataResponse<Project> allProjects = getProjects(project -> true, agRequest);
         List<Project> selectedProjectsResp = allProjects.getObjects().stream()
                 .filter(project -> selectedProjects.contains(project.getRepository().getName()))
                 .collect(Collectors.toList());
@@ -153,15 +132,15 @@ public class ReleaseController extends BaseController {
     private void buildOrder(List<Project> selectedProjectsResp, boolean state, Project currentProject, List<Project> allProjects) {
         allProjects.forEach(project -> {
             if (state && !selectedProjectsResp.contains(project)) {
-                currentProject.getRootModule().getDependencies().forEach(dependency -> {
-                    if (dependency.getModule().equals(project.getRootModule())) {
+                currentProject.getDependencies().forEach(dependency -> {
+                    if (dependency.getDependencyProject().getRootModule().equals(project.getRootModule())) {
                         selectedProjectsResp.add(project);
                         buildOrder(selectedProjectsResp, true, project, allProjects);
                     }
                 });
             } else if (!state) {
-                project.getRootModule().getDependencies().forEach(dependency -> {
-                    if (dependency.getModule().equals(currentProject.getRootModule())) {
+                project.getDependencies().forEach(dependency -> {
+                    if (dependency.getDependencyProject().getRootModule().equals(currentProject.getRootModule())) {
                         selectedProjectsResp.remove(project);
                         buildOrder(selectedProjectsResp, false, project, allProjects);
                     }
@@ -170,10 +149,10 @@ public class ReleaseController extends BaseController {
         });
     }
 
-    private void filter(DataResponse allProjects, List<Project> selectedProjectsResp) {
+    private void filter(DataResponse<Project> allProjects, List<Project> selectedProjectsResp) {
         AgRequest agRequest = Ag.request(configuration).build();
 
-        DataResponse<Project> dataResponse = getProjects(agRequest, project -> true);
+        DataResponse<Project> dataResponse = getProjects(project -> true, agRequest);
         int flag = 0;
         for (Project selectedProjectResp : dataResponse.getObjects()) {
             for (Project project : selectedProjectsResp) {
@@ -186,5 +165,12 @@ public class ReleaseController extends BaseController {
             }
             flag = 0;
         }
+    }
+
+    private void checkDependencies(Project project) {
+        project.getDependencies().forEach(projectDependency -> {
+            projectDependency.getDependencyProject().setDisable(false);
+            checkDependencies(projectDependency.getDependencyProject());
+        });
     }
 }

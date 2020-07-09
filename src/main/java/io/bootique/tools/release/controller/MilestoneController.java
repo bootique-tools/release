@@ -23,13 +23,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Path("milestone")
@@ -49,12 +46,6 @@ public class MilestoneController extends DefaultBaseController {
     @GET
     public MilestonesView home(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        for (Repository repository : organization.getRepositories()) {
-            repository.setIssueCollection(new IssueCollection(repository.getIssues().size(), null));
-            repository.setPullRequestCollection(new PullRequestCollection(repository.getPullRequests().size(), null));
-            repository.setMilestoneCollection(new MilestoneCollection(repository.getMilestones().size(), null));
-        }
-        organization.setRepositoryCollection(new RepositoryCollection(organization.getRepositories().size(), organization.getRepositories()));
         return new MilestonesView(gitHubApi.getCurrentUser(), organization);
     }
 
@@ -65,29 +56,26 @@ public class MilestoneController extends DefaultBaseController {
     public List<String> getMilestones(@QueryParam("selectedModules") String selectedModules) throws IOException {
         List selectedProjects = objectMapper.readValue(selectedModules, List.class);
         AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository.milestones\"," +
-                        "{\"path\":\"repository.milestones\",\"cayenneExp\":\"state like \'OPEN\'\"}]")
+                .addInclude("[\"repository\"]")
+                .cayenneExp("[\"state like \'OPEN\'\"]")
                 .build();
-        DataResponse<Project> projects = getProjects(project -> selectedProjects.contains(project.getRepository().getName()), agRequest);
+        DataResponse<Milestone> dataResponse = Ag.select(Milestone.class, configuration).request(agRequest).get();
+        List<Milestone> milestones = dataResponse.getObjects().stream().filter(milestone -> selectedProjects.contains(milestone.getRepository().getName())).collect(Collectors.toList());
         Map<String, Integer> milestoneMap = new HashMap<>();
-        for (Project project : projects.getObjects()) {
-            for (Milestone milestone : project.getRepository().getMilestones()) {
-                if (milestone.getState().equals("OPEN")) {
-                    if (!milestoneMap.containsKey(milestone.getTitle())) {
-                        milestoneMap.put(milestone.getTitle(), 1);
-                    } else {
-                        milestoneMap.put(milestone.getTitle(), milestoneMap.get(milestone.getTitle()) + 1);
-                    }
-                }
+        for (Milestone milestone : milestones) {
+            if (!milestoneMap.containsKey(milestone.getTitle())) {
+                milestoneMap.put(milestone.getTitle(), 1);
+            } else {
+                milestoneMap.put(milestone.getTitle(), milestoneMap.get(milestone.getTitle()) + 1);
             }
         }
-        List<String> milestones = new ArrayList<>();
+        List<String> milestoneTitles = new ArrayList<>();
         for (String key : milestoneMap.keySet()) {
-            if (milestoneMap.get(key) == projects.getObjects().size()) {
-                milestones.add(key);
+            if (milestoneMap.get(key) == selectedProjects.size()) {
+                milestoneTitles.add(key);
             }
         }
-        return milestones;
+        return milestoneTitles;
     }
 
     @GET
@@ -98,8 +86,7 @@ public class MilestoneController extends DefaultBaseController {
         Function<Project, String> repoProcessor = project -> {
             try {
                 Milestone milestone = gitHubRestAPI.createMilestone(project.getRepository(), title, "");
-                project.getRepository().addMilestoneToCollection(milestone);
-                milestone.getObjectContext().commitChanges();
+                project.getRepository().addMilestone(milestone);
                 return "";
             } catch (IOException ex) {
                 throw new JobException(ex.getMessage(), ex);
@@ -157,45 +144,4 @@ public class MilestoneController extends DefaultBaseController {
                 .build();
         return getProjects(project -> true, agRequest);
     }
-
-    private DataResponse<Project> getProjects(Predicate<Project> predicate, AgRequest agRequest) {
-
-        DataResponse<Project> projectDataResponse = Ag.select(Project.class, configuration).request(agRequest).get();
-
-        if (projectDataResponse.getObjects().size() == 0) {
-
-            AgRequest agRequestOrganization = Ag.request(configuration).build();
-            Organization organization = Ag.select(Organization.class, configuration).request(agRequestOrganization).get().getObjects().get(0);
-            contentService.getMilestones(organization)
-                    .forEach(milestone ->
-                            milestone.setIssues(
-                                    contentService.getIssues(organization,
-                                            List.of(issue -> (milestone.equals(issue.getMilestone()) && milestone.getRepository().equals(issue.getRepository()))),
-                                            Comparator.comparing(Issue::getMilestone))));
-
-            List<Project> projects = haveMissingRepos(organization) ? Collections.emptyList() :
-                    mavenService.getProjects(organization, predicate);
-
-            projects.forEach(project -> {
-                project.setBranchName(gitService.getCurrentBranchName(project.getRepository().getName()));
-                project.setDisable(true);
-            });
-
-            organization.getObjectContext().commitChanges();
-
-            projectDataResponse = getProjects(predicate, agRequest);
-
-        } else {
-            List<Project> projects = projectDataResponse.getObjects().stream().filter(predicate)
-                    .collect(Collectors.toList());
-            for (Project project : projects) {
-                project.getRootModule();
-
-            }
-            projectDataResponse.setObjects(projects);
-        }
-
-        return projectDataResponse;
-    }
-
 }

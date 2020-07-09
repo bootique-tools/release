@@ -1,27 +1,33 @@
 package io.bootique.tools.release.model.maven.persistent;
 
-import io.bootique.tools.release.model.maven.persistent.auto._Dependency;
+import io.bootique.tools.release.model.maven.persistent.auto._ModuleDependency;
 import org.apache.cayenne.ObjectContext;
 
-public class Dependency extends _Dependency implements Comparable<Dependency> {
+public class ModuleDependency extends _ModuleDependency implements Comparable<ModuleDependency> {
 
     private static final long serialVersionUID = 1L;
 
-    public Dependency() {
+    public ModuleDependency() {
     }
 
-    public Dependency(String groupId, String artifactId, String version, String type, ObjectContext context) {
+    public ModuleDependency(String groupId, String artifactId, String version, String type, ObjectContext context) {
         this.module = new Module(groupId, artifactId, version);
         this.type = type;
+        if (context != null) {
+            context.registerNewObject(this.module);
+        }
     }
 
-    public Dependency(Module module, String type, ObjectContext context) {
+    public ModuleDependency(Module module, String type, ObjectContext context) {
         this.module = module;
         this.type = type;
+        if (module.getObjectContext() == null) {
+            context.registerNewObject(this.module);
+        }
     }
 
     @Override
-    public int compareTo(Dependency o) {
+    public int compareTo(ModuleDependency o) {
         return getModule().compareTo(o.getModule());
     }
 
@@ -29,7 +35,7 @@ public class Dependency extends _Dependency implements Comparable<Dependency> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Dependency that = (Dependency) o;
+        ModuleDependency that = (ModuleDependency) o;
         return module.equals(that.module);
     }
 

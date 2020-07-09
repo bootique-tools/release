@@ -25,10 +25,6 @@ public class Repository extends _Repository implements Comparable<Repository> {
     @JsonProperty("pullRequests")
     private PullRequestCollection pullRequestCollection;
 
-    public void addToMilestones(List<Milestone> milestones) {
-        milestones.forEach(milestone -> super.addToMilestones(milestone));
-    }
-
     @JsonIgnore
     public int getPrCount() {
         if (pullRequestCollection == null) {
@@ -49,25 +45,13 @@ public class Repository extends _Repository implements Comparable<Repository> {
         return milestoneCollection;
     }
 
-    public void setMilestoneCollection(MilestoneCollection milestoneCollection) {
-        this.milestoneCollection = milestoneCollection;
-    }
-
-    public void addMilestoneToCollection(Milestone milestone) {
-        milestone.setObjectContext(getObjectContext());
+    public void addMilestone(Milestone milestone) {
         getObjectContext().registerNewObject(milestone);
         getObjectContext().commitChanges();
-        milestoneCollection.addMilestone(milestone);
     }
 
     public int getMilestoneId(String title) {
-        List<Milestone> milestoneList;
-        if (milestoneCollection.getMilestones() == null) {
-            milestoneList = getMilestones();
-        } else {
-            milestoneList = milestoneCollection.getMilestones();
-        }
-        for (Milestone milestone : milestoneList) {
+        for (Milestone milestone : getMilestones()) {
             if (milestone.getTitle().equals(title)) {
                 return milestone.getNumber();
             }
@@ -99,16 +83,8 @@ public class Repository extends _Repository implements Comparable<Repository> {
         return issueCollection;
     }
 
-    public void setIssueCollection(IssueCollection issueCollection) {
-        this.issueCollection = issueCollection;
-    }
-
     public PullRequestCollection getPullRequestCollection() {
         return pullRequestCollection;
-    }
-
-    public void setPullRequestCollection(PullRequestCollection pullRequestCollection) {
-        this.pullRequestCollection = pullRequestCollection;
     }
 
     @JsonIgnore
@@ -125,27 +101,22 @@ public class Repository extends _Repository implements Comparable<Repository> {
         this.pushedAtStr = dateTimeFormatter.format(pushedAt);
     }
 
-    public GitService.GitStatus getLocalStatus() {
-        return GitService.GitStatus.valueOf(this.lStatus);
-    }
-
     public void setLocalStatus(GitService.GitStatus localStatus) {
         super.setLStatus(localStatus.name());
     }
 
-    public void setParent(Repository parent) {
+    public void setParent(ParentRepository parent) {
         if(this.objectContext != null) {
-            setToOneTarget("parent", parent, true);
+            super.setParent(parent);
+        }
+        if (parent != null) {
+            super.parent = parent;
         }
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public boolean haveLocalRepo() {
         return this.lStatus != GitService.GitStatus.MISSING.toString();
-    }
-
-    public boolean needLocalUpdate() {
-        return this.lStatus == GitService.GitStatus.NEED_UPDATE.toString();
     }
 
     @Override

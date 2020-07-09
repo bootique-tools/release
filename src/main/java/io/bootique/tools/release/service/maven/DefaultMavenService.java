@@ -1,9 +1,10 @@
 package io.bootique.tools.release.service.maven;
 
 import ch.qos.logback.classic.Logger;
+import io.bootique.tools.release.model.maven.persistent.ProjectDependency;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.maven.persistent.Dependency;
+import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.desktop.DesktopService;
@@ -112,14 +113,14 @@ public class DefaultMavenService implements MavenService {
                 if (dependencyPattern.matcher(groupId).matches()) {
                     String artifactId = element.getElementsByTagName("artifactId").item(0).getTextContent();
                     NodeList typeNodes = element.getElementsByTagName("scope");
-                    Dependency dependency;
+                    ModuleDependency dependency;
                     if (this.moduleMap.containsKey(artifactId)) {
-                        dependency = new Dependency(this.moduleMap.get(artifactId),
+                        dependency = new ModuleDependency(this.moduleMap.get(artifactId),
                                 typeNodes.getLength() != 0 ? typeNodes.item(0).getTextContent() : null
                                 , rootModule.getObjectContext()
                         );
                     } else {
-                        dependency = new Dependency(groupId,
+                        dependency = new ModuleDependency(groupId,
                                 artifactId,
                                 rootModule.getVersion(),
                                 typeNodes.getLength() != 0 ? typeNodes.item(0).getTextContent() : null
@@ -135,6 +136,7 @@ public class DefaultMavenService implements MavenService {
             for (int i = 0; i < modules.getLength(); i++) {
                 Path currPath = path.resolve(modules.item(i).getTextContent());
                 Module currModule = resolveModule(currPath);
+                rootModule.getObjectContext().registerNewObject(currModule);
                 moduleList.addAll(getModules(currModule, currPath));
             }
         } catch (Exception ex) {
@@ -190,12 +192,19 @@ public class DefaultMavenService implements MavenService {
 
         for (Project project : projects) {
             projectGraph.add(project);
+            Set<Project> set = new HashSet<>();
+            int count = set.size();
             for (Module module : project.getModules()) {
-                for (Dependency dependency : module.getDependencies()) {
+                for (ModuleDependency dependency : module.getDependencies()) {
                     Project depProject = moduleToProject.get(dependency.getModule());
                     if (depProject != null && !project.equals(depProject)) {
-                        dependency.getModule().setProject(depProject);
-                        project.getDependencies().add(depProject);
+                        set.add(depProject);
+                        if (set.size() > count) {
+                            ProjectDependency projectDependency = project.getObjectContext().newObject(ProjectDependency.class);
+                            projectDependency.setDependencyProject(depProject);
+                            project.addToDependencies(projectDependency);
+                            count = set.size();
+                        }
                         projectGraph.add(project, depProject);
                     }
                 }
