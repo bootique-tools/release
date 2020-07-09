@@ -3,7 +3,6 @@ package io.bootique.tools.release.controller;
 import io.agrest.Ag;
 import io.agrest.DataResponse;
 import io.bootique.tools.release.model.persistent.*;
-import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.readme.CreateReadmeService;
 import io.bootique.tools.release.view.ReadmeView;
 
@@ -20,13 +19,11 @@ public class ReadmeController extends BaseController {
     @Inject
     private CreateReadmeService createReadmeService;
 
-    @Inject
-    private ContentService contentService;
-
     @GET
     public ReadmeView home(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ReadmeView(gitHubApi.getCurrentUser(), organization);
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new ReadmeView(user, organization);
     }
 
     @GET

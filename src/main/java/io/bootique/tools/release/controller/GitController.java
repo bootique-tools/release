@@ -5,9 +5,7 @@ import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.preferences.PreferenceService;
 
-import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
@@ -21,14 +19,7 @@ public class GitController extends BaseController {
 
     static final String LOCAL_GIT_PATH_COOKIE = "git-path";
 
-    @Inject
-    private GitService gitService;
-
-    @Inject
     private DesktopService desktopService;
-
-    @Inject
-    private PreferenceService preferences;
 
     @Path("select_path")
     @GET

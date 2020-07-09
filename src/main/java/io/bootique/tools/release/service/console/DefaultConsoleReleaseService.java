@@ -8,8 +8,6 @@ import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.desktop.DesktopException;
-import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.release.ReleaseService;
@@ -31,20 +29,13 @@ public class DefaultConsoleReleaseService implements ConsoleReleaseService {
     ReleaseService releaseService;
 
     @Inject
-    GitHubApi gitHubApi;
-
-    @Inject
     MavenService mavenService;
-
-    @Inject
-    private GitService gitService;
 
     @Inject
     private LoggerService loggerService;
 
     @Override
-    public boolean checkReadyForRelease(String fromVersion, String releaseVersion, String devVersion, List<String> excludeModules) {
-        Organization organization = gitHubApi.getCurrentOrganization();
+    public boolean checkReadyForRelease(String fromVersion, String releaseVersion, String devVersion, List<String> excludeModules, Organization organization) {
         List<Project> projects = mavenService.getProjects(organization,
                 project -> project.getVersion().equals(fromVersion) && !excludeModules.contains(project.getRepository().getName()));
         if (projects.isEmpty()) {

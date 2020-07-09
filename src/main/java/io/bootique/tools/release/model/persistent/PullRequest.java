@@ -12,11 +12,11 @@ public class PullRequest extends _PullRequest {
         this.repoName = repository.getName();
     }
 
-    public User getAuthor() {
-        return (User) author;
+    public Author getAuthor() {
+        return (Author) author;
     }
 
-    public void setAuthor(User author) {
+    public void setAuthor(Author author) {
         this.author = author;
     }
 

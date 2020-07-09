@@ -18,7 +18,6 @@ import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.model.release.dto.ReleaseDescriptorDTO;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.slf4j.LoggerFactory;
@@ -48,9 +47,6 @@ public class DefaultReleaseService implements ReleaseService{
 
     @Inject
     BatchJobService jobService;
-
-    @Inject
-    GitHubApi gitHubApi;
 
     @Inject
     Map<ReleaseStage, Function<Repository, String>> releaseMap;

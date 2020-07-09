@@ -1,6 +1,5 @@
 package io.bootique.tools.release.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.agrest.Ag;
 import io.agrest.AgRequest;
 import io.agrest.DataResponse;
@@ -9,7 +8,6 @@ import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.github.GitHubRestAPI;
 import io.bootique.tools.release.service.job.JobException;
-import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.view.MilestonesView;
 
 import javax.inject.Inject;
@@ -35,18 +33,13 @@ public class MilestoneController extends DefaultBaseController {
     private final String CONTROLLER_NAME = "milestone";
 
     @Inject
-    private ObjectMapper objectMapper;
-
-    @Inject
-    private MavenService mavenService;
-
-    @Inject
     private GitHubRestAPI gitHubRestAPI;
 
     @GET
     public MilestonesView home(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new MilestonesView(gitHubApi.getCurrentUser(), organization);
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new MilestonesView(user, organization);
     }
 
     @GET

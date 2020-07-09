@@ -1,10 +1,8 @@
 package io.bootique.tools.release.service.github;
 
 import io.bootique.tools.release.model.persistent.*;
-import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.graphql.GraphQLService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
-import io.bootique.tools.release.util.RequestCache;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +12,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
+public class GraphQLGitHubApiImportInvalidateCache implements GitHubApiImport {
 
     private static final URI GIT_HUB_API_URI = URI.create("https://api.github.com/graphql");
 
@@ -22,14 +20,11 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
 
     private PreferenceService preferences;
 
-    private ContentService contentService;
-
     private final Map<String, String> queries = new ConcurrentHashMap<>();
 
-    public GraphQLGitHubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferences, ContentService contentService) {
+    public GraphQLGitHubApiImportInvalidateCache(GraphQLService graphQLService, PreferenceService preferences) {
         this.graphQLService = graphQLService;
         this.preferences = preferences;
-        this.contentService = contentService;
     }
 
     @Override
@@ -44,28 +39,28 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
             return null;
         }
 
-        return updateCache("viewer:", query.viewer);
+        return query.getViewer();
     }
 
     @Override
     public Organization getCurrentOrganization() {
 
         OrganizationContainer container = loadQuery("organization",
-                Map.of("name", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)),
+                Map.of("name", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)),
                 OrganizationContainer.class);
         if (container == null) {
             return null;
         }
         Organization organization = container.getOrganization();
 
-        return updateCache("org:" + organization.getLogin(), organization);
+        return organization;
     }
 
     @Override
     public RepositoryCollection getCurrentRepositoryCollection(Organization organization) {
 
         OrganizationContainer organizationContainer = loadQuery("repositories",
-                Map.of("name", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                Map.of("name", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "totalCount", organization.getRepositoryCollection().getTotalCount()),
                 OrganizationContainer.class);
 
@@ -75,14 +70,14 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
 
         RepositoryCollection repositoryCollection = organizationContainer.getOrganization().getRepositoryCollection();
 
-        return updateCache("repositories:" + preferences.get(GitHubApi.ORGANIZATION_PREFERENCE), repositoryCollection);
+        return repositoryCollection;
     }
 
     @Override
     public MilestoneCollection getMilestoneCollection(Repository repository) {
 
         RepositoryContainer repositoryContainer = loadQuery("milestones",
-                Map.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
                         , "totalCount", repository.getMilestoneCollection().getTotalCount()),
                 RepositoryContainer.class);
@@ -90,19 +85,14 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
             return null;
         }
 
-        return updateCache("milestones:" + repository.getName(), repositoryContainer.getRepository().getMilestoneCollection());
-    }
-
-    @Override
-    public List<Milestone> getMilestones(Repository repository) {
-        return null;
+        return repositoryContainer.getRepository().getMilestoneCollection();
     }
 
     @Override
     public IssueCollection getIssueCollection(Repository repository) {
 
         RepositoryContainer repositoryContainer = loadQuery("issues",
-                Map.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
                         , "totalCount", repository.getIssueCollection().getTotalCount()),
                 RepositoryContainer.class);
@@ -110,14 +100,14 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
             return null;
         }
 
-        return updateCache("issue:" + repository.getName(), repositoryContainer.getRepository().getIssueCollection());
+        return repositoryContainer.getRepository().getIssueCollection();
     }
 
     @Override
     public PullRequestCollection getPullRequestCollection(Repository repository) {
 
         RepositoryContainer repositoryContainer = loadQuery("pr",
-                Map.of("owner", preferences.get(GitHubApi.ORGANIZATION_PREFERENCE)
+                Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
                         , "totalCount", repository.getPullRequestCollection().getTotalCount()),
                 RepositoryContainer.class);
@@ -125,12 +115,12 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
             return null;
         }
 
-        return updateCache("pr:" + repository.getName(), repositoryContainer.getRepository().getPullRequestCollection());
+        return repositoryContainer.getRepository().getPullRequestCollection();
     }
 
     private String getQuery(String query) {
         return queries.computeIfAbsent(query, q -> {
-            try (InputStream stream = GraphQLGitHubApi.class.getResourceAsStream(q + ".query")) {
+            try (InputStream stream = GraphQLGitHubApiImportInvalidateCache.class.getResourceAsStream(q + ".query")) {
                 if (stream == null) {
                     throw new RuntimeException("Query not found: " + q);
                 }
@@ -145,11 +135,6 @@ public class GraphQLGitHubApiInvalidateCache implements GitHubApi {
                 throw new RuntimeException(ex);
             }
         });
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> T updateCache(String key, T object) {
-        return (T) contentService.getRepoCache().compute(key, (k, oldEntry) -> new RequestCache<>(object)).getObject();
     }
 
     private <T> T loadQuery(String key, Map<String, Object> map, Class<T> tClass) {

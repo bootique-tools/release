@@ -8,7 +8,6 @@ import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.MockGitHubApi;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
@@ -49,7 +48,6 @@ class DefaultReleaseServiceTest {
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
         context = cayenneRuntime.newContext();
-        releaseService.gitHubApi = new MockGitHubApi(context);
 
         Repository repository = context.newObject(Repository.class);
         Project project = new Project(repository, Paths.get(""), new Module());

@@ -1,6 +1,5 @@
 package io.bootique.tools.release.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.agrest.Ag;
 import io.agrest.AgRequest;
 import io.agrest.DataResponse;
@@ -9,7 +8,6 @@ import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.service.logger.LoggerService;
-import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.release.ReleaseService;
 import io.bootique.tools.release.view.ReleaseContinueView;
 import io.bootique.tools.release.view.ReleaseView;
@@ -28,12 +26,6 @@ import java.util.stream.Collectors;
 
 @Path("/release")
 public class ReleaseController extends BaseController {
-
-    @Inject
-    private MavenService mavenService;
-
-    @Inject
-    private ObjectMapper objectMapper;
 
     @Inject
     private LoggerService loggerService;
@@ -63,14 +55,16 @@ public class ReleaseController extends BaseController {
                 releaseDescriptor.getCurrentRollbackStage().getText();
 
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ReleaseContinueView(gitHubApi.getCurrentUser(), organization, releaseDescriptor.getReleaseVersion(), lastSuccessStage, releaseDescriptor.getProjectList());
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new ReleaseContinueView(user, organization, releaseDescriptor.getReleaseVersion(), lastSuccessStage, releaseDescriptor.getProjectList());
     }
 
     @GET
     @Path("/start-release")
     public ReleaseView startRelease(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ReleaseView(gitHubApi.getCurrentUser(), organization);
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new ReleaseView(user, organization);
     }
 
     @GET

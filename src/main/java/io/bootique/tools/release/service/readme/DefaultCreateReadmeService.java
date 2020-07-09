@@ -3,17 +3,10 @@ package io.bootique.tools.release.service.readme;
 import io.bootique.tools.release.model.persistent.Issue;
 import io.bootique.tools.release.model.persistent.Milestone;
 import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.service.github.GitHubApi;
 
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 public class DefaultCreateReadmeService implements CreateReadmeService {
-
-    @Inject
-    @Named("updateCache")
-    private GitHubApi gitHubApi;
 
     @Override
     public StringBuilder createReadme(List<Repository> repositories, String milestoneTitle) {

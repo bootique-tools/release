@@ -8,7 +8,6 @@ public class ReleaseRollbackView extends BaseView{
 
     private RollbackStage rollbackStage;
     private String rollbackTitle;
-    private String rollbackId;
     private String finishStep;
 
     public ReleaseRollbackView(User user, Organization organization, RollbackStage rollbackStage) {

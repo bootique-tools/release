@@ -5,7 +5,7 @@ import io.bootique.annotation.BQConfigProperty;
 import io.bootique.tools.release.service.bintray.BintrayApi;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
+import io.bootique.tools.release.service.github.GitHubApiImport;
 import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.DefaultPreferenceService;
@@ -78,8 +78,8 @@ public class PreferenceCredentialFactory {
 
         PreferenceService preferences = new DefaultPreferenceService();
 
-        if(!preferences.have(GitHubApi.ORGANIZATION_PREFERENCE)) {
-            preferences.set(GitHubApi.ORGANIZATION_PREFERENCE, organizationName); // bootique
+        if(!preferences.have(GitHubApiImport.ORGANIZATION_PREFERENCE)) {
+            preferences.set(GitHubApiImport.ORGANIZATION_PREFERENCE, organizationName); // bootique
         }
 
         if(!preferences.have(MavenService.ORGANIZATION_GROUP_ID)) {
@@ -90,8 +90,8 @@ public class PreferenceCredentialFactory {
             preferences.set(MavenService.GROUP_ID_PATTERN, groupIdPattern); // io.bootique
         }
 
-        if(!preferences.have(GitHubApi.AUTH_TOKEN_PREFERENCE)) {
-            preferences.set(GitHubApi.AUTH_TOKEN_PREFERENCE, gitHubToken);
+        if(!preferences.have(GitHubApiImport.AUTH_TOKEN_PREFERENCE)) {
+            preferences.set(GitHubApiImport.AUTH_TOKEN_PREFERENCE, gitHubToken);
         }
 
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {

@@ -28,7 +28,8 @@ public class BranchesController extends DefaultBaseController {
     @GET
     public BranchesView home(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new BranchesView(gitHubApi.getCurrentUser(), organization);
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new BranchesView(user, organization);
     }
 
     @GET

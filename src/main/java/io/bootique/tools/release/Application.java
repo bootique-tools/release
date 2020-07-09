@@ -32,8 +32,6 @@ import io.bootique.tools.release.service.console.ConsoleReleaseService;
 import io.bootique.tools.release.service.console.ConsoleRollbackService;
 import io.bootique.tools.release.service.console.DefaultConsoleReleaseService;
 import io.bootique.tools.release.service.console.DefaultConsoleRollbackService;
-import io.bootique.tools.release.service.content.ContentService;
-import io.bootique.tools.release.service.content.DefaultContentService;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.desktop.GenericDesktopService;
 import io.bootique.tools.release.service.desktop.LinuxDesktopService;
@@ -41,11 +39,10 @@ import io.bootique.tools.release.service.desktop.MacOSService;
 import io.bootique.tools.release.service.desktop.WindowsDesktopService;
 import io.bootique.tools.release.service.git.ExternalGitService;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
+import io.bootique.tools.release.service.github.GitHubApiImport;
 import io.bootique.tools.release.service.github.GitHubRestAPI;
 import io.bootique.tools.release.service.github.GitHubRestV3API;
-import io.bootique.tools.release.service.github.GraphQLGitHubApi;
-import io.bootique.tools.release.service.github.GraphQLGitHubApiInvalidateCache;
+import io.bootique.tools.release.service.github.GraphQLGitHubApiImportInvalidateCache;
 import io.bootique.tools.release.service.graphql.GraphQLService;
 import io.bootique.tools.release.service.graphql.SimpleGraphQLService;
 import io.bootique.tools.release.service.job.BatchJobService;
@@ -72,7 +69,6 @@ import io.bootique.tools.release.service.validation.ValidatePomService;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import java.util.function.Function;
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 //--config="release-manager.yml" --server
@@ -99,7 +95,6 @@ public class Application implements BQModule  {
         binder.bind(ConsoleReleaseService.class).to(DefaultConsoleReleaseService.class).inSingletonScope();
         binder.bind(ConsoleRollbackService.class).to(DefaultConsoleRollbackService.class).inSingletonScope();
         binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).inSingletonScope();
-        binder.bind(ContentService.class).to(DefaultContentService.class).inSingletonScope();
         binder.bind(CreateReadmeService.class).to(DefaultCreateReadmeService.class).inSingletonScope();
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
 
@@ -184,15 +179,8 @@ public class Application implements BQModule  {
 
     @Provides
     @Singleton
-    GitHubApi provideGitHubApi(PreferenceService preferenceService, ContentService contentService) {
-        return new GraphQLGitHubApi(preferenceService, contentService);
-    }
-
-    @Provides
-    @Singleton
-    @Named("updateCache")
-    GitHubApi provideGitGubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferenceService, ContentService contentService) {
-        return new GraphQLGitHubApiInvalidateCache(graphQLService, preferenceService, contentService);
+    GitHubApiImport provideGitGubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferenceService) {
+        return new GraphQLGitHubApiImportInvalidateCache(graphQLService, preferenceService);
     }
 
 }

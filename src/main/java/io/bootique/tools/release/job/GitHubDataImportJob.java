@@ -5,7 +5,7 @@ import io.bootique.job.JobMetadata;
 import io.bootique.job.runnable.JobResult;
 import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
+import io.bootique.tools.release.service.github.GitHubApiImport;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
@@ -16,14 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Provider;
 
 public class GitHubDataImportJob extends BaseJob {
 
     @Inject
-    @Named("updateCache")
-    private GitHubApi gitHubApi;
+    private GitHubApiImport gitHubApiImport;
 
     @Inject
     private PreferenceService preferenceService;
@@ -34,6 +32,8 @@ public class GitHubDataImportJob extends BaseJob {
     private Provider<ServerRuntime> runtimeProvider;
 
     private Boolean update;
+
+    private Map<String, Author> authorMap;
 
     public GitHubDataImportJob() {
         super(JobMetadata.build(GitHubDataImportJob.class));
@@ -51,13 +51,13 @@ public class GitHubDataImportJob extends BaseJob {
 
         ServerRuntime runtime = runtimeProvider.get();
         ObjectContext context = runtime.newContext();
-        GitHubApi gitHubApi = this.gitHubApi;
+        GitHubApiImport gitHubApi = this.gitHubApiImport;
 
         if (this.update) {
             getCurrents(context);
         } else {
             List<Organization> organizations = ObjectSelect.query(Organization.class)
-                    .where(Organization.LOGIN.eq(gitHubApi.getPreferences().get(GitHubApi.ORGANIZATION_PREFERENCE))).select(context);
+                    .where(Organization.LOGIN.eq(gitHubApi.getPreferences().get(GitHubApiImport.ORGANIZATION_PREFERENCE))).select(context);
 
             if (organizations.size() == 0) {
                 getCurrents(context);
@@ -72,14 +72,15 @@ public class GitHubDataImportJob extends BaseJob {
 
         deleteAll(objectContext);
 
-        User user = gitHubApi.getCurrentUser();
+        User user = gitHubApiImport.getCurrentUser();
         user.setObjectContext(objectContext);
         objectContext.registerNewObject(user);
 
-        Organization organization = gitHubApi.getCurrentOrganization();
+        Organization organization = gitHubApiImport.getCurrentOrganization();
 
         getRepositories(objectContext, organization);
 
+        authorMap = new HashMap<>();
         if (organization.getObjectId().getIdSnapshot().get("ID") == null) {
             for (Repository repository : organization.getRepositoryCollection().getRepositories()) {
                 if (preferenceService.have(GitService.BASE_PATH_PREFERENCE)) {
@@ -89,18 +90,19 @@ public class GitHubDataImportJob extends BaseJob {
                 Map<String, Label> labelMap = new HashMap<>();
 
                 getMilestones(objectContext, repository, milestoneMap);
-                getIssues(objectContext, repository, milestoneMap, labelMap);
-                getPRs(objectContext, repository, labelMap);
+                getIssues(objectContext, repository, milestoneMap);
+                getPRs(objectContext, repository);
 
                 objectContext.commitChanges();
                 milestoneMap.clear();
                 labelMap.clear();
             }
         }
+        authorMap.clear();
     }
 
     private void getRepositories(ObjectContext context, Organization organization) {
-        RepositoryCollection repositoryCollection = gitHubApi.getCurrentRepositoryCollection(organization);
+        RepositoryCollection repositoryCollection = gitHubApiImport.getCurrentRepositoryCollection(organization);
 
         for (Repository repository : repositoryCollection.getRepositories()) {
             if (repository.getParent() != null) {
@@ -112,8 +114,8 @@ public class GitHubDataImportJob extends BaseJob {
         organization.linkRepositories();
     }
 
-    private void getIssues(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap, Map<String, Label> labelMap) {
-        IssueCollection issueCollection = gitHubApi.getIssueCollection(repository);
+    private void getIssues(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
+        IssueCollection issueCollection = gitHubApiImport.getIssueCollection(repository);
 
         for (Issue issue : issueCollection.getIssues()) {
             if (issue.getMilestone() != null) {
@@ -123,14 +125,16 @@ public class GitHubDataImportJob extends BaseJob {
                     context.registerNewObject(issue.getMilestone());
                 }
             }
-            context.registerNewObject(issue.getAuthor());
+            if (authorMap.containsKey(issue.getAuthor().getGithubId())) {
+                issue.setAuthor(authorMap.get(issue.getAuthor().getGithubId()));
+            } else {
+                context.registerNewObject(issue.getAuthor());
+                authorMap.put(issue.getAuthor().getGithubId(), issue.getAuthor());
+            }
             LabelCollection labels = new LabelCollection();
             for (Label label : issue.getLabels()) {
-                if (!labelMap.containsKey(label.getGithubId())) {
-                    context.registerNewObject(label);
-                    labelMap.put(label.getGithubId(), label);
-                }
-                labels.getLabels().add(labelMap.get(label.getGithubId()));
+                context.registerNewObject(label);
+                labels.getLabels().add(label);
             }
             issue.setLabels(labels);
             issue.setRepository(repository);
@@ -140,7 +144,7 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     private void getMilestones(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
-        MilestoneCollection milestoneCollection = gitHubApi.getMilestoneCollection(repository);
+        MilestoneCollection milestoneCollection = gitHubApiImport.getMilestoneCollection(repository);
 
         for (Milestone milestone : milestoneCollection.getMilestones()) {
             milestone.setRepository(repository);
@@ -155,17 +159,20 @@ public class GitHubDataImportJob extends BaseJob {
         }
     }
 
-    private void getPRs(ObjectContext context, Repository repository, Map<String, Label> labelMap) {
-        PullRequestCollection pullRequestCollection = gitHubApi.getPullRequestCollection(repository);
+    private void getPRs(ObjectContext context, Repository repository) {
+        PullRequestCollection pullRequestCollection = gitHubApiImport.getPullRequestCollection(repository);
 
         for (PullRequest pullRequest : pullRequestCollection.getPullRequests()) {
             LabelCollection labels = new LabelCollection();
             for (Label label : pullRequest.getLabels()) {
-                if (!labelMap.containsKey(label.getGithubId())) {
-                    context.registerNewObject(label);
-                    labelMap.put(label.getGithubId(), label);
-                }
-                labels.getLabels().add(labelMap.get(label.getGithubId()));
+                context.registerNewObject(label);
+                labels.getLabels().add(label);
+            }
+            if (authorMap.containsKey(pullRequest.getAuthor().getGithubId())) {
+                pullRequest.setAuthor(authorMap.get(pullRequest.getAuthor().getGithubId()));
+            } else {
+                context.registerNewObject(pullRequest.getAuthor());
+                authorMap.put(pullRequest.getAuthor().getGithubId(), pullRequest.getAuthor());
             }
             pullRequest.setLabels(labels);
             pullRequest.setRepository(repository);
@@ -183,9 +190,10 @@ public class GitHubDataImportJob extends BaseJob {
         SQLExec.query("delete from Module").update(objectContext);
         SQLExec.query("delete from ProjectDependency").update(objectContext);
         SQLExec.query("delete from Project").update(objectContext);
-        SQLExec.query("delete from ParentRepository").update(objectContext);
         SQLExec.query("delete from Repository").update(objectContext);
+        SQLExec.query("delete from ParentRepository").update(objectContext);
         SQLExec.query("delete from Organization").update(objectContext);
+        SQLExec.query("delete from Author").update(objectContext);
         SQLExec.query("delete from User").update(objectContext);
     }
 }

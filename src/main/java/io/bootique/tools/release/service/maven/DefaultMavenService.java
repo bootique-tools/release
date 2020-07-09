@@ -1,6 +1,5 @@
 package io.bootique.tools.release.service.maven;
 
-import ch.qos.logback.classic.Logger;
 import io.bootique.tools.release.model.maven.persistent.ProjectDependency;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
@@ -10,7 +9,6 @@ import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,8 +33,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DefaultMavenService implements MavenService {
-
-    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(MavenService.class);
 
     private Pattern dependencyPattern;
 

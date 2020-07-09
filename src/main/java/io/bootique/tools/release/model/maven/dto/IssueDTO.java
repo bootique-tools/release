@@ -9,11 +9,11 @@ public class IssueDTO {
 
     public IssueDTO() { }
 
-    public int getLength() {
-        return length;
-    }
-
     public IssueDTO(int length) {
         this.length = length;
+    }
+
+    public int getLength() {
+        return length;
     }
 }

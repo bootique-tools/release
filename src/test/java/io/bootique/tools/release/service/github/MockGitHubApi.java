@@ -5,9 +5,8 @@ import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.apache.cayenne.ObjectContext;
 
 import java.util.Arrays;
-import java.util.List;
 
-public class MockGitHubApi implements GitHubApi{
+public class MockGitHubApi implements GitHubApiImport{
 
     private ObjectContext context;
 
@@ -53,11 +52,6 @@ public class MockGitHubApi implements GitHubApi{
 
     @Override
     public MilestoneCollection getMilestoneCollection(Repository repository) {
-        return null;
-    }
-
-    @Override
-    public List<Milestone> getMilestones(Repository repository) {
         return null;
     }
 
