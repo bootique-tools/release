@@ -1,6 +1,6 @@
 package io.bootique.tools.release.service.console;
 
-import io.bootique.tools.release.service.github.MockGitHubApi;
+import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.service.maven.MockMavenService;
 import io.bootique.tools.release.service.release.DefaultReleaseService;
 import org.apache.cayenne.ObjectContext;
@@ -18,23 +18,24 @@ class DefaultConsoleReleaseServiceTest {
     private DefaultConsoleReleaseService consoleReleaseService;
     private DefaultReleaseService releaseService = new DefaultReleaseService();
     private MockMavenService mockMavenService = new MockMavenService();
+    ObjectContext context;
 
     @BeforeEach
     void createService() {
         ServerRuntime cayenneRuntime = ServerRuntime.builder()
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
-        ObjectContext context = cayenneRuntime.newContext();
+        context = cayenneRuntime.newContext();
 
         consoleReleaseService = new DefaultConsoleReleaseService();
-        consoleReleaseService.gitHubApi = new MockGitHubApi(context);
         consoleReleaseService.releaseService = releaseService;
         consoleReleaseService.mavenService = mockMavenService;
     }
 
     @Test
     void testReadyForReleaseFromConsole() {
-        assertTrue(consoleReleaseService.checkReadyForRelease("1.0.2", "1.0.2", "1.0.3", Collections.emptyList()));
-        assertFalse(consoleReleaseService.checkReadyForRelease("1.0.8", "1.0.4", "1.0.1", Collections.emptyList()));
+        Organization organization = context.newObject(Organization.class);
+        assertTrue(consoleReleaseService.checkReadyForRelease("1.0.2", "1.0.2", "1.0.3", Collections.emptyList(), organization));
+        assertFalse(consoleReleaseService.checkReadyForRelease("1.0.8", "1.0.4", "1.0.1", Collections.emptyList(), organization));
     }
 }

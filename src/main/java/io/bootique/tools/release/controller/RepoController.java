@@ -1,6 +1,7 @@
 package io.bootique.tools.release.controller;
 
 import io.agrest.Ag;
+import io.agrest.AgRequest;
 import io.agrest.DataResponse;
 import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.view.RepoView;
@@ -16,14 +17,21 @@ public class RepoController extends BaseController {
     @GET
     public RepoView home(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new RepoView(gitHubApi.getCurrentUser(), organization);
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new RepoView(user, organization);
     }
 
     @GET
     @Path("/checkCache")
     @Produces(MediaType.APPLICATION_JSON)
     public boolean checkCache() {
-        return contentService.haveCache(configuration);
+        AgRequest agRequest = Ag.request(configuration).build();
+        DataResponse<Organization> organizations = Ag.select(Organization.class, configuration).request(agRequest).get();
+        if (organizations.getObjects().size() == 0 ||
+                organizations.getObjects().get(0).getRepositories().size() == 0) {
+            return false;
+        }
+        return true;
     }
 
     @GET

@@ -8,7 +8,6 @@ public class ReleaseProcessView extends BaseView{
 
     private ReleaseStage releaseStage;
     private String releaseTitle;
-    private String releaseId;
     private String finishStep;
 
     public ReleaseProcessView(User user, Organization organization, ReleaseStage releaseStage, boolean mode) {

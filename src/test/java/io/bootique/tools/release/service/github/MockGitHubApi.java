@@ -7,7 +7,7 @@ import org.apache.cayenne.ObjectContext;
 import java.util.Arrays;
 import java.util.List;
 
-public class MockGitHubApi implements GitHubApi{
+public class MockGitHubApi implements GitHubApiImport{
 
     private ObjectContext context;
 
@@ -36,9 +36,10 @@ public class MockGitHubApi implements GitHubApi{
         repository1.setName("dummy-app");
         Repository repository2 = context.newObject(Repository.class);
         repository2.setName("dummy-module1");
-        RepositoryCollection repositoryCollection = new RepositoryCollection();
-        repositoryCollection.setRepositories(Arrays.asList(repository, repository1, repository2));
-        organization.setRepositoryCollection(repositoryCollection);
+        Node<Repository> repositoryNode = new Node<>();
+        repositoryNode.setNodes(Arrays.asList(repository, repository1, repository2));
+        repositoryNode.setTotalCount(repositoryNode.getNodes().size());
+        organization.setRepositoryNode(repositoryNode);
         organization.addToRepositories(repository);
         organization.addToRepositories(repository1);
         organization.addToRepositories(repository2);
@@ -47,27 +48,22 @@ public class MockGitHubApi implements GitHubApi{
     }
 
     @Override
-    public RepositoryCollection getCurrentRepositoryCollection(Organization organization) {
+    public List<Repository> getCurrentRepositoryCollection(Organization organization) {
         return null;
     }
 
     @Override
-    public MilestoneCollection getMilestoneCollection(Repository repository) {
+    public List<Milestone> getMilestoneCollection(Repository repository) {
         return null;
     }
 
     @Override
-    public List<Milestone> getMilestones(Repository repository) {
+    public List<Issue> getIssueCollection(Repository repository) {
         return null;
     }
 
     @Override
-    public IssueCollection getIssueCollection(Repository repository) {
-        return null;
-    }
-
-    @Override
-    public PullRequestCollection getPullRequestCollection(Repository repo) {
+    public List<PullRequest> getPullRequestCollection(Repository repo) {
         return null;
     }
 }

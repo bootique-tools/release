@@ -21,7 +21,8 @@ public class PRController extends BaseController {
     public PullRequestView home(@QueryParam("sort") String sort, @QueryParam("filter") String filters, @QueryParam("field") String field) {
         AgRequest agRequest = Ag.request(configuration).build();
         Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        return new PullRequestView(gitHubApi.getCurrentUser(), organization, sort, filters, field);
+        User user = Ag.select(User.class, configuration).request(agRequest).get().getObjects().get(0);
+        return new PullRequestView(user, organization, sort, filters, field);
     }
 
     @GET

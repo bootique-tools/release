@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.persistent.auto._Milestone;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class Milestone extends _Milestone implements Comparable<Milestone> {
@@ -17,7 +16,17 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
     }
 
     @JsonProperty("issues")
-    private IssueCollection issueCollection;
+    private Node<Issue> issueNode;
+
+    @JsonProperty("issues")
+    public Node<Issue> getIssueNode() {
+        return issueNode;
+    }
+
+    @JsonProperty("issues")
+    public void setIssueNode(Node<Issue> issueNode) {
+        this.issueNode = issueNode;
+    }
 
     @JsonProperty("issuesList")
     public void setIssues(List<Issue> issues) {
@@ -46,16 +55,6 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
     @Override
     public String toString() {
         return "{milestone " + title + '}';
-    }
-
-    @JsonProperty("issues")
-    public IssueCollection getIssueCollection() {
-        return issueCollection;
-    }
-
-    @JsonProperty("issues")
-    public void setIssueCollection(IssueCollection issueCollection) {
-        this.issueCollection = issueCollection;
     }
 
     public void addToIssuesWithoutContext(List<Issue> issue) {

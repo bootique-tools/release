@@ -3,11 +3,23 @@ package io.bootique.tools.release.model.persistent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.persistent.auto._Issue;
 
-import java.util.List;
-
 public class Issue extends _Issue {
 
     private static final long serialVersionUID = 1L;
+
+    @JsonProperty("labels")
+    private Node<Label> labelNode;
+
+    public Node<Label> getLabelNode() {
+        return labelNode;
+    }
+
+    public void setLabelNode(Node<Label> labelNode) {
+        if (labelNode.getNodes() != null) {
+            super.labels = labelNode.getNodes();
+        }
+        this.labelNode = labelNode;
+    }
 
     public void setMilestone(Milestone milestone) {
         this.milestone = milestone;
@@ -18,16 +30,12 @@ public class Issue extends _Issue {
         this.repoName = repository.getName();
     }
 
-    public User getAuthor() {
-        return (User) author;
+    public Author getAuthor() {
+        return (Author) author;
     }
 
-    public void setAuthor(User author) {
+    public void setAuthor(Author author) {
         this.author = author;
-    }
-
-    public void setLabels(LabelCollection labels) {
-        this.labels = labels.getLabels();
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "parent")

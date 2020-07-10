@@ -42,10 +42,10 @@ public class ReleaseRollbackController extends BaseController {
     @GET
     @Path("/current-step")
     public ReleaseRollbackView currentStep() {
-
         AgRequest agRequest = Ag.request(configuration).build();
         Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        return new ReleaseRollbackView(gitHubApi.getCurrentUser(),
+        User user = Ag.select(User.class, configuration).request(agRequest).get().getObjects().get(0);
+        return new ReleaseRollbackView(user,
                 organization, releaseService.getReleaseDescriptor().getCurrentRollbackStage());
     }
 

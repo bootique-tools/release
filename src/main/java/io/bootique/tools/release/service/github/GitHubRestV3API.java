@@ -23,8 +23,6 @@ import java.util.Map;
 
 public class GitHubRestV3API implements GitHubRestAPI {
 
-    private static final String BASE_REST_API_URL = "https://api.github.com";
-
     @Inject
     private PreferenceService preferences;
 
@@ -105,7 +103,7 @@ public class GitHubRestV3API implements GitHubRestAPI {
     }
 
     private Invocation.Builder prepareRequest(String path) {
-        String token = preferences.get(GitHubApi.AUTH_TOKEN_PREFERENCE);
+        String token = preferences.get(GitHubApiImport.AUTH_TOKEN_PREFERENCE);
         return targets
                 .newTarget("github")
                 .path(path)

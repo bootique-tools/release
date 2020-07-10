@@ -7,9 +7,7 @@ import io.agrest.DataResponse;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.service.content.ContentService;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.GitHubApi;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
@@ -28,9 +26,6 @@ abstract class BaseController {
     PreferenceService preferences;
 
     @Inject
-    GitHubApi gitHubApi;
-
-    @Inject
     MavenService mavenService;
 
     @Inject
@@ -38,9 +33,6 @@ abstract class BaseController {
 
     @Inject
     GitService gitService;
-
-    @Inject
-    ContentService contentService;
 
     @Context
     Configuration configuration;

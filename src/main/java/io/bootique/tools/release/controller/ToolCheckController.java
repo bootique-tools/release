@@ -51,7 +51,8 @@ public class ToolCheckController extends BaseController {
 
         AgRequest agRequest = Ag.request(configuration).build();
         Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        return new ToolCheckView(gitHubApi.getCurrentUser(), organization,
+        User user = Ag.select(User.class, configuration).request(agRequest).get().getObjects().get(0);
+        return new ToolCheckView(user, organization,
                 javaVersion, jdk, mavenVersion);
     }
 

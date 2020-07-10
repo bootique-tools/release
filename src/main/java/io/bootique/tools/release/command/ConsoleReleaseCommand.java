@@ -5,8 +5,13 @@ import io.bootique.command.CommandOutcome;
 import io.bootique.command.CommandWithMetadata;
 import io.bootique.meta.application.CommandMetadata;
 import io.bootique.meta.application.OptionMetadata;
+import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.service.console.ConsoleReleaseService;
 import io.bootique.tools.release.service.desktop.DesktopException;
+import io.bootique.tools.release.service.github.GitHubApiImport;
+import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.query.ObjectSelect;
 
 import java.util.List;
 import javax.inject.Inject;
@@ -17,8 +22,12 @@ public class ConsoleReleaseCommand extends CommandWithMetadata{
     @Inject
     private Provider<ConsoleReleaseService> provider;
 
-    public ConsoleReleaseCommand() {
+    private Provider<ServerRuntime> runtimeProvider;
+
+    @Inject
+    public ConsoleReleaseCommand(Provider<ServerRuntime> runtimeProvider) {
         super(createMetadata());
+        this.runtimeProvider = runtimeProvider;
     }
 
     private static CommandMetadata createMetadata() {
@@ -47,12 +56,18 @@ public class ConsoleReleaseCommand extends CommandWithMetadata{
 
     @Override
     public CommandOutcome run(Cli cli) {
+
+        ServerRuntime runtime = runtimeProvider.get();
+        ObjectContext context = runtime.newContext();
+
         String fromVersion = cli.optionString("fromVersion");
         String releaseVersion = cli.optionString("releaseVersion");
         String devVersion = cli.optionString("devVersion");
         List<String> excludeModules = cli.optionStrings("excludeModule");
 
-        if(!provider.get().checkReadyForRelease(fromVersion, releaseVersion, devVersion, excludeModules)) {
+        Organization organization = ObjectSelect.query(Organization.class).where(Organization.NAME.eq(GitHubApiImport.ORGANIZATION_PREFERENCE.getName())).selectOne(context);
+
+        if(!provider.get().checkReadyForRelease(fromVersion, releaseVersion, devVersion, excludeModules, organization)) {
             return CommandOutcome.failed(-1, "Command failed");
         }
 

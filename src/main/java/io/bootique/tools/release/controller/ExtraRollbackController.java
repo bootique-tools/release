@@ -30,7 +30,8 @@ public class ExtraRollbackController extends BaseReleaseController {
     @GET
     public ExtraRollbackView home(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ExtraRollbackView(gitHubApi.getCurrentUser(), organization);
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new ExtraRollbackView(user, organization);
     }
 
     @POST
@@ -62,7 +63,8 @@ public class ExtraRollbackController extends BaseReleaseController {
     public ExtraRollbackView rollbackFail() {
         AgRequest agRequest = Ag.request(configuration).build();
         Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        return new ExtraRollbackView(gitHubApi.getCurrentUser(), organization, "This version was synced with mvn central. Rollback is not available.");
+        User user = Ag.select(User.class, configuration).request(agRequest).get().getObjects().get(0);
+        return new ExtraRollbackView(user, organization, "This version was synced with mvn central. Rollback is not available.");
     }
 
     @Override

@@ -53,7 +53,8 @@ public class ReleaseProcessController extends BaseReleaseController {
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
 
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ReleaseProcessView(gitHubApi.getCurrentUser(),
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new ReleaseProcessView(user,
                 organization, releaseDescriptor.getCurrentReleaseStage(), releaseDescriptor.isAutoReleaseMode());
     }
 

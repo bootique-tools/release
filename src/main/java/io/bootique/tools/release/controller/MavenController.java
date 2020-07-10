@@ -11,7 +11,6 @@ import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.JobException;
-import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.view.MavenView;
 
 import javax.inject.Inject;
@@ -30,9 +29,6 @@ public class MavenController extends BaseController {
     private static final String CONTROLLER_NAME = "maven";
 
     @Inject
-    private MavenService mavenService;
-
-    @Inject
     private BatchJobService jobService;
 
     @Inject
@@ -41,7 +37,8 @@ public class MavenController extends BaseController {
     @GET
     public MavenView home(@Context UriInfo uriInfo) {
         Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new MavenView(gitHubApi.getCurrentUser(), organization);
+        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
+        return new MavenView(user, organization);
     }
 
     @POST

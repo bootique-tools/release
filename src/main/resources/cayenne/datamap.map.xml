@@ -4,6 +4,14 @@
 	 xsi:schemaLocation="http://cayenne.apache.org/schema/10/modelMap https://cayenne.apache.org/schema/10/modelMap.xsd"
 	 project-version="10">
 	<property name="defaultPackage" value="io.bootique.tools.release.model.persistent"/>
+	<db-entity name="Author">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
+		<db-attribute name="login" type="VARCHAR" length="255"/>
+		<db-attribute name="name" type="VARCHAR" length="255"/>
+		<db-attribute name="type" type="VARCHAR" length="255"/>
+		<db-attribute name="url" type="VARCHAR" length="255"/>
+	</db-entity>
 	<db-entity name="GitHubEntity">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
@@ -131,6 +139,11 @@
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
 
+	<obj-entity name="Author" superEntityName="GitHubEntity" className="io.bootique.tools.release.model.persistent.Author" dbEntityName="Author">
+		<obj-attribute name="login" type="java.lang.String" db-attribute-path="login"/>
+		<obj-attribute name="name" type="java.lang.String" db-attribute-path="name"/>
+		<obj-attribute name="type" type="java.lang.String" db-attribute-path="type"/>
+	</obj-entity>
 	<obj-entity name="GitHubEntity" abstract="true" className="io.bootique.tools.release.model.persistent.GitHubEntity" dbEntityName="GitHubEntity">
 		<obj-attribute name="githubId" type="java.lang.String" db-attribute-path="github_id"/>
 		<obj-attribute name="url" type="java.lang.String" db-attribute-path="url"/>
@@ -197,7 +210,16 @@
 		<obj-attribute name="type" type="java.lang.String" db-attribute-path="type"/>
 	</obj-entity>
 
-	<db-relationship name="gitHubEntity_User" source="GitHubEntity" target="User" toDependentPK="true">
+	<db-relationship name="gitHubEntity_Author" source="Author" target="GitHubEntity" toMany="true">
+		<db-attribute-pair source="ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="author_pr" source="Author" target="PullRequest" toMany="true">
+		<db-attribute-pair source="ID" target="author_id"/>
+	</db-relationship>
+	<db-relationship name="author_i" source="Author" target="Issue" toMany="true">
+		<db-attribute-pair source="ID" target="author_id"/>
+	</db-relationship>
+	<db-relationship name="gitHubEntity_Author" source="GitHubEntity" target="Author" toDependentPK="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_RepositoryNode" source="GitHubEntity" target="RepositoryNode" toDependentPK="true">
@@ -215,10 +237,13 @@
 	<db-relationship name="gitHubEntity_Repository" source="GitHubEntity" target="Repository" toDependentPK="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
+	<db-relationship name="gitHubEntity_User" source="GitHubEntity" target="User" toDependentPK="true">
+		<db-attribute-pair source="ID" target="ID"/>
+	</db-relationship>
 	<db-relationship name="repositoryNode_Issue" source="Issue" target="RepositoryNode" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="author" source="Issue" target="User">
+	<db-relationship name="author" source="Issue" target="Author">
 		<db-attribute-pair source="author_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="labels" source="Issue" target="Label" toMany="true">
@@ -311,7 +336,7 @@
 	<db-relationship name="repository" source="PullRequest" target="Repository">
 		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="author" source="PullRequest" target="User">
+	<db-relationship name="author" source="PullRequest" target="Author">
 		<db-attribute-pair source="author_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="repositoryNode_PR" source="PullRequest" target="RepositoryNode" toMany="true">
@@ -353,15 +378,9 @@
 	<db-relationship name="gitHubEntity_User" source="User" target="GitHubEntity" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="author_pr" source="User" target="PullRequest" toMany="true">
-		<db-attribute-pair source="ID" target="author_id"/>
-	</db-relationship>
-	<db-relationship name="author_i" source="User" target="Issue" toMany="true">
-		<db-attribute-pair source="ID" target="author_id"/>
-	</db-relationship>
 
 	<obj-relationship name="milestone" source="Issue" target="Milestone" deleteRule="Nullify" db-relationship-path="milestone"/>
-	<obj-relationship name="author" source="Issue" target="User" deleteRule="Nullify" db-relationship-path="author"/>
+	<obj-relationship name="author" source="Issue" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
 	<obj-relationship name="labels" source="Issue" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
 	<obj-relationship name="repository" source="Issue" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<obj-relationship name="issuesList" source="Issue" target="Milestone" deleteRule="Nullify" db-relationship-path="issuesList"/>
@@ -386,7 +405,7 @@
 	<obj-relationship name="dependencyProject" source="ProjectDependency" target="Project" deleteRule="Nullify" db-relationship-path="dependency_Project"/>
 	<obj-relationship name="labels" source="PullRequest" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
 	<obj-relationship name="repository" source="PullRequest" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
-	<obj-relationship name="author" source="PullRequest" target="User" deleteRule="Nullify" db-relationship-path="author"/>
+	<obj-relationship name="author" source="PullRequest" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
 	<obj-relationship name="issues" source="Repository" target="Issue" deleteRule="Deny" db-relationship-path="issues"/>
 	<obj-relationship name="milestone" source="Repository" target="Milestone" deleteRule="Nullify" db-relationship-path="milestone"/>
 	<obj-relationship name="milestones" source="Repository" target="Milestone" deleteRule="Deny" db-relationship-path="milestones"/>
@@ -407,7 +426,7 @@
 		<usePrimitives>true</usePrimitives>
 	</dbImport>
 	<cgen xmlns="http://cayenne.apache.org/schema/10/cgen">
-		<excludeEntities>GitHubEntity,ModuleDependency,Issue,Organization,User,Milestone,PullRequest,Label,ParentRepository,RepositoryNode,Repository,Module</excludeEntities>
+		<excludeEntities>GitHubEntity,Issue,ModuleDependency,Organization,Milestone,PullRequest,Label,ParentRepository,ProjectDependency,RepositoryNode,Project,Repository,Author,Module</excludeEntities>
 		<destDir>../../java</destDir>
 		<mode>entity</mode>
 		<template>templates/v4_1/subclass.vm</template>
