@@ -17,32 +17,46 @@ public class Repository extends _Repository implements Comparable<Repository> {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu");
 
     @JsonProperty("milestones")
-    private MilestoneCollection milestoneCollection;
+    private Node<Milestone> milestoneNode;
+
+    public Node<Milestone> getMilestoneNode() {
+        return milestoneNode;
+    }
+
+    public void setMilestoneNodes(Node<Milestone> milestoneNodes) {
+        this.milestoneNode = milestoneNodes;
+    }
 
     @JsonProperty("issues")
-    private IssueCollection issueCollection;
+    private Node<Issue> issueNode;
+
+    public Node<Issue> getIssueNode() {
+        return issueNode;
+    }
+
+    public void setIssueNode(Node<Issue> issueNode) {
+        this.issueNode = issueNode;
+    }
 
     @JsonProperty("pullRequests")
-    private PullRequestCollection pullRequestCollection;
+    private Node<PullRequest> pullRequestNode;
+
+    public Node<PullRequest> getPullRequestNode() {
+        return pullRequestNode;
+    }
+
+    public void setPullRequestNode(Node<PullRequest> pullRequestNode) {
+        this.pullRequestNode = pullRequestNode;
+    }
 
     @JsonIgnore
     public int getPrCount() {
-        if (pullRequestCollection == null) {
-            return getPullRequests().size();
-        }
-        return pullRequestCollection.getTotalCount();
+        return super.getPullRequests().size();
     }
 
     @JsonIgnore
     public int getIssuesCount() {
-        if (issueCollection == null) {
-            return getIssues().size();
-        }
-        return this.issueCollection.getTotalCount();
-    }
-
-    public MilestoneCollection getMilestoneCollection() {
-        return milestoneCollection;
+        return super.getIssues().size();
     }
 
     public void addMilestone(Milestone milestone) {
@@ -77,14 +91,6 @@ public class Repository extends _Repository implements Comparable<Repository> {
                 milestone.setTitle(newTitle);
             }
         });
-    }
-
-    public IssueCollection getIssueCollection() {
-        return issueCollection;
-    }
-
-    public PullRequestCollection getPullRequestCollection() {
-        return pullRequestCollection;
     }
 
     @JsonIgnore

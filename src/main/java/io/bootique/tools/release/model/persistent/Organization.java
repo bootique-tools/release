@@ -9,14 +9,14 @@ public class Organization extends _Organization {
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("repositories")
-    private RepositoryCollection repositoryCollection;
+    private Node<Repository> repositoryNode;
 
-    public RepositoryCollection getRepositoryCollection() {
-        return repositoryCollection;
+    public Node<Repository> getRepositoryNode() {
+        return repositoryNode;
     }
 
-    public void setRepositoryCollection(RepositoryCollection repositoryCollection) {
-        this.repositoryCollection = repositoryCollection;
+    public void setRepositoryNode(Node<Repository> repositoryNode) {
+        this.repositoryNode = repositoryNode;
     }
 
     @JsonIgnore
@@ -40,11 +40,6 @@ public class Organization extends _Organization {
             total += repository.getPullRequests().size();
         }
         return total;
-    }
-
-    @JsonIgnore
-    public void linkRepositories() {
-        repositoryCollection.getRepositories().forEach(repo -> repo.setOrganization(this));
     }
 
     @Override

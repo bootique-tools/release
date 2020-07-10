@@ -42,7 +42,7 @@ import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApiImport;
 import io.bootique.tools.release.service.github.GitHubRestAPI;
 import io.bootique.tools.release.service.github.GitHubRestV3API;
-import io.bootique.tools.release.service.github.GraphQLGitHubApiImportInvalidateCache;
+import io.bootique.tools.release.service.github.GraphQLGitHubApiImport;
 import io.bootique.tools.release.service.graphql.GraphQLService;
 import io.bootique.tools.release.service.graphql.SimpleGraphQLService;
 import io.bootique.tools.release.service.job.BatchJobService;
@@ -180,7 +180,7 @@ public class Application implements BQModule  {
     @Provides
     @Singleton
     GitHubApiImport provideGitGubApiInvalidateCache(GraphQLService graphQLService, PreferenceService preferenceService) {
-        return new GraphQLGitHubApiImportInvalidateCache(graphQLService, preferenceService);
+        return new GraphQLGitHubApiImport(graphQLService, preferenceService);
     }
 
 }

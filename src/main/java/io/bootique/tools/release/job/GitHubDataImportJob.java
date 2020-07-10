@@ -82,7 +82,7 @@ public class GitHubDataImportJob extends BaseJob {
 
         authorMap = new HashMap<>();
         if (organization.getObjectId().getIdSnapshot().get("ID") == null) {
-            for (Repository repository : organization.getRepositoryCollection().getRepositories()) {
+            for (Repository repository : organization.getRepositories()) {
                 if (preferenceService.have(GitService.BASE_PATH_PREFERENCE)) {
                     repository.setLocalStatus(gitService.status(repository));
                 }
@@ -102,22 +102,21 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     private void getRepositories(ObjectContext context, Organization organization) {
-        RepositoryCollection repositoryCollection = gitHubApiImport.getCurrentRepositoryCollection(organization);
+        List<Repository> repositories = gitHubApiImport.getCurrentRepositoryCollection(organization);
 
-        for (Repository repository : repositoryCollection.getRepositories()) {
+        for (Repository repository : repositories) {
             if (repository.getParent() != null) {
                 context.registerNewObject(repository.getParent());
             }
             context.registerNewObject(repository);
+            organization.addToRepositories(repository);
         }
-        organization.setRepositoryCollection(repositoryCollection);
-        organization.linkRepositories();
     }
 
     private void getIssues(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
-        IssueCollection issueCollection = gitHubApiImport.getIssueCollection(repository);
+        List<Issue> issues = gitHubApiImport.getIssueCollection(repository);
 
-        for (Issue issue : issueCollection.getIssues()) {
+        for (Issue issue : issues) {
             if (issue.getMilestone() != null) {
                 if (milestoneMap.containsKey(issue.getMilestone().getGithubId())) {
                     issue.setMilestone(milestoneMap.get(issue.getMilestone().getGithubId()));
@@ -131,12 +130,9 @@ public class GitHubDataImportJob extends BaseJob {
                 context.registerNewObject(issue.getAuthor());
                 authorMap.put(issue.getAuthor().getGithubId(), issue.getAuthor());
             }
-            LabelCollection labels = new LabelCollection();
             for (Label label : issue.getLabels()) {
                 context.registerNewObject(label);
-                labels.getLabels().add(label);
             }
-            issue.setLabels(labels);
             issue.setRepository(repository);
             repository.addToIssues(issue);
             context.registerNewObject(issue);
@@ -144,9 +140,9 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     private void getMilestones(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
-        MilestoneCollection milestoneCollection = gitHubApiImport.getMilestoneCollection(repository);
+        List<Milestone> milestones = gitHubApiImport.getMilestoneCollection(repository);
 
-        for (Milestone milestone : milestoneCollection.getMilestones()) {
+        for (Milestone milestone : milestones) {
             milestone.setRepository(repository);
             if (milestone.getIssues() != null || milestone.getIssues().size() > 0) {
                 for (Issue issue : milestone.getIssues()) {
@@ -160,13 +156,11 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     private void getPRs(ObjectContext context, Repository repository) {
-        PullRequestCollection pullRequestCollection = gitHubApiImport.getPullRequestCollection(repository);
+        List<PullRequest> pullRequests = gitHubApiImport.getPullRequestCollection(repository);
 
-        for (PullRequest pullRequest : pullRequestCollection.getPullRequests()) {
-            LabelCollection labels = new LabelCollection();
+        for (PullRequest pullRequest : pullRequests) {
             for (Label label : pullRequest.getLabels()) {
                 context.registerNewObject(label);
-                labels.getLabels().add(label);
             }
             if (authorMap.containsKey(pullRequest.getAuthor().getGithubId())) {
                 pullRequest.setAuthor(authorMap.get(pullRequest.getAuthor().getGithubId()));
@@ -174,7 +168,6 @@ public class GitHubDataImportJob extends BaseJob {
                 context.registerNewObject(pullRequest.getAuthor());
                 authorMap.put(pullRequest.getAuthor().getGithubId(), pullRequest.getAuthor());
             }
-            pullRequest.setLabels(labels);
             pullRequest.setRepository(repository);
             repository.addToPullRequests(pullRequest);
             context.registerNewObject(pullRequest);

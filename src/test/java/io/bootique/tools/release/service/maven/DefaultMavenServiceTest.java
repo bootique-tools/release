@@ -235,11 +235,6 @@ class DefaultMavenServiceTest {
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);
 
         Organization organization = gitHubApi.getCurrentOrganization();
-        for (Repository repository : organization.getRepositoryCollection().getRepositories()) {
-            context.registerNewObject(repository);
-            organization.addToRepositories(repository);
-        }
-        context.registerNewObject(organization);
 
         List<Project> projects = service.getProjects(organization, p -> true);
         assertEquals(3, projects.size());

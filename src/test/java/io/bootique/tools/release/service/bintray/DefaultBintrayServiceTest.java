@@ -181,9 +181,9 @@ class DefaultBintrayServiceTest {
         Organization organization = objectMapper.treeToValue(jsonNode.get("data").get("organization"), Organization.class);
 
         assertEquals(organization.getName(), "dummy-org-00");
-        assertEquals(organization.getRepositoryCollection().getRepositories().size(), 1);
-        assertEquals(organization.getRepositoryCollection().getRepositories().get(0).getName(), "dummy-api");
-        assertEquals(organization.getRepositoryCollection().getRepositories().get(0).getMilestoneCollection().getTotalCount(), 4);
-        assertEquals(organization.getRepositoryCollection().getRepositories().get(0).getIssueCollection().getTotalCount(), 2);
+        assertEquals(organization.getRepositoryNode().getNodes().size(), 1);
+        assertEquals(organization.getRepositoryNode().getNodes().get(0).getName(), "dummy-api");
+        assertEquals(organization.getRepositoryNode().getNodes().get(0).getMilestoneNode().getTotalCount(), 4);
+        assertEquals(organization.getRepositoryNode().getNodes().get(0).getIssueNode().getTotalCount(), 2);
     }
 }

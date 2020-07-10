@@ -7,6 +7,20 @@ public class PullRequest extends _PullRequest {
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty("labels")
+    private Node<Label> labelNode;
+
+    public Node<Label> getLabelNode() {
+        return labelNode;
+    }
+
+    public void setLabelNode(Node<Label> labelNode) {
+        if (labelNode.getNodes() != null) {
+            super.labels = labelNode.getNodes();
+        }
+        this.labelNode = labelNode;
+    }
+
     public void setRepository(Repository repository) {
         this.repository = repository;
         this.repoName = repository.getName();
@@ -18,10 +32,6 @@ public class PullRequest extends _PullRequest {
 
     public void setAuthor(Author author) {
         this.author = author;
-    }
-
-    public void setLabels(LabelCollection labels) {
-        this.labels = labels.getLabels();
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "parent")

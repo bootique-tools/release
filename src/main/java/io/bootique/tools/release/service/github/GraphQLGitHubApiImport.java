@@ -12,7 +12,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GraphQLGitHubApiImportInvalidateCache implements GitHubApiImport {
+public class GraphQLGitHubApiImport implements GitHubApiImport {
 
     private static final URI GIT_HUB_API_URI = URI.create("https://api.github.com/graphql");
 
@@ -22,7 +22,7 @@ public class GraphQLGitHubApiImportInvalidateCache implements GitHubApiImport {
 
     private final Map<String, String> queries = new ConcurrentHashMap<>();
 
-    public GraphQLGitHubApiImportInvalidateCache(GraphQLService graphQLService, PreferenceService preferences) {
+    public GraphQLGitHubApiImport(GraphQLService graphQLService, PreferenceService preferences) {
         this.graphQLService = graphQLService;
         this.preferences = preferences;
     }
@@ -57,70 +57,68 @@ public class GraphQLGitHubApiImportInvalidateCache implements GitHubApiImport {
     }
 
     @Override
-    public RepositoryCollection getCurrentRepositoryCollection(Organization organization) {
+    public List<Repository> getCurrentRepositoryCollection(Organization organization) {
 
         OrganizationContainer organizationContainer = loadQuery("repositories",
                 Map.of("name", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
-                        , "totalCount", organization.getRepositoryCollection().getTotalCount()),
+                        , "totalCount", organization.getRepositoryNode().getTotalCount()),
                 OrganizationContainer.class);
 
         if (organizationContainer == null) {
             return null;
         }
 
-        RepositoryCollection repositoryCollection = organizationContainer.getOrganization().getRepositoryCollection();
-
-        return repositoryCollection;
+        return organizationContainer.getOrganization().getRepositoryNode().getNodes();
     }
 
     @Override
-    public MilestoneCollection getMilestoneCollection(Repository repository) {
+    public List<Milestone> getMilestoneCollection(Repository repository) {
 
         RepositoryContainer repositoryContainer = loadQuery("milestones",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
-                        , "totalCount", repository.getMilestoneCollection().getTotalCount()),
+                        , "totalCount", repository.getMilestoneNode().getTotalCount()),
                 RepositoryContainer.class);
         if (repositoryContainer == null) {
             return null;
         }
 
-        return repositoryContainer.getRepository().getMilestoneCollection();
+        return repositoryContainer.getRepository().getMilestoneNode().getNodes();
     }
 
     @Override
-    public IssueCollection getIssueCollection(Repository repository) {
+    public List<Issue> getIssueCollection(Repository repository) {
 
         RepositoryContainer repositoryContainer = loadQuery("issues",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
-                        , "totalCount", repository.getIssueCollection().getTotalCount()),
+                        , "totalCount", repository.getIssueNode().getTotalCount()),
                 RepositoryContainer.class);
         if (repositoryContainer == null) {
             return null;
         }
 
-        return repositoryContainer.getRepository().getIssueCollection();
+        return repositoryContainer.getRepository().getIssueNode().getNodes();
     }
 
     @Override
-    public PullRequestCollection getPullRequestCollection(Repository repository) {
+    public List<PullRequest> getPullRequestCollection(Repository repository) {
 
         RepositoryContainer repositoryContainer = loadQuery("pr",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
-                        , "totalCount", repository.getPullRequestCollection().getTotalCount()),
+                        , "totalCount", repository.getPullRequestNode().getTotalCount()),
                 RepositoryContainer.class);
         if (repositoryContainer == null) {
             return null;
         }
 
-        return repositoryContainer.getRepository().getPullRequestCollection();
+        return repositoryContainer.getRepository().getPullRequestNode().getNodes();
     }
 
     private String getQuery(String query) {
         return queries.computeIfAbsent(query, q -> {
-            try (InputStream stream = GraphQLGitHubApiImportInvalidateCache.class.getResourceAsStream(q + ".query")) {
+            try (InputStream stream = GraphQLGitHubApiImport.class.getResourceAsStream(q + ".query")) {
                 if (stream == null) {
                     throw new RuntimeException("Query not found: " + q);
                 }

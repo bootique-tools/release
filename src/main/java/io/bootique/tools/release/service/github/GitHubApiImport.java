@@ -4,6 +4,8 @@ import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.service.preferences.Preference;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
+import java.util.List;
+
 public interface GitHubApiImport {
 
     Preference<String> ORGANIZATION_PREFERENCE = Preference.of("github.organization", String.class);
@@ -16,11 +18,11 @@ public interface GitHubApiImport {
 
     Organization getCurrentOrganization();
 
-    RepositoryCollection getCurrentRepositoryCollection(Organization organization);
+    List<Repository> getCurrentRepositoryCollection(Organization organization);
 
-    MilestoneCollection getMilestoneCollection(Repository repo);
+    List<Milestone> getMilestoneCollection(Repository repo);
 
-    IssueCollection getIssueCollection(Repository repo);
+    List<Issue> getIssueCollection(Repository repo);
 
-    PullRequestCollection getPullRequestCollection(Repository repo);
+    List<PullRequest> getPullRequestCollection(Repository repo);
 }
