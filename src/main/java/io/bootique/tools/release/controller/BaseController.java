@@ -12,6 +12,7 @@ import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -38,13 +39,14 @@ abstract class BaseController {
     Configuration configuration;
 
     List<Project> getSelectedProjects(String selectedProjects) throws IOException {
-        List selectedProjectsId = objectMapper.readValue(selectedProjects, List.class);
+        List selectedProjectsName = objectMapper.readValue(selectedProjects, List.class);
         AgRequest agRequest = Ag.request(configuration).build();
 
         DataResponse<Project> projects = Ag.select(Project.class, configuration).request(agRequest).get();
 
-        return projects.getObjects().stream().filter(project ->
-                selectedProjectsId.contains(project.getRepository().getName())).collect(Collectors.toList());
+        List<Project> projectList = projects.getObjects().stream().filter(project ->
+                selectedProjectsName.contains(project.getRepository().getName())).collect(Collectors.toList());
+        return sortProjects(selectedProjectsName, projectList);
     }
 
     List<Project> getAllProjects() {
@@ -99,9 +101,25 @@ abstract class BaseController {
         } else {
             List<Project> projects = projectDataResponse.getObjects().stream().filter(predicate)
                     .collect(Collectors.toList());
+
+            projects = mavenService.sortMavenProject(projects);
+
             projectDataResponse.setObjects(projects);
         }
 
         return projectDataResponse;
+    }
+
+    private List<Project> sortProjects(List<String> selectedProjectsName, List<Project> selectedProjects) {
+        List<Project> sortedProjects = new ArrayList<>();
+
+        for(String projectName : selectedProjectsName) {
+            sortedProjects.add(
+                    selectedProjects.stream().filter(
+                            project -> projectName.equals(project.getRepository().getName()))
+                            .findFirst().orElseThrow());
+        }
+
+        return sortedProjects;
     }
 }

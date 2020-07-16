@@ -156,7 +156,7 @@ public class StatusController extends BaseController {
         for (BatchJobResult jobResult : jobResults) {
             if (jobResult.getData() instanceof Project) {
                 jobResultsDTO.add(
-                        new BatchJobResult(jobResult.getStatus(), ProjectDTO.fromModel((Project) jobResult.getData()), jobResult.getResult()));
+                        new BatchJobResult(jobResult.getStatus(), ProjectDTO.fromModel((Project) jobResult.getData(), true), jobResult.getResult()));
             } else if (jobResult.getData() instanceof Repository) {
                 jobResultsDTO.add(
                         new BatchJobResult(jobResult.getStatus(),

@@ -17,7 +17,7 @@
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="Issue">
+	<db-entity name="IssueOpen">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="author_id" type="INTEGER" length="10"/>
 		<db-attribute name="commentsCount" type="INTEGER" length="10"/>
@@ -27,6 +27,15 @@
 		<db-attribute name="milestone_id" type="INTEGER" length="10"/>
 		<db-attribute name="number" type="INTEGER" length="10"/>
 		<db-attribute name="repoName" type="VARCHAR" length="255"/>
+		<db-attribute name="repository_id" type="INTEGER" length="10"/>
+		<db-attribute name="title" type="VARCHAR" length="255"/>
+		<db-attribute name="url" type="VARCHAR" length="255"/>
+	</db-entity>
+	<db-entity name="IssueClose">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
+		<db-attribute name="milestone_id" type="INTEGER" length="10"/>
+		<db-attribute name="number" type="INTEGER" length="10"/>
 		<db-attribute name="repository_id" type="INTEGER" length="10"/>
 		<db-attribute name="title" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
@@ -138,7 +147,6 @@
 		<db-attribute name="type" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-
 	<obj-entity name="Author" superEntityName="GitHubEntity" className="io.bootique.tools.release.model.persistent.Author" dbEntityName="Author">
 		<obj-attribute name="login" type="java.lang.String" db-attribute-path="login"/>
 		<obj-attribute name="name" type="java.lang.String" db-attribute-path="name"/>
@@ -148,7 +156,8 @@
 		<obj-attribute name="githubId" type="java.lang.String" db-attribute-path="github_id"/>
 		<obj-attribute name="url" type="java.lang.String" db-attribute-path="url"/>
 	</obj-entity>
-	<obj-entity name="Issue" superEntityName="RepositoryNode" className="io.bootique.tools.release.model.persistent.Issue" dbEntityName="Issue"/>
+	<obj-entity name="IssueOpen" superEntityName="RepositoryNode" className="io.bootique.tools.release.model.persistent.IssueOpen" dbEntityName="IssueOpen"/>
+	<obj-entity name="IssueClose" superEntityName="RepositoryNode" className="io.bootique.tools.release.model.persistent.IssueClose" dbEntityName="IssueClose"/>
 	<obj-entity name="Label" superEntityName="GitHubEntity" className="io.bootique.tools.release.model.persistent.Label" dbEntityName="Label">
 		<obj-attribute name="color" type="java.lang.String" db-attribute-path="color"/>
 		<obj-attribute name="name" type="java.lang.String" db-attribute-path="name"/>
@@ -209,14 +218,13 @@
 		<obj-attribute name="name" type="java.lang.String" db-attribute-path="name"/>
 		<obj-attribute name="type" type="java.lang.String" db-attribute-path="type"/>
 	</obj-entity>
-
 	<db-relationship name="gitHubEntity_Author" source="Author" target="GitHubEntity" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="author_pr" source="Author" target="PullRequest" toMany="true">
 		<db-attribute-pair source="ID" target="author_id"/>
 	</db-relationship>
-	<db-relationship name="author_i" source="Author" target="Issue" toMany="true">
+	<db-relationship name="author_i" source="Author" target="IssueOpen" toMany="true">
 		<db-attribute-pair source="ID" target="author_id"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Author" source="GitHubEntity" target="Author" toDependentPK="true">
@@ -240,23 +248,32 @@
 	<db-relationship name="gitHubEntity_User" source="GitHubEntity" target="User" toDependentPK="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="repositoryNode_Issue" source="Issue" target="RepositoryNode" toMany="true">
+	<db-relationship name="repositoryNode_IssueOpen" source="IssueOpen" target="RepositoryNode" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="author" source="Issue" target="Author">
+	<db-relationship name="author" source="IssueOpen" target="Author">
 		<db-attribute-pair source="author_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="labels" source="Issue" target="Label" toMany="true">
+	<db-relationship name="labels" source="IssueOpen" target="Label" toMany="true">
 		<db-attribute-pair source="ID" target="issue_id"/>
 	</db-relationship>
-	<db-relationship name="repository" source="Issue" target="Repository">
+	<db-relationship name="repository" source="IssueOpen" target="Repository">
 		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="milestone" source="Issue" target="Milestone">
+	<db-relationship name="milestone" source="IssueOpen" target="Milestone">
 		<db-attribute-pair source="milestone_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="issuesList" source="Issue" target="Milestone" toMany="true">
+	<db-relationship name="issuesList" source="IssueOpen" target="Milestone" toMany="true">
 		<db-attribute-pair source="milestone_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="repositoryNode_IssueClose" source="IssueClose" target="RepositoryNode" toMany="true">
+		<db-attribute-pair source="ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="milestone" source="IssueClose" target="Milestone">
+		<db-attribute-pair source="milestone_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="repository" source="IssueClose" target="Repository">
+		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Label" source="Label" target="GitHubEntity" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
@@ -264,23 +281,26 @@
 	<db-relationship name="labels_pr" source="Label" target="PullRequest">
 		<db-attribute-pair source="pullRequest_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="labels_i" source="Label" target="Issue">
+	<db-relationship name="labels_i" source="Label" target="IssueOpen">
 		<db-attribute-pair source="issue_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="gitHubEntity_Milestone" source="Milestone" target="GitHubEntity" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="issues" source="Milestone" target="Issue" toMany="true">
+	<db-relationship name="issues" source="Milestone" target="IssueOpen" toMany="true">
 		<db-attribute-pair source="ID" target="milestone_id"/>
 	</db-relationship>
 	<db-relationship name="repository" source="Milestone" target="Repository">
 		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="issuesList" source="Milestone" target="Issue">
+	<db-relationship name="issuesList" source="Milestone" target="IssueOpen">
 		<db-attribute-pair source="ID" target="milestone_id"/>
 	</db-relationship>
 	<db-relationship name="milestone" source="Milestone" target="Repository" toMany="true">
 		<db-attribute-pair source="repository_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="issuesClose" source="Milestone" target="IssueClose" toMany="true">
+		<db-attribute-pair source="ID" target="milestone_id"/>
 	</db-relationship>
 	<db-relationship name="dependencies" source="Module" target="ModuleDependency" toMany="true">
 		<db-attribute-pair source="ID" target="rootModule_id"/>
@@ -351,7 +371,7 @@
 	<db-relationship name="milestones" source="Repository" target="Milestone" toMany="true">
 		<db-attribute-pair source="ID" target="repository_id"/>
 	</db-relationship>
-	<db-relationship name="issues" source="Repository" target="Issue" toMany="true">
+	<db-relationship name="issues" source="Repository" target="IssueOpen" toMany="true">
 		<db-attribute-pair source="ID" target="repository_id"/>
 	</db-relationship>
 	<db-relationship name="pullRequests" source="Repository" target="PullRequest" toMany="true">
@@ -366,10 +386,16 @@
 	<db-relationship name="parent" source="Repository" target="ParentRepository">
 		<db-attribute-pair source="parent_id" target="ID"/>
 	</db-relationship>
+	<db-relationship name="issuesClose" source="Repository" target="IssueClose" toMany="true">
+		<db-attribute-pair source="ID" target="repository_id"/>
+	</db-relationship>
 	<db-relationship name="gitHubEntity_RepositoryNode" source="RepositoryNode" target="GitHubEntity" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="repositoryNode_Issue" source="RepositoryNode" target="Issue" toDependentPK="true">
+	<db-relationship name="repositoryNode_IssueOpen" source="RepositoryNode" target="IssueOpen" toDependentPK="true">
+		<db-attribute-pair source="ID" target="ID"/>
+	</db-relationship>
+	<db-relationship name="repositoryNode_IssueClose" source="RepositoryNode" target="IssueClose" toDependentPK="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
 	<db-relationship name="repositoryNode_PR" source="RepositoryNode" target="PullRequest" toDependentPK="true">
@@ -378,40 +404,43 @@
 	<db-relationship name="gitHubEntity_User" source="User" target="GitHubEntity" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
-
-	<obj-relationship name="milestone" source="Issue" target="Milestone" deleteRule="Nullify" db-relationship-path="milestone"/>
-	<obj-relationship name="author" source="Issue" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
-	<obj-relationship name="labels" source="Issue" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
-	<obj-relationship name="repository" source="Issue" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
-	<obj-relationship name="issuesList" source="Issue" target="Milestone" deleteRule="Nullify" db-relationship-path="issuesList"/>
-	<obj-relationship name="issuesList" source="Milestone" target="Issue" deleteRule="Deny" db-relationship-path="issuesList"/>
+	<obj-relationship name="milestone" source="IssueOpen" target="Milestone" deleteRule="Nullify" db-relationship-path="milestone"/>
+	<obj-relationship name="author" source="IssueOpen" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
+	<obj-relationship name="labels" source="IssueOpen" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
+	<obj-relationship name="repository" source="IssueOpen" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
+	<obj-relationship name="issuesList" source="IssueOpen" target="Milestone" deleteRule="Nullify" db-relationship-path="issuesList"/>
+	<obj-relationship name="milestone" source="IssueClose" target="Milestone" deleteRule="Nullify" db-relationship-path="milestone"/>
+	<obj-relationship name="issues" source="Milestone" target="IssueOpen" deleteRule="Deny" db-relationship-path="issues"/>
+	<obj-relationship name="issuesClose" source="Milestone" target="IssueClose" deleteRule="Deny" db-relationship-path="issuesClose"/>
+	<obj-relationship name="issuesList" source="Milestone" target="IssueOpen" deleteRule="Deny" db-relationship-path="issuesList"/>
 	<obj-relationship name="milestone" source="Milestone" target="Repository" deleteRule="Deny" db-relationship-path="milestone"/>
 	<obj-relationship name="repository" source="Milestone" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
-	<obj-relationship name="issues" source="Milestone" target="Issue" deleteRule="Deny" db-relationship-path="issues"/>
-	<obj-relationship name="dependencies" source="Module" target="ModuleDependency" deleteRule="Deny" db-relationship-path="dependencies"/>
-	<obj-relationship name="module" source="Module" target="ModuleDependency" deleteRule="Deny" db-relationship-path="module"/>
+	<obj-relationship name="dependencies" source="Module" target="ModuleDependency" deleteRule="Cascade" db-relationship-path="dependencies"/>
+	<obj-relationship name="module" source="Module" target="ModuleDependency" deleteRule="Cascade" db-relationship-path="module"/>
 	<obj-relationship name="project" source="Module" target="Project" deleteRule="Nullify" db-relationship-path="project"/>
 	<obj-relationship name="rootModule" source="Module" target="Project" deleteRule="Nullify" db-relationship-path="rootModule"/>
 	<obj-relationship name="module" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="module"/>
 	<obj-relationship name="rootModule" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
 	<obj-relationship name="repositories" source="Organization" target="Repository" deleteRule="Cascade" db-relationship-path="repositories"/>
 	<obj-relationship name="parent" source="ParentRepository" target="Repository" deleteRule="Deny" db-relationship-path="parent"/>
-	<obj-relationship name="dependencies" source="Project" target="ProjectDependency" deleteRule="Deny" db-relationship-path="dependencies"/>
-	<obj-relationship name="dependencyProject" source="Project" target="ProjectDependency" deleteRule="Deny" db-relationship-path="dependency_Project"/>
-	<obj-relationship name="modules" source="Project" target="Module" deleteRule="Deny" db-relationship-path="modules"/>
+	<obj-relationship name="dependencies" source="Project" target="ProjectDependency" deleteRule="Cascade" db-relationship-path="dependencies"/>
+	<obj-relationship name="dependencyProject" source="Project" target="ProjectDependency" deleteRule="Cascade" db-relationship-path="dependency_Project"/>
+	<obj-relationship name="modules" source="Project" target="Module" deleteRule="Cascade" db-relationship-path="modules"/>
 	<obj-relationship name="repository" source="Project" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
-	<obj-relationship name="rootModule" source="Project" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
+	<obj-relationship name="rootModule" source="Project" target="Module" deleteRule="Cascade" db-relationship-path="rootModule"/>
 	<obj-relationship name="dependencies" source="ProjectDependency" target="Project" deleteRule="Nullify" db-relationship-path="dependencies"/>
 	<obj-relationship name="dependencyProject" source="ProjectDependency" target="Project" deleteRule="Nullify" db-relationship-path="dependency_Project"/>
 	<obj-relationship name="labels" source="PullRequest" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
 	<obj-relationship name="repository" source="PullRequest" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<obj-relationship name="author" source="PullRequest" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
-	<obj-relationship name="issues" source="Repository" target="Issue" deleteRule="Deny" db-relationship-path="issues"/>
+	<obj-relationship name="issues" source="Repository" target="IssueOpen" deleteRule="Deny" db-relationship-path="issues"/>
 	<obj-relationship name="milestone" source="Repository" target="Milestone" deleteRule="Nullify" db-relationship-path="milestone"/>
 	<obj-relationship name="milestones" source="Repository" target="Milestone" deleteRule="Deny" db-relationship-path="milestones"/>
 	<obj-relationship name="organization" source="Repository" target="Organization" deleteRule="Nullify" db-relationship-path="organization"/>
 	<obj-relationship name="parent" source="Repository" target="ParentRepository" deleteRule="Nullify" db-relationship-path="parent"/>
 	<obj-relationship name="pullRequests" source="Repository" target="PullRequest" deleteRule="Deny" db-relationship-path="pullRequests"/>
+	<obj-relationship name="issuesClose" source="Repository" target="IssueClose" deleteRule="Deny" db-relationship-path="issuesClose"/>
+	<obj-relationship name="repository" source="IssueClose" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<dbImport xmlns="http://cayenne.apache.org/schema/10/dbimport">
 		<tableTypes>
 			<tableType>TABLE</tableType>
@@ -426,7 +455,7 @@
 		<usePrimitives>true</usePrimitives>
 	</dbImport>
 	<cgen xmlns="http://cayenne.apache.org/schema/10/cgen">
-		<excludeEntities>GitHubEntity,Issue,ModuleDependency,Organization,Milestone,PullRequest,Label,ParentRepository,ProjectDependency,RepositoryNode,Project,Repository,Author,Module</excludeEntities>
+		<excludeEntities>GitHubEntity,IssueOpen,ModuleDependency,Organization,User,PullRequest,Label,ParentRepository,ProjectDependency,RepositoryNode,Project,Repository,IssueClose,Author,Module</excludeEntities>
 		<destDir>../../java</destDir>
 		<mode>entity</mode>
 		<template>templates/v4_1/subclass.vm</template>

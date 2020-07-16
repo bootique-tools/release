@@ -22,7 +22,9 @@ public interface GitHubApiImport {
 
     List<Milestone> getMilestoneCollection(Repository repo);
 
-    List<Issue> getIssueCollection(Repository repo);
+    List<IssueOpen> getIssueCollection(Repository repo);
+
+    List<IssueClose> getClosedIssueCollection(Repository repository);
 
     List<PullRequest> getPullRequestCollection(Repository repo);
 }

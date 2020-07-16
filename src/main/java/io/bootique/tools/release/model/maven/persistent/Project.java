@@ -17,6 +17,11 @@ public class Project extends _Project implements Comparable<Project> {
         super();
     }
 
+    public Project(String name) {
+        super();
+        this.repository = new Repository(name);
+    }
+
     public Project(Repository repository, Path path, Module rootModule) {
         super();
         this.repository = Objects.requireNonNull(repository);
@@ -32,6 +37,9 @@ public class Project extends _Project implements Comparable<Project> {
     }
 
     public Path getPath() {
+        if (path == null) {
+            path = Path.of(getPathStr());
+        }
         return path;
     }
 
@@ -85,7 +93,7 @@ public class Project extends _Project implements Comparable<Project> {
         if (o == null || getClass() != o.getClass()) return false;
 
         Project project = (Project) o;
-        return repository.equals(project.repository);
+        return getRepository().equals(project.getRepository());
     }
 
     @JsonIgnore
@@ -95,7 +103,7 @@ public class Project extends _Project implements Comparable<Project> {
 
     @Override
     public int hashCode() {
-        return repository.hashCode();
+        return getRepository().hashCode();
     }
 
     @Override

@@ -1,9 +1,9 @@
 package io.bootique.tools.release.model.persistent;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.bootique.tools.release.model.persistent.auto._Issue;
+import io.bootique.tools.release.model.persistent.auto._IssueOpen;
 
-public class Issue extends _Issue {
+public class IssueOpen extends _IssueOpen {
 
     private static final long serialVersionUID = 1L;
 

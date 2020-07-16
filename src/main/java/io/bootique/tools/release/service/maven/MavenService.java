@@ -23,4 +23,6 @@ public interface MavenService {
     Module resolveModule(Path path);
 
     List<Project> getProjects(Organization organization, Predicate<Project> predicate);
+
+    List<Project> sortMavenProject(List<Project> projects);
 }

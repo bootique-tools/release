@@ -11,7 +11,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.exp.Property;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
-import io.bootique.tools.release.model.persistent.Issue;
+import io.bootique.tools.release.model.persistent.IssueOpen;
+import io.bootique.tools.release.model.persistent.IssueClose;
 import io.bootique.tools.release.model.persistent.Milestone;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.ParentRepository;
@@ -36,7 +37,8 @@ public abstract class _Repository extends GitHubEntity {
     public static final Property<String> PUSHED_AT_STR = Property.create("pushedAtStr", String.class);
     public static final Property<String> SSH_URL = Property.create("sshUrl", String.class);
     public static final Property<LocalDateTime> UPDATED_AT = Property.create("updatedAt", LocalDateTime.class);
-    public static final Property<List<Issue>> ISSUES = Property.create("issues", List.class);
+    public static final Property<List<IssueOpen>> ISSUES = Property.create("issues", List.class);
+    public static final Property<List<IssueClose>> ISSUES_CLOSE = Property.create("issuesClose", List.class);
     public static final Property<Milestone> MILESTONE = Property.create("milestone", Milestone.class);
     public static final Property<List<Milestone>> MILESTONES = Property.create("milestones", List.class);
     public static final Property<Organization> ORGANIZATION = Property.create("organization", Organization.class);
@@ -65,6 +67,7 @@ public abstract class _Repository extends GitHubEntity {
     protected Object parent;
     @JsonProperty("pullRequests")
     protected Object pullRequests;
+    protected Object issuesClose;
 
     public void setDescription(String description) {
         beforePropertyWrite("description", this.description, description);
@@ -136,17 +139,30 @@ public abstract class _Repository extends GitHubEntity {
         return this.updatedAt;
     }
 
-    public void addToIssues(Issue obj) {
+    public void addToIssues(IssueOpen obj) {
         addToManyTarget("issues", obj, true);
     }
 
-    public void removeFromIssues(Issue obj) {
+    public void removeFromIssues(IssueOpen obj) {
         removeToManyTarget("issues", obj, true);
     }
 
     @SuppressWarnings("unchecked")
-    public List<Issue> getIssues() {
-        return (List<Issue>)readProperty("issues");
+    public List<IssueOpen> getIssues() {
+        return (List<IssueOpen>)readProperty("issues");
+    }
+
+    public void addToIssuesClose(IssueClose obj) {
+        addToManyTarget("issuesClose", obj, true);
+    }
+
+    public void removeFromIssuesClose(IssueClose obj) {
+        removeToManyTarget("issuesClose", obj, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<IssueClose> getIssuesClose() {
+        return (List<IssueClose>)readProperty("issuesClose");
     }
 
     public void setMilestone(Milestone milestone) {
@@ -222,6 +238,8 @@ public abstract class _Repository extends GitHubEntity {
                 return this.updatedAt;
             case "issues":
                 return this.issues;
+            case "issuesClose":
+                return this.issuesClose;
             case "milestone":
                 return this.milestone;
             case "milestones":
@@ -268,6 +286,9 @@ public abstract class _Repository extends GitHubEntity {
             case "issues":
                 this.issues = val;
                 break;
+            case "issuesClose":
+                this.issuesClose = val;
+                break;
             case "milestone":
                 this.milestone = val;
                 break;
@@ -307,6 +328,7 @@ public abstract class _Repository extends GitHubEntity {
         out.writeObject(this.sshUrl);
         out.writeObject(this.updatedAt);
         out.writeObject(this.issues);
+        out.writeObject(this.issuesClose);
         out.writeObject(this.milestone);
         out.writeObject(this.milestones);
         out.writeObject(this.organization);
@@ -325,6 +347,7 @@ public abstract class _Repository extends GitHubEntity {
         this.sshUrl = (String)in.readObject();
         this.updatedAt = (LocalDateTime)in.readObject();
         this.issues = in.readObject();
+        this.issuesClose = in.readObject();
         this.milestone = in.readObject();
         this.milestones = in.readObject();
         this.organization = in.readObject();

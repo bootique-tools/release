@@ -37,4 +37,8 @@ public class MockMavenService implements MavenService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Project> sortMavenProject(List<Project> projects) {
+        return null;
+    }
 }

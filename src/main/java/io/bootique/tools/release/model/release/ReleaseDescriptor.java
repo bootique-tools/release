@@ -55,7 +55,6 @@ public class ReleaseDescriptor {
     }
 
     public ReleaseStage getCurrentReleaseStage() {
-
         return currentReleaseStage;
     }
 

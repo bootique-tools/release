@@ -21,16 +21,24 @@ public class ModuleDTO {
     @JsonProperty("dependencies")
     private List<DependencyDTO> dependencies;
 
+    private Boolean totally;
+
     public ModuleDTO() {
         dependencies = new ArrayList<>();
+    }
+
+    public void setTotally(Boolean totally) {
+        this.totally = totally;
     }
 
     private void init(Module module) {
         this.group = module.getGroupStr();
         this.githubId = module.getGithubId();
         this.version = module.getVersion();
-        for (ModuleDependency dependency : module.getDependencies()) {
-            dependencies.add(DependencyDTO.fromModel(dependency));
+        if (this.totally) {
+            for (ModuleDependency dependency : module.getDependencies()) {
+                dependencies.add(DependencyDTO.fromModel(dependency));
+            }
         }
     }
 
@@ -45,8 +53,9 @@ public class ModuleDTO {
         module.addDependenciesWithoutContext(dependencyList);
     }
 
-    public static ModuleDTO fromModel(Module module){
+    public static ModuleDTO fromModel(Module module, Boolean totally){
         ModuleDTO moduleDTO = new ModuleDTO();
+        moduleDTO.setTotally(totally);
         moduleDTO.init(module);
         return moduleDTO;
     }

@@ -114,9 +114,9 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     private void getIssues(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
-        List<Issue> issues = gitHubApiImport.getIssueCollection(repository);
+        List<IssueOpen> issues = gitHubApiImport.getIssueCollection(repository);
 
-        for (Issue issue : issues) {
+        for (IssueOpen issue : issues) {
             if (issue.getMilestone() != null) {
                 if (milestoneMap.containsKey(issue.getMilestone().getGithubId())) {
                     issue.setMilestone(milestoneMap.get(issue.getMilestone().getGithubId()));
@@ -137,6 +137,21 @@ public class GitHubDataImportJob extends BaseJob {
             repository.addToIssues(issue);
             context.registerNewObject(issue);
         }
+
+        List<IssueClose> issuesClosed = gitHubApiImport.getClosedIssueCollection(repository);
+
+        for (IssueClose issueClose : issuesClosed) {
+            if (issueClose.getMilestone() != null) {
+                if (milestoneMap.containsKey(issueClose.getMilestone().getGithubId())) {
+                    issueClose.setMilestone(milestoneMap.get(issueClose.getMilestone().getGithubId()));
+                } else {
+                    context.registerNewObject(issueClose.getMilestone());
+                }
+            }
+            issueClose.setRepository(repository);
+            repository.addToIssuesClose(issueClose);
+            context.registerNewObject(issueClose);
+        }
     }
 
     private void getMilestones(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
@@ -145,7 +160,7 @@ public class GitHubDataImportJob extends BaseJob {
         for (Milestone milestone : milestones) {
             milestone.setRepository(repository);
             if (milestone.getIssues() != null || milestone.getIssues().size() > 0) {
-                for (Issue issue : milestone.getIssues()) {
+                for (IssueOpen issue : milestone.getIssues()) {
                     context.registerNewObject(issue);
                 }
             }
@@ -176,7 +191,8 @@ public class GitHubDataImportJob extends BaseJob {
 
     private void deleteAll(ObjectContext objectContext) {
         SQLExec.query("delete from Label").update(objectContext);
-        SQLExec.query("delete from Issue").update(objectContext);
+        SQLExec.query("delete from IssueOpen").update(objectContext);
+        SQLExec.query("delete from IssueClose").update(objectContext);
         SQLExec.query("delete from Milestone").update(objectContext);
         SQLExec.query("delete from PullRequest").update(objectContext);
         SQLExec.query("delete from ModuleDependency").update(objectContext);
