@@ -45,6 +45,8 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
                     "-B", // non-interactive batch mode
                     "release:prepare",
                     "-P", "gpg",
+                    "-Dgpg.pinentry-mode=default",
+                    "-Darguments=\"-Dgpg.pinentry-mode=default\"",
                     "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
                     "-Dtag=" + releaseDescriptor.getReleaseVersion(),
                     "-DreleaseVersion=" + releaseDescriptor.getReleaseVersion(),
@@ -54,12 +56,13 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
             desktopService.runMavenCommand(
                     preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), prepareArgs
             );
-
             String[] performArgs = {
-                    "-Darguments=-DskipTests",
                     "-B", // non-interactive batch mode
                     "release:perform",
                     "-P", "gpg",
+                    "-DskipTests",
+                    "-Dgpg.pinentry-mode=default",
+                    "-Darguments=\"-Dgpg.pinentry-mode=default\"",
                     // "-DdryRun=true"
             };
             desktopService.runMavenCommand(
