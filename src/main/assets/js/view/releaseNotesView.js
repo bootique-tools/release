@@ -1,13 +1,13 @@
 import Vue from 'vue/dist/vue'
 import axios from 'axios/dist/axios'
 
-export function initReadmeView() {
+export function initReleaseNotesView() {
     return new Vue({
-        el: '#readmeVue',
+        el: '#releaseNotesVue',
         delimiters: ['[[', ']]'],
         data: {
             milestoneTitle: '',
-            readme: '',
+            releaseNotes: '',
             disableButton: true
         },
         watch: {
@@ -22,13 +22,13 @@ export function initReadmeView() {
             generate: function () {
                 let currApp = this;
                 $('#bar').fadeIn();
-                axios.get(`/ui/readme/generate?cayenneExp=milestones.title="${currApp.milestoneTitle}"&milestoneTitle=${currApp.milestoneTitle}`)
+                axios.get(`/ui/release-notes/generate?cayenneExp=milestones.title="${currApp.milestoneTitle}"&milestoneTitle=${currApp.milestoneTitle}`)
                     .then(function (response) {
-                        currApp.readme = response.data;
+                        currApp.releaseNotes = response.data;
                         $('#bar').fadeOut();
                     })
                     .catch(function () {
-                        console.log("Error in generating readme");
+                        console.log("Error in generating release notes");
                     })
             }
         },

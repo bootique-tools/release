@@ -87,7 +87,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
     }
 
     @Override
-    public List<Issue> getIssueCollection(Repository repository) {
+    public List<IssueOpen> getIssueCollection(Repository repository) {
 
         RepositoryContainer repositoryContainer = loadQuery("issues",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
@@ -99,6 +99,33 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
         }
 
         return repositoryContainer.getRepository().getIssueNode().getNodes();
+    }
+
+    @Override
+    public List<IssueClose> getClosedIssueCollection(Repository repository) {
+        String repoName = repository.getName();
+        int count = getClosedIssuesCount(repoName);
+        RepositoryContainer repositoryContainer = loadQuery("closed-issues",
+                Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
+                        , "name", repoName
+                        , "totalCount", count > 100 ? 100 : count),
+                RepositoryContainer.class);
+        if(repositoryContainer == null) {
+            return null;
+        }
+
+        return repositoryContainer.getRepository().getIssuesClose();
+    }
+
+    private int getClosedIssuesCount(String repoName) {
+        RepositoryContainer repositoryContainer = loadQuery("closed-issues-count",
+                Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
+                        , "name", repoName),
+                RepositoryContainer.class);
+        if(repositoryContainer == null) {
+            return 0;
+        }
+        return repositoryContainer.getRepository().getIssueNode().getTotalCount();
     }
 
     @Override

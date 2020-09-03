@@ -206,7 +206,18 @@ public class DefaultMavenService implements MavenService {
                 }
             }
         }
+        return projectGraph.topSort();
+    }
 
+    public List<Project> sortMavenProject(List<Project> projects) {
+        Graph<Project> projectGraph = new Graph<>();
+
+        for (Project project : projects) {
+            projectGraph.add(project);
+            for(ProjectDependency dependency : project.getDependencies()) {
+                projectGraph.add(project, dependency.getDependencyProject());
+            }
+        }
         return projectGraph.topSort();
     }
 }

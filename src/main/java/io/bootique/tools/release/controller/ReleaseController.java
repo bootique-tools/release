@@ -132,7 +132,7 @@ public class ReleaseController extends BaseController {
                         buildOrder(selectedProjectsResp, true, project, allProjects);
                     }
                 });
-            } else if (!state) {
+            } else if (!state && selectedProjectsResp.contains(project)) {
                 project.getDependencies().forEach(dependency -> {
                     if (dependency.getDependencyProject().getRootModule().equals(currentProject.getRootModule())) {
                         selectedProjectsResp.remove(project);
@@ -163,8 +163,10 @@ public class ReleaseController extends BaseController {
 
     private void checkDependencies(Project project) {
         project.getDependencies().forEach(projectDependency -> {
-            projectDependency.getDependencyProject().setDisable(false);
-            checkDependencies(projectDependency.getDependencyProject());
+            if (projectDependency.getDependencyProject().isDisable()) {
+                checkDependencies(projectDependency.getDependencyProject());
+                projectDependency.getDependencyProject().setDisable(false);
+            }
         });
     }
 }

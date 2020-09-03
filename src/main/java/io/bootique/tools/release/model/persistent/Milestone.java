@@ -16,20 +16,20 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
     }
 
     @JsonProperty("issues")
-    private Node<Issue> issueNode;
+    private Node<IssueOpen> issueNode;
 
     @JsonProperty("issues")
-    public Node<Issue> getIssueNode() {
+    public Node<IssueOpen> getIssueNode() {
         return issueNode;
     }
 
     @JsonProperty("issues")
-    public void setIssueNode(Node<Issue> issueNode) {
+    public void setIssueNode(Node<IssueOpen> issueNode) {
         this.issueNode = issueNode;
     }
 
     @JsonProperty("issuesList")
-    public void setIssues(List<Issue> issues) {
+    public void setIssues(List<IssueOpen> issues) {
         this.issues = issues;
     }
 
@@ -57,7 +57,7 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
         return "{milestone " + title + '}';
     }
 
-    public void addToIssuesWithoutContext(List<Issue> issue) {
+    public void addToIssuesWithoutContext(List<IssueOpen> issue) {
         this.issues = issue;
     }
 

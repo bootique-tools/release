@@ -1,7 +1,7 @@
 package io.bootique.tools.release.model.maven.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.bootique.tools.release.model.persistent.Issue;
+import io.bootique.tools.release.model.persistent.IssueOpen;
 import io.bootique.tools.release.model.persistent.Milestone;
 
 import java.util.ArrayList;
@@ -33,9 +33,9 @@ public class MilestoneDTO {
     private void convertFromDTO(Milestone milestone) {
         milestone.setUrl(this.url);
         milestone.setTitle(this.title);
-        List<Issue> issueList = new ArrayList<>();
+        List<IssueOpen> issueList = new ArrayList<>();
         for (int i = 0; i < issues.getLength(); i++) {
-            issueList.add(new Issue());
+            issueList.add(new IssueOpen());
         }
         milestone.addToIssuesWithoutContext(issueList);
         milestone.setState(this.state);

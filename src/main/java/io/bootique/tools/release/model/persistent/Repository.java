@@ -7,12 +7,20 @@ import io.bootique.tools.release.service.git.GitService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Repository extends _Repository implements Comparable<Repository> {
 
     private static final long serialVersionUID = 1L;
+
+    public Repository() {}
+
+    public Repository(String name) {
+        super();
+        super.name = name;
+    }
 
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu");
 
@@ -28,13 +36,13 @@ public class Repository extends _Repository implements Comparable<Repository> {
     }
 
     @JsonProperty("issues")
-    private Node<Issue> issueNode;
+    private Node<IssueOpen> issueNode;
 
-    public Node<Issue> getIssueNode() {
+    public Node<IssueOpen> getIssueNode() {
         return issueNode;
     }
 
-    public void setIssueNode(Node<Issue> issueNode) {
+    public void setIssueNode(Node<IssueOpen> issueNode) {
         this.issueNode = issueNode;
     }
 
@@ -146,5 +154,16 @@ public class Repository extends _Repository implements Comparable<Repository> {
 
     public void addToMilestonesWithoutContext(List<Milestone> milestoneList) {
         this.milestones = milestoneList;
+    }
+
+    public List<IssueClose> getIssuesClose() {
+        if (super.getIssuesClose() == null) {
+            List<IssueClose> issueCloseList = new ArrayList<>();
+            for (IssueOpen issue : issueNode.getNodes()) {
+                issueCloseList.add(new IssueClose(issue));
+            }
+            return issueCloseList;
+        }
+        return super.getIssuesClose();
     }
 }

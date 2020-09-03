@@ -1,14 +1,7 @@
 package io.bootique.tools.release.service.maven;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The implementation here is basically an adjacency list, but a {@link Map} is
@@ -84,7 +77,7 @@ class Graph<V> {
             throw new IllegalStateException("Cycle detected in list." + remainingKeys);
         }
 
-        return Arrays.asList(result);
+        return Arrays.stream(result).collect(Collectors.toList());
     }
 
     /**

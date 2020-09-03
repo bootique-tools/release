@@ -1,13 +1,13 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
-import io.agrest.AgRequest;
-import io.agrest.DataResponse;
+import io.agrest.*;
 import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.view.BranchesView;
+import org.apache.cayenne.ObjectContext;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -81,9 +81,25 @@ public class BranchesController extends DefaultBaseController {
         Function<Project, String> repoProcessor = project -> {
             try {
                 Repository repository = project.getRepository();
+
+                AgRequest agRequest = Ag.request(configuration).build();
+                ObjectContext objectContext = repository.getObjectContext();
+                DataResponse<Project> projectDataResponse = getProjects(p -> true, agRequest);
+                objectContext.deleteObjects(projectDataResponse.getObjects());
+                objectContext.commitChanges();
+
                 gitService.checkoutBranch(repository, title);
-                project.setBranchName(title);
-                repository.getObjectContext().commitChanges();
+
+                projectDataResponse = getProjects(p -> true, agRequest);
+
+                for (Project p : projectDataResponse.getObjects()) {
+                    if (p.getRepository().getName().equals(repository.getName())) {
+                        project.setRootModule(
+                                new Module(p.getRootModule().getGroupStr(), p.getRootModule().getGithubId(), p.getRootModule().getVersion()));
+                        project.setBranchName(title);
+                        break;
+                    }
+                }
                 return "";
             } catch (DesktopException ex) {
                 project.setBranchName(gitService.getCurrentBranchName(project.getRepository().getName()));

@@ -53,8 +53,8 @@ import io.bootique.tools.release.service.maven.DefaultMavenService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.preferences.credential.PreferenceCredentialFactory;
-import io.bootique.tools.release.service.readme.CreateReadmeService;
-import io.bootique.tools.release.service.readme.DefaultCreateReadmeService;
+import io.bootique.tools.release.service.readme.CreateReleaseNotesService;
+import io.bootique.tools.release.service.readme.DefaultCreateReleaseNotesService;
 import io.bootique.tools.release.service.release.DefaultReleaseService;
 import io.bootique.tools.release.service.release.ReleaseService;
 import io.bootique.tools.release.service.tasks.ReleaseBintrayTask;
@@ -95,7 +95,7 @@ public class Application implements BQModule  {
         binder.bind(ConsoleReleaseService.class).to(DefaultConsoleReleaseService.class).inSingletonScope();
         binder.bind(ConsoleRollbackService.class).to(DefaultConsoleRollbackService.class).inSingletonScope();
         binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).inSingletonScope();
-        binder.bind(CreateReadmeService.class).to(DefaultCreateReadmeService.class).inSingletonScope();
+        binder.bind(CreateReleaseNotesService.class).to(DefaultCreateReleaseNotesService.class).inSingletonScope();
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
 
         JettyModule.extend(binder).useDefaultServlet();

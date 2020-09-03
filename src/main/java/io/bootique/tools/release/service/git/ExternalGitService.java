@@ -94,7 +94,7 @@ public class ExternalGitService implements GitService {
     @Override
     public String[] getBranches(String name) {
         Path target = getBasePathOrThrow().resolve(name);
-        return desktopService.runCommand(target, "git", "branch").split("\n");
+        return desktopService.runCommand(target, "git", "branch","-a").split("\n");
     }
 
     @Override
@@ -103,6 +103,7 @@ public class ExternalGitService implements GitService {
         String[] branches = getBranches(repository.getName());
         for(String branch : branches) {
             branch = branch.replaceAll("\\s","");
+            branch = branch.replaceAll("remotes/origin/","");
             branch = branch.startsWith("*") ? branch.substring(1) : branch;
             if(branch.equals(branchTitle)) {
                 if(getStatus(repository.getName())) {

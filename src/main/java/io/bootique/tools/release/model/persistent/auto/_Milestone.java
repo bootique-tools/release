@@ -10,7 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.exp.Property;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
-import io.bootique.tools.release.model.persistent.Issue;
+import io.bootique.tools.release.model.persistent.IssueOpen;
+import io.bootique.tools.release.model.persistent.IssueClose;
 import io.bootique.tools.release.model.persistent.Repository;
 
 /**
@@ -28,8 +29,9 @@ public abstract class _Milestone extends GitHubEntity {
     public static final Property<Integer> NUMBER = Property.create("number", Integer.class);
     public static final Property<String> STATE = Property.create("state", String.class);
     public static final Property<String> TITLE = Property.create("title", String.class);
-    public static final Property<List<Issue>> ISSUES = Property.create("issues", List.class);
-    public static final Property<List<Issue>> ISSUES_LIST = Property.create("issuesList", List.class);
+    public static final Property<List<IssueOpen>> ISSUES = Property.create("issues", List.class);
+    public static final Property<List<IssueClose>> ISSUES_CLOSE = Property.create("issuesClose", List.class);
+    public static final Property<List<IssueOpen>> ISSUES_LIST = Property.create("issuesList", List.class);
     public static final Property<List<Repository>> MILESTONE = Property.create("milestone", List.class);
     public static final Property<Repository> REPOSITORY = Property.create("repository", Repository.class);
 
@@ -38,6 +40,7 @@ public abstract class _Milestone extends GitHubEntity {
     protected String title;
 
     protected Object issues;
+    protected Object issuesClose;
     @JsonProperty("issuesList")
     protected Object issuesList;
     protected Object milestone;
@@ -77,31 +80,43 @@ public abstract class _Milestone extends GitHubEntity {
         return this.title;
     }
 
-    public void addToIssues(Issue obj) {
+    public void addToIssues(IssueOpen obj) {
         addToManyTarget("issues", obj, true);
     }
 
-    public void removeFromIssues(Issue obj) {
+    public void removeFromIssues(IssueOpen obj) {
         removeToManyTarget("issues", obj, true);
     }
 
     @SuppressWarnings("unchecked")
-    public List<Issue> getIssues() {
-        return (List<Issue>)readProperty("issues");
+    public List<IssueOpen> getIssues() {
+        return (List<IssueOpen>)readProperty("issues");
     }
 
-    public void addToIssuesList(Issue obj) {
+    public void addToIssuesList(IssueOpen obj) {
         addToManyTarget("issuesList", obj, true);
     }
 
-    public void removeFromIssuesList(Issue obj) {
+    public void addToIssuesClose(IssueClose obj) {
+        addToManyTarget("issuesClose", obj, true);
+    }
+
+    public void removeFromIssuesList(IssueOpen obj) {
         removeToManyTarget("issuesList", obj, true);
     }
 
+    public void removeFromIssuesClose(IssueClose obj) {
+        removeToManyTarget("issuesClose", obj, true);
+    }
+
     @SuppressWarnings("unchecked")
+    public List<IssueClose> getIssuesClose() {
+        return (List<IssueClose>)readProperty("issuesClose");
+    }
+
     @JsonProperty("issuesList")
-    public List<Issue> getIssuesList() {
-        return (List<Issue>)readProperty("issuesList");
+    public List<IssueOpen> getIssuesList() {
+        return (List<IssueOpen>)readProperty("issuesList");
     }
 
     public void addToMilestone(Repository obj) {
@@ -140,6 +155,8 @@ public abstract class _Milestone extends GitHubEntity {
                 return this.title;
             case "issues":
                 return this.issues;
+            case "issuesClose":
+                return this.issuesClose;
             case "issuesList":
                 return this.issuesList;
             case "milestone":
@@ -170,6 +187,9 @@ public abstract class _Milestone extends GitHubEntity {
             case "issues":
                 this.issues = val;
                 break;
+            case "issuesClose":
+                this.issuesClose = val;
+                break;
             case "issuesList":
                 this.issuesList = val;
                 break;
@@ -199,6 +219,7 @@ public abstract class _Milestone extends GitHubEntity {
         out.writeObject(this.state);
         out.writeObject(this.title);
         out.writeObject(this.issues);
+        out.writeObject(this.issuesClose);
         out.writeObject(this.issuesList);
         out.writeObject(this.milestone);
         out.writeObject(this.repository);
@@ -211,6 +232,7 @@ public abstract class _Milestone extends GitHubEntity {
         this.state = (String)in.readObject();
         this.title = (String)in.readObject();
         this.issues = in.readObject();
+        this.issuesClose = in.readObject();
         this.issuesList = in.readObject();
         this.milestone = in.readObject();
         this.repository = in.readObject();

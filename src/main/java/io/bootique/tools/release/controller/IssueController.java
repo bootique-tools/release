@@ -28,8 +28,8 @@ public class IssueController extends BaseController {
     @GET
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
-    public DataResponse<Issue> showAll(@Context UriInfo uriInfo) {
-        DataResponse<Issue> issueDataResponse = Ag.select(Issue.class, configuration).uri(uriInfo).get();
+    public DataResponse<IssueOpen> showAll(@Context UriInfo uriInfo) {
+        DataResponse<IssueOpen> issueDataResponse = Ag.select(IssueOpen.class, configuration).uri(uriInfo).get();
         return issueDataResponse;
     }
 }

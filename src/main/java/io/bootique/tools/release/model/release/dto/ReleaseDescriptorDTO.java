@@ -59,7 +59,7 @@ public class ReleaseDescriptorDTO {
         this.releaseVersion = releaseDescriptor.getReleaseVersion();
         this.devVersion = releaseDescriptor.getDevVersion();
         for (Project project : releaseDescriptor.getProjectList()) {
-            projectList.add(ProjectDTO.fromModel(project));
+            projectList.add(ProjectDTO.fromModel(project, false));
         }
         this.autoReleaseMode = releaseDescriptor.isAutoReleaseMode();
         this.currentReleaseStage = releaseDescriptor.getCurrentReleaseStage();

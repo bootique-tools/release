@@ -4,8 +4,8 @@ import io.bootique.tools.release.model.persistent.Repository;
 
 import java.util.List;
 
-public interface CreateReadmeService {
+public interface CreateReleaseNotesService {
 
-    StringBuilder createReadme(List<Repository> repositories, String milestoneTitle);
+    StringBuilder createReleaseNotes(List<Repository> repositories, String milestoneTitle);
 
 }

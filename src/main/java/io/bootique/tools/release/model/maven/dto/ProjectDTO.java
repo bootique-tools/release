@@ -19,10 +19,12 @@ public class ProjectDTO {
     private boolean disable;
 
     @JsonProperty("dependencies")
-    private List<ProjectDTO> dependencies;
+    private List<String> dependencies;
 
     @JsonProperty("branchName")
     private String branchName;
+
+    private Boolean totally;
 
     public ProjectDTO() {
         dependencies = new ArrayList<>();
@@ -32,12 +34,20 @@ public class ProjectDTO {
         return repository;
     }
 
+    public void setTotally(Boolean totally) {
+        this.totally = totally;
+    }
+
     private void init(Project project) {
-        this.repository = RepositoryDTO.fromModel(project.getRepository());
-        this.rootModule = ModuleDTO.fromModel(project.getRootModule());
+        if (project.getRootModule() != null) {
+            this.rootModule = ModuleDTO.fromModel(project.getRootModule(), totally);
+        }
         this.disable = project.isDisable();
-        for (ProjectDependency dependency : project.getDependencies()) {
-            dependencies.add(ProjectDTO.fromModel(dependency.getDependencyProject()));
+        this.repository = RepositoryDTO.fromModel(project.getRepository());
+        if (this.totally) {
+            for (ProjectDependency dependency : project.getDependencies()) {
+                dependencies.add(ProjectDTO.fromModel(dependency.getDependencyProject(), totally).getRepository().getName());
+            }
         }
         this.branchName = project.getBranchName();
     }
@@ -47,15 +57,16 @@ public class ProjectDTO {
         project.setRootModule(ModuleDTO.toModel(this.rootModule));
         project.setDisable(this.disable);
         List<Project> projectList = new ArrayList<>();
-        for (ProjectDTO projectDTO : this.dependencies) {
-            projectList.add(ProjectDTO.toModel(projectDTO));
+        for (String projectName : this.dependencies) {
+            projectList.add(new Project(projectName));
         }
         project.addDependenciesWithoutContext(projectList);
         project.setBranchName(this.branchName);
     }
 
-    public static ProjectDTO fromModel(Project project){
+    public static ProjectDTO fromModel(Project project, Boolean totally){
         ProjectDTO projectDTO = new ProjectDTO();
+        projectDTO.setTotally(totally);
         projectDTO.init(project);
         return projectDTO;
     }
