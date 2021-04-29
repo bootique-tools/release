@@ -197,7 +197,7 @@ public class DefaultReleaseService implements ReleaseService{
 
     @Override
     public void createThreadForRelease() {
-        Runnable myRunnable = () -> {
+        Thread thread = new Thread(() -> {
             do {
                 if(preferences.have(BatchJobService.CURRENT_JOB_ID)) {
                     BatchJob<Repository, String> job = jobService.getJobById(preferences.get(BatchJobService.CURRENT_JOB_ID));
@@ -213,8 +213,7 @@ public class DefaultReleaseService implements ReleaseService{
                     throw new DesktopException("Problems with auto release. ", e);
                 }
             } while(releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.RELEASE_SYNC);
-        };
-        Thread thread = new Thread(myRunnable);
+        });
         thread.start();
     }
 
@@ -236,9 +235,8 @@ public class DefaultReleaseService implements ReleaseService{
             }
         }
 
-        BatchJobDescriptor<RepositoryDTO, String> descriptor = BatchJobDescriptor.builder().data(repositories)
-                .processor(proc).errorPolicy(ErrorPolicy.ABORT_ALL_ON_ERROR).build();
-
+        BatchJobDescriptor<Repository, String> descriptor = BatchJobDescriptor.<Repository, String>builder()
+                .data(repositories).processor(proc).errorPolicy(ErrorPolicy.ABORT_ALL_ON_ERROR).build();
         preferences.set(BatchJobService.CURRENT_JOB_ID, jobService.submit(descriptor).getId());
     }
 

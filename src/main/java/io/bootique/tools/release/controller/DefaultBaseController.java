@@ -16,7 +16,11 @@ class DefaultBaseController extends BaseController {
 
     void startJob(Function<Project, String> proc, String selectedModules, String controllerName) throws IOException {
         List<Project> allProjects = getSelectedProjects(selectedModules);
-        BatchJobDescriptor<Project, String> descriptor = BatchJobDescriptor.builder().data(allProjects).processor(proc).controllerName(controllerName).build();
+        BatchJobDescriptor<Project, String> descriptor = BatchJobDescriptor.<Project, String>builder()
+                .data(allProjects)
+                .processor(proc)
+                .controllerName(controllerName)
+                .build();
         preferences.set(BatchJobService.CURRENT_JOB_ID, jobService.submit(descriptor).getId());
     }
 }

@@ -10,41 +10,8 @@ public class BatchJobDescriptor<T, R> {
     private ErrorPolicy errorPolicy;
     private String controllerName;
 
-    public static Builder builder(){
-        return new Builder().errorPolicy(ErrorPolicy.SKIP_ON_ERROR);
-    }
-
-    public static class Builder {
-
-        private BatchJobDescriptor descriptor;
-
-        protected Builder() {
-            this.descriptor = new BatchJobDescriptor();
-        }
-
-        public Builder data(Collection data) {
-            this.descriptor.data = data;
-            return this;
-        }
-
-        public Builder processor(Function processor) {
-            this.descriptor.processor = processor;
-            return this;
-        }
-
-        public Builder errorPolicy(ErrorPolicy errorPolicy) {
-            this.descriptor.errorPolicy = errorPolicy;
-            return this;
-        }
-
-        public Builder controllerName(String url) {
-            this.descriptor.controllerName = url;
-            return this;
-        }
-
-        public BatchJobDescriptor build(){
-            return descriptor;
-        }
+    public static <T,R> Builder<T,R> builder(){
+        return new Builder<T,R>().errorPolicy(ErrorPolicy.SKIP_ON_ERROR);
     }
 
     public Collection<T> getData() {
@@ -69,5 +36,36 @@ public class BatchJobDescriptor<T, R> {
         return controllerName;
     }
 
+    public static class Builder<T, R> {
 
+        private final BatchJobDescriptor<T, R> descriptor;
+
+        protected Builder() {
+            this.descriptor = new BatchJobDescriptor<>();
+        }
+
+        public Builder<T, R> data(Collection<T> data) {
+            this.descriptor.data = data;
+            return this;
+        }
+
+        public Builder<T, R> processor(Function<T,R> processor) {
+            this.descriptor.processor = processor;
+            return this;
+        }
+
+        public Builder<T, R> errorPolicy(ErrorPolicy errorPolicy) {
+            this.descriptor.errorPolicy = errorPolicy;
+            return this;
+        }
+
+        public Builder<T, R> controllerName(String url) {
+            this.descriptor.controllerName = url;
+            return this;
+        }
+
+        public BatchJobDescriptor<T, R> build(){
+            return descriptor;
+        }
+    }
 }

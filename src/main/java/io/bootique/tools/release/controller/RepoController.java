@@ -27,11 +27,8 @@ public class RepoController extends BaseController {
     public boolean checkCache() {
         AgRequest agRequest = Ag.request(configuration).build();
         DataResponse<Organization> organizations = Ag.select(Organization.class, configuration).request(agRequest).get();
-        if (organizations.getObjects().size() == 0 ||
-                organizations.getObjects().get(0).getRepositories().size() == 0) {
-            return false;
-        }
-        return true;
+        return !organizations.getObjects().isEmpty() &&
+                !organizations.getObjects().get(0).getRepositories().isEmpty();
     }
 
     @GET
