@@ -59,10 +59,12 @@ public class ValidationController extends DefaultBaseController {
                     throw new JobException("NO_POM", "No pom.xml for repo " + repo);
                 }
                 String[] prepareArgs = {
+                        "-DpreparationGoals=clean",
                         "-B", // non-interactive batch mode
                         "release:prepare",
+                        "-Darguments=\"-Dgpg.pinentry-mode=default -DskipTests\"",
                         "-Dbootique.version=" + releaseVersion,
-                        "-P", "gpg", // gpg signing profile
+                        "-Pgpg", // gpg signing profile
                         "-Ddummy.version=" + releaseVersion,
                         "-Dtag=" + releaseVersion,
                         "-DreleaseVersion=" + releaseVersion,

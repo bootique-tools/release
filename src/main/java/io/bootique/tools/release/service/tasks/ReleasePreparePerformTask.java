@@ -45,6 +45,7 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
                     "-B", // non-interactive batch mode
                     "release:prepare",
                     "-P", "gpg",
+                    "-DskipTests",
                     "-Dgpg.pinentry-mode=default",
                     "-Darguments=\"-Dgpg.pinentry-mode=default\"",
                     "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
