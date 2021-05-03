@@ -12,6 +12,7 @@ import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.release.ReleaseService;
 
+import java.nio.file.Path;
 import java.util.function.Function;
 import javax.inject.Inject;
 
@@ -35,45 +36,44 @@ public class ReleasePreparePerformTask implements Function<Repository, String> {
     @Override
     public String apply(Repository repo) {
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
-        try {
-            loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_PREPARE_PERFORM));
-            if (!mavenService.isMavenProject(repo)) {
-                throw new JobException("NO_POM", "No pom.xml for repo " + repo);
-            }
-            String[] prepareArgs = {
-                    "-DpreparationGoals=clean",
-                    "-B", // non-interactive batch mode
-                    "release:prepare",
-                    "-P", "gpg",
-                    "-DskipTests",
-                    "-Dgpg.pinentry-mode=default",
-                    "-Darguments=\"-Dgpg.pinentry-mode=default\"",
-                    "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
-                    "-Dtag=" + releaseDescriptor.getReleaseVersion(),
-                    "-DreleaseVersion=" + releaseDescriptor.getReleaseVersion(),
-                    "-DdevelopmentVersion=" + releaseDescriptor.getDevVersion(),
-                    // "-DdryRun=true"
-            };
-            desktopService.runMavenCommand(
-                    preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), prepareArgs
-            );
-            String[] performArgs = {
-                    "-B", // non-interactive batch mode
-                    "release:perform",
-                    "-P", "gpg",
-                    "-DskipTests",
-                    "-Dgpg.pinentry-mode=default",
-                    "-Darguments=\"-Dgpg.pinentry-mode=default\"",
-                    // "-DdryRun=true"
-            };
-            desktopService.runMavenCommand(
-                    preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), performArgs
-            );
+        loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_PREPARE_PERFORM));
+        if (!mavenService.isMavenProject(repo)) {
+            throw new JobException("NO_POM", "No pom.xml for repo " + repo);
+        }
 
-            releaseService.saveRelease(repo);
-            return "";
+        Path repoPath = preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName());
+        String[] prepareArgs = {
+                "-DpreparationGoals=clean",
+                "-B", // non-interactive batch mode
+                "release:prepare",
+                "-P", "gpg",
+                "-DskipTests",
+                "-Dgpg.pinentry-mode=default",
+                "-Darguments=\"-Dgpg.pinentry-mode=default\"",
+                "-Dbootique.version=" + releaseDescriptor.getReleaseVersion(),
+                "-Dtag=" + releaseDescriptor.getReleaseVersion(),
+                "-DreleaseVersion=" + releaseDescriptor.getReleaseVersion(),
+                "-DdevelopmentVersion=" + releaseDescriptor.getDevVersion(),
+                // "-DdryRun=true"
+        };
+        String[] performArgs = {
+                "-B", // non-interactive batch mode
+                "release:perform",
+                "-P", "gpg",
+                "-DskipTests",
+                "-Dgpg.pinentry-mode=default",
+                "-Darguments=\"-Dgpg.pinentry-mode=default\"",
+                // "-DdryRun=true"
+        };
+
+        try {
+            desktopService.runMavenCommand(repoPath, prepareArgs);
+            desktopService.runMavenCommand(repoPath, performArgs);
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);
         }
+        releaseService.saveRelease(repo);
+
+        return "";
     }
 }

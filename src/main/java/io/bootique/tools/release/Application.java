@@ -61,6 +61,7 @@ import io.bootique.tools.release.service.tasks.ReleaseBintrayTask;
 import io.bootique.tools.release.service.tasks.ReleaseInstallTask;
 import io.bootique.tools.release.service.tasks.ReleasePreparePerformTask;
 import io.bootique.tools.release.service.tasks.ReleasePullTask;
+import io.bootique.tools.release.service.tasks.ReleaseSonatypeSync;
 import io.bootique.tools.release.service.tasks.ReleaseSyncTask;
 import io.bootique.tools.release.service.tasks.RollbackBintrayTask;
 import io.bootique.tools.release.service.tasks.RollbackMvnGitTask;
@@ -107,7 +108,7 @@ public class Application implements BQModule  {
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_INSTALL, ReleaseInstallTask.class);
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_BINTRAY_CHECK, ReleaseBintrayTask.class);
         setReleaseFunctionClass(binder, ReleaseStage.RELEASE_PREPARE_PERFORM, ReleasePreparePerformTask.class);
-        setReleaseFunctionClass(binder, ReleaseStage.RELEASE_SYNC, ReleaseSyncTask.class);
+        setReleaseFunctionClass(binder, ReleaseStage.RELEASE_SYNC, ReleaseSonatypeSync.class);
         setRollbackFunctionClass(binder, RollbackStage.ROLLBACK_BINTRAY, RollbackBintrayTask.class);
         setRollbackFunctionClass(binder, RollbackStage.ROLLBACK_MVN, RollbackMvnGitTask.class);
         BQCoreModule.extend(binder).addCommand(ConsoleReleaseCommand.class);
