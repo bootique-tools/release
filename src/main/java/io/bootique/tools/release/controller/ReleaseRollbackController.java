@@ -28,7 +28,7 @@ public class ReleaseRollbackController extends BaseController {
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
         releaseService.prepareRelease();
         releaseDescriptor.setCurrentReleaseStage(ReleaseStage.NO_RELEASE);
-        releaseDescriptor.setCurrentRollbackStage(RollbackStage.ROLLBACK_BINTRAY);
+        releaseDescriptor.setCurrentRollbackStage(RollbackStage.ROLLBACK_SONATYPE);
         return Response.seeOther(new URI("rollback/next")).build();
     }
 

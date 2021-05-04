@@ -4,7 +4,6 @@ import io.agrest.Ag;
 import io.agrest.AgRequest;
 import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.service.bintray.BintrayApi;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
@@ -25,9 +24,6 @@ import java.util.function.Function;
 public class ValidationController extends DefaultBaseController {
 
     private final String CONTROLLER_NAME = "validation";
-
-    @Inject
-    private BintrayApi bintrayApi;
 
     @Inject
     private DesktopService desktopService;
@@ -51,10 +47,6 @@ public class ValidationController extends DefaultBaseController {
         Function<Project, String> repoProcessor = project -> {
             try {
                 Repository repo = project.getRepository();
-                if (!bintrayApi.getRepository(repo)) {
-                    bintrayApi.createRepository(repo);
-                    throw new DesktopException("Bintray repo was created.");
-                }
                 if (!mavenService.isMavenProject(repo)) {
                     throw new JobException("NO_POM", "No pom.xml for repo " + repo);
                 }

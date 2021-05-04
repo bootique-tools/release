@@ -1,6 +1,5 @@
 package io.bootique.tools.release;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.bootique.BQCoreModule;
 import io.bootique.Bootique;
 import io.bootique.cayenne.CayenneModule;
@@ -12,7 +11,6 @@ import io.bootique.di.MapBuilder;
 import io.bootique.di.Provides;
 import io.bootique.di.TypeLiteral;
 import io.bootique.jersey.JerseyModule;
-import io.bootique.jersey.client.HttpTargets;
 import io.bootique.jetty.JettyModule;
 import io.bootique.jetty.command.ServerCommand;
 import io.bootique.job.command.ScheduleCommand;
@@ -24,8 +22,6 @@ import io.bootique.tools.release.job.GitHubDataImportJob;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
-import io.bootique.tools.release.service.bintray.BintrayApi;
-import io.bootique.tools.release.service.bintray.credential.BintrayCredentialFactory;
 import io.bootique.tools.release.service.central.DefaultMvnCentralService;
 import io.bootique.tools.release.service.central.MvnCentralService;
 import io.bootique.tools.release.service.console.ConsoleReleaseService;
@@ -57,14 +53,12 @@ import io.bootique.tools.release.service.readme.CreateReleaseNotesService;
 import io.bootique.tools.release.service.readme.DefaultCreateReleaseNotesService;
 import io.bootique.tools.release.service.release.DefaultReleaseService;
 import io.bootique.tools.release.service.release.ReleaseService;
-import io.bootique.tools.release.service.tasks.ReleaseBintrayTask;
 import io.bootique.tools.release.service.tasks.ReleaseInstallTask;
 import io.bootique.tools.release.service.tasks.ReleasePreparePerformTask;
 import io.bootique.tools.release.service.tasks.ReleasePullTask;
-import io.bootique.tools.release.service.tasks.ReleaseSonatypeSync;
-import io.bootique.tools.release.service.tasks.ReleaseSyncTask;
-import io.bootique.tools.release.service.tasks.RollbackBintrayTask;
+import io.bootique.tools.release.service.tasks.ReleaseSonatypeSyncTask;
 import io.bootique.tools.release.service.tasks.RollbackMvnGitTask;
+import io.bootique.tools.release.service.tasks.RollbackSonatypeTask;
 import io.bootique.tools.release.service.validation.DefaultValidatePomService;
 import io.bootique.tools.release.service.validation.ValidatePomService;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -99,49 +93,46 @@ public class Application implements BQModule  {
         binder.bind(CreateReleaseNotesService.class).to(DefaultCreateReleaseNotesService.class).inSingletonScope();
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
 
-        JettyModule.extend(binder).useDefaultServlet();
+        JettyModule.extend(binder)
+                .useDefaultServlet();
 
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)
                 .addPackage(RepoController.class.getPackage());
-        setReleaseFunctionClass(binder, ReleaseStage.RELEASE_PULL, ReleasePullTask.class);
-        setReleaseFunctionClass(binder, ReleaseStage.RELEASE_INSTALL, ReleaseInstallTask.class);
-        setReleaseFunctionClass(binder, ReleaseStage.RELEASE_BINTRAY_CHECK, ReleaseBintrayTask.class);
-        setReleaseFunctionClass(binder, ReleaseStage.RELEASE_PREPARE_PERFORM, ReleasePreparePerformTask.class);
-        setReleaseFunctionClass(binder, ReleaseStage.RELEASE_SYNC, ReleaseSonatypeSync.class);
-        setRollbackFunctionClass(binder, RollbackStage.ROLLBACK_BINTRAY, RollbackBintrayTask.class);
-        setRollbackFunctionClass(binder, RollbackStage.ROLLBACK_MVN, RollbackMvnGitTask.class);
-        BQCoreModule.extend(binder).addCommand(ConsoleReleaseCommand.class);
-        BQCoreModule.extend(binder).addCommand(ConsoleRollbackCommand.class);
+
+        contributeReleaseTask(binder)
+                .put(ReleaseStage.RELEASE_PULL,            ReleasePullTask.class)
+                .put(ReleaseStage.RELEASE_INSTALL,         ReleaseInstallTask.class)
+                .put(ReleaseStage.RELEASE_PREPARE_PERFORM, ReleasePreparePerformTask.class)
+                .put(ReleaseStage.RELEASE_SYNC,            ReleaseSonatypeSyncTask.class);
+
+        contributeRollbackTask(binder)
+                .put(RollbackStage.ROLLBACK_SONATYPE,     RollbackSonatypeTask.class)
+                .put(RollbackStage.ROLLBACK_MVN,          RollbackMvnGitTask.class);
 
         BQCoreModule.extend(binder)
+                .addCommand(ConsoleReleaseCommand.class)
+                .addCommand(ConsoleRollbackCommand.class)
                 .decorateCommand(ServerCommand.class, CommandDecorator.beforeRun(ScheduleCommand.class));
 
         CayenneModule.extend(binder)
                 .addProject("cayenne/cayenne-project.xml");
 
-        JobModule.extend(binder).addJob(GitHubDataImportJob.class);
+        JobModule.extend(binder)
+                .addJob(GitHubDataImportJob.class);
     }
 
-    private static MapBuilder<ReleaseStage, Function<Repository, String>> contributeReleaseFunctionClass(Binder binder) {
+    private static MapBuilder<ReleaseStage, Function<Repository, String>> contributeReleaseTask(Binder binder) {
         TypeLiteral<Function<Repository, String>> type = new TypeLiteral<>() {};
         TypeLiteral<ReleaseStage> key = new TypeLiteral<>() {};
         return binder.bindMap(key, type);
     }
 
-    private static MapBuilder<RollbackStage, Function<Repository, String>> contributeRollbackFunctionClass(Binder binder) {
+    private static MapBuilder<RollbackStage, Function<Repository, String>> contributeRollbackTask(Binder binder) {
         TypeLiteral<Function<Repository, String>> type = new TypeLiteral<>() {
         };
         TypeLiteral<RollbackStage> key = new TypeLiteral<>() {};
         return binder.bindMap(key, type);
-    }
-
-    private static void setReleaseFunctionClass(Binder binder, ReleaseStage releaseStage,  Class<? extends Function<Repository, String>> functionClass) {
-        contributeReleaseFunctionClass(binder).put(releaseStage, functionClass);
-    }
-
-    private static void setRollbackFunctionClass(Binder binder, RollbackStage rollbackStage, Class<? extends Function<Repository, String>> functionClass) {
-        contributeRollbackFunctionClass(binder).put(rollbackStage, functionClass);
     }
 
     @Provides
@@ -158,16 +149,6 @@ public class Application implements BQModule  {
             return new LinuxDesktopService();
         }
         return new GenericDesktopService();
-    }
-
-    @Singleton
-    @Provides
-    public BintrayApi createBintrayApi(ConfigurationFactory configurationFactory,
-                                       HttpTargets httpTargets,
-                                       ObjectMapper objectMapper, PreferenceService preferenceService) {
-        return configurationFactory
-                .config(BintrayCredentialFactory.class, "maven-central")
-                .createBintrayApi(httpTargets, objectMapper, preferenceService);
     }
 
     @Singleton

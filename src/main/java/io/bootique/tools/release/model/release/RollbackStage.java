@@ -2,13 +2,13 @@ package io.bootique.tools.release.model.release;
 
 public enum RollbackStage {
     NO_ROLLBACK,
-    ROLLBACK_BINTRAY,
+    ROLLBACK_SONATYPE,
     ROLLBACK_MVN;
 
     public String getText() {
         switch(this) {
-            case ROLLBACK_BINTRAY:
-                return "Rollback bintray";
+            case ROLLBACK_SONATYPE:
+                return "Rollback sonatype";
             case ROLLBACK_MVN:
                 return "Rollback git";
         }

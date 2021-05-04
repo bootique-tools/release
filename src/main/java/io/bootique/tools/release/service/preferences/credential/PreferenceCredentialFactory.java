@@ -2,7 +2,6 @@ package io.bootique.tools.release.service.preferences.credential;
 
 import io.bootique.annotation.BQConfig;
 import io.bootique.annotation.BQConfigProperty;
-import io.bootique.tools.release.service.bintray.BintrayApi;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApiImport;
@@ -22,7 +21,6 @@ public class PreferenceCredentialFactory {
     private String organizationGroupId;
     private String gitHubToken;
     private String basePath;
-    private String bintrayOrganizationName;
     private String groupIdPattern;
 
     private String logsPath;
@@ -51,11 +49,6 @@ public class PreferenceCredentialFactory {
     @BQConfigProperty
     public void setBasePath(String basePath) {
         this.basePath = basePath;
-    }
-
-    @BQConfigProperty
-    public void setBintrayOrganizationName(String bintrayOrganizationName) {
-        this.bintrayOrganizationName = bintrayOrganizationName;
     }
 
     @BQConfigProperty
@@ -96,10 +89,6 @@ public class PreferenceCredentialFactory {
 
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             preferences.set(GitService.BASE_PATH_PREFERENCE, Paths.get(basePath));
-        }
-
-        if(!preferences.have(BintrayApi.BINTRAY_ORG_NAME)) {
-            preferences.set(BintrayApi.BINTRAY_ORG_NAME, bintrayOrganizationName);
         }
 
         if (!preferences.have(ReleaseService.SAVE_PATH)) {

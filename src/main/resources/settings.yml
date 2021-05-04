@@ -47,14 +47,10 @@ log:
 preferences:
   organizationName: bootique
   organizationGroupId: io.bootique
-  bintrayOrganizationName: bootique
   groupIdPattern: io.bootique
 
 jerseyclient:
   targets:
-    bintray:
-      url: "https://api.bintray.com"
-      auth: bintray
     mvncentral:
       url: "http://search.maven.org"
     github:

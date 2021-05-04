@@ -50,7 +50,7 @@ public class ExtraRollbackController extends BaseReleaseController {
                         devVersion,
                         selectedProjects,
                         ReleaseStage.NO_RELEASE,
-                        RollbackStage.ROLLBACK_BINTRAY,
+                        RollbackStage.ROLLBACK_SONATYPE,
                         false));
 
         return validate(releaseVersion, selectedProjects) ?
