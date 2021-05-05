@@ -29,20 +29,19 @@ log:
     - type: custom
       name: multiAppender
       className: io.bootique.tools.release.service.logger.MultiAppender
-      filters:
-        - type: threshold
-          level: debug
-        - type: custom
-          className: io.bootique.tools.release.service.logger.FileLoggerFilter
 
   appenderRefs:
     - STDOUT
     - FILE
-    - multiAppender
 
   loggers:
     io.bootique.jersey.client.instrumented.ClientTimingFilter:
       level: error
+
+    io.bootique.tools.release.service.desktop.DesktopService:
+      level: trace
+      appenderRefs:
+        - multiAppender
 
 preferences:
   organizationName: bootique
