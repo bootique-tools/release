@@ -37,7 +37,7 @@ public class RollbackSonatypeTask implements Function<Repository, String> {
 
     @Override
     public String apply(Repository repo) {
-        loggerService.setAppender(repo.getName(), "release", String.valueOf(RollbackStage.ROLLBACK_SONATYPE));
+        loggerService.setAppender(repo.getName(), "rollback", String.valueOf(RollbackStage.ROLLBACK_SONATYPE));
         if (!mavenService.isMavenProject(repo)) {
             throw new JobException("NO_POM", "No pom.xml for repo " + repo);
         }

@@ -27,7 +27,10 @@ public class CustomAppenderFilterFactory extends FilterFactory {
                     = (Class<? extends Filter<ILoggingEvent>>)Class.forName(className);
             Constructor<? extends Filter<ILoggingEvent>> filterConstructor
                     = filterClass.getConstructor();
-            return filterConstructor.newInstance();
+            Filter<ILoggingEvent> filter = filterConstructor.newInstance();
+            filter.setName("custom-filter-" + filterClass.getSimpleName());
+            filter.start();
+            return filter;
         } catch (Exception e) {
             throw new BootiqueException(-1, "Unable to initialize logback filter", e);
         }

@@ -17,18 +17,30 @@ import java.util.Map;
 
 public class MultiAppender extends AppenderBase<ILoggingEvent>{
 
-    private Map<List<String>, FileAppender<ILoggingEvent>> appenderMap = new HashMap<>();
+    private final Map<List<String>, FileAppender<ILoggingEvent>> appenderMap = new HashMap<>();
     private FileAppender<ILoggingEvent> currentAppender;
 
     @Override
     protected void append(ILoggingEvent iLoggingEvent) {
-        currentAppender.doAppend(iLoggingEvent);
+        if(currentAppender != null) {
+            currentAppender.doAppend(iLoggingEvent);
+        }
     }
 
     synchronized void setCurrentAppender(List<String> args) {
         currentAppender = appenderMap.get(args);
-        currentAppender.setContext(context);
-        currentAppender.start();
+        if(currentAppender != null && !currentAppender.isStarted()) {
+            currentAppender.setContext(context);
+            currentAppender.start();
+        }
+    }
+
+    @Override
+    public void stop() {
+        if(currentAppender != null) {
+            currentAppender.stop();
+        }
+        super.stop();
     }
 
     void createAppenderMap(ReleaseDescriptor releaseDescriptor, String loggerPath) {
@@ -49,7 +61,7 @@ public class MultiAppender extends AppenderBase<ILoggingEvent>{
 
                 appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersion(),
                         project.getRepository().getName(),
-                        "release", String.valueOf(releaseStage)), createAppender(logFile, ple));
+                        "release", String.valueOf(releaseStage)), createAppender(logFile, ple, project.getRepository().getName()));
             }
             for(RollbackStage rollbackStage : RollbackStage.values()) {
                 if(rollbackStage == RollbackStage.NO_ROLLBACK) {
@@ -61,7 +73,7 @@ public class MultiAppender extends AppenderBase<ILoggingEvent>{
                         rollbackStage + ".log";
                 appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersion(),
                         project.getRepository().getName(),
-                        "rollback", String.valueOf(rollbackStage)), createAppender(logFile, ple));
+                        "rollback", String.valueOf(rollbackStage)), createAppender(logFile, ple, project.getRepository().getName()));
             }
         }
     }
@@ -70,11 +82,12 @@ public class MultiAppender extends AppenderBase<ILoggingEvent>{
         return appenderMap;
     }
 
-    private FileAppender<ILoggingEvent> createAppender(String path, PatternLayoutEncoder ple) {
+    private FileAppender<ILoggingEvent> createAppender(String path, PatternLayoutEncoder ple, String name) {
         FileAppender<ILoggingEvent> fileAppender = new FileAppender<>();
         fileAppender.setAppend(false);
         fileAppender.setEncoder(ple);
         fileAppender.setFile(path);
+        fileAppender.setName("file-appender-" + name);
         return fileAppender;
     }
 }

@@ -10,23 +10,24 @@ import javax.inject.Inject;
 
 public class DefaultLoggerService implements LoggerService {
 
+    private static final Logger ROOT_LOGGER = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+
     @Inject
     PreferenceService preferenceService;
 
-    private static final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     private MultiAppender multiAppender;
-    private ReleaseDescriptor releaseDescriptor;
+    private String releaseVersion;
 
     @Override
     public void prepareLogger(ReleaseDescriptor releaseDescriptor) {
-        multiAppender = (MultiAppender) logger.getAppender("multiAppender");
+        multiAppender = (MultiAppender) ROOT_LOGGER.getAppender("multiAppender");
         multiAppender.createAppenderMap(releaseDescriptor,  preferenceService.get(LoggerService.LOGGER_BASE_PATH));
-        this.releaseDescriptor = releaseDescriptor;
+        this.releaseVersion = releaseDescriptor.getReleaseVersion();
     }
 
     @Override
     public void setAppender(String repository, String action, String file) {
-        multiAppender.setCurrentAppender(Arrays.asList(releaseDescriptor.getReleaseVersion(), repository, action, file));
+        multiAppender.setCurrentAppender(Arrays.asList(releaseVersion, repository, action, file));
     }
 
     MultiAppender getMultiAppender() {

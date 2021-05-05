@@ -58,12 +58,18 @@ abstract class BaseController {
     boolean haveMissingRepos(Organization organization) {
         for (Repository repository : organization.getRepositories()) {
             if (preferences.have(GitService.BASE_PATH_PREFERENCE)) {
-                if (gitService.status(repository) == GitService.GitStatus.MISSING) {
+                if (gitService.status(repository) == GitService.GitStatus.MISSING
+                        && !excludedProject(repository)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    boolean excludedProject(Repository repository) {
+        return repository.getName().equals("bootique-rabbitmq-client")
+                || repository.getName().equals("bootique-jersey-client");
     }
 
     private DataResponse<Project> createProject(Predicate<Project> predicate) {

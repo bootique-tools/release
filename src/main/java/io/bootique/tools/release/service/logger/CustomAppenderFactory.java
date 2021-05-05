@@ -39,6 +39,7 @@ public class CustomAppenderFactory extends AppenderFactory {
         }
         appender.setName(getName());
         appender.setContext(context);
+        appender.start();
         createFilters(appender);
         return appender;
     }

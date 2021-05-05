@@ -57,7 +57,7 @@ public class GitHubDataImportJob extends BaseJob {
             getCurrents(context);
         } else {
             List<Organization> organizations = ObjectSelect.query(Organization.class)
-                    .where(Organization.LOGIN.eq(gitHubApi.getPreferences().get(GitHubApiImport.ORGANIZATION_PREFERENCE))).select(context);
+                    .where(Organization.LOGIN.eq(preferenceService.get(GitHubApiImport.ORGANIZATION_PREFERENCE))).select(context);
 
             if (organizations.size() == 0) {
                 getCurrents(context);

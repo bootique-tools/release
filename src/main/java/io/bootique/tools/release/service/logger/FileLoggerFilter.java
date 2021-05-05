@@ -8,6 +8,9 @@ public class FileLoggerFilter extends Filter<ILoggingEvent> {
 
     private static final String threadToLog = "ForkJoinPool";
 
+    public FileLoggerFilter() {
+    }
+
     @Override
     public FilterReply decide(ILoggingEvent iLoggingEvent) {
         if (iLoggingEvent.getThreadName().contains(threadToLog)) {

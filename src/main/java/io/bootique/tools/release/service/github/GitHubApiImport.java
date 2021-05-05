@@ -14,8 +14,6 @@ public interface GitHubApiImport {
 
     User getCurrentUser();
 
-    PreferenceService getPreferences();
-
     Organization getCurrentOrganization();
 
     List<Repository> getCurrentRepositoryCollection(Organization organization);

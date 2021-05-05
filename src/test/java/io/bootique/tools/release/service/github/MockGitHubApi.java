@@ -21,11 +21,6 @@ public class MockGitHubApi implements GitHubApiImport{
     }
 
     @Override
-    public PreferenceService getPreferences() {
-        return null;
-    }
-
-    @Override
     public Organization getCurrentOrganization(){
         Organization organization = context.newObject(Organization.class);
         organization.setName("dummy-org-00");

@@ -75,7 +75,7 @@ public class Project extends _Project implements Comparable<Project> {
     }
 
     public void setDependencies(Set<ProjectDependency> set) {
-        set.forEach(project -> super.addToDependencies(project));
+        set.forEach(super::addToDependencies);
     }
 
     public void addDependenciesWithoutContext(List<Project> dependencies) {

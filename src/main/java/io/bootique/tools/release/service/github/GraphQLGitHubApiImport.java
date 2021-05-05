@@ -28,11 +28,6 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
     }
 
     @Override
-    public PreferenceService getPreferences() {
-        return preferences;
-    }
-
-    @Override
     public User getCurrentUser() {
         Viewer query = loadQuery("viewer", Collections.emptyMap(), Viewer.class);
         if (query == null) {
@@ -51,9 +46,8 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
         if (container == null) {
             return null;
         }
-        Organization organization = container.getOrganization();
 
-        return organization;
+        return container.getOrganization();
     }
 
     @Override
@@ -108,7 +102,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
         RepositoryContainer repositoryContainer = loadQuery("closed-issues",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repoName
-                        , "totalCount", count > 100 ? 100 : count),
+                        , "totalCount", Math.min(count, 100)),
                 RepositoryContainer.class);
         if(repositoryContainer == null) {
             return null;
