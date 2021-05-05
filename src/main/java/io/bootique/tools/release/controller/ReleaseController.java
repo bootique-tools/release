@@ -127,14 +127,16 @@ public class ReleaseController extends BaseController {
         allProjects.forEach(project -> {
             if (state && !selectedProjectsResp.contains(project)) {
                 currentProject.getDependencies().forEach(dependency -> {
-                    if (dependency.getDependencyProject().getRootModule().equals(project.getRootModule())) {
+                    if (dependency.getDependencyProject().getRootModule().equals(project.getRootModule())
+                            && dependency.getDependencyProject().getVersion().equals(currentProject.getVersion())) {
                         selectedProjectsResp.add(project);
                         buildOrder(selectedProjectsResp, true, project, allProjects);
                     }
                 });
             } else if (!state && selectedProjectsResp.contains(project)) {
                 project.getDependencies().forEach(dependency -> {
-                    if (dependency.getDependencyProject().getRootModule().equals(currentProject.getRootModule())) {
+                    if (dependency.getDependencyProject().getRootModule().equals(currentProject.getRootModule())
+                            && dependency.getDependencyProject().getVersion().equals(project.getVersion())) {
                         selectedProjectsResp.remove(project);
                         buildOrder(selectedProjectsResp, false, project, allProjects);
                     }
