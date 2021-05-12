@@ -2,6 +2,7 @@ package io.bootique.tools.release.model.release.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.maven.dto.ProjectDTO;
+import io.bootique.tools.release.model.maven.dto.RepositoryDTO;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
@@ -11,20 +12,23 @@ import java.util.List;
 
 public class ReleaseDescriptorDTO {
 
-    @JsonProperty("fromVersion")
+    @JsonProperty
     private String fromVersion;
 
-    @JsonProperty("releaseVersion")
+    @JsonProperty
     private String releaseVersion;
 
-    @JsonProperty("devVersion")
+    @JsonProperty
     private String devVersion;
 
-    @JsonProperty("projectList")
+    @JsonProperty
     private List<ProjectDTO> projectList;
 
-    @JsonProperty("autoReleaseMode")
+    @JsonProperty
     private boolean autoReleaseMode;
+
+    @JsonProperty
+    private RepositoryDTO lastSuccessReleasedRepository;
 
     private ReleaseStage currentReleaseStage;
 
@@ -50,6 +54,10 @@ public class ReleaseDescriptorDTO {
         return lastSuccessReleaseStage;
     }
 
+    public RepositoryDTO getLastSuccessReleasedRepository() {
+        return lastSuccessReleasedRepository;
+    }
+
     public boolean isAutoReleaseMode() {
         return autoReleaseMode;
     }
@@ -64,6 +72,9 @@ public class ReleaseDescriptorDTO {
         this.autoReleaseMode = releaseDescriptor.isAutoReleaseMode();
         this.currentReleaseStage = releaseDescriptor.getCurrentReleaseStage();
         this.lastSuccessReleaseStage = releaseDescriptor.getLastSuccessReleaseStage();
+        if(releaseDescriptor.getLastSuccessReleasedRepository() != null) {
+            this.lastSuccessReleasedRepository = RepositoryDTO.fromModel(releaseDescriptor.getLastSuccessReleasedRepository());
+        }
     }
 
     private void convertFromDTO(ReleaseDescriptor releaseDescriptor) {
@@ -78,6 +89,7 @@ public class ReleaseDescriptorDTO {
         releaseDescriptor.setAutoReleaseMode(this.autoReleaseMode);
         releaseDescriptor.setCurrentReleaseStage(this.currentReleaseStage);
         releaseDescriptor.setLastSuccessReleaseStage(this.lastSuccessReleaseStage);
+        releaseDescriptor.setLastSuccessReleasedRepository(RepositoryDTO.toModel(this.lastSuccessReleasedRepository));
     }
 
     public static ReleaseDescriptorDTO fromModel(ReleaseDescriptor releaseDescriptor) {

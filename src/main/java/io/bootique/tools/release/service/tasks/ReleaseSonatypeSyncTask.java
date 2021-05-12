@@ -50,13 +50,13 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
         if(repos.size() > 1) {
             throw new JobException("MULTI_STAGING_REPO",
                     "Multiple staging repos found, can't automatically deal with them. "
-                    + "Please go to https://oss.sonatype.com and check them manually.");
+                    + "Please go to https://oss.sonatype.org and check them manually.");
         }
 
         StagingRepo stagingRepo = repos.get(0);
         if(stagingRepo.state == RepoState.UNKNOWN) {
             throw new JobException("STAGING_REPO_UNKNOWN_STATE", "Staging repo is in unknown or unsupported state." +
-                    "Please go to https://oss.sonatype.com and check it manually.");
+                    "Please go to https://oss.sonatype.org and check it manually.");
         }
 
         if(stagingRepo.state == RepoState.OPEN) {
