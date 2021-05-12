@@ -49,8 +49,8 @@ import io.bootique.tools.release.service.maven.DefaultMavenService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.preferences.credential.PreferenceCredentialFactory;
-import io.bootique.tools.release.service.readme.CreateReleaseNotesService;
-import io.bootique.tools.release.service.readme.DefaultCreateReleaseNotesService;
+import io.bootique.tools.release.service.readme.DefaultReleaseNotesService;
+import io.bootique.tools.release.service.readme.ReleaseNotesService;
 import io.bootique.tools.release.service.release.DefaultReleaseService;
 import io.bootique.tools.release.service.release.ReleaseService;
 import io.bootique.tools.release.service.tasks.ReleaseInstallTask;
@@ -90,7 +90,7 @@ public class Application implements BQModule  {
         binder.bind(ConsoleReleaseService.class).to(DefaultConsoleReleaseService.class).inSingletonScope();
         binder.bind(ConsoleRollbackService.class).to(DefaultConsoleRollbackService.class).inSingletonScope();
         binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).inSingletonScope();
-        binder.bind(CreateReleaseNotesService.class).to(DefaultCreateReleaseNotesService.class).inSingletonScope();
+        binder.bind(ReleaseNotesService.class).to(DefaultReleaseNotesService.class).inSingletonScope();
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
 
         JettyModule.extend(binder)

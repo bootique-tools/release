@@ -1,9 +1,9 @@
 package io.bootique.tools.release.controller;
 
 import io.agrest.Ag;
-import io.agrest.DataResponse;
-import io.bootique.tools.release.model.persistent.*;
-import io.bootique.tools.release.service.readme.CreateReleaseNotesService;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.User;
+import io.bootique.tools.release.service.readme.ReleaseNotesService;
 import io.bootique.tools.release.view.ReleaseNotesView;
 
 import javax.inject.Inject;
@@ -17,7 +17,7 @@ import javax.ws.rs.core.UriInfo;
 public class ReleaseNotesController extends BaseController {
 
     @Inject
-    private CreateReleaseNotesService createReleaseNotesService;
+    private ReleaseNotesService releaseNotesService;
 
     @GET
     public ReleaseNotesView home(@Context UriInfo uriInfo) {
@@ -28,12 +28,7 @@ public class ReleaseNotesController extends BaseController {
 
     @GET
     @Path("/generate")
-    public StringBuilder getBranch(@Context UriInfo uriInfo, @QueryParam("milestoneTitle") String milestoneTitle) {
-        return createReadme(uriInfo, milestoneTitle);
-    }
-
-    private StringBuilder createReadme(UriInfo uriInfo, String milestoneTitle) {
-        DataResponse<Repository> dataResponse = Ag.select(Repository.class, configuration).uri(uriInfo).get();
-        return createReleaseNotesService.createReleaseNotes(dataResponse.getObjects(), milestoneTitle);
+    public String getBranch(@QueryParam("milestoneTitle") String milestoneTitle) {
+        return releaseNotesService.createReleaseNotes(milestoneTitle);
     }
 }
