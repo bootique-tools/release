@@ -6,7 +6,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
+import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.service.desktop.DesktopException;
@@ -17,6 +19,9 @@ import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.release.ReleaseService;
+import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.query.ObjectSelect;
 
 public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
 
@@ -35,6 +40,9 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
     @Inject
     ReleaseService releaseService;
 
+    @Inject
+    Provider<ServerRuntime> cayenneRuntime;
+
     @Override
     public String apply(Repository repo) {
         loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_SYNC));
@@ -47,13 +55,33 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
         if(repos.isEmpty()) {
             throw new JobException("NO_STAGING_REPO", "Staging repos not found, check release perform stage logs.");
         }
+
+        StagingRepo stagingRepo;
+
         if(repos.size() > 1) {
-            throw new JobException("MULTI_STAGING_REPO",
-                    "Multiple staging repos found, can't automatically deal with them. "
-                    + "Please go to https://oss.sonatype.org and check them manually.");
+            ObjectContext context = cayenneRuntime.get().newContext();
+            Project project = ObjectSelect.query(Project.class)
+                    .where(Project.REPOSITORY.dot(Repository.NAME).eq(repo.getName()))
+                    .selectOne(context);
+            String projectDescription = project.getRootModule().getGroupStr()
+                    + ":" + project.getRootModule().getGithubId()
+                    + ":" + releaseService.getReleaseDescriptor().getReleaseVersion();
+
+            List<StagingRepo> stagingForRepo = repos.stream()
+                    .filter(r -> r.description.contains(projectDescription))
+                    .collect(Collectors.toList());
+            if(stagingForRepo.isEmpty()) {
+                throw new JobException("NO_STAGING_REPO", "Staging repos for the project " + repo.getName() + " not found, check release perform stage logs.");
+            } else if(stagingForRepo.size() > 1) {
+                throw new JobException("MULTI_STAGING_REPO",
+                        "Multiple staging repos found, can't automatically deal with them. "
+                                + "Please go to https://oss.sonatype.org and check them manually.");
+            }
+            stagingRepo = stagingForRepo.get(0);
+        } else {
+            stagingRepo = repos.get(0);
         }
 
-        StagingRepo stagingRepo = repos.get(0);
         if(stagingRepo.state == RepoState.UNKNOWN) {
             throw new JobException("STAGING_REPO_UNKNOWN_STATE", "Staging repo is in unknown or unsupported state." +
                     "Please go to https://oss.sonatype.org and check it manually.");
