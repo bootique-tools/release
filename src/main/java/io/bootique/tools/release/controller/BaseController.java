@@ -15,8 +15,8 @@ import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -61,27 +61,19 @@ abstract class BaseController {
         return currentUser;
     }
 
-
-
-    List<Project> getSelectedProjects(String selectedProjects) throws IOException {
-        List selectedProjectsName = objectMapper.readValue(selectedProjects, List.class);
-        AgRequest agRequest = Ag.request(configuration).build();
-
-        DataResponse<Project> projects = Ag.select(Project.class, configuration).request(agRequest).get();
-
-        List<Project> projectList = projects.getObjects().stream().filter(project ->
-                selectedProjectsName.contains(project.getRepository().getName())).collect(Collectors.toList());
-        return sortProjects(selectedProjectsName, projectList);
+    protected List<Project> getSelectedProjects(String selectedProjects) throws IOException {
+        @SuppressWarnings("unchecked")
+        List<String> selectedProjectsNames = objectMapper.readValue(selectedProjects, List.class);
+        List<Project> projectList = ObjectSelect.query(Project.class)
+                .select(cayenneRuntime.newContext())
+                .stream()
+                .filter(project -> selectedProjectsNames.contains(project.getRepository().getName()))
+                .collect(Collectors.toList());
+        return sortProjects(selectedProjectsNames, projectList);
     }
 
-    List<Project> getAllProjects() {
-        AgRequest agRequest = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        return mavenService.getProjects(organization, project -> true);
-    }
-
-    boolean haveMissingRepos(Organization organization) {
-        for (Repository repository : organization.getRepositories()) {
+    private boolean haveMissingRepos() {
+        for (Repository repository : getCurrentOrganization().getRepositories()) {
             if (preferences.have(GitService.BASE_PATH_PREFERENCE)) {
                 if (gitService.status(repository) == GitService.GitStatus.MISSING
                         && !excludedProject(repository)) {
@@ -92,17 +84,41 @@ abstract class BaseController {
         return false;
     }
 
-    boolean excludedProject(Repository repository) {
+    private boolean excludedProject(Repository repository) {
         return repository.getName().equals("bootique-rabbitmq-client")
                 || repository.getName().equals("bootique-jersey-client");
     }
 
-    private DataResponse<Project> createProject(Predicate<Project> predicate) {
-        AgRequest agRequestOrganization = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequestOrganization).get().getObjects().get(0);
+    protected DataResponse<Project> getProjects(Predicate<Project> predicate, AgRequest request) {
 
-        List<Project> projects = haveMissingRepos(organization) ? Collections.emptyList() :
-                mavenService.getProjects(organization, predicate);
+        DataResponse<Project> projectDataResponse = Ag.select(Project.class, configuration).request(request).get();
+        List<Project> projects = projectDataResponse.getObjects();
+        if (projects.isEmpty()) {
+            if(!createProjects(predicate).isEmpty()) {
+                return getProjects(predicate, request);
+            } else {
+                return DataResponse.forObjects(Collections.emptyList());
+            }
+        }
+
+        List<Project> filteredProjects = projects.stream()
+                .filter(predicate)
+                .collect(Collectors.toList());
+        projectDataResponse.setObjects(filteredProjects);
+        return projectDataResponse;
+    }
+
+    private List<Project> sortProjects(List<String> selectedProjectsName, List<Project> selectedProjects) {
+        selectedProjects.sort(Comparator.comparingInt(p -> selectedProjectsName.indexOf(p.getRepository().getName())));
+        return selectedProjects;
+    }
+
+    private List<Project> createProjects(Predicate<Project> predicate) {
+        Organization organization = getCurrentOrganization();
+
+        List<Project> projects = haveMissingRepos()
+                ? Collections.emptyList()
+                : mavenService.getProjects(organization, predicate);
 
         if (!projects.isEmpty()) {
             projects.forEach(project -> {
@@ -111,46 +127,8 @@ abstract class BaseController {
             });
 
             organization.getObjectContext().commitChanges();
-
         }
 
-        return DataResponse.forObjects(projects);
-    }
-
-    protected DataResponse<Project> getProjects(Predicate<Project> predicate, AgRequest agRequest) {
-
-        DataResponse<Project> projectDataResponse = Ag.select(Project.class, configuration).request(agRequest).get();
-
-        if (projectDataResponse.getObjects().size() == 0) {
-
-            projectDataResponse = createProject(predicate);
-
-            if (!projectDataResponse.getObjects().isEmpty()) {
-                return getProjects(predicate, agRequest);
-            }
-
-        } else {
-            List<Project> projects = projectDataResponse.getObjects().stream().filter(predicate)
-                    .collect(Collectors.toList());
-
-            projects = mavenService.sortMavenProject(projects);
-
-            projectDataResponse.setObjects(projects);
-        }
-
-        return projectDataResponse;
-    }
-
-    private List<Project> sortProjects(List<String> selectedProjectsName, List<Project> selectedProjects) {
-        List<Project> sortedProjects = new ArrayList<>();
-
-        for(String projectName : selectedProjectsName) {
-            sortedProjects.add(
-                    selectedProjects.stream().filter(
-                            project -> projectName.equals(project.getRepository().getName()))
-                            .findFirst().orElseThrow());
-        }
-
-        return sortedProjects;
+        return projects;
     }
 }

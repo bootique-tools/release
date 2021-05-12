@@ -73,7 +73,7 @@ public class ValidationController extends BaseJobController {
     @GET
     @Path("/pom")
     public String validatePom() {
-        List<Project> allProjects = getAllProjects();
+        List<Project> allProjects = mavenService.getProjects(getCurrentOrganization(), project -> true);
         List<String> failedRepos = new ArrayList<>();
         for (Project project : allProjects) {
             Repository repository = project.getRepository();
