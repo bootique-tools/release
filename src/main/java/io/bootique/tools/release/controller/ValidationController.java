@@ -1,7 +1,5 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
-import io.agrest.AgRequest;
 import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.desktop.DesktopException;
@@ -21,7 +19,7 @@ import java.util.List;
 import java.util.function.Function;
 
 @Path("/validation")
-public class ValidationController extends DefaultBaseController {
+public class ValidationController extends BaseJobController {
 
     private final String CONTROLLER_NAME = "validation";
 
@@ -33,10 +31,7 @@ public class ValidationController extends DefaultBaseController {
 
     @GET
     public ValidationView home() {
-        AgRequest agRequest = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).request(agRequest).get().getObjects().get(0);
-        return new ValidationView(user, organization);
+        return new ValidationView(getCurrentUser(), getCurrentOrganization());
     }
 
     @GET

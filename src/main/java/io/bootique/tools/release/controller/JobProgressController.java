@@ -11,7 +11,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 @Path("/progress")
-public class JobProgressController extends BaseController {
+public class JobProgressController {
 
     @Inject
     private BatchJobService jobService;

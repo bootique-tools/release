@@ -3,7 +3,8 @@ package io.bootique.tools.release.controller;
 import io.agrest.Ag;
 import io.agrest.AgRequest;
 import io.agrest.DataResponse;
-import io.bootique.tools.release.model.persistent.*;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.view.RepoView;
 
 import javax.ws.rs.GET;
@@ -15,10 +16,8 @@ import javax.ws.rs.core.*;
 public class RepoController extends BaseController {
 
     @GET
-    public RepoView home(@Context UriInfo uriInfo) {
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new RepoView(user, organization);
+    public RepoView home() {
+        return new RepoView(getCurrentUser(), getCurrentOrganization());
     }
 
     @GET
@@ -28,7 +27,7 @@ public class RepoController extends BaseController {
         AgRequest agRequest = Ag.request(configuration).build();
         DataResponse<Organization> organizations = Ag.select(Organization.class, configuration).request(agRequest).get();
         return !organizations.getObjects().isEmpty() &&
-                !organizations.getObjects().get(0).getRepositories().isEmpty();
+                !getCurrentOrganization().getRepositories().isEmpty();
     }
 
     @GET

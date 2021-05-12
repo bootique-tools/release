@@ -3,7 +3,6 @@ package io.bootique.tools.release.controller;
 import io.agrest.Ag;
 import io.agrest.AgRequest;
 import io.agrest.DataResponse;
-import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
@@ -13,11 +12,13 @@ import io.bootique.tools.release.view.ReleaseContinueView;
 import io.bootique.tools.release.view.ReleaseView;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -48,29 +49,31 @@ public class ReleaseController extends BaseController {
 
     @GET
     @Path("/continue-release")
-    public ReleaseContinueView continueRelease(@Context UriInfo uriInfo) {
+    public ReleaseContinueView continueRelease() {
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
         String lastSuccessStage = releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE ?
                 releaseDescriptor.getLastSuccessReleaseStage().getText() :
                 releaseDescriptor.getCurrentRollbackStage().getText();
 
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ReleaseContinueView(user, organization, releaseDescriptor.getReleaseVersion(), lastSuccessStage, releaseDescriptor.getProjectList());
+        return new ReleaseContinueView(
+                getCurrentUser(),
+                getCurrentOrganization(),
+                releaseDescriptor.getReleaseVersion(),
+                lastSuccessStage,
+                releaseDescriptor.getProjectList()
+        );
     }
 
     @GET
     @Path("/start-release")
-    public ReleaseView startRelease(@Context UriInfo uriInfo) {
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ReleaseView(user, organization);
+    public ReleaseView startRelease() {
+        return new ReleaseView(getCurrentUser(), getCurrentOrganization());
     }
 
     @GET
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
-    public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
+    public DataResponse<Project> showAll() {
         AgRequest agRequest = Ag.request(configuration)
                 .addInclude("[\"repository\",\"rootModule\",\"dependencies.dependencyProject.rootModule\"]")
                 .build();
@@ -81,7 +84,7 @@ public class ReleaseController extends BaseController {
     @GET
     @Path("show-projects")
     @Produces(MediaType.APPLICATION_JSON)
-    public DataResponse<Project> showProjects(@Context UriInfo uriInfo, @QueryParam("version") String version) {
+    public DataResponse<Project> showProjects(@QueryParam("version") String version) {
 
         AgRequest agRequest = Ag.request(configuration)
                 .addInclude("[\"repository\",\"rootModule\"]")
@@ -105,7 +108,8 @@ public class ReleaseController extends BaseController {
     public DataResponse<Project> selectProjects(@QueryParam("version") String version, @QueryParam("projects") final String selected,
                                                 @QueryParam("selectedProject") String selectedProject,
                                                 @QueryParam("state") boolean state) throws IOException {
-        List selectedProjects = objectMapper.readValue(selected, List.class);
+        @SuppressWarnings("unchecked")
+        List<String> selectedProjects = objectMapper.readValue(selected, List.class);
 
         AgRequest agRequest = Ag.request(configuration)
                 .addInclude("[\"repository\",\"rootModule\",\"rootModule.dependencies\"]")

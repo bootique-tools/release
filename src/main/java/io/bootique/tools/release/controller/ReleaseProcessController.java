@@ -1,8 +1,6 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
@@ -13,9 +11,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -40,7 +36,9 @@ public class ReleaseProcessController extends BaseReleaseController {
                         selectedProjects,
                         ReleaseStage.RELEASE_PULL,
                         RollbackStage.NO_ROLLBACK,
-                        mode));
+                        mode
+                )
+        );
 
         return validate(releaseVersion, selectedProjects) ?
                 Response.serverError().build() :
@@ -49,13 +47,10 @@ public class ReleaseProcessController extends BaseReleaseController {
 
     @GET
     @Path("/current-step")
-    public BaseView currentStep(@Context UriInfo uriInfo) {
+    public BaseView currentStep() {
         ReleaseDescriptor releaseDescriptor = releaseService.getReleaseDescriptor();
-
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ReleaseProcessView(user,
-                organization, releaseDescriptor.getCurrentReleaseStage(), releaseDescriptor.isAutoReleaseMode());
+        return new ReleaseProcessView(getCurrentUser(), getCurrentOrganization(),
+                releaseDescriptor.getCurrentReleaseStage(), releaseDescriptor.isAutoReleaseMode());
     }
 
     @GET

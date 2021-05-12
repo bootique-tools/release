@@ -35,15 +35,13 @@ public class MavenController extends BaseController {
     private DesktopService desktopService;
 
     @GET
-    public MavenView home(@Context UriInfo uriInfo) {
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new MavenView(user, organization);
+    public MavenView home() {
+        return new MavenView(getCurrentUser(), getCurrentOrganization());
     }
 
     @POST
     @Path("verify")
-    public void verifyAll(@Context UriInfo uriInfo) {
+    public void verifyAll() {
         AgRequest agRequest = Ag.request(configuration).build();
         DataResponse<Project> projects = getProjects(project -> true, agRequest);
         List<Repository> repositories = projects.getObjects().stream()

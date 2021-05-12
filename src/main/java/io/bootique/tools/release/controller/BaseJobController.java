@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Function;
 import javax.inject.Inject;
 
-class DefaultBaseController extends BaseController {
+class BaseJobController extends BaseController {
 
     @Inject
     private BatchJobService jobService;

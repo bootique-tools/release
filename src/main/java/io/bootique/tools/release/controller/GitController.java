@@ -8,10 +8,8 @@ import io.bootique.tools.release.service.git.GitService;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -53,14 +51,14 @@ public class GitController extends BaseController {
 
     @Path("update_all")
     @GET
-    public Response updateAll(@Context UriInfo uriInfo) {
+    public Response updateAll() {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             return Response.status(Response.Status.PRECONDITION_FAILED)
                     .entity("Path should be set via /ui/git/select_path query.")
                     .build();
         }
 
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).getOne().getObjects().get(0);
+        Organization organization = getCurrentOrganization();
         organization
                 .getRepositories()
                 .stream()
@@ -72,14 +70,14 @@ public class GitController extends BaseController {
 
     @Path("clone_all")
     @POST
-    public Response cloneAll(@Context UriInfo uriInfo) {
+    public Response cloneAll() {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             return Response.status(Response.Status.PRECONDITION_FAILED)
                     .entity("Path should be set via /ui/git/select_path query.")
                     .build();
         }
 
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).getOne().getObjects().get(0);
+        Organization organization = getCurrentOrganization();
         organization
                 .getRepositories()
                 .stream()

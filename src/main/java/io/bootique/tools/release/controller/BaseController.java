@@ -7,9 +7,12 @@ import io.agrest.DataResponse;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.persistent.User;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
+import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.query.ObjectSelect;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +40,28 @@ abstract class BaseController {
 
     @Context
     Configuration configuration;
+
+    @Inject
+    ServerRuntime cayenneRuntime;
+
+    private transient Organization currentOrganization;
+    private transient User currentUser;
+
+    protected Organization getCurrentOrganization() {
+        if(currentOrganization == null) {
+            currentOrganization = ObjectSelect.query(Organization.class).selectFirst(cayenneRuntime.newContext());
+        }
+        return currentOrganization;
+    }
+
+    protected User getCurrentUser() {
+        if(currentUser == null) {
+            currentUser = ObjectSelect.query(User.class).selectFirst(cayenneRuntime.newContext());
+        }
+        return currentUser;
+    }
+
+
 
     List<Project> getSelectedProjects(String selectedProjects) throws IOException {
         List selectedProjectsName = objectMapper.readValue(selectedProjects, List.class);

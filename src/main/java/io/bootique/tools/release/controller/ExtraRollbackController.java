@@ -1,9 +1,6 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
-import io.agrest.AgRequest;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.central.MvnCentralService;
@@ -29,9 +26,7 @@ public class ExtraRollbackController extends BaseReleaseController {
 
     @GET
     public ExtraRollbackView home(@Context UriInfo uriInfo) {
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new ExtraRollbackView(user, organization);
+        return new ExtraRollbackView(getCurrentUser(), getCurrentOrganization());
     }
 
     @POST
@@ -61,10 +56,7 @@ public class ExtraRollbackController extends BaseReleaseController {
     @GET
     @Path("/rollback-fail")
     public ExtraRollbackView rollbackFail() {
-        AgRequest agRequest = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).request(agRequest).get().getObjects().get(0);
-        return new ExtraRollbackView(user, organization, "This version was synced with mvn central. Rollback is not available.");
+        return new ExtraRollbackView(getCurrentUser(), getCurrentOrganization(), "This version was synced with mvn central. Rollback is not available.");
     }
 
     @Override

@@ -28,7 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Path("milestone")
-public class MilestoneController extends DefaultBaseController {
+public class MilestoneController extends BaseJobController {
 
     private final String CONTROLLER_NAME = "milestone";
 
@@ -36,10 +36,8 @@ public class MilestoneController extends DefaultBaseController {
     private GitHubRestAPI gitHubRestAPI;
 
     @GET
-    public MilestonesView home(@Context UriInfo uriInfo) {
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new MilestonesView(user, organization);
+    public MilestonesView home() {
+        return new MilestonesView(getCurrentUser(), getCurrentOrganization());
     }
 
     @GET
@@ -47,7 +45,8 @@ public class MilestoneController extends DefaultBaseController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getMilestones(@QueryParam("selectedModules") String selectedModules) throws IOException {
-        List selectedProjects = objectMapper.readValue(selectedModules, List.class);
+        @SuppressWarnings("unchecked")
+        List<String> selectedProjects = objectMapper.readValue(selectedModules, List.class);
         AgRequest agRequest = Ag.request(configuration)
                 .addInclude("[\"repository\"]")
                 .andExp("[\"state like 'OPEN'\"]")
@@ -111,7 +110,8 @@ public class MilestoneController extends DefaultBaseController {
     @Path("/rename")
     @Consumes(MediaType.APPLICATION_JSON)
     public void rename(@QueryParam("milestoneTitle") String title,
-                       @QueryParam("selectedModules") String selectedModules, @QueryParam("milestoneNewTitle") String milestoneNewTitle) throws IOException {
+                       @QueryParam("selectedModules") String selectedModules,
+                       @QueryParam("milestoneNewTitle") String milestoneNewTitle) throws IOException {
         Function<Project, String> repoProcessor = project -> {
             try {
                 Repository repository = project.getRepository();
@@ -133,7 +133,7 @@ public class MilestoneController extends DefaultBaseController {
     public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
         AgRequest agRequest = Ag.request(configuration)
                 .addInclude("[\"repository\",\"modules\",\"rootModule\",\"repository.milestones\",\"repository.milestones.issues\"," +
-                        "{\"path\":\"repository.milestones\",\"cayenneExp\":\"state like \'OPEN\'\"}]")
+                        "{\"path\":\"repository.milestones\",\"cayenneExp\":\"state like 'OPEN'\"}]")
                 .build();
         return getProjects(project -> true, agRequest);
     }

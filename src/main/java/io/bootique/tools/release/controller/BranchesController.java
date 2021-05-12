@@ -21,15 +21,13 @@ import java.io.IOException;
 import java.util.function.Function;
 
 @Path("branches")
-public class BranchesController extends DefaultBaseController {
+public class BranchesController extends BaseJobController {
 
     private final String CONTROLLER_NAME = "branches";
 
     @GET
     public BranchesView home(@Context UriInfo uriInfo) {
-        Organization organization = Ag.select(Organization.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).uri(uriInfo).get().getObjects().get(0);
-        return new BranchesView(user, organization);
+        return new BranchesView(getCurrentUser(), getCurrentOrganization());
     }
 
     @GET

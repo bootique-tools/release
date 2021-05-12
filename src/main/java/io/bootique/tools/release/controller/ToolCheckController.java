@@ -5,9 +5,6 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
-import io.agrest.Ag;
-import io.agrest.AgRequest;
-import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.view.ToolCheckView;
 
@@ -49,11 +46,7 @@ public class ToolCheckController extends BaseController {
             // TODO: ???
         }
 
-        AgRequest agRequest = Ag.request(configuration).build();
-        Organization organization = Ag.select(Organization.class, configuration).request(agRequest).get().getObjects().get(0);
-        User user = Ag.select(User.class, configuration).request(agRequest).get().getObjects().get(0);
-        return new ToolCheckView(user, organization,
-                javaVersion, jdk, mavenVersion);
+        return new ToolCheckView(getCurrentUser(), getCurrentOrganization(), javaVersion, jdk, mavenVersion);
     }
 
 }
