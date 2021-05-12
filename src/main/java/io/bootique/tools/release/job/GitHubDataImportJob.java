@@ -35,6 +35,7 @@ public class GitHubDataImportJob extends BaseJob {
 
     private Map<String, Author> authorMap;
 
+    @SuppressWarnings("unused")
     public GitHubDataImportJob() {
         super(JobMetadata.build(GitHubDataImportJob.class));
     }
@@ -51,7 +52,6 @@ public class GitHubDataImportJob extends BaseJob {
 
         ServerRuntime runtime = runtimeProvider.get();
         ObjectContext context = runtime.newContext();
-        GitHubApiImport gitHubApi = this.gitHubApiImport;
 
         if (this.update) {
             getCurrents(context);
@@ -87,7 +87,6 @@ public class GitHubDataImportJob extends BaseJob {
                     repository.setLocalStatus(gitService.status(repository));
                 }
                 Map<String, Milestone> milestoneMap = new HashMap<>();
-                Map<String, Label> labelMap = new HashMap<>();
 
                 getMilestones(objectContext, repository, milestoneMap);
                 getIssues(objectContext, repository, milestoneMap);
@@ -95,7 +94,6 @@ public class GitHubDataImportJob extends BaseJob {
 
                 objectContext.commitChanges();
                 milestoneMap.clear();
-                labelMap.clear();
             }
         }
         authorMap.clear();
@@ -142,8 +140,9 @@ public class GitHubDataImportJob extends BaseJob {
 
         for (IssueClose issueClose : issuesClosed) {
             if (issueClose.getMilestone() != null) {
-                if (milestoneMap.containsKey(issueClose.getMilestone().getGithubId())) {
-                    issueClose.setMilestone(milestoneMap.get(issueClose.getMilestone().getGithubId()));
+                Milestone milestone = milestoneMap.get(issueClose.getMilestone().getGithubId());
+                if (milestone != null) {
+                    issueClose.setMilestone(milestone);
                 } else {
                     context.registerNewObject(issueClose.getMilestone());
                 }
@@ -159,7 +158,7 @@ public class GitHubDataImportJob extends BaseJob {
 
         for (Milestone milestone : milestones) {
             milestone.setRepository(repository);
-            if (milestone.getIssues() != null || milestone.getIssues().size() > 0) {
+            if (milestone.getIssues() != null && !milestone.getIssues().isEmpty()) {
                 for (IssueOpen issue : milestone.getIssues()) {
                     context.registerNewObject(issue);
                 }

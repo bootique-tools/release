@@ -106,7 +106,7 @@ public class GitController extends BaseController {
         }
 
         AgRequest agRequest = Ag.request(configuration)
-                .cayenneExp("[\"name like $b\",\"" + repoName + "\"]")
+                .andExp("[\"name like $b\",\"" + repoName + "\"]")
                 .build();
         Repository repository = Ag.select(Repository.class, configuration).request(agRequest).getOne().getObjects().get(0);
         if(repository == null) {

@@ -50,7 +50,7 @@ public class MilestoneController extends DefaultBaseController {
         List selectedProjects = objectMapper.readValue(selectedModules, List.class);
         AgRequest agRequest = Ag.request(configuration)
                 .addInclude("[\"repository\"]")
-                .cayenneExp("[\"state like \'OPEN\'\"]")
+                .andExp("[\"state like 'OPEN'\"]")
                 .build();
         DataResponse<Milestone> dataResponse = Ag.select(Milestone.class, configuration).request(agRequest).get();
         List<Milestone> milestones = dataResponse.getObjects().stream().filter(milestone -> selectedProjects.contains(milestone.getRepository().getName())).collect(Collectors.toList());
