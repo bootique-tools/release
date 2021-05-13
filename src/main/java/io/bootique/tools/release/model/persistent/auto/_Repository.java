@@ -6,7 +6,11 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.DateProperty;
+import org.apache.cayenne.exp.property.EntityProperty;
+import org.apache.cayenne.exp.property.ListProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.persistent.ClosedIssue;
 import io.bootique.tools.release.model.persistent.GitHubEntity;
@@ -24,23 +28,23 @@ import io.bootique.tools.release.model.persistent.PullRequest;
  */
 public abstract class _Repository extends GitHubEntity {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> DESCRIPTION = Property.create("description", String.class);
-    public static final Property<String> L_STATUS = Property.create("lStatus", String.class);
-    public static final Property<String> NAME = Property.create("name", String.class);
-    public static final Property<LocalDateTime> PUSHED_AT = Property.create("pushedAt", LocalDateTime.class);
-    public static final Property<String> PUSHED_AT_STR = Property.create("pushedAtStr", String.class);
-    public static final Property<String> SSH_URL = Property.create("sshUrl", String.class);
-    public static final Property<LocalDateTime> UPDATED_AT = Property.create("updatedAt", LocalDateTime.class);
-    public static final Property<List<OpenIssue>> ISSUES = Property.create("issues", List.class);
-    public static final Property<List<ClosedIssue>> ISSUES_CLOSE = Property.create("issuesClose", List.class);
-    public static final Property<List<Milestone>> MILESTONES = Property.create("milestones", List.class);
-    public static final Property<Organization> ORGANIZATION = Property.create("organization", Organization.class);
-    public static final Property<ParentRepository> PARENT = Property.create("parent", ParentRepository.class);
-    public static final Property<List<PullRequest>> PULL_REQUESTS = Property.create("pullRequests", List.class);
+    public static final StringProperty<String> DESCRIPTION = PropertyFactory.createString("description", String.class);
+    public static final StringProperty<String> L_STATUS = PropertyFactory.createString("lStatus", String.class);
+    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
+    public static final DateProperty<LocalDateTime> PUSHED_AT = PropertyFactory.createDate("pushedAt", LocalDateTime.class);
+    public static final StringProperty<String> PUSHED_AT_STR = PropertyFactory.createString("pushedAtStr", String.class);
+    public static final StringProperty<String> SSH_URL = PropertyFactory.createString("sshUrl", String.class);
+    public static final DateProperty<LocalDateTime> UPDATED_AT = PropertyFactory.createDate("updatedAt", LocalDateTime.class);
+    public static final ListProperty<OpenIssue> ISSUES = PropertyFactory.createList("issues", OpenIssue.class);
+    public static final ListProperty<ClosedIssue> ISSUES_CLOSE = PropertyFactory.createList("issuesClose", ClosedIssue.class);
+    public static final ListProperty<Milestone> MILESTONES = PropertyFactory.createList("milestones", Milestone.class);
+    public static final EntityProperty<Organization> ORGANIZATION = PropertyFactory.createEntity("organization", Organization.class);
+    public static final EntityProperty<ParentRepository> PARENT = PropertyFactory.createEntity("parent", ParentRepository.class);
+    public static final ListProperty<PullRequest> PULL_REQUESTS = PropertyFactory.createList("pullRequests", PullRequest.class);
 
     protected String description;
     protected String lStatus;

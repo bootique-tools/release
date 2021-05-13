@@ -5,7 +5,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.DateProperty;
+import org.apache.cayenne.exp.property.NumericProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
 
@@ -17,17 +20,17 @@ import io.bootique.tools.release.model.persistent.GitHubEntity;
  */
 public abstract class _RepositoryNode extends GitHubEntity {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<Integer> COMMENTS_COUNT = Property.create("commentsCount", Integer.class);
-    public static final Property<LocalDateTime> CREATED_AT = Property.create("createdAt", LocalDateTime.class);
-    public static final Property<String> CREATED_AT_STR = Property.create("createdAtStr", String.class);
-    public static final Property<Integer> NUMBER = Property.create("number", Integer.class);
-    public static final Property<String> REPO_NAME = Property.create("repoName", String.class);
-    public static final Property<Integer> REPOSITORY_ID = Property.create("repositoryId", Integer.class);
-    public static final Property<String> TITLE = Property.create("title", String.class);
+    public static final NumericProperty<Integer> COMMENTS_COUNT = PropertyFactory.createNumeric("commentsCount", Integer.class);
+    public static final DateProperty<LocalDateTime> CREATED_AT = PropertyFactory.createDate("createdAt", LocalDateTime.class);
+    public static final StringProperty<String> CREATED_AT_STR = PropertyFactory.createString("createdAtStr", String.class);
+    public static final NumericProperty<Integer> NUMBER = PropertyFactory.createNumeric("number", Integer.class);
+    public static final StringProperty<String> REPO_NAME = PropertyFactory.createString("repoName", String.class);
+    public static final NumericProperty<Integer> REPOSITORY_ID = PropertyFactory.createNumeric("repositoryId", Integer.class);
+    public static final StringProperty<String> TITLE = PropertyFactory.createString("title", String.class);
 
     protected Integer commentsCount;
     protected LocalDateTime createdAt;

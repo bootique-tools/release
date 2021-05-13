@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
 
@@ -16,12 +17,12 @@ import io.bootique.tools.release.model.persistent.GitHubEntity;
  */
 public abstract class _Label extends GitHubEntity {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> COLOR = Property.create("color", String.class);
-    public static final Property<String> NAME = Property.create("name", String.class);
+    public static final StringProperty<String> COLOR = PropertyFactory.createString("color", String.class);
+    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
 
     protected String color;
     protected String name;

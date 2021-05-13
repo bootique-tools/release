@@ -119,7 +119,7 @@ public class GitHubRestV3API implements GitHubRestAPI {
         milestone.setTitle(json.get("title").asText());
         milestone.setUrl(json.get("html_url").asText());
         milestone.setState(json.get("state").asText());
-        milestone.setObjectId(new ObjectId("Milestone", json.get("id").asText().getBytes()));
+        milestone.setObjectId(ObjectId.of("Milestone"));
         return milestone;
     }
 

@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
 
@@ -16,13 +17,13 @@ import io.bootique.tools.release.model.persistent.GitHubEntity;
  */
 public abstract class _User extends GitHubEntity {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> LOGIN = Property.create("login", String.class);
-    public static final Property<String> NAME = Property.create("name", String.class);
-    public static final Property<String> TYPE = Property.create("type", String.class);
+    public static final StringProperty<String> LOGIN = PropertyFactory.createString("login", String.class);
+    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
+    public static final StringProperty<String> TYPE = PropertyFactory.createString("type", String.class);
 
     protected String login;
     protected String name;

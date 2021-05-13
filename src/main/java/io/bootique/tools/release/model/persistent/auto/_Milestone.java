@@ -5,7 +5,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.EntityProperty;
+import org.apache.cayenne.exp.property.ListProperty;
+import org.apache.cayenne.exp.property.NumericProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.persistent.ClosedIssue;
 import io.bootique.tools.release.model.persistent.GitHubEntity;
@@ -20,16 +24,16 @@ import io.bootique.tools.release.model.persistent.Repository;
  */
 public abstract class _Milestone extends GitHubEntity {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<Integer> NUMBER = Property.create("number", Integer.class);
-    public static final Property<String> STATE = Property.create("state", String.class);
-    public static final Property<String> TITLE = Property.create("title", String.class);
-    public static final Property<List<ClosedIssue>> CLOSED_ISSUES = Property.create("closedIssues", List.class);
-    public static final Property<List<OpenIssue>> OPEN_ISSUES = Property.create("openIssues", List.class);
-    public static final Property<Repository> REPOSITORY = Property.create("repository", Repository.class);
+    public static final NumericProperty<Integer> NUMBER = PropertyFactory.createNumeric("number", Integer.class);
+    public static final StringProperty<String> STATE = PropertyFactory.createString("state", String.class);
+    public static final StringProperty<String> TITLE = PropertyFactory.createString("title", String.class);
+    public static final ListProperty<ClosedIssue> CLOSED_ISSUES = PropertyFactory.createList("closedIssues", ClosedIssue.class);
+    public static final ListProperty<OpenIssue> OPEN_ISSUES = PropertyFactory.createList("openIssues", OpenIssue.class);
+    public static final EntityProperty<Repository> REPOSITORY = PropertyFactory.createEntity("repository", Repository.class);
 
     protected Integer number;
     protected String state;

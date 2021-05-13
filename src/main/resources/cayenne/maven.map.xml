@@ -3,6 +3,7 @@
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xsi:schemaLocation="http://cayenne.apache.org/schema/10/modelMap https://cayenne.apache.org/schema/10/modelMap.xsd"
 	 project-version="10">
+	<property name="defaultPackage" value="io.bootique.tools.release.model.maven.persistent"/>
 	<db-entity name="Module">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
@@ -50,11 +51,11 @@
 	<db-relationship name="project" source="Module" target="Project">
 		<db-attribute-pair source="project_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="rootModule" source="ModuleDependency" target="Module">
-		<db-attribute-pair source="rootModule_id" target="ID"/>
-	</db-relationship>
 	<db-relationship name="module" source="ModuleDependency" target="Module">
 		<db-attribute-pair source="module_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="rootModule" source="ModuleDependency" target="Module">
+		<db-attribute-pair source="rootModule_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="dependencies" source="Project" target="ProjectDependency" toMany="true">
 		<db-attribute-pair source="ID" target="project_id"/>
@@ -62,20 +63,20 @@
 	<db-relationship name="dependency_Project" source="Project" target="ProjectDependency" toMany="true">
 		<db-attribute-pair source="ID" target="dependency_project_id"/>
 	</db-relationship>
+	<db-relationship name="modules" source="Project" target="Module" toMany="true">
+		<db-attribute-pair source="ID" target="project_id"/>
+	</db-relationship>
 	<db-relationship name="repository" source="Project" target="Repository">
 		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="rootModule" source="Project" target="Module">
 		<db-attribute-pair source="rootModuleId" target="ID"/>
 	</db-relationship>
-	<db-relationship name="modules" source="Project" target="Module" toMany="true">
-		<db-attribute-pair source="ID" target="project_id"/>
+	<db-relationship name="dependentProject" source="ProjectDependency" target="Project">
+		<db-attribute-pair source="dependency_project_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="project" source="ProjectDependency" target="Project">
 		<db-attribute-pair source="project_id" target="ID"/>
-	</db-relationship>
-	<db-relationship name="dependentProject" source="ProjectDependency" target="Project">
-		<db-attribute-pair source="dependency_project_id" target="ID"/>
 	</db-relationship>
 	<obj-relationship name="dependencies" source="Module" target="ModuleDependency" deleteRule="Cascade" db-relationship-path="dependencies"/>
 	<obj-relationship name="project" source="Module" target="Project" deleteRule="Nullify" db-relationship-path="project"/>
@@ -90,6 +91,12 @@
 		<mode>entity</mode>
 		<template>templates/v4_1/subclass.vm</template>
 		<superTemplate>templates/v4_1/superclass.vm</superTemplate>
+		<template>templates/v4_1/subclass.vm</template>
+		<superTemplate>templates/v4_1/superclass.vm</superTemplate>
+		<embeddableTemplate>templates/v4_1/embeddable-subclass.vm</embeddableTemplate>
+		<embeddableSuperTemplate>templates/v4_1/embeddable-superclass.vm</embeddableSuperTemplate>
+		<queryTemplate>templates/v4_1/datamap-subclass.vm</queryTemplate>
+		<querySuperTemplate>templates/v4_1/datamap-superclass.vm</querySuperTemplate>
 		<outputPattern>*.java</outputPattern>
 		<makePairs>true</makePairs>
 		<usePkgPath>true</usePkgPath>

@@ -5,7 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.ListProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
 import io.bootique.tools.release.model.persistent.Repository;
@@ -18,13 +20,13 @@ import io.bootique.tools.release.model.persistent.Repository;
  */
 public abstract class _Organization extends GitHubEntity {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> LOGIN = Property.create("login", String.class);
-    public static final Property<String> NAME = Property.create("name", String.class);
-    public static final Property<List<Repository>> REPOSITORIES = Property.create("repositories", List.class);
+    public static final StringProperty<String> LOGIN = PropertyFactory.createString("login", String.class);
+    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
+    public static final ListProperty<Repository> REPOSITORIES = PropertyFactory.createList("repositories", Repository.class);
 
     protected String login;
     protected String name;

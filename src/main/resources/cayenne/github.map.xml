@@ -333,24 +333,17 @@
 	<obj-relationship name="organization" source="Repository" target="Organization" deleteRule="Nullify" db-relationship-path="organization"/>
 	<obj-relationship name="parent" source="Repository" target="ParentRepository" deleteRule="Nullify" db-relationship-path="parent"/>
 	<obj-relationship name="pullRequests" source="Repository" target="PullRequest" deleteRule="Deny" db-relationship-path="pullRequests"/>
-	<dbImport xmlns="http://cayenne.apache.org/schema/10/dbimport">
-		<tableTypes>
-			<tableType>TABLE</tableType>
-			<tableType>VIEW</tableType>
-		</tableTypes>
-		<forceDataMapCatalog>false</forceDataMapCatalog>
-		<forceDataMapSchema>false</forceDataMapSchema>
-		<namingStrategy>org.apache.cayenne.dbsync.naming.DefaultObjectNameGenerator</namingStrategy>
-		<skipPrimaryKeyLoading>false</skipPrimaryKeyLoading>
-		<skipRelationshipsLoading>false</skipRelationshipsLoading>
-		<useJava7Types>false</useJava7Types>
-		<usePrimitives>true</usePrimitives>
-	</dbImport>
 	<cgen xmlns="http://cayenne.apache.org/schema/10/cgen">
 		<destDir>..\..\java</destDir>
 		<mode>entity</mode>
 		<template>templates/v4_1/subclass.vm</template>
 		<superTemplate>templates/v4_1/superclass.vm</superTemplate>
+		<template>templates/v4_1/subclass.vm</template>
+		<superTemplate>templates/v4_1/superclass.vm</superTemplate>
+		<embeddableTemplate>templates/v4_1/embeddable-subclass.vm</embeddableTemplate>
+		<embeddableSuperTemplate>templates/v4_1/embeddable-superclass.vm</embeddableSuperTemplate>
+		<queryTemplate>templates/v4_1/datamap-subclass.vm</queryTemplate>
+		<querySuperTemplate>templates/v4_1/datamap-superclass.vm</querySuperTemplate>
 		<outputPattern>*.java</outputPattern>
 		<makePairs>true</makePairs>
 		<usePkgPath>true</usePkgPath>

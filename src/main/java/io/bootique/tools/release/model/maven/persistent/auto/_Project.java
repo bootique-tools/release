@@ -6,7 +6,11 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 import org.apache.cayenne.BaseDataObject;
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.BaseProperty;
+import org.apache.cayenne.exp.property.EntityProperty;
+import org.apache.cayenne.exp.property.ListProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
@@ -20,18 +24,18 @@ import io.bootique.tools.release.model.persistent.Repository;
  */
 public abstract class _Project extends BaseDataObject {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> BRANCH_NAME = Property.create("branchName", String.class);
-    public static final Property<Boolean> DISABLE = Property.create("disable", Boolean.class);
-    public static final Property<String> PATH_STR = Property.create("pathStr", String.class);
-    public static final Property<String> VERSION = Property.create("version", String.class);
-    public static final Property<List<Project>> DEPENDENCIES = Property.create("dependencies", List.class);
-    public static final Property<List<Module>> MODULES = Property.create("modules", List.class);
-    public static final Property<Repository> REPOSITORY = Property.create("repository", Repository.class);
-    public static final Property<Module> ROOT_MODULE = Property.create("rootModule", Module.class);
+    public static final StringProperty<String> BRANCH_NAME = PropertyFactory.createString("branchName", String.class);
+    public static final BaseProperty<Boolean> DISABLE = PropertyFactory.createBase("disable", Boolean.class);
+    public static final StringProperty<String> PATH_STR = PropertyFactory.createString("pathStr", String.class);
+    public static final StringProperty<String> VERSION = PropertyFactory.createString("version", String.class);
+    public static final ListProperty<Project> DEPENDENCIES = PropertyFactory.createList("dependencies", Project.class);
+    public static final ListProperty<Module> MODULES = PropertyFactory.createList("modules", Module.class);
+    public static final EntityProperty<Repository> REPOSITORY = PropertyFactory.createEntity("repository", Repository.class);
+    public static final EntityProperty<Module> ROOT_MODULE = PropertyFactory.createEntity("rootModule", Module.class);
 
     protected String branchName;
     protected Boolean disable;

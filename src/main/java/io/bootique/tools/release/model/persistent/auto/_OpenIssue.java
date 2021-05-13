@@ -5,7 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.EntityProperty;
+import org.apache.cayenne.exp.property.ListProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
 
 import io.bootique.tools.release.model.persistent.Author;
 import io.bootique.tools.release.model.persistent.Label;
@@ -21,14 +23,14 @@ import io.bootique.tools.release.model.persistent.RepositoryNode;
  */
 public abstract class _OpenIssue extends RepositoryNode {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<Author> AUTHOR = Property.create("author", Author.class);
-    public static final Property<List<Label>> LABELS = Property.create("labels", List.class);
-    public static final Property<Milestone> MILESTONE = Property.create("milestone", Milestone.class);
-    public static final Property<Repository> REPOSITORY = Property.create("repository", Repository.class);
+    public static final EntityProperty<Author> AUTHOR = PropertyFactory.createEntity("author", Author.class);
+    public static final ListProperty<Label> LABELS = PropertyFactory.createList("labels", Label.class);
+    public static final EntityProperty<Milestone> MILESTONE = PropertyFactory.createEntity("milestone", Milestone.class);
+    public static final EntityProperty<Repository> REPOSITORY = PropertyFactory.createEntity("repository", Repository.class);
 
 
     protected Object author;

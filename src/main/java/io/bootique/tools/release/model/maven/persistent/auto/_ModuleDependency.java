@@ -5,7 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.apache.cayenne.BaseDataObject;
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.EntityProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.maven.persistent.Module;
 
@@ -17,13 +19,13 @@ import io.bootique.tools.release.model.maven.persistent.Module;
  */
 public abstract class _ModuleDependency extends BaseDataObject {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> TYPE = Property.create("type", String.class);
-    public static final Property<Module> MODULE = Property.create("module", Module.class);
-    public static final Property<Module> ROOT_MODULE = Property.create("rootModule", Module.class);
+    public static final StringProperty<String> TYPE = PropertyFactory.createString("type", String.class);
+    public static final EntityProperty<Module> MODULE = PropertyFactory.createEntity("module", Module.class);
+    public static final EntityProperty<Module> ROOT_MODULE = PropertyFactory.createEntity("rootModule", Module.class);
 
     protected String type;
 

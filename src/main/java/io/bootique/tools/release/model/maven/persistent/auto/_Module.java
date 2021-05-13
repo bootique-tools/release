@@ -6,7 +6,10 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 import org.apache.cayenne.BaseDataObject;
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.EntityProperty;
+import org.apache.cayenne.exp.property.ListProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Project;
@@ -19,15 +22,15 @@ import io.bootique.tools.release.model.maven.persistent.Project;
  */
 public abstract class _Module extends BaseDataObject {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> GITHUB_ID = Property.create("githubId", String.class);
-    public static final Property<String> GROUP_STR = Property.create("groupStr", String.class);
-    public static final Property<String> VERSION = Property.create("version", String.class);
-    public static final Property<List<ModuleDependency>> DEPENDENCIES = Property.create("dependencies", List.class);
-    public static final Property<Project> PROJECT = Property.create("project", Project.class);
+    public static final StringProperty<String> GITHUB_ID = PropertyFactory.createString("githubId", String.class);
+    public static final StringProperty<String> GROUP_STR = PropertyFactory.createString("groupStr", String.class);
+    public static final StringProperty<String> VERSION = PropertyFactory.createString("version", String.class);
+    public static final ListProperty<ModuleDependency> DEPENDENCIES = PropertyFactory.createList("dependencies", ModuleDependency.class);
+    public static final EntityProperty<Project> PROJECT = PropertyFactory.createEntity("project", Project.class);
 
     protected String githubId;
     protected String groupStr;

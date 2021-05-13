@@ -6,7 +6,10 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.apache.cayenne.exp.Property;
+import org.apache.cayenne.exp.property.DateProperty;
+import org.apache.cayenne.exp.property.ListProperty;
+import org.apache.cayenne.exp.property.PropertyFactory;
+import org.apache.cayenne.exp.property.StringProperty;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
 import io.bootique.tools.release.model.persistent.Repository;
@@ -19,15 +22,15 @@ import io.bootique.tools.release.model.persistent.Repository;
  */
 public abstract class _ParentRepository extends GitHubEntity {
 
-    private static final long serialVersionUID = 1L; 
+    private static final long serialVersionUID = 1L;
 
     public static final String ID_PK_COLUMN = "ID";
 
-    public static final Property<String> NAME = Property.create("name", String.class);
-    public static final Property<LocalDate> PUSHED_AT = Property.create("pushedAt", LocalDate.class);
-    public static final Property<String> SSH_URL = Property.create("sshUrl", String.class);
-    public static final Property<LocalDate> UPDATED_AT = Property.create("updatedAt", LocalDate.class);
-    public static final Property<List<Repository>> PARENT = Property.create("parent", List.class);
+    public static final StringProperty<String> NAME = PropertyFactory.createString("name", String.class);
+    public static final DateProperty<LocalDate> PUSHED_AT = PropertyFactory.createDate("pushedAt", LocalDate.class);
+    public static final StringProperty<String> SSH_URL = PropertyFactory.createString("sshUrl", String.class);
+    public static final DateProperty<LocalDate> UPDATED_AT = PropertyFactory.createDate("updatedAt", LocalDate.class);
+    public static final ListProperty<Repository> PARENT = PropertyFactory.createList("parent", Repository.class);
 
     protected String name;
     protected LocalDate pushedAt;
