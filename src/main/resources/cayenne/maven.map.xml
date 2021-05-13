@@ -79,10 +79,23 @@
 	</db-relationship>
 	<obj-relationship name="dependencies" source="Module" target="ModuleDependency" deleteRule="Cascade" db-relationship-path="dependencies"/>
 	<obj-relationship name="project" source="Module" target="Project" deleteRule="Nullify" db-relationship-path="project"/>
-	<obj-relationship name="rootModule" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
 	<obj-relationship name="module" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="module"/>
+	<obj-relationship name="rootModule" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
 	<obj-relationship name="dependencies" source="Project" target="Project" deleteRule="Cascade" db-relationship-path="dependencies.dependentProject"/>
+	<obj-relationship name="modules" source="Project" target="Module" deleteRule="Deny" db-relationship-path="modules"/>
 	<obj-relationship name="repository" source="Project" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<obj-relationship name="rootModule" source="Project" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
-	<obj-relationship name="modules" source="Project" target="Module" deleteRule="Deny" db-relationship-path="modules"/>
+	<cgen xmlns="http://cayenne.apache.org/schema/10/cgen">
+		<destDir>..\..\java</destDir>
+		<mode>entity</mode>
+		<template>templates/v4_1/subclass.vm</template>
+		<superTemplate>templates/v4_1/superclass.vm</superTemplate>
+		<outputPattern>*.java</outputPattern>
+		<makePairs>true</makePairs>
+		<usePkgPath>true</usePkgPath>
+		<overwrite>false</overwrite>
+		<createPropertyNames>false</createPropertyNames>
+		<createPKProperties>false</createPKProperties>
+		<client>false</client>
+	</cgen>
 </data-map>
