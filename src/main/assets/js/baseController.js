@@ -62,30 +62,31 @@ export const baseMethods = {
             } else if (currApp.path === "issue") {
                 uri = "include=[\"milestone\",\"labels\",\"repository\",\"author\",\"repository.parent\"]" + "&" +  uri;
             } else if (currApp.path === "milestone") {
-                uri = "include=[\"issues\",\"milestones\",\"milestones.issues\"]" + "&" + uri;
+                uri = "include=[\"issues\",\"milestones\",\"milestones.openIssues\"]" + "&" + uri;
             } else if (currApp.path === "pr") {
                 uri = "include=[\"labels\",\"repository\",\"author\",\"repository.parent\"]" + "&" + uri;
             }
 
-            if (uri != "") {
+            if (uri !== "") {
                 uri = "?" + uri;
             }
 
             axios.get(`/ui/${currApp.path}/show-all${uri}`)
-            .then(function (response) {
-                currApp.allItems = response.data;
-                if(currApp.allItems.length === 0) {
-                    currApp.errorMessage = "Please clone all repositories to your local repositories!";
-                } else {
-                    if (currApp.additionalMethod !== undefined) {
-                        currApp.additionalMethod(currApp);
+                .then(function (response) {
+                    currApp.allItems = response.data;
+                    if(currApp.allItems.length === 0) {
+                        currApp.errorMessage = "Please clone all repositories to your local repositories!";
+                    } else {
+                        if (currApp.additionalMethod !== undefined) {
+                            currApp.additionalMethod(currApp);
+                        }
                     }
-                }
-                $('#bar').fadeOut();
-            })
-            .catch(function () {
-             console.log("Error in loading projects.");
-            })
+                    $('#bar').fadeOut();
+                })
+                .catch(function () {
+                    currApp.errorMessage = "Error in loading projects.";
+                    console.log("Error in loading projects.");
+                })
         },
     }
 }

@@ -132,7 +132,7 @@ public class MilestoneController extends BaseJobController {
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
         AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository\",\"modules\",\"rootModule\",\"repository.milestones\",\"repository.milestones.openIssues\"," +
+                .addInclude("[\"repository\",\"modules\",\"rootModule\",\"repository.milestones.openIssues\"," +
                         "{\"path\":\"repository.milestones\",\"cayenneExp\":\"state like 'OPEN'\"}]")
                 .build();
         return getProjects(project -> true, agRequest);

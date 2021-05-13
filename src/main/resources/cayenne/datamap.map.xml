@@ -49,7 +49,6 @@
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="groupStr" type="VARCHAR" length="255"/>
 		<db-attribute name="project_id" type="INTEGER" length="10"/>
-		<db-attribute name="rootModule_id" type="INTEGER" length="10"/>
 		<db-attribute name="version" type="VARCHAR" length="255"/>
 	</db-entity>
 	<db-entity name="ModuleDependency">
@@ -94,6 +93,7 @@
 		<db-attribute name="disable" type="BOOLEAN"/>
 		<db-attribute name="pathStr" type="VARCHAR" length="255"/>
 		<db-attribute name="repository_id" type="INTEGER" length="10"/>
+		<db-attribute name="rootModuleId" type="INTEGER" isMandatory="true"/>
 		<db-attribute name="version" type="VARCHAR" length="255"/>
 	</db-entity>
 	<db-entity name="ProjectDependency">
@@ -289,9 +289,6 @@
 	<db-relationship name="project" source="Module" target="Project">
 		<db-attribute-pair source="project_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="rootModule" source="Module" target="Module">
-		<db-attribute-pair source="rootModule_id" target="ID"/>
-	</db-relationship>
 	<db-relationship name="module" source="ModuleDependency" target="Module">
 		<db-attribute-pair source="module_id" target="ID"/>
 	</db-relationship>
@@ -335,7 +332,7 @@
 		<db-attribute-pair source="repository_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="rootModule" source="Project" target="Module">
-		<db-attribute-pair source="ID" target="rootModule_id"/>
+		<db-attribute-pair source="rootModuleId" target="ID"/>
 	</db-relationship>
 	<db-relationship name="dependencies" source="ProjectDependency" target="Project">
 		<db-attribute-pair source="project_id" target="ID"/>
@@ -401,7 +398,6 @@
 	<obj-relationship name="repository" source="Milestone" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<obj-relationship name="dependencies" source="Module" target="ModuleDependency" deleteRule="Cascade" db-relationship-path="dependencies"/>
 	<obj-relationship name="project" source="Module" target="Project" deleteRule="Nullify" db-relationship-path="project"/>
-	<obj-relationship name="rootModule" source="Module" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
 	<obj-relationship name="module" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="module"/>
 	<obj-relationship name="rootModule" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
 	<obj-relationship name="author" source="OpenIssue" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
@@ -440,16 +436,10 @@
 		<usePrimitives>true</usePrimitives>
 	</dbImport>
 	<cgen xmlns="http://cayenne.apache.org/schema/10/cgen">
-		<destDir>../../java</destDir>
+		<destDir>..\..\java</destDir>
 		<mode>entity</mode>
 		<template>templates/v4_1/subclass.vm</template>
 		<superTemplate>templates/v4_1/superclass.vm</superTemplate>
-		<template>templates/v4_1/subclass.vm</template>
-		<superTemplate>templates/v4_1/superclass.vm</superTemplate>
-		<embeddableTemplate>templates/v4_1/embeddable-subclass.vm</embeddableTemplate>
-		<embeddableSuperTemplate>templates/v4_1/embeddable-superclass.vm</embeddableSuperTemplate>
-		<queryTemplate>templates/v4_1/datamap-subclass.vm</queryTemplate>
-		<querySuperTemplate>templates/v4_1/datamap-superclass.vm</querySuperTemplate>
 		<outputPattern>*.java</outputPattern>
 		<makePairs>true</makePairs>
 		<usePkgPath>true</usePkgPath>

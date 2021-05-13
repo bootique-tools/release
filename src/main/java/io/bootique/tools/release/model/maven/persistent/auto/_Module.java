@@ -8,7 +8,6 @@ import java.util.List;
 import org.apache.cayenne.BaseDataObject;
 import org.apache.cayenne.exp.Property;
 
-import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Project;
 
@@ -29,7 +28,6 @@ public abstract class _Module extends BaseDataObject {
     public static final Property<String> VERSION = Property.create("version", String.class);
     public static final Property<List<ModuleDependency>> DEPENDENCIES = Property.create("dependencies", List.class);
     public static final Property<Project> PROJECT = Property.create("project", Project.class);
-    public static final Property<Module> ROOT_MODULE = Property.create("rootModule", Module.class);
 
     protected String githubId;
     protected String groupStr;
@@ -37,7 +35,6 @@ public abstract class _Module extends BaseDataObject {
 
     protected Object dependencies;
     protected Object project;
-    protected Object rootModule;
 
     public void setGithubId(String githubId) {
         beforePropertyWrite("githubId", this.githubId, githubId);
@@ -90,14 +87,6 @@ public abstract class _Module extends BaseDataObject {
         return (Project)readProperty("project");
     }
 
-    public void setRootModule(Module rootModule) {
-        setToOneTarget("rootModule", rootModule, true);
-    }
-
-    public Module getRootModule() {
-        return (Module)readProperty("rootModule");
-    }
-
     @Override
     public Object readPropertyDirectly(String propName) {
         if(propName == null) {
@@ -115,8 +104,6 @@ public abstract class _Module extends BaseDataObject {
                 return this.dependencies;
             case "project":
                 return this.project;
-            case "rootModule":
-                return this.rootModule;
             default:
                 return super.readPropertyDirectly(propName);
         }
@@ -144,9 +131,6 @@ public abstract class _Module extends BaseDataObject {
             case "project":
                 this.project = val;
                 break;
-            case "rootModule":
-                this.rootModule = val;
-                break;
             default:
                 super.writePropertyDirectly(propName, val);
         }
@@ -168,7 +152,6 @@ public abstract class _Module extends BaseDataObject {
         out.writeObject(this.version);
         out.writeObject(this.dependencies);
         out.writeObject(this.project);
-        out.writeObject(this.rootModule);
     }
 
     @Override
@@ -179,7 +162,6 @@ public abstract class _Module extends BaseDataObject {
         this.version = (String)in.readObject();
         this.dependencies = in.readObject();
         this.project = in.readObject();
-        this.rootModule = in.readObject();
     }
 
 }

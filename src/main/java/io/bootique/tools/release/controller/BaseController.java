@@ -104,6 +104,7 @@ abstract class BaseController {
         List<Project> filteredProjects = projects.stream()
                 .filter(predicate)
                 .collect(Collectors.toList());
+        filteredProjects = mavenService.sortMavenProject(filteredProjects);
         projectDataResponse.setObjects(filteredProjects);
         return projectDataResponse;
     }

@@ -7,3 +7,4 @@ release-manager.yml
 *.log
 node
 node_modules
+*.db

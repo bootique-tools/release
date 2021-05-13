@@ -59,7 +59,7 @@
                                                 Milestone:
                                                 <a v-if="milestone !== null"
                                                    v-bind:href="milestone.url" target="_blank">[[milestone.title]]</a>
-                                                    - issues count: <a :href="'/ui/issue?filter=milestone.title&field=' + milestone.title">[[milestone.issues.length]]</a>
+                                                    - issues count: <a :href="'/ui/issue?filter=milestone.title&field=' + milestone.title">[[milestone.openIssues.length]]</a>
                                             </div>
                                     </li>
                                 </ul>
