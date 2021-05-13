@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Disabled("Could fail on GitHub Actions")
 class BaseDesktopServiceTest {
 
     private DesktopService desktopService;
@@ -47,7 +48,6 @@ class BaseDesktopServiceTest {
     }
 
     @Test
-    @Disabled("Could fail on GitHub Actions")
     @DisplayName("Running maven command test")
     void testRunningMavenCommand(@TempDir Path tempPath) throws IOException {
         Path path = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "dummy-org-00" + File.separator + "dummy-api");
