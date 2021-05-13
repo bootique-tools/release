@@ -1,6 +1,6 @@
 package io.bootique.tools.release.service.readme;
 
-import io.bootique.tools.release.model.persistent.IssueClose;
+import io.bootique.tools.release.model.persistent.ClosedIssue;
 import io.bootique.tools.release.model.persistent.Milestone;
 import io.bootique.tools.release.model.persistent.Repository;
 import org.apache.cayenne.Cayenne;
@@ -26,17 +26,17 @@ public class DefaultReleaseNotesService implements ReleaseNotesService {
         StringBuilder readme = new StringBuilder();
 
         for (Repository repository : repositories) {
-            List<IssueClose> closedIssues = ObjectSelect.query(IssueClose.class)
-                    .where(IssueClose.MILESTONE.dot(Milestone.TITLE).eq(milestoneTitle))
-                    .and(IssueClose.REPOSITORY_ID.eq(Cayenne.intPKForObject(repository)))
-                    .orderBy(IssueClose.NUMBER.asc())
+            List<ClosedIssue> closedIssues = ObjectSelect.query(ClosedIssue.class)
+                    .where(ClosedIssue.MILESTONE.dot(Milestone.TITLE).eq(milestoneTitle))
+                    .and(ClosedIssue.REPOSITORY_ID.eq(Cayenne.intPKForObject(repository)))
+                    .orderBy(ClosedIssue.NUMBER.asc())
                     .select(context);
             if(closedIssues.isEmpty()) {
                continue;
             }
 
             readme.append(repository.getName()).append("\n").append("\n");
-            for (IssueClose issue : closedIssues) {
+            for (ClosedIssue issue : closedIssues) {
                 String title = issue.getTitle().replaceAll("^\\s+", "");
                 readme.append("* #").append(issue.getNumber()).append(" ").append(title).append("\n");
             }

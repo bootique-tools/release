@@ -15,6 +15,17 @@ public class Repository extends _Repository implements Comparable<Repository> {
 
     private static final long serialVersionUID = 1L;
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/uuuu");
+
+    @JsonProperty("milestones")
+    private Node<Milestone> milestoneNode;
+
+    @JsonProperty("issues")
+    private Node<OpenIssue> issueNode;
+
+    @JsonProperty("pullRequests")
+    private Node<PullRequest> pullRequestNode;
+
     public Repository() {}
 
     public Repository(String name) {
@@ -22,10 +33,11 @@ public class Repository extends _Repository implements Comparable<Repository> {
         super.name = name;
     }
 
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu");
-
-    @JsonProperty("milestones")
-    private Node<Milestone> milestoneNode;
+    @JsonIgnore
+    @Override
+    public Organization getOrganization() {
+        return super.getOrganization();
+    }
 
     public Node<Milestone> getMilestoneNode() {
         return milestoneNode;
@@ -35,19 +47,13 @@ public class Repository extends _Repository implements Comparable<Repository> {
         this.milestoneNode = milestoneNodes;
     }
 
-    @JsonProperty("issues")
-    private Node<IssueOpen> issueNode;
-
-    public Node<IssueOpen> getIssueNode() {
+    public Node<OpenIssue> getIssueNode() {
         return issueNode;
     }
 
-    public void setIssueNode(Node<IssueOpen> issueNode) {
+    public void setIssueNode(Node<OpenIssue> issueNode) {
         this.issueNode = issueNode;
     }
-
-    @JsonProperty("pullRequests")
-    private Node<PullRequest> pullRequestNode;
 
     public Node<PullRequest> getPullRequestNode() {
         return pullRequestNode;
@@ -84,13 +90,8 @@ public class Repository extends _Repository implements Comparable<Repository> {
     public void closeMilestone(String title) {
         List<Milestone> milestoneList = getMilestones();
         List<Milestone> concurrentList = new CopyOnWriteArrayList<>(milestoneList);
-
-        for (Milestone milestone : concurrentList) {
-            if (milestone.getTitle().equals(title)) {
-                concurrentList.remove(milestone);
-            }
-        }
-        milestones = concurrentList;
+        concurrentList.removeIf(milestone -> milestone.getTitle().equals(title));
+        milestones = concurrentList; // TODO: fix this
     }
 
     public synchronized void renameMilestone(String title, String newTitle) {
@@ -103,16 +104,43 @@ public class Repository extends _Repository implements Comparable<Repository> {
 
     @JsonIgnore
     public String getUpdatedAtStr() {
-        return dateTimeFormatter.format(updatedAt);
+        return FORMATTER.format(updatedAt);
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Override
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Override
+    public LocalDateTime getUpdatedAt() {
+        return super.getUpdatedAt();
+    }
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Override
+    public LocalDateTime getPushedAt() {
+        return super.getPushedAt();
+    }
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public void setPushedAt(LocalDateTime pushedAt) {
         this.pushedAt = pushedAt;
-        this.pushedAtStr = dateTimeFormatter.format(pushedAt);
+        this.pushedAtStr = FORMATTER.format(pushedAt);
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Override
+    public String getPushedAtStr() {
+        return super.getPushedAtStr();
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Override
+    public void setPushedAtStr(String pushedAtStr) {
+        super.setPushedAtStr(pushedAtStr);
     }
 
     public void setLocalStatus(GitService.GitStatus localStatus) {
@@ -130,7 +158,7 @@ public class Repository extends _Repository implements Comparable<Repository> {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public boolean haveLocalRepo() {
-        return this.lStatus != GitService.GitStatus.MISSING.toString();
+        return !GitService.GitStatus.MISSING.toString().equals(this.lStatus);
     }
 
     @Override
@@ -156,11 +184,11 @@ public class Repository extends _Repository implements Comparable<Repository> {
         this.milestones = milestoneList;
     }
 
-    public List<IssueClose> getIssuesClose() {
+    public List<ClosedIssue> getIssuesClose() {
         if (super.getIssuesClose() == null) {
-            List<IssueClose> issueCloseList = new ArrayList<>();
-            for (IssueOpen issue : issueNode.getNodes()) {
-                issueCloseList.add(new IssueClose(issue));
+            List<ClosedIssue> issueCloseList = new ArrayList<>();
+            for (OpenIssue issue : issueNode.getNodes()) {
+                issueCloseList.add(new ClosedIssue(issue));
             }
             return issueCloseList;
         }

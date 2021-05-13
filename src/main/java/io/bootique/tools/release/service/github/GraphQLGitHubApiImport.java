@@ -81,7 +81,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
     }
 
     @Override
-    public List<IssueOpen> getIssueCollection(Repository repository) {
+    public List<OpenIssue> getIssueCollection(Repository repository) {
 
         RepositoryContainer repositoryContainer = loadQuery("issues",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
@@ -96,7 +96,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
     }
 
     @Override
-    public List<IssueClose> getClosedIssueCollection(Repository repository) {
+    public List<ClosedIssue> getClosedIssueCollection(Repository repository) {
         String repoName = repository.getName();
         int count = getClosedIssuesCount(repoName);
         RepositoryContainer repositoryContainer = loadQuery("closed-issues",

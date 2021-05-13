@@ -1,5 +1,6 @@
 package io.bootique.tools.release.model.persistent;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.persistent.auto._Author;
 
 import java.util.Objects;
@@ -7,6 +8,12 @@ import java.util.Objects;
 public class Author extends _Author implements Comparable<Author> {
 
     private static final long serialVersionUID = 1L;
+
+    @Override
+    @JsonProperty("__typename")
+    public String getType() {
+        return super.getType();
+    }
 
     @Override
     public int compareTo(Author o) {

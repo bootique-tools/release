@@ -1,7 +1,7 @@
 query($owner:String!, $name:String!, $totalCount: Int!) {
   repository(owner:$owner,name:$name) {
     name
-      issues(first: $totalCount, states: CLOSED) {
+      issues(last: $totalCount, states: CLOSED) {
         totalCount
         nodes{
           id

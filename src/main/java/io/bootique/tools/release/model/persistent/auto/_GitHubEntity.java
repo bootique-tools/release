@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.BaseDataObject;
 import org.apache.cayenne.exp.Property;
 
@@ -23,7 +22,6 @@ public abstract class _GitHubEntity extends BaseDataObject {
     public static final Property<String> GITHUB_ID = Property.create("githubId", String.class);
     public static final Property<String> URL = Property.create("url", String.class);
 
-    @JsonProperty("id")
     protected String githubId;
     protected String url;
 

@@ -1,9 +1,9 @@
 package io.bootique.tools.release.model.persistent;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.bootique.tools.release.model.persistent.auto._IssueOpen;
+import io.bootique.tools.release.model.persistent.auto._OpenIssue;
 
-public class IssueOpen extends _IssueOpen {
+public class OpenIssue extends _OpenIssue {
 
     private static final long serialVersionUID = 1L;
 
@@ -21,8 +21,15 @@ public class IssueOpen extends _IssueOpen {
         this.labelNode = labelNode;
     }
 
+    @JsonProperty("milestone")
     public void setMilestone(Milestone milestone) {
         this.milestone = milestone;
+    }
+
+    @JsonProperty("milestone")
+    @Override
+    public Milestone getMilestone() {
+        return super.getMilestone();
     }
 
     public void setRepository(Repository repository) {

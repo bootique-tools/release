@@ -1,5 +1,6 @@
 package io.bootique.tools.release.model.persistent;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.persistent.auto._Milestone;
 
@@ -10,27 +11,33 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
 
     private static final long serialVersionUID = 1L;
 
+    @JsonProperty("issues")
+    private Node<OpenIssue> issueNode;
+
     public Milestone() {
         super();
-        this.issues = new ArrayList<>();
+        this.openIssues = new ArrayList<>();
     }
 
     @JsonProperty("issues")
-    private Node<IssueOpen> issueNode;
-
-    @JsonProperty("issues")
-    public Node<IssueOpen> getIssueNode() {
+    public Node<OpenIssue> getIssueNode() {
         return issueNode;
     }
 
     @JsonProperty("issues")
-    public void setIssueNode(Node<IssueOpen> issueNode) {
+    public void setIssueNode(Node<OpenIssue> issueNode) {
         this.issueNode = issueNode;
     }
 
     @JsonProperty("issuesList")
-    public void setIssues(List<IssueOpen> issues) {
-        this.issues = issues;
+    public void setIssues(List<OpenIssue> issues) {
+        this.openIssues = issues;
+    }
+
+    @JsonIgnore
+    @Override
+    public Repository getRepository() {
+        return super.getRepository();
     }
 
     @Override
@@ -57,8 +64,8 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
         return "{milestone " + title + '}';
     }
 
-    public void addToIssuesWithoutContext(List<IssueOpen> issue) {
-        this.issues = issue;
+    public void addToIssuesWithoutContext(List<OpenIssue> issue) {
+        this.openIssues = issue;
     }
 
 }

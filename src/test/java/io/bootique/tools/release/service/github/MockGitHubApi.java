@@ -53,12 +53,12 @@ public class MockGitHubApi implements GitHubApiImport{
     }
 
     @Override
-    public List<IssueOpen> getIssueCollection(Repository repository) {
+    public List<OpenIssue> getIssueCollection(Repository repository) {
         return null;
     }
 
     @Override
-    public List<IssueClose> getClosedIssueCollection(Repository repository) {
+    public List<ClosedIssue> getClosedIssueCollection(Repository repository) {
         return null;
     }
 

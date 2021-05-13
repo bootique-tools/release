@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.exp.Property;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
@@ -27,7 +26,6 @@ public abstract class _User extends GitHubEntity {
 
     protected String login;
     protected String name;
-    @JsonProperty("__typename")
     protected String type;
 
 

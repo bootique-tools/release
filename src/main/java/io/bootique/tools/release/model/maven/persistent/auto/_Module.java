@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.cayenne.BaseDataObject;
 import org.apache.cayenne.exp.Property;
 
+import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Project;
 
@@ -27,16 +28,14 @@ public abstract class _Module extends BaseDataObject {
     public static final Property<String> GROUP_STR = Property.create("groupStr", String.class);
     public static final Property<String> VERSION = Property.create("version", String.class);
     public static final Property<List<ModuleDependency>> DEPENDENCIES = Property.create("dependencies", List.class);
-    public static final Property<List<ModuleDependency>> MODULE = Property.create("module", List.class);
     public static final Property<Project> PROJECT = Property.create("project", Project.class);
-    public static final Property<Project> ROOT_MODULE = Property.create("rootModule", Project.class);
+    public static final Property<Module> ROOT_MODULE = Property.create("rootModule", Module.class);
 
     protected String githubId;
     protected String groupStr;
     protected String version;
 
     protected Object dependencies;
-    protected Object module;
     protected Object project;
     protected Object rootModule;
 
@@ -83,19 +82,6 @@ public abstract class _Module extends BaseDataObject {
         return (List<ModuleDependency>)readProperty("dependencies");
     }
 
-    public void addToModule(ModuleDependency obj) {
-        addToManyTarget("module", obj, true);
-    }
-
-    public void removeFromModule(ModuleDependency obj) {
-        removeToManyTarget("module", obj, true);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<ModuleDependency> getModule() {
-        return (List<ModuleDependency>)readProperty("module");
-    }
-
     public void setProject(Project project) {
         setToOneTarget("project", project, true);
     }
@@ -104,12 +90,12 @@ public abstract class _Module extends BaseDataObject {
         return (Project)readProperty("project");
     }
 
-    public void setRootModule(Project rootModule) {
+    public void setRootModule(Module rootModule) {
         setToOneTarget("rootModule", rootModule, true);
     }
 
-    public Project getRootModule() {
-        return (Project)readProperty("rootModule");
+    public Module getRootModule() {
+        return (Module)readProperty("rootModule");
     }
 
     @Override
@@ -127,8 +113,6 @@ public abstract class _Module extends BaseDataObject {
                 return this.version;
             case "dependencies":
                 return this.dependencies;
-            case "module":
-                return this.module;
             case "project":
                 return this.project;
             case "rootModule":
@@ -157,9 +141,6 @@ public abstract class _Module extends BaseDataObject {
             case "dependencies":
                 this.dependencies = val;
                 break;
-            case "module":
-                this.module = val;
-                break;
             case "project":
                 this.project = val;
                 break;
@@ -186,7 +167,6 @@ public abstract class _Module extends BaseDataObject {
         out.writeObject(this.groupStr);
         out.writeObject(this.version);
         out.writeObject(this.dependencies);
-        out.writeObject(this.module);
         out.writeObject(this.project);
         out.writeObject(this.rootModule);
     }
@@ -198,7 +178,6 @@ public abstract class _Module extends BaseDataObject {
         this.groupStr = (String)in.readObject();
         this.version = (String)in.readObject();
         this.dependencies = in.readObject();
-        this.module = in.readObject();
         this.project = in.readObject();
         this.rootModule = in.readObject();
     }

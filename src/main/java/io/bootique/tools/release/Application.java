@@ -2,7 +2,7 @@ package io.bootique.tools.release;
 
 import io.bootique.BQCoreModule;
 import io.bootique.Bootique;
-import io.bootique.cayenne.CayenneModule;
+import io.bootique.cayenne.v41.CayenneModule;
 import io.bootique.command.CommandDecorator;
 import io.bootique.config.ConfigurationFactory;
 import io.bootique.di.BQModule;

@@ -5,8 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.exp.Property;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
@@ -31,14 +29,10 @@ public abstract class _RepositoryNode extends GitHubEntity {
     public static final Property<Integer> REPOSITORY_ID = Property.create("repositoryId", Integer.class);
     public static final Property<String> TITLE = Property.create("title", String.class);
 
-    @JsonIgnore
     protected Integer commentsCount;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     protected LocalDateTime createdAt;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "createdAtStr")
     protected String createdAtStr;
     protected Integer number;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "repoName")
     protected String repoName;
     protected Integer repositoryId;
     protected String title;

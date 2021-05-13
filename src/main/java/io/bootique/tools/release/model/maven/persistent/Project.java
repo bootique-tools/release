@@ -33,7 +33,7 @@ public class Project extends _Project implements Comparable<Project> {
         this.dependencies = new ArrayList<>();
         repository.getObjectContext().registerNewObject(this);
         rootModule.setProject(this);
-        rootModule.setRootModule(this);
+        rootModule.setRootModule(rootModule); //TODO: is it ok?
     }
 
     public Path getPath() {

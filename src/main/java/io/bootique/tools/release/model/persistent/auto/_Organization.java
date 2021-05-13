@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.exp.Property;
 
 import io.bootique.tools.release.model.persistent.GitHubEntity;
@@ -30,7 +29,6 @@ public abstract class _Organization extends GitHubEntity {
     protected String login;
     protected String name;
 
-    @JsonProperty("repositories")
     protected Object repositories;
 
     public void setLogin(String login) {

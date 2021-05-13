@@ -25,7 +25,7 @@ public class IssueController extends BaseController {
     @GET
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
-    public DataResponse<IssueOpen> showAll(@Context UriInfo uriInfo) {
-        return Ag.select(IssueOpen.class, configuration).uri(uriInfo).get();
+    public DataResponse<OpenIssue> showAll(@Context UriInfo uriInfo) {
+        return Ag.select(OpenIssue.class, configuration).uri(uriInfo).get();
     }
 }

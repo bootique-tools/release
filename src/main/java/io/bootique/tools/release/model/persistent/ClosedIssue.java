@@ -1,15 +1,15 @@
 package io.bootique.tools.release.model.persistent;
 
-import io.bootique.tools.release.model.persistent.auto._IssueClose;
+import io.bootique.tools.release.model.persistent.auto._ClosedIssue;
 
-public class IssueClose extends _IssueClose {
+public class ClosedIssue extends _ClosedIssue {
 
     private static final long serialVersionUID = 1L;
 
-    public IssueClose() {
+    public ClosedIssue() {
     }
 
-    public IssueClose(IssueOpen issue) {
+    public ClosedIssue(OpenIssue issue) {
         setGithubId(issue.getGithubId());
         setUrl(issue.getUrl());
         setNumber(issue.getNumber());

@@ -112,9 +112,9 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     private void getIssues(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
-        List<IssueOpen> issues = gitHubApiImport.getIssueCollection(repository);
+        List<OpenIssue> issues = gitHubApiImport.getIssueCollection(repository);
 
-        for (IssueOpen issue : issues) {
+        for (OpenIssue issue : issues) {
             if (issue.getMilestone() != null) {
                 if (milestoneMap.containsKey(issue.getMilestone().getGithubId())) {
                     issue.setMilestone(milestoneMap.get(issue.getMilestone().getGithubId()));
@@ -136,9 +136,9 @@ public class GitHubDataImportJob extends BaseJob {
             context.registerNewObject(issue);
         }
 
-        List<IssueClose> issuesClosed = gitHubApiImport.getClosedIssueCollection(repository);
+        List<ClosedIssue> issuesClosed = gitHubApiImport.getClosedIssueCollection(repository);
 
-        for (IssueClose issueClose : issuesClosed) {
+        for (ClosedIssue issueClose : issuesClosed) {
             if (issueClose.getMilestone() != null) {
                 Milestone milestone = milestoneMap.get(issueClose.getMilestone().getGithubId());
                 if (milestone != null) {
@@ -158,8 +158,8 @@ public class GitHubDataImportJob extends BaseJob {
 
         for (Milestone milestone : milestones) {
             milestone.setRepository(repository);
-            if (milestone.getIssues() != null && !milestone.getIssues().isEmpty()) {
-                for (IssueOpen issue : milestone.getIssues()) {
+            if (milestone.getOpenIssues() != null && !milestone.getOpenIssues().isEmpty()) {
+                for (OpenIssue issue : milestone.getOpenIssues()) {
                     context.registerNewObject(issue);
                 }
             }
@@ -190,8 +190,8 @@ public class GitHubDataImportJob extends BaseJob {
 
     private void deleteAll(ObjectContext objectContext) {
         SQLExec.query("delete from Label").update(objectContext);
-        SQLExec.query("delete from IssueOpen").update(objectContext);
-        SQLExec.query("delete from IssueClose").update(objectContext);
+        SQLExec.query("delete from OpenIssue").update(objectContext);
+        SQLExec.query("delete from ClosedIssue").update(objectContext);
         SQLExec.query("delete from Milestone").update(objectContext);
         SQLExec.query("delete from PullRequest").update(objectContext);
         SQLExec.query("delete from ModuleDependency").update(objectContext);

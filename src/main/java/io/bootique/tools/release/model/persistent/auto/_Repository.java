@@ -6,14 +6,12 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.cayenne.exp.Property;
 
+import io.bootique.tools.release.model.persistent.ClosedIssue;
 import io.bootique.tools.release.model.persistent.GitHubEntity;
-import io.bootique.tools.release.model.persistent.IssueOpen;
-import io.bootique.tools.release.model.persistent.IssueClose;
 import io.bootique.tools.release.model.persistent.Milestone;
+import io.bootique.tools.release.model.persistent.OpenIssue;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.ParentRepository;
 import io.bootique.tools.release.model.persistent.PullRequest;
@@ -37,37 +35,27 @@ public abstract class _Repository extends GitHubEntity {
     public static final Property<String> PUSHED_AT_STR = Property.create("pushedAtStr", String.class);
     public static final Property<String> SSH_URL = Property.create("sshUrl", String.class);
     public static final Property<LocalDateTime> UPDATED_AT = Property.create("updatedAt", LocalDateTime.class);
-    public static final Property<List<IssueOpen>> ISSUES = Property.create("issues", List.class);
-    public static final Property<List<IssueClose>> ISSUES_CLOSE = Property.create("issuesClose", List.class);
-    public static final Property<Milestone> MILESTONE = Property.create("milestone", Milestone.class);
+    public static final Property<List<OpenIssue>> ISSUES = Property.create("issues", List.class);
+    public static final Property<List<ClosedIssue>> ISSUES_CLOSE = Property.create("issuesClose", List.class);
     public static final Property<List<Milestone>> MILESTONES = Property.create("milestones", List.class);
     public static final Property<Organization> ORGANIZATION = Property.create("organization", Organization.class);
     public static final Property<ParentRepository> PARENT = Property.create("parent", ParentRepository.class);
     public static final Property<List<PullRequest>> PULL_REQUESTS = Property.create("pullRequests", List.class);
 
-    @JsonProperty("description")
     protected String description;
     protected String lStatus;
     protected String name;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     protected LocalDateTime pushedAt;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     protected String pushedAtStr;
     protected String sshUrl;
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     protected LocalDateTime updatedAt;
 
-    @JsonProperty("issues")
     protected Object issues;
-    protected Object milestone;
-    @JsonProperty("milestones")
+    protected Object issuesClose;
     protected Object milestones;
-    @JsonIgnore
     protected Object organization;
     protected Object parent;
-    @JsonProperty("pullRequests")
     protected Object pullRequests;
-    protected Object issuesClose;
 
     public void setDescription(String description) {
         beforePropertyWrite("description", this.description, description);
@@ -139,38 +127,30 @@ public abstract class _Repository extends GitHubEntity {
         return this.updatedAt;
     }
 
-    public void addToIssues(IssueOpen obj) {
+    public void addToIssues(OpenIssue obj) {
         addToManyTarget("issues", obj, true);
     }
 
-    public void removeFromIssues(IssueOpen obj) {
+    public void removeFromIssues(OpenIssue obj) {
         removeToManyTarget("issues", obj, true);
     }
 
     @SuppressWarnings("unchecked")
-    public List<IssueOpen> getIssues() {
-        return (List<IssueOpen>)readProperty("issues");
+    public List<OpenIssue> getIssues() {
+        return (List<OpenIssue>)readProperty("issues");
     }
 
-    public void addToIssuesClose(IssueClose obj) {
+    public void addToIssuesClose(ClosedIssue obj) {
         addToManyTarget("issuesClose", obj, true);
     }
 
-    public void removeFromIssuesClose(IssueClose obj) {
+    public void removeFromIssuesClose(ClosedIssue obj) {
         removeToManyTarget("issuesClose", obj, true);
     }
 
     @SuppressWarnings("unchecked")
-    public List<IssueClose> getIssuesClose() {
-        return (List<IssueClose>)readProperty("issuesClose");
-    }
-
-    public void setMilestone(Milestone milestone) {
-        setToOneTarget("milestone", milestone, true);
-    }
-
-    public Milestone getMilestone() {
-        return (Milestone)readProperty("milestone");
+    public List<ClosedIssue> getIssuesClose() {
+        return (List<ClosedIssue>)readProperty("issuesClose");
     }
 
     public void addToMilestones(Milestone obj) {
@@ -240,8 +220,6 @@ public abstract class _Repository extends GitHubEntity {
                 return this.issues;
             case "issuesClose":
                 return this.issuesClose;
-            case "milestone":
-                return this.milestone;
             case "milestones":
                 return this.milestones;
             case "organization":
@@ -289,9 +267,6 @@ public abstract class _Repository extends GitHubEntity {
             case "issuesClose":
                 this.issuesClose = val;
                 break;
-            case "milestone":
-                this.milestone = val;
-                break;
             case "milestones":
                 this.milestones = val;
                 break;
@@ -329,7 +304,6 @@ public abstract class _Repository extends GitHubEntity {
         out.writeObject(this.updatedAt);
         out.writeObject(this.issues);
         out.writeObject(this.issuesClose);
-        out.writeObject(this.milestone);
         out.writeObject(this.milestones);
         out.writeObject(this.organization);
         out.writeObject(this.parent);
@@ -348,7 +322,6 @@ public abstract class _Repository extends GitHubEntity {
         this.updatedAt = (LocalDateTime)in.readObject();
         this.issues = in.readObject();
         this.issuesClose = in.readObject();
-        this.milestone = in.readObject();
         this.milestones = in.readObject();
         this.organization = in.readObject();
         this.parent = in.readObject();
