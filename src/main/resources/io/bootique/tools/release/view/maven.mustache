@@ -23,7 +23,7 @@
                     <td>
                         <ul>
                             <li v-for="dependency in project.dependencies">
-                                [[dependency.dependencyProject.rootModule.githubId]]
+                                [[dependency.repository.name]]
                             </li>
                         </ul>
                     </td>

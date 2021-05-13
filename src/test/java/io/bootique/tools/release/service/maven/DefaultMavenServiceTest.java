@@ -31,26 +31,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DefaultMavenServiceTest {
 
-    private MockDesktopService mockDesktopService = new MockDesktopService();
-    private MockPreferenceService mockPreferenceService = new MockPreferenceService();
+    private MockPreferenceService mockPreferenceService;
     private MockGitHubApi gitHubApi;
-
+    private ObjectContext context;
     private DefaultMavenService service;
-
-    private static ObjectContext context = null;
-
 
     @BeforeEach
     void createService() {
-        service = new DefaultMavenService();
-        service.desktopService = mockDesktopService;
-        service.preferences = mockPreferenceService;
-
         ServerRuntime cayenneRuntime = ServerRuntime.builder()
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
         context = cayenneRuntime.newContext();
         gitHubApi = new MockGitHubApi(context);
+        mockPreferenceService = new MockPreferenceService();
+        service = new DefaultMavenService(mockPreferenceService);
     }
 
     @Test

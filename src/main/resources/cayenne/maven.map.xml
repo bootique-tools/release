@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-map xmlns="http://cayenne.apache.org/schema/10/modelMap"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xsi:schemaLocation="http://cayenne.apache.org/schema/10/modelMap https://cayenne.apache.org/schema/10/modelMap.xsd"
+	 project-version="10">
+	<db-entity name="Module">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="github_id" type="VARCHAR" length="255"/>
+		<db-attribute name="groupStr" type="VARCHAR" length="255"/>
+		<db-attribute name="project_id" type="INTEGER" length="10"/>
+		<db-attribute name="version" type="VARCHAR" length="255"/>
+	</db-entity>
+	<db-entity name="ModuleDependency">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="module_id" type="INTEGER" length="10"/>
+		<db-attribute name="rootModule_id" type="INTEGER" length="10"/>
+		<db-attribute name="type" type="VARCHAR" length="255"/>
+	</db-entity>
+	<db-entity name="Project">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="branchName" type="VARCHAR" length="255"/>
+		<db-attribute name="disable" type="BOOLEAN"/>
+		<db-attribute name="pathStr" type="VARCHAR" length="255"/>
+		<db-attribute name="repository_id" type="INTEGER" length="10"/>
+		<db-attribute name="rootModuleId" type="INTEGER" isMandatory="true"/>
+		<db-attribute name="version" type="VARCHAR" length="255"/>
+	</db-entity>
+	<db-entity name="ProjectDependency">
+		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
+		<db-attribute name="dependency_project_id" type="INTEGER" length="10"/>
+		<db-attribute name="project_id" type="INTEGER" length="10"/>
+	</db-entity>
+	<obj-entity name="Module" className="io.bootique.tools.release.model.maven.persistent.Module" dbEntityName="Module">
+		<obj-attribute name="githubId" type="java.lang.String" db-attribute-path="github_id"/>
+		<obj-attribute name="groupStr" type="java.lang.String" db-attribute-path="groupStr"/>
+		<obj-attribute name="version" type="java.lang.String" db-attribute-path="version"/>
+	</obj-entity>
+	<obj-entity name="ModuleDependency" className="io.bootique.tools.release.model.maven.persistent.ModuleDependency" dbEntityName="ModuleDependency">
+		<obj-attribute name="type" type="java.lang.String" db-attribute-path="type"/>
+	</obj-entity>
+	<obj-entity name="Project" className="io.bootique.tools.release.model.maven.persistent.Project" dbEntityName="Project">
+		<obj-attribute name="branchName" type="java.lang.String" db-attribute-path="branchName"/>
+		<obj-attribute name="disable" type="boolean" db-attribute-path="disable"/>
+		<obj-attribute name="pathStr" type="java.lang.String" db-attribute-path="pathStr"/>
+		<obj-attribute name="version" type="java.lang.String" db-attribute-path="version"/>
+	</obj-entity>
+	<db-relationship name="dependencies" source="Module" target="ModuleDependency" toMany="true">
+		<db-attribute-pair source="ID" target="rootModule_id"/>
+	</db-relationship>
+	<db-relationship name="project" source="Module" target="Project">
+		<db-attribute-pair source="project_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="rootModule" source="ModuleDependency" target="Module">
+		<db-attribute-pair source="rootModule_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="module" source="ModuleDependency" target="Module">
+		<db-attribute-pair source="module_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="dependencies" source="Project" target="ProjectDependency" toMany="true">
+		<db-attribute-pair source="ID" target="project_id"/>
+	</db-relationship>
+	<db-relationship name="dependency_Project" source="Project" target="ProjectDependency" toMany="true">
+		<db-attribute-pair source="ID" target="dependency_project_id"/>
+	</db-relationship>
+	<db-relationship name="repository" source="Project" target="Repository">
+		<db-attribute-pair source="repository_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="rootModule" source="Project" target="Module">
+		<db-attribute-pair source="rootModuleId" target="ID"/>
+	</db-relationship>
+	<db-relationship name="modules" source="Project" target="Module" toMany="true">
+		<db-attribute-pair source="ID" target="project_id"/>
+	</db-relationship>
+	<db-relationship name="project" source="ProjectDependency" target="Project">
+		<db-attribute-pair source="project_id" target="ID"/>
+	</db-relationship>
+	<db-relationship name="dependentProject" source="ProjectDependency" target="Project">
+		<db-attribute-pair source="dependency_project_id" target="ID"/>
+	</db-relationship>
+	<obj-relationship name="dependencies" source="Module" target="ModuleDependency" deleteRule="Cascade" db-relationship-path="dependencies"/>
+	<obj-relationship name="project" source="Module" target="Project" deleteRule="Nullify" db-relationship-path="project"/>
+	<obj-relationship name="rootModule" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
+	<obj-relationship name="module" source="ModuleDependency" target="Module" deleteRule="Nullify" db-relationship-path="module"/>
+	<obj-relationship name="dependencies" source="Project" target="Project" deleteRule="Cascade" db-relationship-path="dependencies.dependentProject"/>
+	<obj-relationship name="repository" source="Project" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
+	<obj-relationship name="rootModule" source="Project" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
+	<obj-relationship name="modules" source="Project" target="Module" deleteRule="Deny" db-relationship-path="modules"/>
+</data-map>

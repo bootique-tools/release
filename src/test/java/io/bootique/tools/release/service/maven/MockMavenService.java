@@ -19,16 +19,6 @@ public class MockMavenService implements MavenService {
     }
 
     @Override
-    public Project createProject(Repository repository) {
-        return new Project(repository, Paths.get(repository.getName()), new Module(repository.getName(), repository.getName(),"1.0.2"));
-    }
-
-    @Override
-    public Module resolveModule(Path path) {
-        return null;
-    }
-
-    @Override
     public List<Project> getProjects(Organization organization, Predicate<Project> predicate) {
         Repository repository = organization.getObjectContext().newObject(Repository.class);
         repository.setName("test");

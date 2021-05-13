@@ -23,7 +23,7 @@ public interface GitService {
 
     String getCurrentBranchName(String name);
 
-    boolean getStatus(String namet);
+    boolean getStatus(String name);
 
     String[] getBranches(String name);
 

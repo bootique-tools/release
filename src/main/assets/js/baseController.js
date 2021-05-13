@@ -36,7 +36,7 @@ export const baseMethods = {
                     })
             }, 100);
         },
-        sortAndFilter: function(sort, filter, baseFilterField) {
+        sortAndFilter: function (sort, filter, baseFilterField) {
             let uri = "";
             if (sort !== null && sort !== "") {
                 if (this.isASC) {
@@ -60,7 +60,7 @@ export const baseMethods = {
             if (currApp.path === "repo") {
                 uri = "include=[\"milestones\",\"issues\",\"pullRequests\",\"parent\"]" + "&" + uri;
             } else if (currApp.path === "issue") {
-                uri = "include=[\"milestone\",\"labels\",\"repository\",\"author\",\"repository.parent\"]" + "&" +  uri;
+                uri = "include=[\"milestone\",\"labels\",\"repository\",\"author\",\"repository.parent\"]" + "&" + uri;
             } else if (currApp.path === "milestone") {
                 uri = "include=[\"issues\",\"milestones\",\"milestones.openIssues\"]" + "&" + uri;
             } else if (currApp.path === "pr") {
@@ -74,7 +74,7 @@ export const baseMethods = {
             axios.get(`/ui/${currApp.path}/show-all${uri}`)
                 .then(function (response) {
                     currApp.allItems = response.data;
-                    if(currApp.allItems.length === 0) {
+                    if (currApp.allItems.length === 0) {
                         currApp.errorMessage = "Please clone all repositories to your local repositories!";
                     } else {
                         if (currApp.additionalMethod !== undefined) {
@@ -110,16 +110,18 @@ export const defaultBaseMethods = {
         selectAll: {
             get: function () {
                 if (this.errorMessage === "") {
-                    return this.allItems ? this.selectedModules.length == this.allItems.data.length : false;
+                    return this.allItems
+                        ? this.selectedModules.length === this.allItems.data.length
+                        : false;
                 }
             },
             set: function (value) {
-                var selectedModules = [];
-                    if (value) {
-                        this.allItems.data.forEach(function (module) {
-                            selectedModules.push(module.repository.name);
-                        });
-                    }
+                let selectedModules = [];
+                if (value) {
+                    this.allItems.data.forEach(function (module) {
+                        selectedModules.push(module.repository.name);
+                    });
+                }
                 this.selectedModules = selectedModules;
             }
         }
@@ -134,10 +136,10 @@ export const defaultBaseMethods = {
                 axios.get(`/ui/release/process/status`)
                     .then(function (response) {
                         currApp.progress = response.data.percent.percent;
-                        if(currApp.allItems != null){
-                            for(let i = 0 ; i < currApp.allItems.data.length; i++) {
-                                for(let j = 0; j < response.data.results.length; j++) {
-                                    if(currApp.allItems.data[i].repository.name === response.data.results[j].data.repository.name) {
+                        if (currApp.allItems != null) {
+                            for (let i = 0; i < currApp.allItems.data.length; i++) {
+                                for (let j = 0; j < response.data.results.length; j++) {
+                                    if (currApp.allItems.data[i].repository.name === response.data.results[j].data.repository.name) {
                                         currApp.allItems.data[i] = response.data.results[j].data;
                                         currApp.statusMap.set(currApp.allItems.data[i], response.data.results[j].status);
                                         currApp.errorMap.set(currApp.allItems.data[i], response.data.results[j].result);
@@ -145,15 +147,15 @@ export const defaultBaseMethods = {
                                 }
                             }
                         }
-                        if(response.data.percent.percent === 100) {
+                        if (response.data.percent.percent === 100) {
                             clearInterval(intervalCheck);
                             window.sessionStorage.removeItem('showProcess');
                         }
                     })
-                .catch(function (){
-                    console.log("Error in checking status.");
-                    window.sessionStorage.removeItem('showProcess');
-                })
+                    .catch(function () {
+                        console.log("Error in checking status.");
+                        window.sessionStorage.removeItem('showProcess');
+                    })
             }, 100);
         },
     }

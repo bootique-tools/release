@@ -75,7 +75,7 @@ public class ReleaseController extends BaseController {
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll() {
         AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository\",\"rootModule\",\"dependencies.dependencyProject.rootModule\"]")
+                .addInclude("[\"repository\",\"rootModule\",\"dependencies.repository\"]")
                 .build();
 
         return getProjects(project -> true, agRequest);
@@ -131,16 +131,16 @@ public class ReleaseController extends BaseController {
         allProjects.forEach(project -> {
             if (state && !selectedProjectsResp.contains(project)) {
                 currentProject.getDependencies().forEach(dependency -> {
-                    if (dependency.getDependencyProject().getRootModule().equals(project.getRootModule())
-                            && dependency.getDependencyProject().getVersion().equals(currentProject.getVersion())) {
+                    if (dependency.getRootModule().equals(project.getRootModule())
+                            && dependency.getVersion().equals(currentProject.getVersion())) {
                         selectedProjectsResp.add(project);
                         buildOrder(selectedProjectsResp, true, project, allProjects);
                     }
                 });
             } else if (!state && selectedProjectsResp.contains(project)) {
                 project.getDependencies().forEach(dependency -> {
-                    if (dependency.getDependencyProject().getRootModule().equals(currentProject.getRootModule())
-                            && dependency.getDependencyProject().getVersion().equals(project.getVersion())) {
+                    if (dependency.getRootModule().equals(currentProject.getRootModule())
+                            && dependency.getVersion().equals(project.getVersion())) {
                         selectedProjectsResp.remove(project);
                         buildOrder(selectedProjectsResp, false, project, allProjects);
                     }
@@ -169,9 +169,9 @@ public class ReleaseController extends BaseController {
 
     private void checkDependencies(Project project) {
         project.getDependencies().forEach(projectDependency -> {
-            if (projectDependency.getDependencyProject().isDisable()) {
-                checkDependencies(projectDependency.getDependencyProject());
-                projectDependency.getDependencyProject().setDisable(false);
+            if (projectDependency.isDisable()) {
+                checkDependencies(projectDependency);
+                projectDependency.setDisable(false);
             }
         });
     }

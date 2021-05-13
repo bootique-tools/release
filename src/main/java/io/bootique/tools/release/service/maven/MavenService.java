@@ -18,10 +18,6 @@ public interface MavenService {
 
     boolean isMavenProject(Repository repository);
 
-    Project createProject(Repository repository);
-
-    Module resolveModule(Path path);
-
     List<Project> getProjects(Organization organization, Predicate<Project> predicate);
 
     List<Project> sortMavenProject(List<Project> projects);

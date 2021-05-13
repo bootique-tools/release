@@ -2,7 +2,6 @@ package io.bootique.tools.release.model.maven.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.model.maven.persistent.ProjectDependency;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +15,7 @@ public class ProjectDTO {
     private ModuleDTO rootModule;
 
     @JsonProperty("disable")
-    private boolean disable;
+    private boolean disabled;
 
     @JsonProperty("dependencies")
     private List<String> dependencies;
@@ -42,11 +41,11 @@ public class ProjectDTO {
         if (project.getRootModule() != null) {
             this.rootModule = ModuleDTO.fromModel(project.getRootModule(), totally);
         }
-        this.disable = project.isDisable();
+        this.disabled = project.isDisable();
         this.repository = RepositoryDTO.fromModel(project.getRepository());
         if (this.totally) {
-            for (ProjectDependency dependency : project.getDependencies()) {
-                dependencies.add(ProjectDTO.fromModel(dependency.getDependencyProject(), totally).getRepository().getName());
+            for (Project dependency : project.getDependencies()) {
+                dependencies.add(ProjectDTO.fromModel(dependency, totally).getRepository().getName());
             }
         }
         this.branchName = project.getBranchName();
@@ -55,7 +54,7 @@ public class ProjectDTO {
     private void convertFromDTO(Project project) {
         project.setRepository(RepositoryDTO.toModel(this.repository));
         project.setRootModule(ModuleDTO.toModel(this.rootModule));
-        project.setDisable(this.disable);
+        project.setDisable(this.disabled);
         List<Project> projectList = new ArrayList<>();
         for (String projectName : this.dependencies) {
             projectList.add(new Project(projectName));

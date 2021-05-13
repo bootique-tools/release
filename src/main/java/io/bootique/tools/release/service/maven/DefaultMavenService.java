@@ -1,12 +1,10 @@
 package io.bootique.tools.release.service.maven;
 
-import io.bootique.tools.release.model.maven.persistent.ProjectDependency;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.w3c.dom.Document;
@@ -27,22 +25,30 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DefaultMavenService implements MavenService {
 
-    private Pattern dependencyPattern;
+    private final Pattern dependencyPattern;
+
+    private final PreferenceService preferences;
+
+    private final Map<String, Module> moduleMap;
 
     @Inject
-    DesktopService desktopService;
-
-    @Inject
-    PreferenceService preferences;
-
-    private Map<String, Module> moduleMap = new HashMap<>();
+    public DefaultMavenService(PreferenceService preferences) {
+        this.preferences = preferences;
+        this.dependencyPattern = Pattern.compile(this.preferences.get(MavenService.GROUP_ID_PATTERN) + ".*$");
+        this.moduleMap = new HashMap<>();
+    }
 
     @Override
     public boolean isMavenProject(Repository repository) {
@@ -83,8 +89,7 @@ public class DefaultMavenService implements MavenService {
      * @param repository to create Maven project model for
      * @return maven project description
      */
-    @Override
-    public Project createProject(Repository repository) {
+    Project createProject(Repository repository) {
         Path basePath = preferences.get(GitService.BASE_PATH_PREFERENCE);
         Path projectPath = basePath.resolve(repository.getName());
 
@@ -99,7 +104,6 @@ public class DefaultMavenService implements MavenService {
     List<Module> getModules(Module rootModule, Path path) {
         List<Module> moduleList = new ArrayList<>();
         try {
-            dependencyPattern = Pattern.compile(this.preferences.get(MavenService.GROUP_ID_PATTERN) + ".*$");
             Document document = readDocument(path.resolve("pom.xml").toUri().toURL());
             XPath xpath = XPathFactory.newInstance().newXPath();
             NodeList dependencies = (NodeList) xpath.evaluate("/project/dependencies/dependency", document, XPathConstants.NODESET);
@@ -149,8 +153,7 @@ public class DefaultMavenService implements MavenService {
      * @param path to pom.xml
      * @return root module description
      */
-    @Override
-    public Module resolveModule(Path path) {
+    Module resolveModule(Path path) {
         try {
             Document document = readDocument(path.resolve("pom.xml").toUri().toURL());
             XPath xpath = XPathFactory.newInstance().newXPath();
@@ -189,16 +192,14 @@ public class DefaultMavenService implements MavenService {
         for (Project project : projects) {
             projectGraph.add(project);
             Set<Project> set = new HashSet<>();
-            int count = set.size();
+            int count = 0;
             for (Module module : project.getModules()) {
                 for (ModuleDependency dependency : module.getDependencies()) {
                     Project depProject = moduleToProject.get(dependency.getModule());
                     if (depProject != null && !project.equals(depProject)) {
                         set.add(depProject);
                         if (set.size() > count) {
-                            ProjectDependency projectDependency = project.getObjectContext().newObject(ProjectDependency.class);
-                            projectDependency.setDependencyProject(depProject);
-                            project.addToDependencies(projectDependency);
+                            project.addToDependencies(depProject);
                             count = set.size();
                         }
                         projectGraph.add(project, depProject);
@@ -214,8 +215,8 @@ public class DefaultMavenService implements MavenService {
 
         for (Project project : projects) {
             projectGraph.add(project);
-            for(ProjectDependency dependency : project.getDependencies()) {
-                projectGraph.add(project, dependency.getDependencyProject());
+            for(Project dependency : project.getDependencies()) {
+                projectGraph.add(project, dependency);
             }
         }
         return projectGraph.topSort();
