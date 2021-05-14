@@ -37,7 +37,7 @@ public class PullRequest extends _PullRequest {
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "parent")
-    public ParentRepository getParent() {
+    public Repository getParent() {
         return getRepository().getParent();
     }
 }

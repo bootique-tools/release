@@ -11,6 +11,8 @@ import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 import org.apache.cayenne.query.SQLExec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +21,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 public class GitHubDataImportJob extends BaseJob {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitHubDataImportJob.class);
 
     @Inject
     private GitHubApiImport gitHubApiImport;
@@ -69,7 +73,7 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     private void getCurrents(ObjectContext objectContext) {
-
+        LOGGER.info("Running GitHub data update...");
         deleteAll(objectContext);
 
         User user = gitHubApiImport.getCurrentUser();
@@ -92,10 +96,10 @@ public class GitHubDataImportJob extends BaseJob {
                 getIssues(objectContext, repository, milestoneMap);
                 getPRs(objectContext, repository);
 
-                objectContext.commitChanges();
                 milestoneMap.clear();
             }
         }
+        objectContext.commitChanges();
         authorMap.clear();
     }
 
@@ -199,7 +203,6 @@ public class GitHubDataImportJob extends BaseJob {
         SQLExec.query("delete from ProjectDependency").update(objectContext);
         SQLExec.query("delete from Project").update(objectContext);
         SQLExec.query("delete from Repository").update(objectContext);
-        SQLExec.query("delete from ParentRepository").update(objectContext);
         SQLExec.query("delete from Organization").update(objectContext);
         SQLExec.query("delete from Author").update(objectContext);
         SQLExec.query("delete from User").update(objectContext);

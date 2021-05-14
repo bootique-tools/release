@@ -87,7 +87,7 @@
 	<obj-relationship name="repository" source="Project" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<obj-relationship name="rootModule" source="Project" target="Module" deleteRule="Nullify" db-relationship-path="rootModule"/>
 	<cgen xmlns="http://cayenne.apache.org/schema/10/cgen">
-		<destDir>..\..\java</destDir>
+		<destDir>../../java</destDir>
 		<mode>entity</mode>
 		<template>templates/v4_1/subclass.vm</template>
 		<superTemplate>templates/v4_1/superclass.vm</superTemplate>

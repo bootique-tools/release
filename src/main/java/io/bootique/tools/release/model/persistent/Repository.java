@@ -144,10 +144,10 @@ public class Repository extends _Repository implements Comparable<Repository> {
     }
 
     public void setLocalStatus(GitService.GitStatus localStatus) {
-        super.setLStatus(localStatus.name());
+        super.setLocalStatus(localStatus.name());
     }
 
-    public void setParent(ParentRepository parent) {
+    public void setParent(Repository parent) {
         if(this.objectContext != null) {
             super.setParent(parent);
         }
@@ -158,7 +158,7 @@ public class Repository extends _Repository implements Comparable<Repository> {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public boolean haveLocalRepo() {
-        return !GitService.GitStatus.MISSING.toString().equals(this.lStatus);
+        return !GitService.GitStatus.MISSING.toString().equals(this.localStatus);
     }
 
     @Override
@@ -168,7 +168,7 @@ public class Repository extends _Repository implements Comparable<Repository> {
 
     @Override
     public String toString() {
-        return "Repository{" + name + ", status: " + this.lStatus + '}';
+        return "Repository{" + name + ", status: " + this.localStatus + '}';
     }
 
     @Override

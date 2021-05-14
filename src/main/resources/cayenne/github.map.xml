@@ -65,15 +65,6 @@
 		<db-attribute name="name" type="VARCHAR" length="255"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
-	<db-entity name="ParentRepository">
-		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
-		<db-attribute name="github_id" type="VARCHAR" length="255"/>
-		<db-attribute name="name" type="VARCHAR" length="255"/>
-		<db-attribute name="pushedAt" type="DATE"/>
-		<db-attribute name="sshUrl" type="VARCHAR" length="255"/>
-		<db-attribute name="updatedAt" type="DATE"/>
-		<db-attribute name="url" type="VARCHAR" length="255"/>
-	</db-entity>
 	<db-entity name="PullRequest">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="author_id" type="INTEGER" length="10"/>
@@ -91,7 +82,7 @@
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="description" type="VARCHAR" length="255"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
-		<db-attribute name="lStatus" type="VARCHAR" length="255"/>
+		<db-attribute name="localStatus" type="VARCHAR" length="255"/>
 		<db-attribute name="name" type="VARCHAR" length="255"/>
 		<db-attribute name="organization_id" type="INTEGER" length="10"/>
 		<db-attribute name="parent_id" type="INTEGER" length="10"/>
@@ -149,16 +140,10 @@
 		<obj-attribute name="login" type="java.lang.String" db-attribute-path="login"/>
 		<obj-attribute name="name" type="java.lang.String" db-attribute-path="name"/>
 	</obj-entity>
-	<obj-entity name="ParentRepository" superEntityName="GitHubEntity" className="io.bootique.tools.release.model.persistent.ParentRepository" dbEntityName="ParentRepository">
-		<obj-attribute name="name" type="java.lang.String" db-attribute-path="name"/>
-		<obj-attribute name="pushedAt" type="java.time.LocalDate" db-attribute-path="pushedAt"/>
-		<obj-attribute name="sshUrl" type="java.lang.String" db-attribute-path="sshUrl"/>
-		<obj-attribute name="updatedAt" type="java.time.LocalDate" db-attribute-path="updatedAt"/>
-	</obj-entity>
 	<obj-entity name="PullRequest" superEntityName="RepositoryNode" className="io.bootique.tools.release.model.persistent.PullRequest" dbEntityName="PullRequest"/>
 	<obj-entity name="Repository" superEntityName="GitHubEntity" className="io.bootique.tools.release.model.persistent.Repository" dbEntityName="Repository">
 		<obj-attribute name="description" type="java.lang.String" db-attribute-path="description"/>
-		<obj-attribute name="lStatus" type="java.lang.String" db-attribute-path="lStatus"/>
+		<obj-attribute name="localStatus" type="java.lang.String" db-attribute-path="localStatus"/>
 		<obj-attribute name="name" type="java.lang.String" db-attribute-path="name"/>
 		<obj-attribute name="pushedAt" type="java.time.LocalDateTime" db-attribute-path="pushedAt"/>
 		<obj-attribute name="pushedAtStr" type="java.lang.String" db-attribute-path="pushedAtStr"/>
@@ -262,9 +247,6 @@
 	<db-relationship name="repositories" source="Organization" target="Repository" toMany="true">
 		<db-attribute-pair source="ID" target="organization_id"/>
 	</db-relationship>
-	<db-relationship name="parent" source="ParentRepository" target="Repository" toMany="true">
-		<db-attribute-pair source="ID" target="parent_id"/>
-	</db-relationship>
 	<db-relationship name="author" source="PullRequest" target="Author">
 		<db-attribute-pair source="author_id" target="ID"/>
 	</db-relationship>
@@ -292,7 +274,7 @@
 	<db-relationship name="organization" source="Repository" target="Organization">
 		<db-attribute-pair source="organization_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="parent" source="Repository" target="ParentRepository">
+	<db-relationship name="parent" source="Repository" target="Repository">
 		<db-attribute-pair source="parent_id" target="ID"/>
 	</db-relationship>
 	<db-relationship name="pullRequests" source="Repository" target="PullRequest" toMany="true">
@@ -323,7 +305,6 @@
 	<obj-relationship name="milestone" source="OpenIssue" target="Milestone" deleteRule="Nullify" db-relationship-path="milestone"/>
 	<obj-relationship name="repository" source="OpenIssue" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<obj-relationship name="repositories" source="Organization" target="Repository" deleteRule="Cascade" db-relationship-path="repositories"/>
-	<obj-relationship name="parent" source="ParentRepository" target="Repository" deleteRule="Deny" db-relationship-path="parent"/>
 	<obj-relationship name="author" source="PullRequest" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
 	<obj-relationship name="labels" source="PullRequest" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
 	<obj-relationship name="repository" source="PullRequest" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
@@ -331,10 +312,10 @@
 	<obj-relationship name="issuesClose" source="Repository" target="ClosedIssue" deleteRule="Deny" db-relationship-path="issuesClose"/>
 	<obj-relationship name="milestones" source="Repository" target="Milestone" deleteRule="Deny" db-relationship-path="milestones"/>
 	<obj-relationship name="organization" source="Repository" target="Organization" deleteRule="Nullify" db-relationship-path="organization"/>
-	<obj-relationship name="parent" source="Repository" target="ParentRepository" deleteRule="Nullify" db-relationship-path="parent"/>
+	<obj-relationship name="parent" source="Repository" target="Repository" deleteRule="Nullify" db-relationship-path="parent"/>
 	<obj-relationship name="pullRequests" source="Repository" target="PullRequest" deleteRule="Deny" db-relationship-path="pullRequests"/>
 	<cgen xmlns="http://cayenne.apache.org/schema/10/cgen">
-		<destDir>..\..\java</destDir>
+		<destDir>../../java</destDir>
 		<mode>entity</mode>
 		<template>templates/v4_1/subclass.vm</template>
 		<superTemplate>templates/v4_1/superclass.vm</superTemplate>

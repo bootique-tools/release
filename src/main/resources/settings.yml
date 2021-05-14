@@ -61,4 +61,4 @@ scheduler:
   - job: githubdataimport
     initialDelay: 300ms
     # run every 30 minutes
-    fixedDelay: 1800000ms
+    fixedDelay: 30min
