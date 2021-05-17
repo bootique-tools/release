@@ -15,19 +15,14 @@ import io.bootique.jetty.JettyModule;
 import io.bootique.jetty.command.ServerCommand;
 import io.bootique.job.command.ScheduleCommand;
 import io.bootique.job.runtime.JobModule;
-import io.bootique.tools.release.command.ConsoleReleaseCommand;
-import io.bootique.tools.release.command.ConsoleRollbackCommand;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.job.GitHubDataImportJob;
+import io.bootique.tools.release.job.MavenProjectsImport;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.central.DefaultMvnCentralService;
 import io.bootique.tools.release.service.central.MvnCentralService;
-import io.bootique.tools.release.service.console.ConsoleReleaseService;
-import io.bootique.tools.release.service.console.ConsoleRollbackService;
-import io.bootique.tools.release.service.console.DefaultConsoleReleaseService;
-import io.bootique.tools.release.service.console.DefaultConsoleRollbackService;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.desktop.GenericDesktopService;
 import io.bootique.tools.release.service.desktop.LinuxDesktopService;
@@ -87,8 +82,6 @@ public class Application implements BQModule  {
         binder.bind(BatchJobService.class).to(DefaultBatchJobService.class).inSingletonScope();
         binder.bind(ReleaseService.class).to(DefaultReleaseService.class).inSingletonScope();
         binder.bind(LoggerService.class).to(DefaultLoggerService.class).inSingletonScope();
-        binder.bind(ConsoleReleaseService.class).to(DefaultConsoleReleaseService.class).inSingletonScope();
-        binder.bind(ConsoleRollbackService.class).to(DefaultConsoleRollbackService.class).inSingletonScope();
         binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).inSingletonScope();
         binder.bind(ReleaseNotesService.class).to(DefaultReleaseNotesService.class).inSingletonScope();
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
@@ -111,15 +104,14 @@ public class Application implements BQModule  {
                 .put(RollbackStage.ROLLBACK_MVN,          RollbackMvnGitTask.class);
 
         BQCoreModule.extend(binder)
-                .addCommand(ConsoleReleaseCommand.class)
-                .addCommand(ConsoleRollbackCommand.class)
                 .decorateCommand(ServerCommand.class, CommandDecorator.beforeRun(ScheduleCommand.class));
 
         CayenneModule.extend(binder)
                 .addProject("cayenne/cayenne-project.xml");
 
         JobModule.extend(binder)
-                .addJob(GitHubDataImportJob.class);
+                .addJob(GitHubDataImportJob.class)
+                .addJob(MavenProjectsImport.class);
     }
 
     private static MapBuilder<ReleaseStage, Function<Repository, String>> contributeReleaseTask(Binder binder) {

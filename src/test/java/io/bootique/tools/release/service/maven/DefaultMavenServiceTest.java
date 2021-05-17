@@ -1,13 +1,10 @@
 package io.bootique.tools.release.service.maven;
 
-import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.service.desktop.MockDesktopService;
 import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.github.MockGitHubApi;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import io.bootique.tools.release.util.CopyDirVisitor;
 import org.apache.cayenne.ObjectContext;
@@ -32,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class DefaultMavenServiceTest {
 
     private MockPreferenceService mockPreferenceService;
-    private MockGitHubApi gitHubApi;
     private ObjectContext context;
     private DefaultMavenService service;
 
@@ -42,7 +38,6 @@ class DefaultMavenServiceTest {
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
         context = cayenneRuntime.newContext();
-        gitHubApi = new MockGitHubApi(context);
         mockPreferenceService = new MockPreferenceService();
         service = new DefaultMavenService(mockPreferenceService);
     }
@@ -101,49 +96,28 @@ class DefaultMavenServiceTest {
 
     @Test
     void sortNoDeps() {
-        List<Project> projectList = new ArrayList<>();
         List<Repository> repositories = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             Repository repository = context.newObject(Repository.class);
             repository.setName("repo" + i);
             repositories.add(repository);
         }
+
         Path path1 = Paths.get("/repo1/path");
-
-        List<Module> modules = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Module module = context.newObject(Module.class);
-            module.setGroupStr("io.test");
-            module.setGithubId("module" + i);
-            module.setVersion("1.0");
-            modules.add(module);
-        }
-
         List<Project> projects = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             Project project = context.newObject(Project.class);
             project.setRepository(repositories.get(i));
             project.setPath(path1);
-            if (i == 2) {
-                i++;
-            }
-            project.setRootModule(modules.get(i));
             projects.add(project);
         }
 
-        projects.get(0).addModule(modules.get(0));
-
-        projects.get(1).addModule(modules.get(1));
-        projects.get(1).addModule(modules.get(2));
-
-        projects.get(2).addModule(modules.get(3));
-        projects.get(2).addModule(modules.get(4));
-
+        List<Project> projectList = new ArrayList<>();
         projectList.add(projects.get(2));
         projectList.add(projects.get(0));
         projectList.add(projects.get(1));
 
-        List<Project> sortedList = service.sort(projectList);
+        List<Project> sortedList = service.sortProjects(projectList);
         assertEquals(3, sortedList.size());
 
         assertEquals(projects.get(2), sortedList.get(0));
@@ -153,84 +127,35 @@ class DefaultMavenServiceTest {
 
     @Test
     void sortWithDeps() {
-        List<Project> projectList = new ArrayList<>();
         List<Repository> repositories = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             Repository repository = context.newObject(Repository.class);
             repository.setName("repo" + i);
             repositories.add(repository);
         }
+
         Path path1 = Paths.get("/repo1/path");
-
-        List<Module> modules = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Module module = context.newObject(Module.class);
-            module.setGroupStr("io.test");
-            module.setGithubId("module" + i);
-            module.setVersion("1.0");
-            modules.add(module);
-        }
-
-        List<ModuleDependency> dependencies = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            ModuleDependency dependency = context.newObject(ModuleDependency.class);
-            Module module = context.newObject(Module.class);
-            module.setGroupStr("io.test");
-            module.setGithubId("module" + i);
-            module.setVersion("1.0");
-            dependency.setModule(module);
-            dependency.setType("x");
-            dependencies.add(dependency);
-        }
-
         List<Project> projects = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             Project project = context.newObject(Project.class);
             project.setRepository(repositories.get(i));
             project.setPath(path1);
-            if (i == 2) {
-                i++;
-            }
-            project.setRootModule(modules.get(i));
             projects.add(project);
         }
 
-        projects.get(0).addModule(modules.get(0));
+        projects.get(1).addToDependencies(projects.get(0));
+        projects.get(2).addToDependencies(projects.get(1));
 
-        projects.get(1).addModule(modules.get(1));
-        projects.get(1).addModule(modules.get(2));
-
-        List<ModuleDependency> dependencyList = new ArrayList<>();
-        modules.get(1).addToDependencies(dependencies.get(0));
-
-        projects.get(2).addModule(modules.get(3));
-        projects.get(2).addModule(modules.get(4));
-        modules.get(3).addToDependencies(dependencies.get(0));
-        modules.get(3).addToDependencies(dependencies.get(1));
-        modules.get(4).addToDependencies(dependencies.get(2));
-
+        List<Project> projectList = new ArrayList<>();
         projectList.add(projects.get(2));
         projectList.add(projects.get(0));
         projectList.add(projects.get(1));
 
-        List<Project> sortedList = service.sort(projectList);
+        List<Project> sortedList = service.sortProjects(projectList);
         assertEquals(3, sortedList.size());
 
         assertEquals(projects.get(0), sortedList.get(0));
         assertEquals(projects.get(1), sortedList.get(1));
         assertEquals(projects.get(2), sortedList.get(2));
-    }
-
-    @Test
-    @DisplayName("Get all projects test")
-    void getProjectsTest(@TempDir Path destPath) throws IOException {
-        Path srcPath = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "dummy-org-00");
-        Files.walkFileTree(srcPath, new CopyDirVisitor(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING));
-        mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);
-
-        Organization organization = gitHubApi.getCurrentOrganization();
-
-        List<Project> projects = service.getProjects(organization, p -> true);
-        assertEquals(3, projects.size());
     }
 }

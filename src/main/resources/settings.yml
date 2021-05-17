@@ -60,5 +60,7 @@ scheduler:
   triggers:
   - job: githubdataimport
     initialDelay: 300ms
-    # run every 30 minutes
     fixedDelay: 30min
+  - job: mavenprojectsimport
+    initialDelay: 1min
+    fixedDelay: 4min

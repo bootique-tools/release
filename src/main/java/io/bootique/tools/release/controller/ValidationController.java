@@ -8,6 +8,8 @@ import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.validation.ValidatePomService;
 import io.bootique.tools.release.view.ValidationView;
+import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.query.ObjectSelect;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -73,13 +75,15 @@ public class ValidationController extends BaseJobController {
     @GET
     @Path("/pom")
     public String validatePom() {
-        List<Project> allProjects = mavenService.getProjects(getCurrentOrganization(), project -> true);
+        ObjectContext context = cayenneRuntime.newContext();
+        List<Repository> repositories = ObjectSelect.query(Repository.class).select(context);
         List<String> failedRepos = new ArrayList<>();
-        for (Project project : allProjects) {
-            Repository repository = project.getRepository();
-            String repoName = repository.getName();
-            failedRepos.addAll(validatePomService.validatePom(repoName));
+        for (Repository repository : repositories) {
+            if(mavenService.isMavenProject(repository)) {
+                failedRepos.addAll(validatePomService.validatePom(repository.getName()));
+            }
         }
+
         if (failedRepos.isEmpty()) {
             return "All poms are valid.";
         }

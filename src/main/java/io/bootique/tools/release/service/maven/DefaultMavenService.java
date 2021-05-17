@@ -1,6 +1,5 @@
 package io.bootique.tools.release.service.maven;
 
-import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
 import io.bootique.tools.release.model.maven.persistent.Module;
@@ -27,13 +26,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class DefaultMavenService implements MavenService {
 
@@ -56,20 +51,6 @@ public class DefaultMavenService implements MavenService {
         return Files.exists(path.resolve(repository.getName()).resolve("pom.xml"));
     }
 
-    @Override
-    public List<Project> getProjects(Organization organization, Predicate<Project> predicate) {
-        moduleMap.clear();
-        return sort(organization
-                .getRepositories()
-                .stream()
-                .filter(this::isMavenProject)
-                .map(this::createProject)
-                .collect(Collectors.toList()))
-                .stream()
-                .filter(predicate)
-                .collect(Collectors.toList());
-    }
-
     private static Document readDocument(URL url) {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(false);
@@ -89,7 +70,8 @@ public class DefaultMavenService implements MavenService {
      * @param repository to create Maven project model for
      * @return maven project description
      */
-    Project createProject(Repository repository) {
+    @Override
+    public Project createProject(Repository repository) {
         Path basePath = preferences.get(GitService.BASE_PATH_PREFERENCE);
         Path projectPath = basePath.resolve(repository.getName());
 
@@ -179,40 +161,9 @@ public class DefaultMavenService implements MavenService {
         }
     }
 
-    List<Project> sort(List<Project> projects) {
+    @Override
+    public List<Project> sortProjects(List<Project> projects) {
         Graph<Project> projectGraph = new Graph<>();
-
-        Map<Module, Project> moduleToProject = new HashMap<>();
-        for (Project project : projects) {
-            for (Module module : project.getModules()) {
-                moduleToProject.put(module, project);
-            }
-        }
-
-        for (Project project : projects) {
-            projectGraph.add(project);
-            Set<Project> set = new HashSet<>();
-            int count = 0;
-            for (Module module : project.getModules()) {
-                for (ModuleDependency dependency : module.getDependencies()) {
-                    Project depProject = moduleToProject.get(dependency.getModule());
-                    if (depProject != null && !project.equals(depProject)) {
-                        set.add(depProject);
-                        if (set.size() > count) {
-                            project.addToDependencies(depProject);
-                            count = set.size();
-                        }
-                        projectGraph.add(project, depProject);
-                    }
-                }
-            }
-        }
-        return projectGraph.topSort();
-    }
-
-    public List<Project> sortMavenProject(List<Project> projects) {
-        Graph<Project> projectGraph = new Graph<>();
-
         for (Project project : projects) {
             projectGraph.add(project);
             for(Project dependency : project.getDependencies()) {

@@ -1,14 +1,10 @@
 package io.bootique.tools.release.service.maven;
 
-import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.preferences.Preference;
 
-import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Predicate;
 
 public interface MavenService {
 
@@ -18,7 +14,7 @@ public interface MavenService {
 
     boolean isMavenProject(Repository repository);
 
-    List<Project> getProjects(Organization organization, Predicate<Project> predicate);
+    Project createProject(Repository repository);
 
-    List<Project> sortMavenProject(List<Project> projects);
+    List<Project> sortProjects(List<Project> projects);
 }
