@@ -51,7 +51,20 @@ public class MavenProjectsImport extends BaseJob {
             return JobResult.success(getMetadata());
         }
 
-        int updatedCount = 0;
+        // sync Maven projects with repositories
+        List<Project> createdProjects = syncProjects(context, repositories);
+        context.commitChanges();
+
+        // link projects with each other
+        linkProjects(createdProjects);
+        context.commitChanges();
+
+        LOGGER.info("Job done, created {} projects.", createdProjects.size());
+
+        return JobResult.success(getMetadata());
+    }
+
+    private List<Project> syncProjects(ObjectContext context, List<Repository> repositories) {
         List<Project> createdProjects = new ArrayList<>();
         for(Repository repo : repositories) {
             if(!mavenService.isMavenProject(repo)) {
@@ -62,21 +75,13 @@ public class MavenProjectsImport extends BaseJob {
             if(project == null) {
                 // TODO: this job should also be update to update projects in case their modules are changed
                 project = mavenService.createProject(repo);
+                project.setDisable(true);
                 createdProjects.add(project);
             }
 
             project.setBranchName(gitService.getCurrentBranchName(repo.getName()));
-            project.setDisable(true);
-            updatedCount++;
         }
-        context.commitChanges();
-
-        linkProjects(createdProjects);
-        context.commitChanges();
-
-        LOGGER.info("Job done, created {}, updated {} projects.", createdProjects.size(), updatedCount);
-
-        return JobResult.success(getMetadata());
+        return createdProjects;
     }
 
     private void linkProjects(List<Project> createdProjects) {
