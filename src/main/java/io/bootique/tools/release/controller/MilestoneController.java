@@ -3,8 +3,10 @@ package io.bootique.tools.release.controller;
 import io.agrest.Ag;
 import io.agrest.AgRequest;
 import io.agrest.DataResponse;
-import io.bootique.tools.release.model.persistent.*;
+import io.agrest.SelectStage;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.persistent.Milestone;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.github.GitHubRestAPI;
 import io.bootique.tools.release.service.job.JobException;
@@ -38,6 +40,20 @@ public class MilestoneController extends BaseJobController {
     @GET
     public MilestonesView home() {
         return new MilestonesView(getCurrentUser(), getCurrentOrganization());
+    }
+
+    @GET
+    @Path("/show-all")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
+        AgRequest agRequest = Ag.request(configuration)
+                .addInclude("[\"repository\",\"modules\",\"rootModule\",\"repository.milestones.openIssues\"," +
+                        "{\"path\":\"repository.milestones\",\"cayenneExp\":\"state like 'OPEN'\"}]")
+                .build();
+        return Ag.select(Project.class, configuration)
+                .terminalStage(SelectStage.FETCH_DATA, new MavenProjectSorter(mavenService))
+                .request(agRequest)
+                .get();
     }
 
     @GET
@@ -125,16 +141,5 @@ public class MilestoneController extends BaseJobController {
         };
 
         startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
-    }
-
-    @GET
-    @Path("/show-all")
-    @Produces(MediaType.APPLICATION_JSON)
-    public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
-        AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository\",\"modules\",\"rootModule\",\"repository.milestones.openIssues\"," +
-                        "{\"path\":\"repository.milestones\",\"cayenneExp\":\"state like 'OPEN'\"}]")
-                .build();
-        return getProjects(project -> true, agRequest);
     }
 }

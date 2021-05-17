@@ -8,6 +8,7 @@ import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApiImport;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.PersistenceState;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 import org.apache.cayenne.query.SQLExec;
@@ -58,13 +59,13 @@ public class GitHubDataImportJob extends BaseJob {
         ObjectContext context = runtime.newContext();
 
         if (this.update) {
-            getCurrents(context);
+            importGithubData(context);
         } else {
             List<Organization> organizations = ObjectSelect.query(Organization.class)
                     .where(Organization.LOGIN.eq(preferenceService.get(GitHubApiImport.ORGANIZATION_PREFERENCE))).select(context);
 
             if (organizations.size() == 0) {
-                getCurrents(context);
+                importGithubData(context);
             }
         }
 
@@ -72,7 +73,7 @@ public class GitHubDataImportJob extends BaseJob {
         return JobResult.success(getMetadata());
     }
 
-    private void getCurrents(ObjectContext objectContext) {
+    private void importGithubData(ObjectContext objectContext) {
         LOGGER.info("Running GitHub data update...");
         deleteAll(objectContext);
 
@@ -85,7 +86,7 @@ public class GitHubDataImportJob extends BaseJob {
         getRepositories(objectContext, organization);
 
         authorMap = new HashMap<>();
-        if (organization.getObjectId().getIdSnapshot().get("ID") == null) {
+        if (organization.getPersistenceState() == PersistenceState.NEW) {
             for (Repository repository : organization.getRepositories()) {
                 if (preferenceService.have(GitService.BASE_PATH_PREFERENCE)) {
                     repository.setLocalStatus(gitService.status(repository));

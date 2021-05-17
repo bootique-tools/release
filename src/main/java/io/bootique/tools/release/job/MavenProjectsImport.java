@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public class MavenProjectsImport extends BaseJob {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GitHubDataImportJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MavenProjectsImport.class);
 
     @Inject
     Provider<ServerRuntime> cayenneRuntimeProvider;
@@ -79,7 +79,7 @@ public class MavenProjectsImport extends BaseJob {
                 createdProjects.add(project);
             }
 
-            project.setBranchName(gitService.getCurrentBranchName(repo.getName()));
+            project.setBranchName(gitService.getCurrentBranchName(repo));
         }
         return createdProjects;
     }

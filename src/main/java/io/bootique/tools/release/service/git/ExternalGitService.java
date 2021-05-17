@@ -80,33 +80,32 @@ public class ExternalGitService implements GitService {
     }
 
     @Override
-    public String getCurrentBranchName(String name) {
-        Path target = getBasePathOrThrow().resolve(name);
+    public String getCurrentBranchName(Repository repository) {
+        Path target = getBasePathOrThrow().resolve(repository.getName());
         return desktopService.runCommand(target, "git", "rev-parse", "--abbrev-ref", "HEAD").replace("\n", "");
     }
 
     @Override
-    public boolean getStatus(String name) {
-        Path target = getBasePathOrThrow().resolve(name);
+    public boolean isClean(Repository repository) {
+        Path target = getBasePathOrThrow().resolve(repository.getName());
         return desktopService.runCommand(target, "git", "status").contains("nothing to commit, working tree clean");
     }
 
-    @Override
-    public String[] getBranches(String name) {
-        Path target = getBasePathOrThrow().resolve(name);
+    public String[] getBranches(Repository repository) {
+        Path target = getBasePathOrThrow().resolve(repository.getName());
         return desktopService.runCommand(target, "git", "branch","-a").split("\n");
     }
 
     @Override
     public String checkoutBranch(Repository repository, String branchTitle) {
         Path target = getBasePathOrThrow().resolve(repository.getName());
-        String[] branches = getBranches(repository.getName());
+        String[] branches = getBranches(repository);
         for(String branch : branches) {
             branch = branch.replaceAll("\\s","");
             branch = branch.replaceAll("remotes/origin/","");
             branch = branch.startsWith("*") ? branch.substring(1) : branch;
             if(branch.equals(branchTitle)) {
-                if(getStatus(repository.getName())) {
+                if(this.isClean(repository)) {
                     return desktopService.runCommand(target, "git", "checkout", branchTitle);
                 } else {
                     throw new DesktopException("You have uncommited changes in " + repository.getName());

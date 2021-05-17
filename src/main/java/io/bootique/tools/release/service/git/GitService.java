@@ -21,13 +21,11 @@ public interface GitService {
 
     void createBranch(Repository repository, String branchTitle);
 
-    String getCurrentBranchName(String name);
-
-    boolean getStatus(String name);
-
-    String[] getBranches(String name);
+    String getCurrentBranchName(Repository repository);
 
     String checkoutBranch(Repository repository, String branchTitle);
+
+    boolean isClean(Repository repository);
 
     enum GitStatus {
         OK,

@@ -1,13 +1,15 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.*;
-import io.bootique.tools.release.model.persistent.*;
+import io.agrest.Ag;
+import io.agrest.AgRequest;
+import io.agrest.DataResponse;
+import io.agrest.SelectStage;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.model.maven.persistent.Module;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.view.BranchesView;
-import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.query.ObjectSelect;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -34,77 +36,66 @@ public class BranchesController extends BaseJobController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
-
-        AgRequest agRequest = Ag.request(configuration)
+        AgRequest request = Ag.request(configuration)
                 .addInclude("[\"repository\",\"rootModule\"]")
                 .build();
 
-        return getProjects(project -> true, agRequest);
+        return Ag.select(Project.class, configuration)
+                .terminalStage(SelectStage.FETCH_DATA, new MavenProjectSorter(mavenService))
+                .request(request)
+                .get();
     }
 
     @GET
     @Path("/get-branch")
     public String getBranch(@QueryParam("name") String name) {
-        return gitService.getCurrentBranchName(name);
+        Repository repository = ObjectSelect.query(Repository.class)
+                .where(Repository.NAME.eq(name))
+                .selectOne(cayenneRuntime.newContext());
+        return gitService.getCurrentBranchName(repository);
     }
 
     @GET
     @Path("/createBranch")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void createBranch(@QueryParam("branchTitle") String title,
-                             @QueryParam("selectedModules") String selectedModules) throws IOException {
+    public String createBranch(@QueryParam("branchTitle") String branch,
+                               @QueryParam("selectedModules") String selectedModules) throws IOException {
         Function<Project, String> repoProcessor = project -> {
+            Repository repository = project.getRepository();
             try {
-                Repository repository = project.getRepository();
-                if (gitService.getStatus(repository.getName())) {
-                    project.setBranchName(title);
-                    gitService.createBranch(repository, title);
+                if (gitService.isClean(repository)) {
+                    gitService.createBranch(repository, branch);
+                    project.setBranchName(branch);
+                    project.getObjectContext().commitChanges();
+                    return "";
                 } else {
-                    throw new DesktopException("You have uncommited changes.");
+                    throw new DesktopException("You have uncommitted changes in the '" + repository.getName() + "' repository.");
                 }
-                return "";
             } catch (DesktopException ex) {
-                project.setBranchName(gitService.getCurrentBranchName(project.getRepository().getName()));
                 throw new JobException(ex.getMessage(), ex);
             }
         };
         startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
+        return "OK";
     }
 
     @GET
     @Path("/checkoutBranch")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void checkoutBranch(@QueryParam("branchTitle") String title,
+    public String checkoutBranch(@QueryParam("branchTitle") String branch,
                                @QueryParam("selectedModules") String selectedModules) throws IOException {
         Function<Project, String> repoProcessor = project -> {
             try {
-                Repository repository = project.getRepository();
-
-                AgRequest agRequest = Ag.request(configuration).build();
-                ObjectContext objectContext = repository.getObjectContext();
-                DataResponse<Project> projectDataResponse = getProjects(p -> true, agRequest);
-                objectContext.deleteObjects(projectDataResponse.getObjects());
-                objectContext.commitChanges();
-
-                gitService.checkoutBranch(repository, title);
-
-                projectDataResponse = getProjects(p -> true, agRequest);
-
-                for (Project p : projectDataResponse.getObjects()) {
-                    if (p.getRepository().getName().equals(repository.getName())) {
-                        project.setRootModule(
-                                new Module(p.getRootModule().getGroupStr(), p.getRootModule().getGithubId(), p.getRootModule().getVersion()));
-                        project.setBranchName(title);
-                        break;
-                    }
-                }
+                gitService.checkoutBranch(project.getRepository(), branch);
+                project.setBranchName(branch);
+                project.getObjectContext().commitChanges();
                 return "";
             } catch (DesktopException ex) {
-                project.setBranchName(gitService.getCurrentBranchName(project.getRepository().getName()));
                 throw new JobException(ex.getMessage(), ex);
             }
         };
         startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
+        return "OK";
     }
 
 }
