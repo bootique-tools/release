@@ -14,6 +14,7 @@ public class ClosedIssue extends _ClosedIssue {
         setUrl(issue.getUrl());
         setNumber(issue.getNumber());
         setTitle(issue.getTitle());
+        setCommentsCount(issue.getCommentsCount());
         milestone = issue.getMilestone();
     }
 }

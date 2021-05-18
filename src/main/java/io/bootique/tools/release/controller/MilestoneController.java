@@ -49,13 +49,13 @@ public class MilestoneController extends BaseJobController {
     @Path("/getMilestones")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getMilestones(@QueryParam("selectedModules") List<String> selectedProjectNames) throws IOException {
-//        @SuppressWarnings("unchecked")
-//        List<String> selectedProjects = objectMapper.readValue(selectedProjectNames, List.class);
+    public List<String> getMilestones(@QueryParam("selectedModules") String selectedProjectNames) throws IOException {
+        @SuppressWarnings("unchecked")
+        List<String> selectedProjects = objectMapper.readValue(selectedProjectNames, List.class);
         return ObjectSelect.columnQuery(Milestone.class, Milestone.TITLE)
                 .distinct()
                 .where(Milestone.STATE.eq("OPEN"))
-                .and(Milestone.REPOSITORY.dot(Repository.NAME).in(selectedProjectNames))
+                .and(Milestone.REPOSITORY.dot(Repository.NAME).in(selectedProjects))
                 .orderBy(Milestone.TITLE.asc())
                 .select(cayenneRuntime.newContext());
     }

@@ -7,6 +7,7 @@ import io.bootique.tools.release.model.persistent.auto._RepositoryNode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class RepositoryNode extends _RepositoryNode implements Comparable<RepositoryNode> {
 
@@ -28,7 +29,7 @@ public abstract class RepositoryNode extends _RepositoryNode implements Comparab
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+        this.createdAt = Objects.requireNonNull(createdAt);
         this.createdAtStr = dateTimeFormatter.format(createdAt);
     }
 
