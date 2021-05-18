@@ -1,7 +1,5 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
-import io.agrest.AgRequest;
 import io.agrest.DataResponse;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
@@ -74,25 +72,17 @@ public class ReleaseController extends BaseController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll() {
-        AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository\",\"rootModule\",\"dependencies.repository\"]")
-                .build();
-
-        return getProjects(project -> true, agRequest);
+        return fetchProjects("[\"repository\",\"rootModule\",\"dependencies.repository\"]");
     }
 
     @GET
     @Path("show-projects")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showProjects(@QueryParam("version") String version) {
+        DataResponse<Project> projectDataResponse = fetchProjects("[\"repository\",\"rootModule\"]");
 
-        AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository\",\"rootModule\"]")
-                .build();
-        DataResponse<Project> projectDataResponse = getProjects(project -> true, agRequest);
-
-        projectDataResponse.getObjects().forEach(project -> project.setDisable(true));
         projectDataResponse.getObjects().forEach(project -> {
+            project.setDisable(true);
             if (project.getVersion().equals(version)) {
                 project.setDisable(false);
                 checkDependencies(project);
@@ -110,11 +100,7 @@ public class ReleaseController extends BaseController {
                                                 @QueryParam("state") boolean state) throws IOException {
         @SuppressWarnings("unchecked")
         List<String> selectedProjects = objectMapper.readValue(selected, List.class);
-
-        AgRequest agRequest = Ag.request(configuration)
-                .addInclude("[\"repository\",\"rootModule\",\"rootModule.dependencies\"]")
-                .build();
-        DataResponse<Project> allProjects = getProjects(project -> true, agRequest);
+        DataResponse<Project> allProjects = fetchProjects("[\"repository\",\"rootModule\",\"rootModule.dependencies\"]");
         List<Project> selectedProjectsResp = allProjects.getObjects().stream()
                 .filter(project -> selectedProjects.contains(project.getRepository().getName()))
                 .collect(Collectors.toList());
@@ -150,9 +136,8 @@ public class ReleaseController extends BaseController {
     }
 
     private void filter(DataResponse<Project> allProjects, List<Project> selectedProjectsResp) {
-        AgRequest agRequest = Ag.request(configuration).build();
+        DataResponse<Project> dataResponse = fetchProjects();
 
-        DataResponse<Project> dataResponse = getProjects(project -> true, agRequest);
         int flag = 0;
         for (Project selectedProjectResp : dataResponse.getObjects()) {
             for (Project project : selectedProjectsResp) {

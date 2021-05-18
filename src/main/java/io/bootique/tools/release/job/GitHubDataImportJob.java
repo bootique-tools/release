@@ -109,6 +109,7 @@ public class GitHubDataImportJob extends BaseJob {
 
         for (Repository repository : repositories) {
             if (repository.getParent() != null) {
+                repository.getParent().setUpstream(true);
                 context.registerNewObject(repository.getParent());
             }
             context.registerNewObject(repository);

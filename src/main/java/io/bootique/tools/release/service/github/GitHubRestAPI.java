@@ -3,13 +3,11 @@ package io.bootique.tools.release.service.github;
 import io.bootique.tools.release.model.persistent.Milestone;
 import io.bootique.tools.release.model.persistent.Repository;
 
-import java.io.IOException;
-
 public interface GitHubRestAPI {
 
-    Milestone createMilestone(Repository repository, String title, String description) throws IOException;
+    Milestone createMilestone(Repository repository, String title);
 
-    void renameMilestone(Repository repository, String title, String description, String newTitle);
+    void renameMilestone(Milestone milestone, String newTitle);
 
-    void closeMilestone(Repository repository, String title, String description);
+    void closeMilestone(Milestone milestone);
 }

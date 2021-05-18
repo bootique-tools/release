@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.apache.cayenne.exp.property.BaseProperty;
 import org.apache.cayenne.exp.property.DateProperty;
 import org.apache.cayenne.exp.property.EntityProperty;
 import org.apache.cayenne.exp.property.ListProperty;
@@ -39,6 +40,7 @@ public abstract class _Repository extends GitHubEntity {
     public static final StringProperty<String> PUSHED_AT_STR = PropertyFactory.createString("pushedAtStr", String.class);
     public static final StringProperty<String> SSH_URL = PropertyFactory.createString("sshUrl", String.class);
     public static final DateProperty<LocalDateTime> UPDATED_AT = PropertyFactory.createDate("updatedAt", LocalDateTime.class);
+    public static final BaseProperty<Boolean> UPSTREAM = PropertyFactory.createBase("upstream", Boolean.class);
     public static final ListProperty<GitHubEntity> GIT_HUB_ENTITY_REPOSITORY = PropertyFactory.createList("gitHubEntity_Repository", GitHubEntity.class);
     public static final ListProperty<OpenIssue> ISSUES = PropertyFactory.createList("issues", OpenIssue.class);
     public static final ListProperty<ClosedIssue> ISSUES_CLOSE = PropertyFactory.createList("issuesClose", ClosedIssue.class);
@@ -54,6 +56,7 @@ public abstract class _Repository extends GitHubEntity {
     protected String pushedAtStr;
     protected String sshUrl;
     protected LocalDateTime updatedAt;
+    protected boolean upstream;
 
     protected Object gitHubEntity_Repository;
     protected Object issues;
@@ -131,6 +134,16 @@ public abstract class _Repository extends GitHubEntity {
     public LocalDateTime getUpdatedAt() {
         beforePropertyRead("updatedAt");
         return this.updatedAt;
+    }
+
+    public void setUpstream(boolean upstream) {
+        beforePropertyWrite("upstream", this.upstream, upstream);
+        this.upstream = upstream;
+    }
+
+	public boolean isUpstream() {
+        beforePropertyRead("upstream");
+        return this.upstream;
     }
 
     public void addToGitHubEntity_Repository(GitHubEntity obj) {
@@ -235,6 +248,8 @@ public abstract class _Repository extends GitHubEntity {
                 return this.sshUrl;
             case "updatedAt":
                 return this.updatedAt;
+            case "upstream":
+                return this.upstream;
             case "gitHubEntity_Repository":
                 return this.gitHubEntity_Repository;
             case "issues":
@@ -282,6 +297,9 @@ public abstract class _Repository extends GitHubEntity {
             case "updatedAt":
                 this.updatedAt = (LocalDateTime)val;
                 break;
+            case "upstream":
+                this.upstream = val == null ? false : (boolean)val;
+                break;
             case "gitHubEntity_Repository":
                 this.gitHubEntity_Repository = val;
                 break;
@@ -326,6 +344,7 @@ public abstract class _Repository extends GitHubEntity {
         out.writeObject(this.pushedAtStr);
         out.writeObject(this.sshUrl);
         out.writeObject(this.updatedAt);
+        out.writeBoolean(this.upstream);
         out.writeObject(this.gitHubEntity_Repository);
         out.writeObject(this.issues);
         out.writeObject(this.issuesClose);
@@ -345,6 +364,7 @@ public abstract class _Repository extends GitHubEntity {
         this.pushedAtStr = (String)in.readObject();
         this.sshUrl = (String)in.readObject();
         this.updatedAt = (LocalDateTime)in.readObject();
+        this.upstream = in.readBoolean();
         this.gitHubEntity_Repository = in.readObject();
         this.issues = in.readObject();
         this.issuesClose = in.readObject();

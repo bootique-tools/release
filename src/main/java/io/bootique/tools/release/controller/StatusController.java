@@ -42,9 +42,10 @@ public class StatusController extends BaseController {
         return ReleaseDescriptorDTO.fromModel(releaseService.getReleaseDescriptor());
     }
 
+    @SuppressWarnings("rawtypes")
     @GET
     @Path("/status")
-    public JobResponse<?, ?> status() {
+    public JobResponse status() {
         BatchJob<Repository, String> job = jobService.getCurrentJob();
         if (job == null) {
             return null;

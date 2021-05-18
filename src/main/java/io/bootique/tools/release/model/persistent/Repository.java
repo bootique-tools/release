@@ -73,35 +73,6 @@ public class Repository extends _Repository implements Comparable<Repository> {
         return super.getIssues().size();
     }
 
-    public void addMilestone(Milestone milestone) {
-        getObjectContext().registerNewObject(milestone);
-        getObjectContext().commitChanges();
-    }
-
-    public int getMilestoneId(String title) {
-        for (Milestone milestone : getMilestones()) {
-            if (milestone.getTitle().equals(title)) {
-                return milestone.getNumber();
-            }
-        }
-        return -1;
-    }
-
-    public void closeMilestone(String title) {
-        List<Milestone> milestoneList = getMilestones();
-        List<Milestone> concurrentList = new CopyOnWriteArrayList<>(milestoneList);
-        concurrentList.removeIf(milestone -> milestone.getTitle().equals(title));
-        milestones = concurrentList; // TODO: fix this
-    }
-
-    public synchronized void renameMilestone(String title, String newTitle) {
-        getMilestones().forEach(milestone -> {
-            if (title.equals(milestone.getTitle())) {
-                milestone.setTitle(newTitle);
-            }
-        });
-    }
-
     @JsonIgnore
     public String getUpdatedAtStr() {
         return FORMATTER.format(updatedAt);

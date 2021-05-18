@@ -1,9 +1,6 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
-import io.agrest.AgRequest;
 import io.agrest.DataResponse;
-import io.agrest.SelectStage;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
@@ -36,14 +33,7 @@ public class BranchesController extends BaseJobController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
-        AgRequest request = Ag.request(configuration)
-                .addInclude("[\"repository\",\"rootModule\"]")
-                .build();
-
-        return Ag.select(Project.class, configuration)
-                .terminalStage(SelectStage.FETCH_DATA, new MavenProjectSorter(mavenService))
-                .request(request)
-                .get();
+        return fetchProjects("[\"repository\",\"rootModule\"]");
     }
 
     @GET

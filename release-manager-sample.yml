@@ -1,28 +1,15 @@
-maven-central:
-  username: name
-  password: password
-  close: 0
-
 preferences:
   gitHubToken: token
-  basePath: path
-
-jerseyclient:
-  auth:
-    bintray:
-      type: basic
-      username: name
-      password: password
+  basePath: /Users/username/work/bootique/path
 
 jdbc:
-  mysql:
-    jdbcUrl: url
-    driverClassName: com.mysql.cj.jdbc.Driver
-    maximumPoolSize: 1
+  sqlite:
+    jdbcUrl: 'jdbc:sqlite:file:github.db?cache=shared&date_class=text'
+    driverClassName: org.sqlite.JDBC
+    maximumPoolSize: 5
     minimumIdle: 1
-    username: name
-    password: password
+    username: sa
 
 cayenne:
-  datasource: mysql
+  datasource: sqlite
   createSchema: true

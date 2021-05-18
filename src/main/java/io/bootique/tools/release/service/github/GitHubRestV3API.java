@@ -46,40 +46,46 @@ public class GitHubRestV3API implements GitHubRestAPI {
      * }
      */
     @Override
-    public Milestone createMilestone(Repository repository, String title, String description) throws IOException {
+    public Milestone createMilestone(Repository repository, String title) {
         Map<String, String> data = new HashMap<>();
         data.put("title", title);
-        data.put("description", description);
+        data.put("description", "");
 
-        Response response = prepareRequest(
-                "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones")
-                .buildPost(Entity.json(mapper.writeValueAsString(data)))
-                .invoke();
+        try {
+            Response response = prepareRequest(
+                    "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones")
+                    .buildPost(Entity.json(mapper.writeValueAsString(data)))
+                    .invoke();
 
-        if (response.getStatus() != 201) {
-            throw new DesktopException("Can't create milestone for " + repository.getName());
+            if (response.getStatus() != 201) {
+                throw new DesktopException("Can't create milestone for " + repository.getName());
+            }
+            return createMilestone(repository, mapper.readTree(response.readEntity(String.class)));
+        } catch (IOException ex) {
+            throw new DesktopException("Can't create milestone for " + repository.getName(), ex);
         }
-        return jsonToMilestone(repository, mapper.readTree(response.readEntity(String.class)));
     }
 
-    private void patchMilestone(Repository repository, String title, String description, String state, int id) {
+    @Override
+    public void renameMilestone(Milestone milestone, String newTitle) {
+        patchMilestone(milestone, newTitle, "open");
+    }
+
+    @Override
+    public void closeMilestone(Milestone milestone) {
+        patchMilestone(milestone, milestone.getTitle(), "closed");
+    }
+
+    private void patchMilestone(Milestone milestone, String title, String state) {
         Map<String, String> data = new HashMap<>();
         data.put("title", title);
         data.put("state", state);
-        data.put("description", description);
 
-        if (state.equals("closed")) {
-            repository.getMilestones().forEach(milestone -> {
-                if (milestone.getTitle().equals(title)) {
-                    milestone.setState("CLOSED");
-                }
-            });
-        }
-
+        Repository repository = milestone.getRepository();
         Response response;
         try {
             response = prepareRequest(
-                    "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones/" + id)
+                    "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones/" + milestone.getNumber())
                     .build("PATCH", Entity.json(mapper.writeValueAsString(data)))
                     .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
                     .invoke();
@@ -90,16 +96,9 @@ public class GitHubRestV3API implements GitHubRestAPI {
         if (response.getStatus() != 200) {
             throw new DesktopException("Can't patch milestone for " + repository.getName());
         }
-    }
 
-    @Override
-    public void renameMilestone(Repository repository, String title, String description, String newTitle) {
-        patchMilestone(repository, newTitle, description, "open", repository.getMilestoneId(title));
-    }
-
-    @Override
-    public void closeMilestone(Repository repository, String title, String description) {
-        patchMilestone(repository, title, description, "closed", repository.getMilestoneId(title));
+        milestone.setTitle(title);
+        milestone.setState(state);
     }
 
     private Invocation.Builder prepareRequest(String path) {
@@ -112,14 +111,14 @@ public class GitHubRestV3API implements GitHubRestAPI {
                 .header("Authorization", "token " + token);
     }
 
-    private Milestone jsonToMilestone(Repository repository, JsonNode json) {
+    private Milestone createMilestone(Repository repository, JsonNode json) {
         Milestone milestone = new Milestone();
-        milestone.setRepository(repository);
         milestone.setNumber(json.get("number").asInt());
         milestone.setTitle(json.get("title").asText());
         milestone.setUrl(json.get("html_url").asText());
         milestone.setState(json.get("state").asText());
         milestone.setObjectId(ObjectId.of("Milestone"));
+        milestone.setRepository(repository);
         return milestone;
     }
 

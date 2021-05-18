@@ -90,6 +90,7 @@
 		<db-attribute name="pushedAtStr" type="VARCHAR" length="255"/>
 		<db-attribute name="sshUrl" type="VARCHAR" length="255"/>
 		<db-attribute name="updatedAt" type="DATE"/>
+		<db-attribute name="upstream" type="BOOLEAN" isMandatory="true"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
 	</db-entity>
 	<db-entity name="RepositoryNode">
@@ -149,6 +150,7 @@
 		<obj-attribute name="pushedAtStr" type="java.lang.String" db-attribute-path="pushedAtStr"/>
 		<obj-attribute name="sshUrl" type="java.lang.String" db-attribute-path="sshUrl"/>
 		<obj-attribute name="updatedAt" type="java.time.LocalDateTime" db-attribute-path="updatedAt"/>
+		<obj-attribute name="upstream" type="boolean" db-attribute-path="upstream"/>
 	</obj-entity>
 	<obj-entity name="RepositoryNode" superEntityName="GitHubEntity" abstract="true" className="io.bootique.tools.release.model.persistent.RepositoryNode" dbEntityName="RepositoryNode">
 		<obj-attribute name="commentsCount" type="int" db-attribute-path="commentsCount"/>
@@ -308,6 +310,7 @@
 	<obj-relationship name="author" source="PullRequest" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
 	<obj-relationship name="labels" source="PullRequest" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
 	<obj-relationship name="repository" source="PullRequest" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
+	<obj-relationship name="gitHubEntity_Repository" source="Repository" target="GitHubEntity" deleteRule="Deny" db-relationship-path="gitHubEntity_Repository"/>
 	<obj-relationship name="issues" source="Repository" target="OpenIssue" deleteRule="Deny" db-relationship-path="issues"/>
 	<obj-relationship name="issuesClose" source="Repository" target="ClosedIssue" deleteRule="Deny" db-relationship-path="issuesClose"/>
 	<obj-relationship name="milestones" source="Repository" target="Milestone" deleteRule="Deny" db-relationship-path="milestones"/>

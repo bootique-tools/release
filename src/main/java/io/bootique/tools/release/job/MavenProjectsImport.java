@@ -45,7 +45,9 @@ public class MavenProjectsImport extends BaseJob {
 
         ObjectContext context = cayenneRuntimeProvider.get().newContext();
 
-        List<Repository> repositories = ObjectSelect.query(Repository.class).select(context);
+        List<Repository> repositories = ObjectSelect.query(Repository.class)
+                .where(Repository.UPSTREAM.isFalse())
+                .select(context);
         if(repositories.isEmpty()) {
             LOGGER.info("No repositories yet, return.");
             return JobResult.success(getMetadata());

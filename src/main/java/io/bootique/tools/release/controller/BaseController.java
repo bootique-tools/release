@@ -5,6 +5,7 @@ import io.agrest.Ag;
 import io.agrest.AgRequest;
 import io.agrest.DataResponse;
 import io.agrest.RootResourceEntity;
+import io.agrest.SelectStage;
 import io.agrest.runtime.processor.select.SelectContext;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.maven.persistent.Project;
@@ -17,12 +18,9 @@ import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
@@ -64,6 +62,18 @@ abstract class BaseController {
         return currentUser;
     }
 
+    protected DataResponse<Project> fetchProjects() {
+        return fetchProjects(null);
+    }
+
+    protected DataResponse<Project> fetchProjects(String include) {
+        AgRequest request = Ag.request(configuration).addInclude(include).build();
+        return Ag.select(Project.class, configuration)
+                .stage(SelectStage.FETCH_DATA, new MavenProjectSorter(mavenService))
+                .request(request)
+                .get();
+    }
+
     protected List<Project> getSelectedProjects(String selectedProjects) throws IOException {
         @SuppressWarnings("unchecked")
         List<String> selectedProjectsNames = objectMapper.readValue(selectedProjects, List.class);
@@ -71,22 +81,6 @@ abstract class BaseController {
                 .where(Project.REPOSITORY.dot(Repository.NAME).in(selectedProjectsNames))
                 .select(cayenneRuntime.newContext());
         return sortProjectsBySelection(selectedProjectsNames, projectList);
-    }
-
-    protected DataResponse<Project> getProjects(Predicate<Project> predicate, AgRequest request) {
-
-        DataResponse<Project> projectDataResponse = Ag.select(Project.class, configuration).request(request).get();
-        List<Project> projects = projectDataResponse.getObjects();
-        if (projects.isEmpty()) {
-            return DataResponse.forObjects(Collections.emptyList());
-        }
-
-        List<Project> filteredProjects = mavenService.sortProjects(projects.stream()
-                        .filter(predicate)
-                        .collect(Collectors.toList())
-        );
-        projectDataResponse.setObjects(filteredProjects);
-        return projectDataResponse;
     }
 
     private List<Project> sortProjectsBySelection(List<String> selectedProjectsName, List<Project> selectedProjects) {
