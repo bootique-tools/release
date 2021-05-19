@@ -66,7 +66,7 @@ public class BatchJob<T, R> {
     @JsonIgnore
     public Percent getProgress() {
         if(isDone()) {
-            return new Percent(100);
+            return new Percent(1);
         }
         if(getTotal() == 0) {
             return new Percent(0);
