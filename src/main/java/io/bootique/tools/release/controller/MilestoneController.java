@@ -42,7 +42,7 @@ public class MilestoneController extends BaseJobController {
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
         return fetchProjects("[\"repository\",\"modules\",\"rootModule\",\"repository.milestones.openIssues\"," +
-                "{\"path\":\"repository.milestones\",\"cayenneExp\":\"state like 'OPEN'\"}]");
+                "{\"path\":\"repository.milestones\",\"exp\":\"state like 'OPEN'\"}]");
     }
 
     @GET

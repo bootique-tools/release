@@ -200,10 +200,6 @@ public class GitHubDataImportJob extends BaseJob {
         SQLExec.query("delete from ClosedIssue").update(objectContext);
         SQLExec.query("delete from Milestone").update(objectContext);
         SQLExec.query("delete from PullRequest").update(objectContext);
-        SQLExec.query("delete from ModuleDependency").update(objectContext);
-        SQLExec.query("delete from Module").update(objectContext);
-        SQLExec.query("delete from ProjectDependency").update(objectContext);
-        SQLExec.query("delete from Project").update(objectContext);
         SQLExec.query("delete from Repository").update(objectContext);
         SQLExec.query("delete from Organization").update(objectContext);
         SQLExec.query("delete from Author").update(objectContext);

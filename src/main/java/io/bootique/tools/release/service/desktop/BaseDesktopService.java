@@ -82,8 +82,8 @@ public abstract class BaseDesktopService implements DesktopService {
             }
             int exitCode = process.waitFor();
             if(exitCode != 0) {
-                LOGGER.debug("Exit code: " + exitCode + "\n" + sb.toString());
-                throw new DesktopException("Exit code: " + exitCode + "\n" + sb.toString());
+                LOGGER.debug("Exit code: " + exitCode + "\n" + sb);
+                throw new DesktopException("Exit code: " + exitCode + "\n" + sb);
             }
         } catch (IOException | InterruptedException e) {
             LOGGER.debug("Failed execute command " + String.join(" ", commands), e);
