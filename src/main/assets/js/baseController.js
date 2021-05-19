@@ -135,7 +135,7 @@ export const defaultBaseMethods = {
             let intervalCheck = setInterval(function () {
                 axios.get(`/ui/release/process/status`)
                     .then(function (response) {
-                        currApp.progress = response.data.percent.percent;
+                        currApp.progress = response.data.percent;
                         if (currApp.allItems != null) {
                             for (let i = 0; i < currApp.allItems.data.length; i++) {
                                 for (let j = 0; j < response.data.results.length; j++) {
@@ -147,7 +147,7 @@ export const defaultBaseMethods = {
                                 }
                             }
                         }
-                        if (response.data.percent.percent === 100) {
+                        if (currApp.progress === 100) {
                             clearInterval(intervalCheck);
                             window.sessionStorage.removeItem('showProcess');
                         }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public class JobResponse<T, R> {
 
-    private Percent percent;
+    private double percent;
     private List<BatchJobResult<T, R>> results;
     private String name;
 
@@ -15,7 +15,7 @@ public class JobResponse<T, R> {
         return new Builder<>();
     }
 
-    public Percent getPercent() {
+    public double getPercent() {
         return percent;
     }
 
@@ -36,7 +36,7 @@ public class JobResponse<T, R> {
         }
 
         public Builder<T, R> percent(Percent percent) {
-            this.jobResponse.percent = percent;
+            this.jobResponse.percent = percent.getPercent();
             return this;
         }
 

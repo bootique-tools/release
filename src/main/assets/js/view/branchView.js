@@ -1,7 +1,7 @@
 import Vue from 'vue/dist/vue'
 import axios from 'axios/dist/axios'
 
-import { defaultBaseMethods } from "../baseController";
+import {defaultBaseMethods} from "../baseController";
 
 export function initBranchView() {
     return new Vue({
@@ -31,13 +31,13 @@ export function initBranchView() {
                 sessionStorage.showProcess = 'initBranchView';
                 currApp.progress = 0;
                 axios.get(`/ui/branches/${String(task)}?branchTitle=${this.branchTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
-                .then(function (response) {
-                    currApp.checkStatus();
-                })
-                .catch(function () {
-                 console.log("Error in " + task);
-                 window.sessionStorage.removeItem('showProcess');
-             })
+                    .then(function (response) {
+                        currApp.checkStatus();
+                    })
+                    .catch(function () {
+                        console.log("Error in " + task);
+                        window.sessionStorage.removeItem('showProcess');
+                    })
             },
         }
     });
