@@ -35,20 +35,6 @@
                         </tr>
                         </thead>
                         <tbody>
-<!--
-results	[ {…}, {…} ]
-    0	Object { status: "SUCCESS", data: {…}, result: "" }
-            status	"SUCCESS"
-            data	Object { disable: true, branchName: "2.x", repository: {…}, … }
-            repository	Object { name: "bootique-di", url: "https://github.com/bootique/bootique-di", milestones: […] }
-            rootModule	Object { group: "io.bootique.di", githubId: "bootique-di-parent", version: "3.0-SNAPSHOT", … }
-            disable	true
-            dependencies	[]
-            branchName	"2.x"
-            result	""
-    1	Object { status: "SUCCESS", data: {…}, result: "" }
-            status
--->
                         <tr v-for="module in allItems.data">
                             <td><input type="checkbox" v-bind:id="module.repository.name" v-bind:value="module.repository.name"  v-model.lazy="selectedModules"></td>
                             <td><label v-bind:for="module.repository.name"><a v-bind:href="module.repository.url" target="_blank">[[module.repository.name]]</a></label></td>
