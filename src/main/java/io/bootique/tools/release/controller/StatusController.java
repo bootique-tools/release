@@ -64,11 +64,18 @@ public class StatusController extends BaseController {
         }
         jobResults.addAll(convertToDTO(job.getResults()));
 
-        return releaseDescriptor == null ?
-                JobResponse.builder().percent(job.getProgress()).results(convertToDTO(job.getResults())).build() :
-                JobResponse.builder().percent(getProgress(job.getDone(), releaseDescriptor.getProjectList().size(), job.getTotal()))
-                        .results(jobResults).name(releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE ?
-                        releaseDescriptor.getCurrentReleaseStage().getText() : releaseDescriptor.getCurrentRollbackStage().getText()).build();
+        return releaseDescriptor == null
+                ? JobResponse.<Repository, String>builder()
+                    .percent(job.getProgress())
+                    .results(convertToDTO(job.getResults()))
+                    .build()
+                : JobResponse.<Repository, String>builder()
+                    .percent(getProgress(job.getDone(), releaseDescriptor.getProjectList().size(), job.getTotal()))
+                    .results(jobResults)
+                    .name(releaseDescriptor.getCurrentReleaseStage() != ReleaseStage.NO_RELEASE
+                            ? releaseDescriptor.getCurrentReleaseStage().getText()
+                            : releaseDescriptor.getCurrentRollbackStage().getText())
+                    .build();
     }
 
     private Percent getProgress(int done, int all, int total) {

@@ -1,9 +1,8 @@
 package io.bootique.tools.release.controller;
 
 import io.agrest.Ag;
-import io.agrest.AgRequest;
 import io.agrest.DataResponse;
-import io.bootique.tools.release.model.persistent.*;
+import io.bootique.tools.release.model.persistent.OpenIssue;
 import io.bootique.tools.release.view.IssueView;
 
 import javax.ws.rs.GET;

@@ -1,13 +1,17 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.*;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
+import org.apache.cayenne.ObjectContext;
+import org.apache.cayenne.query.ObjectSelect;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.File;
@@ -32,20 +36,21 @@ public class GitController extends BaseController {
                     null, null, -1, false);
             return Response.ok()
                     .entity(path.toString())
-                    .cookie(cookie).build();
+                    .cookie(cookie)
+                    .build();
         }
         return Response.ok().build();
     }
 
     @Path("clone")
     @POST
-    public SimpleResponse clone(@QueryParam("repo") String repoName) {
+    public Response clone(@QueryParam("repo") String repoName) {
         return checkAndRun(repoName, r -> gitService.clone(r));
     }
 
     @Path("update")
     @POST
-    public SimpleResponse update(@QueryParam("repo") String repoName) {
+    public Response update(@QueryParam("repo") String repoName) {
         return checkAndRun(repoName, r -> gitService.update(r));
     }
 
@@ -90,7 +95,7 @@ public class GitController extends BaseController {
 
     @Path("open")
     @GET
-    public SimpleResponse open(@QueryParam("repo") String repoName, @QueryParam("type") String type) {
+    public Response open(@QueryParam("repo") String repoName, @QueryParam("type") String type) {
         java.nio.file.Path path = preferences.get(GitService.BASE_PATH_PREFERENCE);
         Consumer<Repository> action = "terminal".equals(type)
                 ? r -> desktopService.openTerminal(path.resolve(r.getName()))
@@ -98,26 +103,23 @@ public class GitController extends BaseController {
         return checkAndRun(repoName, action);
     }
 
-    private SimpleResponse checkAndRun(String repoName, Consumer<Repository> action) {
+    private Response checkAndRun(String repoName, Consumer<Repository> action) {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
-            return new SimpleResponse(false, "Path should be set via /ui/git/select_path query.");
+            return Response.status(Response.Status.PRECONDITION_FAILED)
+                    .entity("Path should be set via /ui/git/select_path query.")
+                    .build();
         }
 
-        AgRequest agRequest = Ag.request(configuration)
-                .andExp("[\"name like $b\",\"" + repoName + "\"]")
-                .build();
-        Repository repository = Ag.select(Repository.class, configuration).request(agRequest).getOne().getObjects().get(0);
+        ObjectContext context = cayenneRuntime.newContext();
+        Repository repository = ObjectSelect.query(Repository.class, Repository.NAME.eq(repoName)).selectFirst(context);
         if(repository == null) {
-            SimpleResponse simpleResponse = new SimpleResponse(false, "Not Found");
-            simpleResponse.setStatus(Response.Status.NOT_FOUND);
-            return simpleResponse;
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-
 
         action.accept(repository);
-        String data = "{ \"lStatus\" : \"" + GitService.GitStatus.OK.name() + "\" }";
         repository.setLocalStatus(GitService.GitStatus.OK);
-        return Ag.update(Repository.class, configuration).id(repository.getObjectId().getIdSnapshot().get("ID")).sync(data);
+        context.commitChanges();
+        return Response.ok().build();
     }
 
 }

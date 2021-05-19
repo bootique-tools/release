@@ -17,19 +17,12 @@ public class JobProgressController {
     private BatchJobService jobService;
 
     @GET
-    public JobResponse progress() {
-        JobResponse.Builder builder = JobResponse.builder();
+    public JobResponse<Repository, String> progress() {
         BatchJob<Repository, String> job = jobService.getCurrentJob();
-        if (job == null) {
-            builder.percent(new Percent("0"));
-        } else {
-            builder.name(job.getBatchJobDescriptor().getControllerName())
-                    .percent(new Percent("100"));
-            if (job.isDone()) {
-                return builder.build();
-            }
-            builder.percent(job.getProgress());
-        }
-        return builder.build();
+        return job == null
+                ? JobResponse.<Repository, String>builder().percent(new Percent("0")).build()
+                : JobResponse.<Repository, String>builder().percent(job.getProgress())
+                    .name(job.getBatchJobDescriptor().getControllerName())
+                    .build();
     }
 }

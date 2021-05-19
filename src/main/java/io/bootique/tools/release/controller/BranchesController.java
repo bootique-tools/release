@@ -39,8 +39,7 @@ public class BranchesController extends BaseJobController {
     @GET
     @Path("/get-branch")
     public String getBranch(@QueryParam("name") String name) {
-        Repository repository = ObjectSelect.query(Repository.class)
-                .where(Repository.NAME.eq(name))
+        Repository repository = ObjectSelect.query(Repository.class, Repository.NAME.eq(name))
                 .selectOne(cayenneRuntime.newContext());
         return gitService.getCurrentBranchName(repository);
     }
@@ -73,7 +72,7 @@ public class BranchesController extends BaseJobController {
     @Path("/checkoutBranch")
     @Consumes(MediaType.APPLICATION_JSON)
     public String checkoutBranch(@QueryParam("branchTitle") String branch,
-                               @QueryParam("selectedModules") String selectedModules) throws IOException {
+                                 @QueryParam("selectedModules") String selectedModules) throws IOException {
         Function<Project, String> repoProcessor = project -> {
             try {
                 gitService.checkoutBranch(project.getRepository(), branch);
