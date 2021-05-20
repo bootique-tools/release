@@ -4,20 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.persistent.auto._Milestone;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Milestone extends _Milestone implements Comparable<Milestone> {
 
     private static final long serialVersionUID = 1L;
 
     @JsonProperty("issues")
     private Node<OpenIssue> issueNode;
-
-    public Milestone() {
-        super();
-        this.openIssues = new ArrayList<>();
-    }
 
     @JsonProperty("issues")
     public Node<OpenIssue> getIssueNode() {
@@ -27,11 +19,6 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
     @JsonProperty("issues")
     public void setIssueNode(Node<OpenIssue> issueNode) {
         this.issueNode = issueNode;
-    }
-
-    @JsonProperty("issuesList")
-    public void setIssues(List<OpenIssue> issues) {
-        this.openIssues = issues;
     }
 
     @JsonIgnore
@@ -62,10 +49,6 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
     @Override
     public String toString() {
         return "{milestone " + title + '}';
-    }
-
-    public void addToIssuesWithoutContext(List<OpenIssue> issue) {
-        this.openIssues = issue;
     }
 
 }

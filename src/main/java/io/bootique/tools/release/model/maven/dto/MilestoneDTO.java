@@ -37,7 +37,7 @@ public class MilestoneDTO {
         for (int i = 0; i < issues.getLength(); i++) {
             issueList.add(new OpenIssue());
         }
-        milestone.addToIssuesWithoutContext(issueList);
+        milestone.writePropertyDirectly(Milestone.OPEN_ISSUES.getName(), issueList);
         milestone.setState(this.state);
     }
 
