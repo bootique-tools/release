@@ -8,14 +8,14 @@ import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApiImport;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.PersistenceState;
 import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.map.EntityResolver;
 import org.apache.cayenne.query.ObjectSelect;
-import org.apache.cayenne.query.SQLExec;
+import org.apache.cayenne.reflect.ClassDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.inject.Inject;
@@ -36,10 +36,6 @@ public class GitHubDataImportJob extends BaseJob {
 
     private Provider<ServerRuntime> runtimeProvider;
 
-    private Boolean update;
-
-    private Map<String, Author> authorMap;
-
     @SuppressWarnings("unused")
     public GitHubDataImportJob() {
         super(JobMetadata.build(GitHubDataImportJob.class));
@@ -49,160 +45,142 @@ public class GitHubDataImportJob extends BaseJob {
     public GitHubDataImportJob(Provider<ServerRuntime> runtimeProvider) {
         super(JobMetadata.build(GitHubDataImportJob.class));
         this.runtimeProvider = runtimeProvider;
-        this.update = false;
     }
 
     @Override
     public JobResult run(Map<String, Object> map) {
-
         ServerRuntime runtime = runtimeProvider.get();
+
         ObjectContext context = runtime.newContext();
+        syncGitHubDataData(context);
+        context.commitChanges();
 
-        if (this.update) {
-            importGithubData(context);
-        } else {
-            List<Organization> organizations = ObjectSelect.query(Organization.class)
-                    .where(Organization.LOGIN.eq(preferenceService.get(GitHubApiImport.ORGANIZATION_PREFERENCE))).select(context);
-
-            if (organizations.size() == 0) {
-                importGithubData(context);
-            }
-        }
-
-        this.update = true;
         return JobResult.success(getMetadata());
     }
 
-    private void importGithubData(ObjectContext objectContext) {
-        LOGGER.info("Running GitHub data update...");
-        deleteAll(objectContext);
+    private void syncGitHubDataData(ObjectContext context) {
+        LOGGER.info("Running GitHub data update ...");
+
+        Organization organization = syncOrganization(context, preferenceService.get(GitHubApiImport.ORGANIZATION_PREFERENCE));
+        List<Repository> repositories = syncRepositories(context, organization);
+        for(Repository repository: repositories) {
+            syncMilestones(context, repository);
+            syncOpenIssues(context, repository);
+            syncClosedIssues(context, repository);
+            syncPullRequests(context, repository);
+        }
+    }
+
+    private Organization syncOrganization(ObjectContext context, String organizationName) {
+        Organization organization = ObjectSelect.query(Organization.class, Organization.LOGIN.eq(organizationName))
+                .selectFirst(context);
+        if(organization != null) {
+            // TODO: should we sync data?
+            return organization;
+        }
 
         User user = gitHubApiImport.getCurrentUser();
-        user.setObjectContext(objectContext);
-        objectContext.registerNewObject(user);
+        user.setObjectContext(context);
+        context.registerNewObject(user);
 
-        Organization organization = gitHubApiImport.getCurrentOrganization();
+        organization = gitHubApiImport.getCurrentOrganization();
+        context.registerNewObject(organization);
 
-        getRepositories(objectContext, organization);
-
-        authorMap = new HashMap<>();
-        if (organization.getPersistenceState() == PersistenceState.NEW) {
-            for (Repository repository : organization.getRepositories()) {
-                if (preferenceService.have(GitService.BASE_PATH_PREFERENCE)) {
-                    repository.setLocalStatus(gitService.status(repository));
-                }
-                Map<String, Milestone> milestoneMap = new HashMap<>();
-
-                getMilestones(objectContext, repository, milestoneMap);
-                getIssues(objectContext, repository, milestoneMap);
-                getPRs(objectContext, repository);
-
-                milestoneMap.clear();
-            }
-        }
-        objectContext.commitChanges();
-        authorMap.clear();
+        return organization;
     }
 
-    private void getRepositories(ObjectContext context, Organization organization) {
-        List<Repository> repositories = gitHubApiImport.getCurrentRepositoryCollection(organization);
+    private List<Repository> syncRepositories(ObjectContext context, Organization organization) {
+        List<Repository> repositoriesIn = gitHubApiImport.getCurrentRepositoryCollection(organization);
+        List<Repository> repositoriesOut = new ArrayList<>();
+        for(Repository repo : repositoriesIn) {
+            Repository syncedRepo = syncEntity(context, Repository.class, repo);
+            syncedRepo.setOrganization(organization);
+            repositoriesOut.add(syncedRepo);
 
-        for (Repository repository : repositories) {
-            if (repository.getParent() != null) {
-                repository.getParent().setUpstream(true);
-                context.registerNewObject(repository.getParent());
+            if (repo.getParent() != null) {
+                Repository parent = syncEntity(context, Repository.class, repo.getParent());
+                parent.setUpstream(true);
+                syncedRepo.setParent(parent);
             }
-            context.registerNewObject(repository);
-            organization.addToRepositories(repository);
+
+            if (preferenceService.have(GitService.BASE_PATH_PREFERENCE)) {
+                syncedRepo.setLocalStatus(gitService.status(syncedRepo));
+            }
         }
+        return repositoriesOut;
     }
 
-    private void getIssues(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
-        List<OpenIssue> issues = gitHubApiImport.getIssueCollection(repository);
-
-        for (OpenIssue issue : issues) {
-            if (issue.getMilestone() != null) {
-                if (milestoneMap.containsKey(issue.getMilestone().getGithubId())) {
-                    issue.setMilestone(milestoneMap.get(issue.getMilestone().getGithubId()));
-                } else {
-                    context.registerNewObject(issue.getMilestone());
-                }
-            }
-            if (authorMap.containsKey(issue.getAuthor().getGithubId())) {
-                issue.setAuthor(authorMap.get(issue.getAuthor().getGithubId()));
-            } else {
-                context.registerNewObject(issue.getAuthor());
-                authorMap.put(issue.getAuthor().getGithubId(), issue.getAuthor());
-            }
-            for (Label label : issue.getLabels()) {
-                context.registerNewObject(label);
-            }
-            issue.setRepository(repository);
-            repository.addToIssues(issue);
-            context.registerNewObject(issue);
-        }
-
-        List<ClosedIssue> issuesClosed = gitHubApiImport.getClosedIssueCollection(repository);
-
-        for (ClosedIssue issueClose : issuesClosed) {
-            if (issueClose.getMilestone() != null) {
-                Milestone milestone = milestoneMap.get(issueClose.getMilestone().getGithubId());
-                if (milestone != null) {
-                    issueClose.setMilestone(milestone);
-                } else {
-                    context.registerNewObject(issueClose.getMilestone());
-                }
-            }
-            issueClose.setRepository(repository);
-            repository.addToIssuesClose(issueClose);
-            context.registerNewObject(issueClose);
-        }
-    }
-
-    private void getMilestones(ObjectContext context, Repository repository, Map<String, Milestone> milestoneMap) {
+    private void syncMilestones(ObjectContext context, Repository repository) {
         List<Milestone> milestones = gitHubApiImport.getMilestoneCollection(repository);
-
-        for (Milestone milestone : milestones) {
+        for (Milestone next : milestones) {
+            Milestone milestone = syncEntity(context, Milestone.class, next);
             milestone.setRepository(repository);
-            if (milestone.getOpenIssues() != null && !milestone.getOpenIssues().isEmpty()) {
-                for (OpenIssue issue : milestone.getOpenIssues()) {
-                    context.registerNewObject(issue);
+        }
+    }
+
+    private void syncOpenIssues(ObjectContext context, Repository repository) {
+        List<OpenIssue> issues = gitHubApiImport.getIssueCollection(repository);
+        for(OpenIssue next : issues) {
+            OpenIssue issue = syncEntity(context, OpenIssue.class, next);
+            issue.setRepository(repository);
+        }
+    }
+
+    private void syncClosedIssues(ObjectContext context, Repository repository) {
+        List<ClosedIssue> issues = gitHubApiImport.getClosedIssueCollection(repository);
+        for(ClosedIssue next : issues) {
+            ClosedIssue issue = syncEntity(context, ClosedIssue.class, next);
+            issue.setRepository(repository);
+        }
+    }
+
+    private void syncPullRequests(ObjectContext context, Repository repository) {
+        List<PullRequest> pullRequests = gitHubApiImport.getPullRequestCollection(repository);
+        for (PullRequest next : pullRequests) {
+            PullRequest pr = syncEntity(context, PullRequest.class, next);
+            pr.setRepository(repository);
+        }
+    }
+
+    static <T extends GitHubEntity> T syncEntity(ObjectContext context, Class<T> entityType, T entityFrom) {
+        T entityTo = findEntity(context, entityType, entityFrom.getGithubId());
+        boolean fromDb = true;
+        if(entityTo == null) {
+            entityTo = entityFrom;
+            fromDb = false;
+        }
+
+        syncProperties(context, entityFrom, entityTo, fromDb);
+        if(!fromDb) {
+            context.registerNewObject(entityTo);
+        }
+        return entityTo;
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T extends GitHubEntity> T findEntity(ObjectContext context, Class<T> entityType, String githubId) {
+        // lookup in the DB
+        T entityFromDb = ObjectSelect.query(entityType, GitHubEntity.GITHUB_ID.eq(githubId)).selectOne(context);
+        if(entityFromDb != null) {
+            return entityFromDb;
+        }
+
+        // search for the uncommitted entity
+        for (Object next : context.newObjects()) {
+            if (entityType.isInstance(next)) {
+                if (((T) next).getGithubId().equals(githubId)) {
+                    return (T) next;
                 }
             }
-            repository.addToMilestones(milestone);
-            context.registerNewObject(milestone);
-            milestoneMap.put(milestone.getGithubId(), milestone);
         }
+        return null;
     }
 
-    private void getPRs(ObjectContext context, Repository repository) {
-        List<PullRequest> pullRequests = gitHubApiImport.getPullRequestCollection(repository);
-
-        for (PullRequest pullRequest : pullRequests) {
-            for (Label label : pullRequest.getLabels()) {
-                context.registerNewObject(label);
-            }
-            if (authorMap.containsKey(pullRequest.getAuthor().getGithubId())) {
-                pullRequest.setAuthor(authorMap.get(pullRequest.getAuthor().getGithubId()));
-            } else {
-                context.registerNewObject(pullRequest.getAuthor());
-                authorMap.put(pullRequest.getAuthor().getGithubId(), pullRequest.getAuthor());
-            }
-            pullRequest.setRepository(repository);
-            repository.addToPullRequests(pullRequest);
-            context.registerNewObject(pullRequest);
-        }
+    static void syncProperties(ObjectContext context, GitHubEntity entity, GitHubEntity entityFromDb, boolean syncAttributes) {
+        EntityResolver entityResolver = context.getEntityResolver();
+        String entityName = entityResolver.getObjEntity(entityFromDb).getName();
+        ClassDescriptor descriptor = entityResolver.getClassDescriptor(entityName);
+        descriptor.visitAllProperties(new MergingAttributeVisitor(context, entityFromDb, entity, syncAttributes));
     }
 
-    private void deleteAll(ObjectContext objectContext) {
-        SQLExec.query("delete from Label").update(objectContext);
-        SQLExec.query("delete from OpenIssue").update(objectContext);
-        SQLExec.query("delete from ClosedIssue").update(objectContext);
-        SQLExec.query("delete from Milestone").update(objectContext);
-        SQLExec.query("delete from PullRequest").update(objectContext);
-        SQLExec.query("delete from Repository").update(objectContext);
-        SQLExec.query("delete from Organization").update(objectContext);
-        SQLExec.query("delete from Author").update(objectContext);
-        SQLExec.query("delete from User").update(objectContext);
-    }
 }

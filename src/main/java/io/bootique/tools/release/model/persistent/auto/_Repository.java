@@ -41,7 +41,6 @@ public abstract class _Repository extends GitHubEntity {
     public static final StringProperty<String> SSH_URL = PropertyFactory.createString("sshUrl", String.class);
     public static final DateProperty<LocalDateTime> UPDATED_AT = PropertyFactory.createDate("updatedAt", LocalDateTime.class);
     public static final BaseProperty<Boolean> UPSTREAM = PropertyFactory.createBase("upstream", Boolean.class);
-    public static final ListProperty<GitHubEntity> GIT_HUB_ENTITY_REPOSITORY = PropertyFactory.createList("gitHubEntity_Repository", GitHubEntity.class);
     public static final ListProperty<OpenIssue> ISSUES = PropertyFactory.createList("issues", OpenIssue.class);
     public static final ListProperty<ClosedIssue> ISSUES_CLOSE = PropertyFactory.createList("issuesClose", ClosedIssue.class);
     public static final ListProperty<Milestone> MILESTONES = PropertyFactory.createList("milestones", Milestone.class);
@@ -58,7 +57,6 @@ public abstract class _Repository extends GitHubEntity {
     protected LocalDateTime updatedAt;
     protected boolean upstream;
 
-    protected Object gitHubEntity_Repository;
     protected Object issues;
     protected Object issuesClose;
     protected Object milestones;
@@ -144,19 +142,6 @@ public abstract class _Repository extends GitHubEntity {
 	public boolean isUpstream() {
         beforePropertyRead("upstream");
         return this.upstream;
-    }
-
-    public void addToGitHubEntity_Repository(GitHubEntity obj) {
-        addToManyTarget("gitHubEntity_Repository", obj, true);
-    }
-
-    public void removeFromGitHubEntity_Repository(GitHubEntity obj) {
-        removeToManyTarget("gitHubEntity_Repository", obj, true);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<GitHubEntity> getGitHubEntity_Repository() {
-        return (List<GitHubEntity>)readProperty("gitHubEntity_Repository");
     }
 
     public void addToIssues(OpenIssue obj) {
@@ -250,8 +235,6 @@ public abstract class _Repository extends GitHubEntity {
                 return this.updatedAt;
             case "upstream":
                 return this.upstream;
-            case "gitHubEntity_Repository":
-                return this.gitHubEntity_Repository;
             case "issues":
                 return this.issues;
             case "issuesClose":
@@ -300,9 +283,6 @@ public abstract class _Repository extends GitHubEntity {
             case "upstream":
                 this.upstream = val == null ? false : (boolean)val;
                 break;
-            case "gitHubEntity_Repository":
-                this.gitHubEntity_Repository = val;
-                break;
             case "issues":
                 this.issues = val;
                 break;
@@ -345,7 +325,6 @@ public abstract class _Repository extends GitHubEntity {
         out.writeObject(this.sshUrl);
         out.writeObject(this.updatedAt);
         out.writeBoolean(this.upstream);
-        out.writeObject(this.gitHubEntity_Repository);
         out.writeObject(this.issues);
         out.writeObject(this.issuesClose);
         out.writeObject(this.milestones);
@@ -365,7 +344,6 @@ public abstract class _Repository extends GitHubEntity {
         this.sshUrl = (String)in.readObject();
         this.updatedAt = (LocalDateTime)in.readObject();
         this.upstream = in.readBoolean();
-        this.gitHubEntity_Repository = in.readObject();
         this.issues = in.readObject();
         this.issuesClose = in.readObject();
         this.milestones = in.readObject();

@@ -18,12 +18,10 @@ public class Project extends _Project implements Comparable<Project> {
     }
 
     public Project(String name) {
-        super();
         this.repository = new Repository(name);
     }
 
     public Project(Repository repository, Path path, Module rootModule) {
-        super();
         this.repository = Objects.requireNonNull(repository);
         this.path = path;
         this.pathStr = path.toString();

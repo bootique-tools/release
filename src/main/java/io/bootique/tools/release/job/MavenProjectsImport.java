@@ -75,7 +75,7 @@ public class MavenProjectsImport extends BaseJob {
 
             Project project = ObjectSelect.query(Project.class).where(Project.REPOSITORY.eq(repo)).selectFirst(context);
             if(project == null) {
-                // TODO: this job should also be update to update projects in case their modules are changed
+                // TODO: this job should also be used to update projects in case their modules are changed
                 project = mavenService.createProject(repo);
                 project.setDisable(true);
                 createdProjects.add(project);

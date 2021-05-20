@@ -55,7 +55,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
 
         OrganizationContainer organizationContainer = loadQuery("repositories",
                 Map.of("name", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
-                        , "totalCount", organization.getRepositoryNode().getTotalCount()),
+                        , "totalCount", 100),
                 OrganizationContainer.class);
 
         if (organizationContainer == null) {
@@ -71,7 +71,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
         RepositoryContainer repositoryContainer = loadQuery("milestones",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
-                        , "totalCount", repository.getMilestoneNode().getTotalCount()),
+                        , "totalCount", 100),
                 RepositoryContainer.class);
         if (repositoryContainer == null) {
             return null;
@@ -86,7 +86,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
         RepositoryContainer repositoryContainer = loadQuery("issues",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
-                        , "totalCount", repository.getIssueNode().getTotalCount()),
+                        , "totalCount", 100),
                 RepositoryContainer.class);
         if (repositoryContainer == null) {
             return null;
@@ -128,7 +128,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
         RepositoryContainer repositoryContainer = loadQuery("pr",
                 Map.of("owner", preferences.get(GitHubApiImport.ORGANIZATION_PREFERENCE)
                         , "name", repository.getName()
-                        , "totalCount", repository.getPullRequestNode().getTotalCount()),
+                        , "totalCount", 100),
                 RepositoryContainer.class);
         if (repositoryContainer == null) {
             return null;

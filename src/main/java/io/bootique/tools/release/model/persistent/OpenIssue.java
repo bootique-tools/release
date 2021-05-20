@@ -21,28 +21,31 @@ public class OpenIssue extends _OpenIssue {
         this.labelNode = labelNode;
     }
 
-    @JsonProperty("milestone")
     public void setMilestone(Milestone milestone) {
-        this.milestone = milestone;
-    }
-
-    @JsonProperty("milestone")
-    @Override
-    public Milestone getMilestone() {
-        return super.getMilestone();
+        if(getObjectContext() == null) {
+            this.milestone = milestone;
+        } else {
+            super.setMilestone(milestone);
+        }
     }
 
     public void setRepository(Repository repository) {
-        this.repository = repository;
-        this.repoName = repository.getName();
-    }
-
-    public Author getAuthor() {
-        return (Author) author;
+        if(getObjectContext() == null) {
+            this.repository = repository;
+        } else {
+            super.setRepository(repository);
+        }
+        if(repository != null) {
+            this.repoName = repository.getName(); // TODO: remove this
+        }
     }
 
     public void setAuthor(Author author) {
-        this.author = author;
+        if(getObjectContext() == null) {
+            this.author = author;
+        } else {
+            super.setAuthor(author);
+        }
     }
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY, value = "parent")

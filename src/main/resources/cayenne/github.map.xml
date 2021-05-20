@@ -34,10 +34,16 @@
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="color" type="VARCHAR" length="255"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
-		<db-attribute name="issue_id" type="INTEGER" length="10"/>
 		<db-attribute name="name" type="VARCHAR" length="255"/>
-		<db-attribute name="pullRequest_id" type="INTEGER" length="10"/>
 		<db-attribute name="url" type="VARCHAR" length="255"/>
+	</db-entity>
+	<db-entity name="LabelIssue">
+		<db-attribute name="issueId" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="labelId" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+	</db-entity>
+	<db-entity name="LabelPullRequest">
+		<db-attribute name="labelId" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
+		<db-attribute name="pullRequestId" type="INTEGER" isPrimaryKey="true" isMandatory="true"/>
 	</db-entity>
 	<db-entity name="Milestone">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
@@ -209,11 +215,23 @@
 	<db-relationship name="gitHubEntity_Label" source="Label" target="GitHubEntity" toMany="true">
 		<db-attribute-pair source="ID" target="ID"/>
 	</db-relationship>
-	<db-relationship name="labels_i" source="Label" target="OpenIssue">
-		<db-attribute-pair source="issue_id" target="ID"/>
+	<db-relationship name="labelIssue" source="Label" target="LabelIssue" toDependentPK="true" toMany="true">
+		<db-attribute-pair source="ID" target="labelId"/>
 	</db-relationship>
-	<db-relationship name="labels_pr" source="Label" target="PullRequest">
-		<db-attribute-pair source="pullRequest_id" target="ID"/>
+	<db-relationship name="labelPullRequest" source="Label" target="LabelPullRequest" toDependentPK="true" toMany="true">
+		<db-attribute-pair source="ID" target="labelId"/>
+	</db-relationship>
+	<db-relationship name="issue" source="LabelIssue" target="OpenIssue">
+		<db-attribute-pair source="issueId" target="ID"/>
+	</db-relationship>
+	<db-relationship name="label" source="LabelIssue" target="Label">
+		<db-attribute-pair source="labelId" target="ID"/>
+	</db-relationship>
+	<db-relationship name="label" source="LabelPullRequest" target="Label">
+		<db-attribute-pair source="labelId" target="ID"/>
+	</db-relationship>
+	<db-relationship name="pullRequest" source="LabelPullRequest" target="PullRequest">
+		<db-attribute-pair source="pullRequestId" target="ID"/>
 	</db-relationship>
 	<db-relationship name="closesIssues" source="Milestone" target="ClosedIssue" toMany="true">
 		<db-attribute-pair source="ID" target="milestone_id"/>
@@ -230,8 +248,8 @@
 	<db-relationship name="author" source="OpenIssue" target="Author">
 		<db-attribute-pair source="author_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="labels" source="OpenIssue" target="Label" toMany="true">
-		<db-attribute-pair source="ID" target="issue_id"/>
+	<db-relationship name="labelIssue" source="OpenIssue" target="LabelIssue" toDependentPK="true" toMany="true">
+		<db-attribute-pair source="ID" target="issueId"/>
 	</db-relationship>
 	<db-relationship name="milestone" source="OpenIssue" target="Milestone">
 		<db-attribute-pair source="milestone_id" target="ID"/>
@@ -251,8 +269,8 @@
 	<db-relationship name="author" source="PullRequest" target="Author">
 		<db-attribute-pair source="author_id" target="ID"/>
 	</db-relationship>
-	<db-relationship name="labels" source="PullRequest" target="Label" toMany="true">
-		<db-attribute-pair source="ID" target="pullRequest_id"/>
+	<db-relationship name="labelPullRequest" source="PullRequest" target="LabelPullRequest" toDependentPK="true" toMany="true">
+		<db-attribute-pair source="ID" target="pullRequestId"/>
 	</db-relationship>
 	<db-relationship name="repository" source="PullRequest" target="Repository">
 		<db-attribute-pair source="repository_id" target="ID"/>
@@ -302,14 +320,13 @@
 	<obj-relationship name="openIssues" source="Milestone" target="OpenIssue" deleteRule="Deny" db-relationship-path="openIssues"/>
 	<obj-relationship name="repository" source="Milestone" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<obj-relationship name="author" source="OpenIssue" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
-	<obj-relationship name="labels" source="OpenIssue" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
+	<obj-relationship name="labels" source="OpenIssue" target="Label" deleteRule="Deny" db-relationship-path="labelIssue.label"/>
 	<obj-relationship name="milestone" source="OpenIssue" target="Milestone" deleteRule="Nullify" db-relationship-path="milestone"/>
 	<obj-relationship name="repository" source="OpenIssue" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
 	<obj-relationship name="repositories" source="Organization" target="Repository" deleteRule="Cascade" db-relationship-path="repositories"/>
 	<obj-relationship name="author" source="PullRequest" target="Author" deleteRule="Nullify" db-relationship-path="author"/>
-	<obj-relationship name="labels" source="PullRequest" target="Label" deleteRule="Deny" db-relationship-path="labels"/>
+	<obj-relationship name="labels" source="PullRequest" target="Label" deleteRule="Deny" db-relationship-path="labelPullRequest.label"/>
 	<obj-relationship name="repository" source="PullRequest" target="Repository" deleteRule="Nullify" db-relationship-path="repository"/>
-	<obj-relationship name="gitHubEntity_Repository" source="Repository" target="GitHubEntity" deleteRule="Deny" db-relationship-path="gitHubEntity_Repository"/>
 	<obj-relationship name="issues" source="Repository" target="OpenIssue" deleteRule="Deny" db-relationship-path="issues"/>
 	<obj-relationship name="issuesClose" source="Repository" target="ClosedIssue" deleteRule="Deny" db-relationship-path="issuesClose"/>
 	<obj-relationship name="milestones" source="Repository" target="Milestone" deleteRule="Deny" db-relationship-path="milestones"/>
