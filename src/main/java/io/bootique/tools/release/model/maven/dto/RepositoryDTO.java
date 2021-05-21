@@ -30,7 +30,7 @@ public class RepositoryDTO {
         this.name = repository.getName();
         this.url = repository.getUrl();
         for (Milestone milestone : repository.getMilestones()) {
-            if (milestone.getState().equals("OPEN")) {
+            if ("OPEN".equals(milestone.getState())) {
                 milestones.add(MilestoneDTO.fromModel(milestone));
             }
         }

@@ -13,25 +13,27 @@ import org.apache.cayenne.reflect.ToOneProperty;
 
 class MergingAttributeVisitor implements PropertyVisitor {
     private final ObjectContext context;
-    private final GitHubEntity entityFromDb;
-    private final GitHubEntity entity;
-    private final boolean syncAttributes;
+    private final GitHubEntity entityFrom;
+    private final GitHubEntity entityTo;
+    private final boolean fromDb;
 
-    public MergingAttributeVisitor(ObjectContext context, GitHubEntity entityFromDb, GitHubEntity entity, boolean syncAttributes) {
+    public MergingAttributeVisitor(ObjectContext context, GitHubEntity entityFrom, GitHubEntity entityTo, boolean fromDb) {
         this.context = context;
-        this.entityFromDb = entityFromDb;
-        this.entity = entity;
-        this.syncAttributes = syncAttributes;
+        this.entityFrom = entityFrom;
+        this.entityTo = entityTo;
+        this.fromDb = fromDb;
     }
 
     @Override
     public boolean visitAttribute(AttributeProperty property) {
-        if (!syncAttributes) {
+        if (!fromDb) {
             return true;
         }
-        Object oldValue = property.readPropertyDirectly(entityFromDb);
-        Object newValue = property.readPropertyDirectly(entity);
-        property.writeProperty(entityFromDb, oldValue, newValue);
+        Object oldValue = property.readPropertyDirectly(entityTo);
+        Object newValue = property.readPropertyDirectly(entityFrom);
+        if(oldValue != newValue) {
+            property.writeProperty(entityTo, oldValue, newValue);
+        }
         return true;
     }
 
@@ -42,15 +44,27 @@ class MergingAttributeVisitor implements PropertyVisitor {
             return true;
         }
 
-        Object oldValue = property.readProperty(entityFromDb);
-        Object newValue = property.readProperty(entity);
+        Object oldValue = property.readProperty(entityTo);
+        Object newValue = property.readProperty(entityFrom);
+
+        if(property.getRelationship().isMandatory() && newValue == null) {
+            return true;
+        }
 
         if (newValue == null) {
-            property.writeProperty(entityFromDb, oldValue, null);
+            if(fromDb) {
+                property.writeProperty(entityTo, oldValue, null);
+            } else {
+                property.writePropertyDirectly(entityTo, oldValue, null);
+            }
         } else {
             GitHubEntity newEntity = GitHubDataImportJob
                     .syncEntity(context, targetEntityType, (GitHubEntity) newValue);
-            property.writeProperty(entityFromDb, oldValue, newEntity);
+            if(fromDb) {
+                property.writeProperty(entityTo, oldValue, newEntity);
+            } else {
+                property.writePropertyDirectly(entityTo, oldValue, newEntity);
+            }
         }
         return true;
     }
@@ -63,34 +77,38 @@ class MergingAttributeVisitor implements PropertyVisitor {
         }
 
         @SuppressWarnings("unchecked")
-        List<GitHubEntity> oldValue = (List<GitHubEntity>) property.readProperty(entityFromDb);
-        @SuppressWarnings("unchecked")
-        List<GitHubEntity> newValue = (List<GitHubEntity>) property.readProperty(entity);
+        List<GitHubEntity> newValue = (List<GitHubEntity>) property.readProperty(entityFrom);
+        if(newValue == null) {
+            // skip uninitialized relationships
+            return true;
+        }
 
+        // remove old values
+        @SuppressWarnings("unchecked")
+        List<GitHubEntity> oldValue = (List<GitHubEntity>) property.readProperty(entityTo);
         if (oldValue != null) {
             oldValue = new ArrayList<>(oldValue);
-            if (entityFromDb.getObjectContext() != null) {
+            if (entityTo.getObjectContext() != null) {
                 for (GitHubEntity next : oldValue) {
-                    property.removeTarget(entityFromDb, next, false);
+                    property.removeTarget(entityTo, next, false);
                 }
             } else {
-                property.writePropertyDirectly(entityFromDb, null, new ArrayList<>());
+                property.writePropertyDirectly(entityTo, null, new ArrayList<>());
             }
         }
 
-        if (newValue != null) {
-            newValue = new ArrayList<>(newValue);
-            List<GitHubEntity> processed = new ArrayList<>(newValue.size());
-            for (GitHubEntity next : newValue) {
-                processed.add(GitHubDataImportJob.syncEntity(context, targetEntityType, next));
-            }
+        // set new data
+        newValue = new ArrayList<>(newValue);
+        List<GitHubEntity> processed = new ArrayList<>(newValue.size());
+        for (GitHubEntity next : newValue) {
+            processed.add(GitHubDataImportJob.syncEntity(context, targetEntityType, next));
+        }
 
-            if (entityFromDb.getObjectContext() == null) {
-                property.writePropertyDirectly(entityFromDb, null, processed);
-            } else {
-                for (GitHubEntity next : processed) {
-                    property.addTarget(entityFromDb, next, false);
-                }
+        if (entityTo.getObjectContext() == null) {
+            property.writePropertyDirectly(entityTo, null, processed);
+        } else {
+            for (GitHubEntity next : processed) {
+                property.addTarget(entityTo, next, false);
             }
         }
 

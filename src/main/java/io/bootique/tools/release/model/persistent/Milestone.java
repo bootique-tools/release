@@ -1,6 +1,5 @@
 package io.bootique.tools.release.model.persistent;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.persistent.auto._Milestone;
 
@@ -19,12 +18,6 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
     @JsonProperty("issues")
     public void setIssueNode(Node<OpenIssue> issueNode) {
         this.issueNode = issueNode;
-    }
-
-    @JsonIgnore
-    @Override
-    public Repository getRepository() {
-        return super.getRepository();
     }
 
     @Override
@@ -48,7 +41,7 @@ public class Milestone extends _Milestone implements Comparable<Milestone> {
 
     @Override
     public String toString() {
-        return "{milestone " + title + '}';
+        return "milestone '" + title + "' @" + System.identityHashCode(this);
     }
 
 }

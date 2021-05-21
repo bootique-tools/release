@@ -4,6 +4,7 @@ import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
+import io.bootique.tools.release.service.git.GitStatus;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.query.ObjectSelect;
 
@@ -67,7 +68,7 @@ public class GitController extends BaseController {
         organization
                 .getRepositories()
                 .stream()
-                .filter(repo -> gitService.status(repo) != GitService.GitStatus.MISSING)
+                .filter(repo -> gitService.status(repo) != GitStatus.MISSING)
                 .forEach(repo -> gitService.update(repo));
 
         return Response.ok().build();
@@ -86,7 +87,7 @@ public class GitController extends BaseController {
         organization
                 .getRepositories()
                 .stream()
-                .filter(repo -> gitService.status(repo) == GitService.GitStatus.MISSING)
+                .filter(repo -> gitService.status(repo) == GitStatus.MISSING)
                 .forEach(repo -> gitService.clone(repo));
 
         organization.getObjectContext().commitChanges();
@@ -117,7 +118,7 @@ public class GitController extends BaseController {
         }
 
         action.accept(repository);
-        repository.setLocalStatus(GitService.GitStatus.OK);
+        repository.setLocalStatus(GitStatus.OK);
         context.commitChanges();
         return Response.ok().build();
     }

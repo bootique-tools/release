@@ -24,11 +24,10 @@ public class PullRequest extends _PullRequest {
     public void setRepository(Repository repository) {
         if(getObjectContext() == null) {
             this.repository = repository;
+            this.repoName = repository.getName();
         } else {
             super.setRepository(repository);
-        }
-        if(repository != null) {
-            this.repoName = repository.getName();
+            setRepoName(repository.getName());
         }
     }
 

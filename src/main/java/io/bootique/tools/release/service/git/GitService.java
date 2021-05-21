@@ -27,9 +27,4 @@ public interface GitService {
 
     boolean isClean(Repository repository);
 
-    enum GitStatus {
-        OK,
-        NEED_UPDATE,
-        MISSING
-    }
 }

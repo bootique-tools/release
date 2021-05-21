@@ -8,13 +8,13 @@
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
 		<db-attribute name="github_id" type="VARCHAR" length="255"/>
 		<db-attribute name="groupStr" type="VARCHAR" length="255"/>
-		<db-attribute name="project_id" type="INTEGER" length="10"/>
+		<db-attribute name="project_id" type="INTEGER" isMandatory="true" length="10"/>
 		<db-attribute name="version" type="VARCHAR" length="255"/>
 	</db-entity>
 	<db-entity name="ModuleDependency">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
-		<db-attribute name="module_id" type="INTEGER" length="10"/>
-		<db-attribute name="rootModule_id" type="INTEGER" length="10"/>
+		<db-attribute name="module_id" type="INTEGER" isMandatory="true" length="10"/>
+		<db-attribute name="rootModule_id" type="INTEGER" isMandatory="true" length="10"/>
 		<db-attribute name="type" type="VARCHAR" length="255"/>
 	</db-entity>
 	<db-entity name="Project">
@@ -28,8 +28,8 @@
 	</db-entity>
 	<db-entity name="ProjectDependency">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
-		<db-attribute name="dependency_project_id" type="INTEGER" length="10"/>
-		<db-attribute name="project_id" type="INTEGER" length="10"/>
+		<db-attribute name="dependency_project_id" type="INTEGER" isMandatory="true" length="10"/>
+		<db-attribute name="project_id" type="INTEGER" isMandatory="true" length="10"/>
 	</db-entity>
 	<obj-entity name="Module" className="io.bootique.tools.release.model.maven.persistent.Module" dbEntityName="Module">
 		<obj-attribute name="githubId" type="java.lang.String" db-attribute-path="github_id"/>

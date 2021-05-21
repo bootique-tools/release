@@ -16,9 +16,9 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
 
     private static final URI GIT_HUB_API_URI = URI.create("https://api.github.com/graphql");
 
-    private GraphQLService graphQLService;
+    private final GraphQLService graphQLService;
 
-    private PreferenceService preferences;
+    private final PreferenceService preferences;
 
     private final Map<String, String> queries = new ConcurrentHashMap<>();
 
@@ -108,7 +108,7 @@ public class GraphQLGitHubApiImport implements GitHubApiImport {
             return null;
         }
 
-        return repositoryContainer.getRepository().getIssuesClose();
+        return repositoryContainer.getRepository().getImportedClosedIssues();
     }
 
     private int getClosedIssuesCount(String repoName) {

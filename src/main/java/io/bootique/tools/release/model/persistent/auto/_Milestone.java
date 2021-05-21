@@ -35,7 +35,7 @@ public abstract class _Milestone extends GitHubEntity {
     public static final ListProperty<OpenIssue> OPEN_ISSUES = PropertyFactory.createList("openIssues", OpenIssue.class);
     public static final EntityProperty<Repository> REPOSITORY = PropertyFactory.createEntity("repository", Repository.class);
 
-    protected Integer number;
+    protected int number;
     protected String state;
     protected String title;
 
@@ -50,9 +50,6 @@ public abstract class _Milestone extends GitHubEntity {
 
     public int getNumber() {
         beforePropertyRead("number");
-        if(this.number == null) {
-            return 0;
-        }
         return this.number;
     }
 
@@ -142,7 +139,7 @@ public abstract class _Milestone extends GitHubEntity {
 
         switch (propName) {
             case "number":
-                this.number = (Integer)val;
+                this.number = val == null ? 0 : (int)val;
                 break;
             case "state":
                 this.state = (String)val;
@@ -175,7 +172,7 @@ public abstract class _Milestone extends GitHubEntity {
     @Override
     protected void writeState(ObjectOutputStream out) throws IOException {
         super.writeState(out);
-        out.writeObject(this.number);
+        out.writeInt(this.number);
         out.writeObject(this.state);
         out.writeObject(this.title);
         out.writeObject(this.closedIssues);
@@ -186,7 +183,7 @@ public abstract class _Milestone extends GitHubEntity {
     @Override
     protected void readState(ObjectInputStream in) throws IOException, ClassNotFoundException {
         super.readState(in);
-        this.number = (Integer)in.readObject();
+        this.number = in.readInt();
         this.state = (String)in.readObject();
         this.title = (String)in.readObject();
         this.closedIssues = in.readObject();

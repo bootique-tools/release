@@ -29,7 +29,6 @@ public abstract class _RepositoryNode extends GitHubEntity {
     public static final StringProperty<String> CREATED_AT_STR = PropertyFactory.createString("createdAtStr", String.class);
     public static final NumericProperty<Integer> NUMBER = PropertyFactory.createNumeric("number", Integer.class);
     public static final StringProperty<String> REPO_NAME = PropertyFactory.createString("repoName", String.class);
-    public static final NumericProperty<Integer> REPOSITORY_ID = PropertyFactory.createNumeric("repositoryId", Integer.class);
     public static final StringProperty<String> TITLE = PropertyFactory.createString("title", String.class);
 
     protected Integer commentsCount;
@@ -37,7 +36,6 @@ public abstract class _RepositoryNode extends GitHubEntity {
     protected String createdAtStr;
     protected Integer number;
     protected String repoName;
-    protected Integer repositoryId;
     protected String title;
 
 
@@ -97,19 +95,6 @@ public abstract class _RepositoryNode extends GitHubEntity {
         return this.repoName;
     }
 
-    public void setRepositoryId(int repositoryId) {
-        beforePropertyWrite("repositoryId", this.repositoryId, repositoryId);
-        this.repositoryId = repositoryId;
-    }
-
-    public int getRepositoryId() {
-        beforePropertyRead("repositoryId");
-        if(this.repositoryId == null) {
-            return 0;
-        }
-        return this.repositoryId;
-    }
-
     public void setTitle(String title) {
         beforePropertyWrite("title", this.title, title);
         this.title = title;
@@ -137,8 +122,6 @@ public abstract class _RepositoryNode extends GitHubEntity {
                 return this.number;
             case "repoName":
                 return this.repoName;
-            case "repositoryId":
-                return this.repositoryId;
             case "title":
                 return this.title;
             default:
@@ -168,9 +151,6 @@ public abstract class _RepositoryNode extends GitHubEntity {
             case "repoName":
                 this.repoName = (String)val;
                 break;
-            case "repositoryId":
-                this.repositoryId = (Integer)val;
-                break;
             case "title":
                 this.title = (String)val;
                 break;
@@ -195,7 +175,6 @@ public abstract class _RepositoryNode extends GitHubEntity {
         out.writeObject(this.createdAtStr);
         out.writeObject(this.number);
         out.writeObject(this.repoName);
-        out.writeObject(this.repositoryId);
         out.writeObject(this.title);
     }
 
@@ -207,7 +186,6 @@ public abstract class _RepositoryNode extends GitHubEntity {
         this.createdAtStr = (String)in.readObject();
         this.number = (Integer)in.readObject();
         this.repoName = (String)in.readObject();
-        this.repositoryId = (Integer)in.readObject();
         this.title = (String)in.readObject();
     }
 

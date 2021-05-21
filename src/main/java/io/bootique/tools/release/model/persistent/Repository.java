@@ -3,11 +3,13 @@ package io.bootique.tools.release.model.persistent;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.bootique.tools.release.model.persistent.auto._Repository;
-import io.bootique.tools.release.service.git.GitService;
+import io.bootique.tools.release.service.git.GitStatus;
+import org.apache.cayenne.validation.ValidationResult;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Repository extends _Repository implements Comparable<Repository> {
@@ -113,10 +115,6 @@ public class Repository extends _Repository implements Comparable<Repository> {
         super.setPushedAtStr(pushedAtStr);
     }
 
-    public void setLocalStatus(GitService.GitStatus localStatus) {
-        super.setLocalStatus(localStatus.name());
-    }
-
     public void setParent(Repository parent) {
         if(this.objectContext != null) {
             super.setParent(parent);
@@ -128,7 +126,7 @@ public class Repository extends _Repository implements Comparable<Repository> {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public boolean haveLocalRepo() {
-        return !GitService.GitStatus.MISSING.toString().equals(this.localStatus);
+        return !GitStatus.MISSING.equals(this.localStatus);
     }
 
     @Override
@@ -154,14 +152,14 @@ public class Repository extends _Repository implements Comparable<Repository> {
         this.milestones = milestoneList;
     }
 
-    public List<ClosedIssue> getIssuesClose() {
-        if (super.getIssuesClose() == null) {
-            List<ClosedIssue> issueCloseList = new ArrayList<>();
-            for (OpenIssue issue : issueNode.getNodes()) {
-                issueCloseList.add(new ClosedIssue(issue));
-            }
-            return issueCloseList;
+    public List<ClosedIssue> getImportedClosedIssues() {
+        if(issueNode == null) {
+            return Collections.emptyList();
         }
-        return super.getIssuesClose();
+        List<ClosedIssue> issueCloseList = new ArrayList<>();
+        for (OpenIssue issue : issueNode.getNodes()) {
+            issueCloseList.add(new ClosedIssue(issue));
+        }
+        return issueCloseList;
     }
 }

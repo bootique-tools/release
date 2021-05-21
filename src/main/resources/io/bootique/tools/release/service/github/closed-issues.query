@@ -13,6 +13,7 @@ query($owner:String!, $name:String!, $totalCount: Int!) {
             url
             title
             number
+            state
           }
         }
       }

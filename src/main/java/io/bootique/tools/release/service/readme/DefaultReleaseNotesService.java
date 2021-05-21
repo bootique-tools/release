@@ -28,7 +28,7 @@ public class DefaultReleaseNotesService implements ReleaseNotesService {
         for (Repository repository : repositories) {
             List<ClosedIssue> closedIssues = ObjectSelect.query(ClosedIssue.class)
                     .where(ClosedIssue.MILESTONE.dot(Milestone.TITLE).eq(milestoneTitle))
-                    .and(ClosedIssue.REPOSITORY_ID.eq(Cayenne.intPKForObject(repository)))
+                    .and(ClosedIssue.REPOSITORY.eq(repository))
                     .orderBy(ClosedIssue.NUMBER.asc())
                     .select(context);
             if(closedIssues.isEmpty()) {

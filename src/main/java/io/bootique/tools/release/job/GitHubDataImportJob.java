@@ -167,20 +167,18 @@ public class GitHubDataImportJob extends BaseJob {
 
         // search for the uncommitted entity
         for (Object next : context.newObjects()) {
-            if (entityType.isInstance(next)) {
-                if (((T) next).getGithubId().equals(githubId)) {
-                    return (T) next;
-                }
+            if (entityType.isInstance(next) && ((T) next).getGithubId().equals(githubId)) {
+                return (T) next;
             }
         }
         return null;
     }
 
-    static void syncProperties(ObjectContext context, GitHubEntity entity, GitHubEntity entityFromDb, boolean syncAttributes) {
+    static void syncProperties(ObjectContext context, GitHubEntity entityFrom, GitHubEntity entityTo, boolean fromDb) {
         EntityResolver entityResolver = context.getEntityResolver();
-        String entityName = entityResolver.getObjEntity(entityFromDb).getName();
+        String entityName = entityResolver.getObjEntity(entityTo).getName();
         ClassDescriptor descriptor = entityResolver.getClassDescriptor(entityName);
-        descriptor.visitAllProperties(new MergingAttributeVisitor(context, entityFromDb, entity, syncAttributes));
+        descriptor.visitAllProperties(new MergingAttributeVisitor(context, entityFrom, entityTo, fromDb));
     }
 
 }

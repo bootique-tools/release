@@ -31,7 +31,6 @@ class DefaultBatchJobServiceTest {
                 .data(Arrays.asList("str1", "str2", "str3", "str4"))
                 .processor(str -> {
                     try {
-                        System.out.println(str);
                         return null;
                     } finally {
                         latch.countDown();
