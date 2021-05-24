@@ -22,7 +22,7 @@ public class CustomAppenderFilterFactory extends FilterFactory {
     @Override
     public Filter<ILoggingEvent> createFilter() {
         try {
-            //noinspection unchecked
+            @SuppressWarnings("unchecked")
             Class<? extends Filter<ILoggingEvent>> filterClass
                     = (Class<? extends Filter<ILoggingEvent>>)Class.forName(className);
             Constructor<? extends Filter<ILoggingEvent>> filterConstructor

@@ -159,7 +159,7 @@ public class StatusController extends BaseController {
         return releaseStatusMsgs;
     }
 
-    @SuppressWarnings("rawtypes") //TODO: cleanup generics here
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public List<BatchJobResult<Repository, String>> convertToDTO(List<BatchJobResult<Repository, String>> jobResults) {
         List<BatchJobResult<Repository, String>> jobResultsDTO = new ArrayList<>();
         for (BatchJobResult jobResult : jobResults) {

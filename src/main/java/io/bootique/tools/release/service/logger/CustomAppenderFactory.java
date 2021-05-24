@@ -28,7 +28,7 @@ public class CustomAppenderFactory extends AppenderFactory {
 
         Appender<ILoggingEvent> appender;
         try {
-            //noinspection unchecked
+            @SuppressWarnings("unchecked")
             Class<? extends Appender<ILoggingEvent>> appenderClass
                     = (Class<? extends Appender<ILoggingEvent>>)Class.forName(className);
             Constructor<? extends Appender<ILoggingEvent>> appenderConstructor

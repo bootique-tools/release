@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 
 class ReleaseSonatypeSyncTest {
 
+    @SuppressWarnings("unchecked")
     @Test
     public void test() {
         PreferenceService preferenceService = mock(PreferenceService.class);
