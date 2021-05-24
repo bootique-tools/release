@@ -2,7 +2,6 @@ package io.bootique.tools.release.service.desktop;
 
 import io.bootique.tools.release.util.CopyDirVisitor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -15,8 +14,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled("Could fail on GitHub Actions")
 class BaseDesktopServiceTest {
 
     private DesktopService desktopService;
@@ -52,41 +51,19 @@ class BaseDesktopServiceTest {
     void testRunningMavenCommand(@TempDir Path tempPath) throws IOException {
         Path path = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "dummy-org-00" + File.separator + "dummy-api");
         Files.walkFileTree(path, new CopyDirVisitor(path, tempPath, StandardCopyOption.REPLACE_EXISTING));
-        String result = "[INFO] Scanning for projects...\n" +
-                "[INFO] \n" +
-                "[INFO] ----------------------< dummy-org-api:dummy-api >-----------------------\n" +
-                "[INFO] Building dummy-api 1.0.6-SNAPSHOT\n" +
-                "[INFO] --------------------------------[ jar ]---------------------------------\n" +
-                "[INFO] \n" +
-                "[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ dummy-api ---\n" +
-                "[INFO] \n" +
-                "[INFO] --- maven-resources-plugin:3.1.0:resources (default-resources) @ dummy-api ---\n" +
-                "[INFO] Using 'UTF-8' encoding to copy filtered resources.\n" +
-                "[INFO] skip non existing resourceDirectory " + "/private" + tempPath.toString() + "/src/main/resources\n" +
-                "[INFO] \n" +
-                "[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ dummy-api ---\n" +
-                "[INFO] No sources to compile\n" +
-                "[INFO] \n" +
-                "[INFO] --- maven-resources-plugin:3.1.0:testResources (default-testResources) @ dummy-api ---\n" +
-                "[INFO] Using 'UTF-8' encoding to copy filtered resources.\n" +
-                "[INFO] skip non existing resourceDirectory " + "/private" + tempPath.toString() + "/src/test/resources\n" +
-                "[INFO] \n" +
-                "[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ dummy-api ---\n" +
-                "[INFO] No sources to compile\n" +
-                "[INFO] \n" +
-                "[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ dummy-api ---\n" +
-                "[INFO] No tests to run.\n" +
-                "[INFO] \n" +
-                "[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ dummy-api ---\n" +
-                "[WARNING] JAR will be empty - no content was marked for inclusion!\n" +
-                "[INFO] Building jar: " + "/private" + tempPath.toString() + "/target/dummy-api-1.0.6-SNAPSHOT.jar\n" +
-                "[INFO] \n" +
-                "[INFO] --- maven-install-plugin:2.4:install (default-install) @ dummy-api ---\n";
+
         String output = desktopService.runMavenCommand(tempPath, "clean", "install");
-        String[] resArr = result.split("\n");
-        String[] outputArr = output.split("\n");
-        for(int i = 0; i < resArr.length - 9; i++) {
-            assertEquals(resArr[i], outputArr[i]);
+        for(String expectedResult : EXPECTED_RESULTS) {
+            assertTrue(output.contains(expectedResult), "Expected string \"" + expectedResult + "\" not found.");
         }
     }
+
+    private final String[] EXPECTED_RESULTS = {
+            "[INFO] Scanning for projects...",
+            "[INFO] Building dummy-api 1.0.6-SNAPSHOT",
+            "[INFO] No sources to compile",
+            "[INFO] No tests to run.",
+            "[WARNING] JAR will be empty - no content was marked for inclusion!",
+            "[INFO] BUILD SUCCESS"
+    };
 }

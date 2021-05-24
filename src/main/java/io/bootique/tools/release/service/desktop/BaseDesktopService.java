@@ -108,6 +108,9 @@ public abstract class BaseDesktopService implements DesktopService {
 
     @Override
     public String runMavenCommand(Path path, String... args) {
-        return runCommand(path, "mvn", args);
+        String[] commands = new String[args.length + 1];
+        commands[0] = path.toAbsolutePath().resolve("pom.xml").toString();
+        System.arraycopy(args, 0, commands, 1, args.length);
+        return runCommand(Path.of("."), "./maven.sh", commands);
     }
 }
