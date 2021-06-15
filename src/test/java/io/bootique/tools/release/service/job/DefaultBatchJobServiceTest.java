@@ -4,6 +4,7 @@ import io.bootique.tools.release.model.job.BatchJob;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.job.BatchJobResult;
 import io.bootique.tools.release.model.job.BatchJobStatus;
+import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import io.bootique.value.Percent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,7 @@ class DefaultBatchJobServiceTest {
 
     @BeforeEach
     void createService() {
-        batchJobService = new DefaultBatchJobService();
+        batchJobService = new DefaultBatchJobService(new MockPreferenceService());
     }
 
     @Test

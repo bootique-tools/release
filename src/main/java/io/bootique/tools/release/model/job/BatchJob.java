@@ -1,14 +1,14 @@
 package io.bootique.tools.release.model.job;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.bootique.tools.release.service.job.BatchForkJoinTask;
+import io.bootique.tools.release.service.job.BatchJobTask;
 import io.bootique.value.Percent;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 public class BatchJob<T, R> {
@@ -18,7 +18,7 @@ public class BatchJob<T, R> {
     private final BatchJobDescriptor<T, R> batchJobDescriptor;
 
     @JsonIgnore
-    private final List<BatchForkJoinTask<BatchJobResult<T, R>>> tasks;
+    private final List<BatchJobTask<BatchJobResult<T, R>>> tasks;
 
     @JsonIgnore
     private final Collection<Runnable> endOfTaskListeners = new ArrayList<>();
@@ -26,7 +26,7 @@ public class BatchJob<T, R> {
     @JsonIgnore
     private final Runnable taskEndListener = () -> endOfTaskListeners.forEach(Runnable::run);
 
-    public BatchJob(long id, List<BatchForkJoinTask<BatchJobResult<T, R>>> tasks, BatchJobDescriptor<T, R> batchJobDescriptor) {
+    public BatchJob(long id, List<BatchJobTask<BatchJobResult<T, R>>> tasks, BatchJobDescriptor<T, R> batchJobDescriptor) {
         this.id = id;
         this.startTimeNanos = System.nanoTime();
         this.tasks = tasks;
@@ -60,7 +60,7 @@ public class BatchJob<T, R> {
     }
 
     public int getDone() {
-        return (int) tasks.stream().filter(ForkJoinTask::isDone).count();
+        return (int) tasks.stream().filter(FutureTask::isDone).count();
     }
 
     @JsonIgnore
@@ -83,9 +83,11 @@ public class BatchJob<T, R> {
         return tasks.stream()
                 .map(task -> {
                     try {
-                        return task.isDone() ? task.get() : task.getInitialState();
+                        return task.isDone()
+                                ? task.get()
+                                : new BatchJobResult<T, R>(BatchJobStatus.IN_PROGRESS, task.getData(), null);
                     } catch (Exception ex) {
-                        return task.getInitialState();
+                        return new BatchJobResult<T, R>(BatchJobStatus.FAILURE, task.getData(), null);
                     }
                 })
                 .collect(Collectors.toList());
