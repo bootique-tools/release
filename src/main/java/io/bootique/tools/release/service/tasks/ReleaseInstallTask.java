@@ -2,39 +2,33 @@ package io.bootique.tools.release.service.tasks;
 
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
-import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.logger.LoggerService;
-import io.bootique.tools.release.service.release.ReleaseService;
+import io.bootique.tools.release.service.preferences.PreferenceService;
 
-import java.util.function.Function;
 import javax.inject.Inject;
+import java.util.function.Function;
 
 public class ReleaseInstallTask implements Function<Repository, String> {
 
     @Inject
-    private LoggerService loggerService;
-
-    @Inject
-    private DesktopService desktopService;
-
-    @Inject
-    private ReleaseService releaseService;
+    private LoggerService logger;
 
     @Inject
     private PreferenceService preferences;
 
+    @Inject
+    private DesktopService desktopService;
+
     @Override
     public String apply(Repository repo) {
         try {
-            loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_INSTALL));
-            desktopService.runMavenCommand(
+            logger.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_INSTALL));
+            return desktopService.runMavenCommand(
                     preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName()), "clean", "install", "-B", "-DskipTests");
-            releaseService.saveRelease(repo);
-            return "";
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);
         }

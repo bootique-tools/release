@@ -6,18 +6,14 @@ import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.logger.LoggerService;
-import io.bootique.tools.release.service.release.ReleaseService;
 
-import java.util.function.Function;
 import javax.inject.Inject;
+import java.util.function.Function;
 
 public class ReleasePullTask implements Function<Repository, String> {
 
     @Inject
-    private LoggerService loggerService;
-
-    @Inject
-    private ReleaseService releaseService;
+    private LoggerService logger;
 
     @Inject
     private GitService gitService;
@@ -25,9 +21,8 @@ public class ReleasePullTask implements Function<Repository, String> {
     @Override
     public String apply(Repository repo) {
         try {
-            loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_PULL));
+            logger.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_PULL));
             gitService.update(repo);
-            releaseService.saveRelease(repo);
             return "";
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);

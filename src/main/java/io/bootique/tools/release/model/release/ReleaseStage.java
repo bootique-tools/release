@@ -1,30 +1,20 @@
 package io.bootique.tools.release.model.release;
 
 public enum ReleaseStage {
-    NO_RELEASE,
-    RELEASE_PULL,
-    RELEASE_INSTALL,
-    RELEASE_PREPARE_PERFORM,
-    RELEASE_SYNC;
+    NO_RELEASE("No release"),
+    RELEASE_PULL("Release pull"),
+    RELEASE_INSTALL("Release install"),
+    RELEASE_PREPARE("Release prepare"),
+    RELEASE_PERFORM("Release perform"),
+    RELEASE_SYNC("Release sync");
 
-    public String getText() {
-        switch(this) {
-            case RELEASE_PULL:
-                return "Release pull";
-            case RELEASE_INSTALL:
-                return "Release install";
-            case RELEASE_PREPARE_PERFORM:
-                return "Release prepare, perform";
-            case RELEASE_SYNC:
-                return "Release sync";
-        }
-        return "No release";
+    private final String text;
+
+    ReleaseStage(String text) {
+        this.text = text;
     }
 
-    public static ReleaseStage getNext(ReleaseStage releaseStage) {
-        if(releaseStage == ReleaseStage.RELEASE_SYNC) {
-            return ReleaseStage.RELEASE_SYNC;
-        }
-        return ReleaseStage.values()[releaseStage.ordinal() + 1];
+    public String getText() {
+        return text;
     }
 }
