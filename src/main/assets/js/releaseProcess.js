@@ -1,90 +1,160 @@
 import Vue from 'vue/dist/vue'
 import axios from 'axios/dist/axios'
 
-export function initReleaseProcess(id) {
+export function initReleaseProcess() {
+
     return new Vue({
-        el: '#' + id,
+        el: '#release',
         delimiters: ['[[', ']]'],
         data: {
-            jobId: 0,
-            progress: 0,
-            statusArr: null,
-            showButton: true,
-            statusBar: null,
-            stageName: '',
-            mode: false
+            repositoryList: [],
+            stages: [],
+            logs: ``,
+
+            releaseRunning: false,
+        },
+        computed: {
+            isReleaseRunning: function () {
+                return this.releaseRunning;
+            },
         },
         mounted: function () {
+            let currApp = this;
             this.$nextTick(function () {
-                this.checkDescriptor();
+                currApp.connectWebsocket();
+                currApp.getStages();
+                currApp.getRepositories();
             })
         },
         methods: {
-            checkDescriptor: function () {
+            connectWebsocket: function () {
+                this.wsUri = `ws://` + document.location.host + document.location.pathname + `socket`;
+                this.webSocket = new WebSocket(this.wsUri);
+
                 let currApp = this;
-                currApp.getStatusBar();
-                axios.get('/ui/release/process/has-descriptor')
+                this.webSocket.onmessage = function (message) {
+                    currApp.getRepositories()
+                }
+                this.webSocket.onopen = function () {
+                    axios.post(`/ui/release/start-execute`)
+                }
+            },
+            getStages: function () {
+                let currApp = this
+                axios.get(`/ui/release/stage`).then(function (response) {
+                    currApp.stages = response.data
+                })
+            },
+            getRepositories: function () {
+                let currApp = this
+                axios.get(`/ui/release/repository`)
                     .then(function (response) {
-                        if (response.data) {
-                            currApp.mode = response.data.mode;
-                            currApp.checkStatus();
-                            currApp.needToClose();
-                        }
-                    })
-                    .catch(function () {
-                        console.log("Error in checking descriptor");
+                        currApp.repositoryList = response.data
+                        currApp.setUIAccess();
                     })
             },
-            needToClose: function () {
-                let currApp = this;
-                let intervalCheck = setInterval(function () {
-                    const param = new Date().getTime();
-                    axios.get(`/ui/release/process/need-to-close?time=${param}`)
-                        .then(function (response) {
-                            if (response.data === true) {
-                                clearInterval(intervalCheck);
-                            }
-                        })
-                        .catch(function () {
-                            console.log("Bad response");
-                        })
-                }, 1200);
+            skipStage: function (name, stage) {
+
+                const params = new URLSearchParams();
+                params.append('repository', name);
+                params.append('stage', stage);
+
+                axios.post(`/ui/release/skip-stage`, params, {'Content-Type': 'application/x-www-form-urlencoded'});
             },
-            checkStatus: function () {
-                let currApp = this;
-                currApp.progress = 0;
-                let intervalCheck = setInterval(function () {
-                    const param = new Date().getTime();
-                    axios.get(`/ui/release/process/status?time=${param}`)
-                        .then(function (response) {
-                            currApp.progress = response.data.percent.percent;
-                            currApp.statusArr = response.data.results;
-                            currApp.stageName = response.data.name;
-                            currApp.getStatusBar();
-                            if (currApp.mode) {
-                                currApp.showButton = true;
-                            }
-                            if (response.data.percent.percent === 100 && !currApp.mode) {
-                                clearInterval(intervalCheck);
-                                currApp.showButton = false;
-                            }
-                        })
-                        .catch(function () {
-                            console.log("Error in checking status.");
-                        })
-                }, 1200);
+            restartStage: function (name, stage) {
+
+                const params = new URLSearchParams();
+                params.append('repository', name);
+                params.append('stage', stage);
+
+                axios.post(`/ui/release/restart-stage`, params, {'Content-Type': 'application/x-www-form-urlencoded'});
             },
-            getStatusBar: function () {
+            skipRollback: function (name, stage) {
+
+                const params = new URLSearchParams();
+                params.append('repository', name);
+                params.append('stage', stage);
+
+                axios.post(`/ui/release/skip-rollback`, params, {'Content-Type': 'application/x-www-form-urlencoded'});
+            },
+            rollbackRepository: function (name, stage) {
+                const params = new URLSearchParams();
+                params.append('repository', name);
+                params.append('stage', stage);
+
+                axios.post(`/ui/release/rollback-repository`, params, {'Content-Type': 'application/x-www-form-urlencoded'});
+            },
+            rollbackRelease: function () {
+                axios.post(`/ui/release/rollback-release`);
+                $('#rollbackRelease').modal('hide');
+            },
+            showStageLogs: function (name, stage) {
                 let currApp = this;
-                const param = new Date().getTime();
-                axios.get(`/ui/release/process/get-status-bar?time=${param}`)
-                    .then(function (response) {
-                        currApp.statusBar = response.data;
-                    })
-                    .catch(function () {
-                        console.log("Error in check statusBar.");
-                    })
-            }
+                axios.get(`/ui/release/releaseLog?repository=${name}&stage=${stage}`).then(function (response) {
+                    currApp.logs = response.data;
+                })
+            },
+            showRollbackLogs: function (name, stage) {
+                let currApp = this;
+                axios.get(`/ui/release/rollbackLog?repository=${name}&stage=${stage}`).then(function (response) {
+                    currApp.logs = response.data;
+                })
+            },
+            setUIAccess: function () {
+                let currApp = this
+
+                currApp.releaseRunning = false
+                currApp.repositoryList.forEach(repository => {
+                    currApp.releaseRunning |= Object.values(repository[`stageStatusMap`]).indexOf(`In_Progress`) !== -1;
+                });
+                currApp.releaseRunning = Boolean(currApp.releaseRunning)
+            },
+
+            rollbackIsEnable: function (repository, stage) {
+
+                let performStatus = repository[`stageStatusMap`][`RELEASE_PERFORM`];
+                let rollbackIsEnable = true;
+                if (this.repositoryList.filter(repository => repository[`stageStatusMap`]["RELEASE_SYNC"] !== `Not_Start`)
+                    .length !== 0) {
+                    rollbackIsEnable &= false;
+                }
+                rollbackIsEnable &= (stage === `RELEASE_PREPARE` && (performStatus === `Not_Start` ^ performStatus === `Rollback`)) ^ stage === `RELEASE_PERFORM`;
+                return Boolean(rollbackIsEnable);
+            },
+            isRollbackCanStart: function (repository, stage) {
+                let rIndex = Object.values(repository[`stageStatusMap`]).indexOf(`Rollback`);
+                let fIndex = Object.values(repository[`stageStatusMap`]).indexOf(`Fail_Rollback`);
+                let index = rIndex === -1 && fIndex === -1 ? -1 : rIndex === -1 ? fIndex : fIndex === -1? rIndex : Math.min(rIndex, fIndex)
+                return index !== -1 && Object.keys(repository[`stageStatusMap`])[index] === stage;
+            },
+            isFullRollbackFail: function (repository) {
+                return repository[`stageStatusMap`][`RELEASE_PULL`] === `Fail_Rollback`;
+            },
+            syncStageIsEnable: function () {
+                return this.repositoryList.every(repository => {
+                    let performStatus = repository[`stageStatusMap`][`RELEASE_PERFORM`];
+                    return performStatus === `Skip` ^ performStatus === `Success`
+                }) && !this.syncStageStart()
+
+            },
+            syncStageStart: function () {
+                return this.repositoryList
+                    .some(repository => repository[`stageStatusMap`][`RELEASE_SYNC`] !== `Not_Start`)
+            },
+            releaseIsFinished: function () {
+                return this.repositoryList.every(repository => {
+                    let syncStatus = repository[`stageStatusMap`][`RELEASE_SYNC`]
+                    return syncStatus === `Skip` ^ syncStatus === `Success`
+                })
+            },
+            canStartFullRollback: function () {
+                return this.repositoryList.every(repository => {
+                    return (repository[`stageStatusMap`][`RELEASE_PREPARE`] !== `Not_Start` ||
+                        repository[`stageStatusMap`][`RELEASE_PERFORM`] !== `Not_Start`) &&
+                        repository[`stageStatusMap`][`RELEASE_SYNC`] === `Not_Start`;
+                })
+            },
         }
-    });
+
+    })
 }

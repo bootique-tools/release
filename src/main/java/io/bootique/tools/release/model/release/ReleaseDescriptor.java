@@ -1,119 +1,34 @@
 package io.bootique.tools.release.model.release;
 
-import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.maven.persistent.Project;
-
 import java.util.List;
 
 public class ReleaseDescriptor {
 
-    private String fromVersion;
-    private String releaseVersion;
-    private String devVersion;
-    private List<Project> projectList;
-    private boolean autoReleaseMode;
-
-    private ReleaseStage currentReleaseStage;
-    private RollbackStage currentRollbackStage;
-
-    private Repository lastSuccessReleasedRepository;
-    private ReleaseStage lastSuccessReleaseStage;
+    private ReleaseVersions releaseVersions;
+    private List<RepositoryDescriptor> repositoryDescriptorList;
 
     public ReleaseDescriptor() {
     }
 
-    public ReleaseDescriptor(String fromVersion,
-                             String releaseVersion,
-                             String devVersion,
-                             List<Project> projectList,
-                             ReleaseStage releaseStage,
-                             RollbackStage rollbackStage,
-                             boolean autoReleaseMode) {
-        this.fromVersion = fromVersion;
-        this.releaseVersion = releaseVersion;
-        this.devVersion = devVersion;
-        this.projectList = projectList;
-        this.currentReleaseStage = releaseStage;
-        this.currentRollbackStage = rollbackStage;
-        this.autoReleaseMode = autoReleaseMode;
+    public ReleaseDescriptor(ReleaseVersions releaseVersions, List<RepositoryDescriptor> repositoryDescriptorList) {
+        this.releaseVersions = releaseVersions;
+        this.repositoryDescriptorList = repositoryDescriptorList;
     }
 
-    public List<Project> getProjectList() {
-        return projectList;
+    public ReleaseVersions getReleaseVersions() {
+        return releaseVersions;
     }
 
-    public String getFromVersion() {
-        return fromVersion;
+    public void setReleaseVersions(ReleaseVersions releaseVersions) {
+        this.releaseVersions = releaseVersions;
     }
 
-    public String getReleaseVersion() {
-        return releaseVersion;
+    public List<RepositoryDescriptor> getRepositoryDescriptorList() {
+        return repositoryDescriptorList;
     }
 
-    public String getDevVersion() {
-        return devVersion;
-    }
-
-    public ReleaseStage getCurrentReleaseStage() {
-        return currentReleaseStage;
-    }
-
-    public void setCurrentReleaseStage(ReleaseStage currentReleaseStage) {
-        this.currentReleaseStage = currentReleaseStage;
-    }
-
-    public void setDevVersion(String devVersion) {
-        this.devVersion = devVersion;
-    }
-
-    public void setFromVersion(String fromVersion) {
-        this.fromVersion = fromVersion;
-    }
-
-    public void setProjectList(List<Project> projectList) {
-        this.projectList = projectList;
-    }
-
-    public void setReleaseVersion(String releaseVersion) {
-        this.releaseVersion = releaseVersion;
-    }
-
-    public boolean isAutoReleaseMode() {
-        return autoReleaseMode;
-    }
-
-    public void setAutoReleaseMode(boolean autoReleaseMode) {
-        this.autoReleaseMode = autoReleaseMode;
-    }
-
-    public RollbackStage getCurrentRollbackStage() {
-        return currentRollbackStage;
-    }
-
-    public void setCurrentRollbackStage(RollbackStage currentRollbackStage) {
-        this.currentRollbackStage = currentRollbackStage;
-    }
-
-    public Repository getLastSuccessReleasedRepository() {
-        return lastSuccessReleasedRepository;
-    }
-
-    public void setLastSuccessReleasedRepository(Repository lastSuccessReleasedRepository) {
-        this.lastSuccessReleasedRepository = lastSuccessReleasedRepository;
-    }
-
-    public ReleaseStage getLastSuccessReleaseStage() {
-        return lastSuccessReleaseStage;
-    }
-
-    public void setLastSuccessReleaseStage(ReleaseStage lastSuccessReleaseStage) {
-        this.lastSuccessReleaseStage = lastSuccessReleaseStage;
-    }
-
-    public void resolveStages() {
-        if (lastSuccessReleasedRepository != null && lastSuccessReleasedRepository.getName().equals(projectList.get(projectList.size() - 1).getRepository().getName())) {
-            currentReleaseStage = ReleaseStage.getNext(lastSuccessReleaseStage);
-            lastSuccessReleasedRepository = null;
-        }
+    public void setRepositoryDescriptorList(List<RepositoryDescriptor> repositoryDescriptorList) {
+        this.repositoryDescriptorList = repositoryDescriptorList;
     }
 }
+

@@ -5,9 +5,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.FileAppender;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.model.release.ReleaseDescriptor;
-import io.bootique.tools.release.model.release.ReleaseStage;
-import io.bootique.tools.release.model.release.RollbackStage;
+import io.bootique.tools.release.model.release.*;
 
 import java.io.File;
 import java.util.Arrays;
@@ -15,21 +13,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MultiAppender extends AppenderBase<ILoggingEvent>{
+public class MultiAppender extends AppenderBase<ILoggingEvent> {
 
     private final Map<List<String>, FileAppender<ILoggingEvent>> appenderMap = new HashMap<>();
     private FileAppender<ILoggingEvent> currentAppender;
 
     @Override
     protected void append(ILoggingEvent iLoggingEvent) {
-        if(currentAppender != null) {
+        if (currentAppender != null) {
             currentAppender.doAppend(iLoggingEvent);
         }
     }
 
     synchronized void setCurrentAppender(List<String> args) {
         currentAppender = appenderMap.get(args);
-        if(currentAppender != null && !currentAppender.isStarted()) {
+        if (currentAppender != null && !currentAppender.isStarted()) {
             currentAppender.setContext(context);
             currentAppender.start();
         }
@@ -37,7 +35,7 @@ public class MultiAppender extends AppenderBase<ILoggingEvent>{
 
     @Override
     public void stop() {
-        if(currentAppender != null) {
+        if (currentAppender != null) {
             currentAppender.stop();
         }
         super.stop();
@@ -49,31 +47,35 @@ public class MultiAppender extends AppenderBase<ILoggingEvent>{
         ple.setContext(context);
         ple.start();
 
-        for(Project project : releaseDescriptor.getProjectList()) {
-            for(ReleaseStage releaseStage : ReleaseStage.values()) {
-                if(releaseStage == ReleaseStage.NO_RELEASE) {
+        for (RepositoryDescriptor repositoryDescriptor : releaseDescriptor.getRepositoryDescriptorList()) {
+
+            for (ReleaseStage releaseStage : ReleaseStage.values()) {
+
+                if (releaseStage == ReleaseStage.NO_RELEASE) {
                     continue;
                 }
-                String logFile = loggerPath + File.separator + releaseDescriptor.getReleaseVersion() +File.separator +
-                        project.getRepository().getName() + File.separator +
+
+                String logFile = loggerPath + File.separator + releaseDescriptor.getReleaseVersions().getReleaseVersion() + File.separator +
+                        repositoryDescriptor.getRepositoryName() + File.separator +
                         "release" + File.separator +
                         releaseStage + ".log";
 
-                appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersion(),
-                        project.getRepository().getName(),
-                        "release", String.valueOf(releaseStage)), createAppender(logFile, ple, project.getRepository().getName()));
+                appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersions().getReleaseVersion(),
+                        repositoryDescriptor.getRepositoryName(),
+                        "release", String.valueOf(releaseStage)), createAppender(logFile, ple, repositoryDescriptor.getRepositoryName()));
             }
-            for(RollbackStage rollbackStage : RollbackStage.values()) {
-                if(rollbackStage == RollbackStage.NO_ROLLBACK) {
+
+            for (RollbackStage rollbackStage : RollbackStage.values()) {
+                if (rollbackStage == RollbackStage.NO_ROLLBACK) {
                     continue;
                 }
-                String logFile = loggerPath + File.separator + releaseDescriptor.getReleaseVersion() + File.separator +
-                        project.getRepository().getName() + File.separator +
+                String logFile = loggerPath + File.separator + releaseDescriptor.getReleaseVersions().getReleaseVersion() + File.separator +
+                        repositoryDescriptor.getRepositoryName() + File.separator +
                         "rollback" + File.separator +
                         rollbackStage + ".log";
-                appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersion(),
-                        project.getRepository().getName(),
-                        "rollback", String.valueOf(rollbackStage)), createAppender(logFile, ple, project.getRepository().getName()));
+                appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersions().getReleaseVersion(),
+                        repositoryDescriptor.getRepositoryName(),
+                        "rollback", String.valueOf(rollbackStage)), createAppender(logFile, ple, repositoryDescriptor.getRepositoryName()));
             }
         }
     }

@@ -1,10 +1,5 @@
 package io.bootique.tools.release.service.tasks;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.function.Function;
-import javax.inject.Inject;
-
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.desktop.DesktopException;
@@ -14,14 +9,18 @@ import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
-import io.bootique.tools.release.service.release.ReleaseService;
+
+import javax.inject.Inject;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Function;
 
 public class RollbackSonatypeTask implements Function<Repository, String> {
 
     private static final Path CHECKOUT_PATH = Paths.get("target/checkout/");
 
     @Inject
-    LoggerService loggerService;
+    LoggerService logger;
 
     @Inject
     MavenService mavenService;
@@ -32,12 +31,9 @@ public class RollbackSonatypeTask implements Function<Repository, String> {
     @Inject
     PreferenceService preferences;
 
-    @Inject
-    ReleaseService releaseService;
-
     @Override
     public String apply(Repository repo) {
-        loggerService.setAppender(repo.getName(), "rollback", String.valueOf(RollbackStage.ROLLBACK_SONATYPE));
+        logger.setAppender(repo.getName(), "rollback", String.valueOf(RollbackStage.ROLLBACK_SONATYPE));
         if (!mavenService.isMavenProject(repo)) {
             throw new JobException("NO_POM", "No pom.xml for repo " + repo);
         }
@@ -50,12 +46,9 @@ public class RollbackSonatypeTask implements Function<Repository, String> {
         };
 
         try {
-            desktopService.runMavenCommand(repoPath, args);
+            return desktopService.runMavenCommand(repoPath, args);
         } catch (DesktopException ex) {
-            throw new JobException(ex.getMessage(), ex);
+                throw new JobException(ex.getMessage(), ex);
         }
-
-        releaseService.saveRelease(repo);
-        return "";
     }
 }

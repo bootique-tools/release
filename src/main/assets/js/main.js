@@ -4,7 +4,6 @@ import 'bootstrap/dist/js/bootstrap';
 import '@fortawesome/fontawesome-free/js/all';
 
 // export everything used directly from HTML in the global scope
-import { jobProgress } from "./jobProgress";
 import { initMilestoneView } from "./view/milestoneView";
 import { initBranchView } from "./view/branchView";
 import { initValidationView } from "./view/validationView";
@@ -17,7 +16,6 @@ import { initMavenVue } from "./view/mavenVue";
 import { initRelease } from "./view/release";
 import { initReleaseProcess } from "./releaseProcess";
 
-window.jobProgress = jobProgress;
 window.initRepoVue = initRepoVue;
 window.initIssueVue = initIssueVue;
 window.initBranchView = initBranchView;
@@ -29,6 +27,7 @@ window.initReleaseNotesView = initReleaseNotesView;
 window.initValidationView = initValidationView;
 window.initRelease = initRelease;
 window.initReleaseProcess = initReleaseProcess;
+window.initReleaseTableHead = initReleaseTableHead
 
 $(document).ready(() => init());
 

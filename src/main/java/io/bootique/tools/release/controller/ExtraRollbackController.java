@@ -1,9 +1,8 @@
 package io.bootique.tools.release.controller;
 
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.model.release.ReleaseStage;
-import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.central.MvnCentralService;
+import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
 import io.bootique.tools.release.view.ExtraRollbackView;
 
 import javax.inject.Inject;
@@ -19,14 +18,18 @@ import java.net.URI;
 import java.util.List;
 
 @Path("/extra-rollback")
-public class ExtraRollbackController extends BaseReleaseController {
+public class ExtraRollbackController extends BaseController {
 
     @Inject
     private MvnCentralService mvnCentralService;
 
+    @Inject
+    private ReleaseDescriptorService releaseDescriptorService;
+
     @GET
     public ExtraRollbackView home(@Context UriInfo uriInfo) {
-        return new ExtraRollbackView(getCurrentUser(), getCurrentOrganization());
+       return new ExtraRollbackView(getCurrentUser(), getCurrentOrganization());
+
     }
 
     @POST
@@ -37,16 +40,7 @@ public class ExtraRollbackController extends BaseReleaseController {
                                      @FormParam("projects") String selected) throws IOException {
 
         List<Project> selectedProjects = getSelectedProjects(selected);
-
-        prepareRelease(
-                createDescriptor(
-                        prevVersion,
-                        releaseVersion,
-                        devVersion,
-                        selectedProjects,
-                        ReleaseStage.NO_RELEASE,
-                        RollbackStage.ROLLBACK_SONATYPE,
-                        false));
+        releaseDescriptorService.getReleaseDescriptor();
 
         return validate(releaseVersion, selectedProjects) ?
                 Response.seeOther(URI.create("extra-rollback/rollback-fail")).build() :
@@ -59,7 +53,7 @@ public class ExtraRollbackController extends BaseReleaseController {
         return new ExtraRollbackView(getCurrentUser(), getCurrentOrganization(), "This version was synced with mvn central. Rollback is not available.");
     }
 
-    @Override
+
     boolean validate(String releaseVersion, List<Project> selectedProjects) {
         return mvnCentralService.isSync(releaseVersion, selectedProjects);
     }
