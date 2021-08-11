@@ -1,24 +1,17 @@
 package io.bootique.tools.release.model.release;
 
 public enum RollbackStage {
-    NO_ROLLBACK,
-    ROLLBACK_SONATYPE,
-    ROLLBACK_MVN;
+    NO_ROLLBACK("No rollback"),
+    ROLLBACK_SONATYPE("Rollback sonatype"),
+    ROLLBACK_MVN("Rollback git");
 
-    public String getText() {
-        switch(this) {
-            case ROLLBACK_SONATYPE:
-                return "Rollback sonatype";
-            case ROLLBACK_MVN:
-                return "Rollback git";
-        }
-        return "No rollback";
+    private final String text;
+
+    RollbackStage(String text) {
+        this.text = text;
     }
 
-    public static RollbackStage getNext(RollbackStage releaseStage) {
-        if(releaseStage == ROLLBACK_MVN) {
-            return ROLLBACK_MVN;
-        }
-        return RollbackStage.values()[releaseStage.ordinal() + 1];
+    public String getText() {
+        return text;
     }
 }

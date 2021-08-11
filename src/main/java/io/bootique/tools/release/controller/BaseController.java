@@ -25,7 +25,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Context;
 
-abstract class BaseController {
+public abstract class BaseController {
 
     @Inject
     PreferenceService preferences;
@@ -34,7 +34,7 @@ abstract class BaseController {
     MavenService mavenService;
 
     @Inject
-    ObjectMapper objectMapper;
+    public ObjectMapper objectMapper;
 
     @Inject
     GitService gitService;
