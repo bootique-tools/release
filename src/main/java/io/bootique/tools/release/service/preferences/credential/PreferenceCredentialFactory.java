@@ -9,7 +9,7 @@ import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.DefaultPreferenceService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
-import io.bootique.tools.release.service.release.ReleaseService;
+import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -91,8 +91,8 @@ public class PreferenceCredentialFactory {
             preferences.set(GitService.BASE_PATH_PREFERENCE, Paths.get(basePath));
         }
 
-        if (!preferences.have(ReleaseService.SAVE_PATH)) {
-            preferences.set(ReleaseService.SAVE_PATH, savePath == null ? "release-status" + File.separator + "persist" : savePath);
+        if (!preferences.have(ReleasePersistentService.SAVE_PATH)) {
+            preferences.set(ReleasePersistentService.SAVE_PATH, savePath == null ? "release-status" + File.separator + "persist" : savePath);
         }
 
         if(!preferences.have(LoggerService.LOGGER_BASE_PATH)) {

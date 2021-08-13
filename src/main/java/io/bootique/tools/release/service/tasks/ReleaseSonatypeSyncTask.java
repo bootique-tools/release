@@ -18,7 +18,7 @@ import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
-import io.bootique.tools.release.service.release.ReleaseService;
+import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
@@ -26,7 +26,7 @@ import org.apache.cayenne.query.ObjectSelect;
 public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
 
     @Inject
-    LoggerService loggerService;
+    LoggerService logger;
 
     @Inject
     MavenService mavenService;
@@ -38,41 +38,44 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
     PreferenceService preferences;
 
     @Inject
-    ReleaseService releaseService;
+    ReleaseDescriptorService releaseDescriptorService;
 
     @Inject
     Provider<ServerRuntime> cayenneRuntime;
 
     @Override
     public String apply(Repository repo) {
-        loggerService.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_SYNC));
+        logger.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_SYNC));
         if (!mavenService.isMavenProject(repo)) {
             throw new JobException("NO_POM", "No pom.xml for repo " + repo);
         }
         Path repoPath = preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName());
 
         List<StagingRepo> repos = getStagingRepos(repoPath);
-        if(repos.isEmpty()) {
+        if (repos.isEmpty()) {
             throw new JobException("NO_STAGING_REPO", "Staging repos not found, check release perform stage logs.");
         }
 
         StagingRepo stagingRepo;
 
-        if(repos.size() > 1) {
+        if (repos.size() > 1) {
             ObjectContext context = cayenneRuntime.get().newContext();
             Project project = ObjectSelect.query(Project.class)
                     .where(Project.REPOSITORY.dot(Repository.NAME).eq(repo.getName()))
                     .selectOne(context);
-            String projectDescription = project.getRootModule().getGroupStr()
-                    + ":" + project.getRootModule().getGithubId()
-                    + ":" + releaseService.getReleaseDescriptor().getReleaseVersion();
+            String projectDescription;
 
+            projectDescription = project.getRootModule().getGroupStr()
+                    + ":" + project.getRootModule().getGithubId()
+                    + ":" + releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().getReleaseVersion();
+
+            String finalProjectDescription = projectDescription;
             List<StagingRepo> stagingForRepo = repos.stream()
-                    .filter(r -> r.description.contains(projectDescription))
+                    .filter(r -> r.description.contains(finalProjectDescription))
                     .collect(Collectors.toList());
-            if(stagingForRepo.isEmpty()) {
+            if (stagingForRepo.isEmpty()) {
                 throw new JobException("NO_STAGING_REPO", "Staging repos for the project " + repo.getName() + " not found, check release perform stage logs.");
-            } else if(stagingForRepo.size() > 1) {
+            } else if (stagingForRepo.size() > 1) {
                 throw new JobException("MULTI_STAGING_REPO",
                         "Multiple staging repos found, can't automatically deal with them. "
                                 + "Please go to https://oss.sonatype.org and check them manually.");
@@ -82,20 +85,19 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
             stagingRepo = repos.get(0);
         }
 
-        if(stagingRepo.state == RepoState.UNKNOWN) {
+        if (stagingRepo.state == RepoState.UNKNOWN) {
             throw new JobException("STAGING_REPO_UNKNOWN_STATE", "Staging repo is in unknown or unsupported state." +
                     "Please go to https://oss.sonatype.org and check it manually.");
         }
 
-        if(stagingRepo.state == RepoState.OPEN) {
+        if (stagingRepo.state == RepoState.OPEN) {
             closeStagingRepo(repoPath, stagingRepo);
         }
 
-        if(stagingRepo.state != RepoState.RELEASED) {
+        if (stagingRepo.state != RepoState.RELEASED) {
             releaseStagingRepo(repoPath, stagingRepo);
         }
 
-        releaseService.saveRelease(repo);
         return "";
     }
 
@@ -107,7 +109,7 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
         stagingPlugin(localRepoPath, "rc-release", "-DstagingRepositoryId=" + remoteRepo.getId());
     }
 
-    private List<StagingRepo> getStagingRepos(Path repoPath) {
+    protected List<StagingRepo> getStagingRepos(Path repoPath) {
         String result = stagingPlugin(repoPath, "rc-list");
         return result.lines()
                 .dropWhile(s -> !s.startsWith("[INFO] Getting list of available staging repositories..."))
@@ -150,13 +152,13 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
         private final String description;
 
         static StagingRepo of(String... data) {
-            if(data.length < 3) {
+            if (data.length < 3) {
                 throw new IllegalArgumentException();
             }
             RepoState state = null;
             StringBuilder description = new StringBuilder();
-            for(int i = 1; i < data.length; i++) {
-                if(state == null) {
+            for (int i = 1; i < data.length; i++) {
+                if (state == null) {
                     if (!data[i].isBlank()) {
                         state = RepoState.of(data[i]);
                     }

@@ -10,4 +10,6 @@ public interface LoggerService {
     void prepareLogger(ReleaseDescriptor releaseDescriptor);
 
     void setAppender(String repository, String action, String file);
+
+    MultiAppender getMultiAppender();
 }
