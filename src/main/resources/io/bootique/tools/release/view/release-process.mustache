@@ -3,51 +3,248 @@
 <div id="{{releaseId}}">
     <div class="row" style="text-align:center;">
         <div class="col-sm-1"></div>
-        <div v-for="statusItem in statusBar" class="col-sm-2">
-            <p>[[statusItem.name]]<br>
-                <span v-bind:style="{color:statusItem.color}">[[statusItem.msg]]</span></p>
+    </div>
+
+    <div class="table-pull-style" id="release" xmlns:v-on="http://www.w3.org/1999/xhtml">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>
+                        <div class="row justify-content-md-left align-items-center">
+                            <div class="col-sm-7">Repository</div>
+                        </div>
+                    </th>
+                    <th v-for="stage in stages">
+                        <div class="row justify-content-md-left align-items-center">
+                            <div class="col-sm-7">[[stage]]</div>
+                            <div class="col-sm-1" v-if="stage === `RELEASE_SYNC` && !!syncStageIsEnable()">
+                                <form action="/ui/release/start-sync-stage" method="post"
+                                      id="execute-sync-stage-form">
+                                    <button class="btn btn-sm btn-outline-success mr-1 ml-1">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr v-for="repository in repositoryList">
+                    <td>[[repository.repositoryName]]</td>
+                    <td v-for="(status, stage) in repository.stageStatusMap">
+
+                        <template v-if="status === `Skip` ^ status === `Success` ^ status === `Fail`">
+
+                            <button v-if="stage === `RELEASE_PREPARE` ^ stage === `RELEASE_PERFORM` && !!rollbackIsEnable(repository,stage)"
+                                    class="btn btn btn-sm btn-outline-info mr-1 ml-1"
+                                    type="button"
+                                    :disabled="releaseRunning"
+                                    v-on:click="rollbackRepository(repository.repositoryName,stage)"
+                                    key="rollback">
+                                <i class="fas fa-angle-double-left"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-warning mr-1 ml-1"
+                                    type="button"
+                                    data-toggle="modal"
+                                    data-target="#releaseLog"
+                                    v-on:click="showStageLogs(repository.repositoryName,stage)"
+                                    key="release logs">
+                                <i class="fas fa-info"></i>
+                            </button>
+                            <div class="modal fade" id="releaseLog" tabindex="-1" role="dialog"
+                                 aria-labelledby="releaseLogLongTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="releaseLogLongTitle"
+                                                key="release-logs-modal-text">
+                                                Release logs...</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">x</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <pre><code>[[logs]]</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <template v-if="status === `Fail`">
+                                <button class="btn btn btn-sm btn-outline-dark mr-1 ml-1"
+                                        type="button"
+                                        :disabled="releaseRunning"
+                                        v-on:click="restartStage(repository.repositoryName,stage)"
+                                        key="restart_release">
+                                    <i class="fas fa-redo-alt"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success mr-1 ml-1"
+                                        type="button"
+                                        :disabled="releaseRunning"
+                                        v-on:click="skipStage(repository.repositoryName,stage)"
+                                        key="skip stage">
+                                    <i class="fas fa-fast-forward"></i>
+                                </button>
+                            </template>
+                            [[status]]
+                        </template>
+                        <template v-else-if="status === `Rollback` ^ status === `Fail_Rollback`">
+
+                            <button v-if="stage === `RELEASE_PREPARE` ^ stage === `RELEASE_PERFORM`"
+                                    type="button"
+                                    class="btn btn-sm btn-warning mr-1 ml-1"
+                                    data-toggle="modal"
+                                    data-target="#rollbackLog"
+                                    v-on:click="showRollbackLogs(repository.repositoryName,stage)"
+                                    key="rollback logs">
+                                <i class="fas fa-info"></i>
+                            </button>
+                            <div class="modal fade" id="rollbackLog" tabindex="-1" role="dialog"
+                                 aria-labelledby="rollbackLogLongTitle" aria-hidden="true">
+                                <div class="modal-dialog modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="rollbackLogLongTitle"
+                                                key="rollback-logs-modal-text">
+                                                Rollback Logs...</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">x</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <pre><code>[[logs]]</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <template v-if="status === `Rollback`">
+                                <button v-if="isRollbackCanStart(repository,stage)"
+                                        class="btn btn btn-sm btn-outline-success mr-1 ml-1" type="button"
+                                        v-on:click="restartStage(repository.repositoryName,stage)"
+                                        :disabled="releaseRunning"
+                                        key="start rollback">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </button>
+                                Not_Start
+                            </template>
+                            <template v-if="status === `Fail_Rollback`">
+                                <template v-if="isFullRollbackFail(repository)">
+                                    <button v-if="stage === `RELEASE_PULL`"
+                                            class="btn btn btn-sm btn-outline-success mr-1 ml-1" type="button"
+                                            v-on:click="restartStage(repository.repositoryName,stage)"
+                                            :disabled="releaseRunning"
+                                            key="start rollback">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </button>
+                                </template>
+                                <template v-else>
+                                    <button class="btn btn btn-sm btn-outline-dark mr-1 ml-1"
+                                            type="button"
+                                            :disabled="releaseRunning"
+                                            v-on:click="rollbackRepository(repository.repositoryName,stage)"
+                                            key="restart rollback">
+                                        <i class="fas fa-redo-alt"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success mr-1 ml-1"
+                                            type="button"
+                                            :disabled="releaseRunning"
+                                            v-on:click="skipRollback(repository.repositoryName,stage)"
+                                            key="skip rollback">
+                                        <i class="fas fa-fast-forward"></i>
+                                    </button>
+                                </template>
+                                Fail
+                            </template>
+                        </template>
+                        <template v-else>
+                            [[status]]
+                        </template>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row justify-content-center">
+            <template v-if="releaseIsFinished() || !syncStageStart()">
+                <button type="button" class="btn btn-sm btn-light mr-1 ml-1" data-toggle="modal"
+                        data-target="#dropRelease">
+                    <i class="fas fa-trash"></i> Drop Release
+                </button>
+                <div class="modal fade"
+                     tabindex="-1"
+                     role="dialog"
+                     aria-labelledby="rollbackReleaseLabel"
+                     aria-hidden="true"
+                     id="dropRelease">
+                    <div class="modal-dialog modal-md">
+                        <div class="modal-content">
+                            <div class="row justify-content-center">
+                                <div class="modal-header">
+                                    <h5>Are you sure you want to rollback release?</h5>
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-center">
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">
+                                        <strong>Cancel</strong>
+                                    </button>
+                                    <form action="/ui/release/drop" method="post" id="reload-drop-form">
+                                        <button class="btn btn-outline-success">
+                                            <strong>Confirm</strong></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            <template v-if="canStartFullRollback()">
+                <button
+                        type="button" class="btn btn-sm btn-light mr-1 ml-1" data-toggle="modal"
+                        data-target="#rollbackRelease"
+                        :disabled="releaseRunning">
+                    <i class="fas fa-book-dead"></i> Rollback
+                </button>
+                <div class="modal fade" tabindex="-1" id="rollbackRelease" role="dialog"
+                     aria-labelledby="rollbackReleaseLabel"
+                     aria-hidden="true"
+                     id="confirm-modal">
+                    <div class="modal-dialog modal-md">
+                        <div class="modal-content">
+                            <div class="row justify-content-center">
+                                <div class="modal-header"><h4>Are you sure you want to rollback release?</h4></div>
+                            </div>
+
+                            <div class="row justify-content-center">
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">
+                                        <strong>Cancel</strong>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success" data-dismiss="modal"
+                                            v-on:click="rollbackRelease">
+                                        <strong>Confirm</strong>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
     </div>
 
-    <div>
-        <h1>[[stageName]]</h1>
-    </div>
 
-    {{> release-step}}
-
-
-    <div class="buttons-block">
-        <a href="/ui/release/next" style="display:{{finishStep}};">
-            <button type="submit" class="btn btn-sm btn-outline-primary" v-bind:disabled="showButton">Next Step</button>
-        </a>
-        <button type="submit" id="btn-confirm" class="btn btn-sm btn-outline-primary" v-bind:disabled="showButton" style="display:{{finishStep}};">Rollback release</button>
-    </div>
 </div>
 
-
-<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="confirm-modal">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            </div>
-            <div class="modal-content">
-                <p style="padding:10px; font-weight:500;">
-                    Do yo want to rollback the release?
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                <a href="/ui/rollback/start" style="display:{{finishStep}};">
-                    <button type="button" class="btn btn-success" id="modal-btn-yes">Confirm</button>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
+{{> footer}}
 
 <script type="module">
     initReleaseProcess('{{releaseId}}');
 </script>
-{{> footer}}

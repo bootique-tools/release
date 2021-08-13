@@ -19,11 +19,12 @@ public class DefaultLoggerService implements LoggerService {
     private MultiAppender multiAppender;
     private String releaseVersion;
 
-    @Override
     public void prepareLogger(ReleaseDescriptor releaseDescriptor) {
-        multiAppender = (MultiAppender) LOGGER.getAppender("multiAppender");
-        multiAppender.createAppenderMap(releaseDescriptor,  preferenceService.get(LoggerService.LOGGER_BASE_PATH));
-        this.releaseVersion = releaseDescriptor.getReleaseVersion();
+        if (multiAppender == null) {
+            multiAppender = (MultiAppender) LOGGER.getAppender("multiAppender");
+            multiAppender.createAppenderMap(releaseDescriptor, preferenceService.get(LoggerService.LOGGER_BASE_PATH));
+            this.releaseVersion = releaseDescriptor.getReleaseVersions().getReleaseVersion();
+        }
     }
 
     @Override
@@ -31,7 +32,8 @@ public class DefaultLoggerService implements LoggerService {
         multiAppender.setCurrentAppender(Arrays.asList(releaseVersion, repository, action, file));
     }
 
-    MultiAppender getMultiAppender() {
+    @Override
+    public MultiAppender getMultiAppender() {
         return multiAppender;
     }
 }
