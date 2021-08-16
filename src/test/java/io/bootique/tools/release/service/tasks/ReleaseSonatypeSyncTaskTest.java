@@ -22,9 +22,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 
@@ -73,12 +74,10 @@ class ReleaseSonatypeSyncTaskTest {
         repository.setName("");
 
         assertThrows(JobException.class, () -> releaseSonatypeSyncTask.apply(repository));
-
     }
 
     @Test
-    void runEmptyRepoList(@TempDir Path path) throws IOException {
-        mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
+    void getEmptyStagingRepoList(@TempDir Path path) throws IOException {
         Path pom = path.resolve("pom.xml");
         if (!Files.exists(pom)) {
             Files.createFile(pom);
@@ -87,12 +86,205 @@ class ReleaseSonatypeSyncTaskTest {
         MockDesktopService mockDesktopService = new MockDesktopService();
         mockDesktopService.addCommandResult("");
         releaseSonatypeSyncTask.desktopService = mockDesktopService;
-        assertThrows(JobException.class, () -> releaseSonatypeSyncTask.apply(project.getRepository()),
+
+        assertThrows(JobException.class, () ->releaseSonatypeSyncTask.getStagingRepoList(path),
                 "Staging repos not found, check release perform stage logs.");
     }
 
     @Test
-    void runUnknownRepo(@TempDir Path path) throws IOException {
+    void getStagingSingleRepoList(@TempDir Path path) throws IOException {
+        Path pom = path.resolve("pom.xml");
+        if (!Files.exists(pom)) {
+            Files.createFile(pom);
+        }
+
+        MockDesktopService mockDesktopService = new MockDesktopService();
+        mockDesktopService.addCommandResult(
+                "[INFO]  * Connected to Nexus at https://oss.sonatype.org:443/, is version 2.14.20-02 and edition \"Professional\"\n" +
+                "[INFO] Getting list of available staging repositories...\n" +
+                "[INFO] \n" +
+                "[INFO] ID                   State    Description                   \n" +
+                "[INFO] iobootique-1357      UNKNOWN     Implicitly created (auto staging).\n" +
+                "[INFO] ------------------------------------------------------------------------\n" +
+                "[INFO] Reactor Summary for bootique-framework-parent 2.0.B2-SNAPSHOT:\n" +
+                "[INFO] \n" +
+                "[INFO] bootique-framework-parent .......................... SUCCESS [  4.525 s]\n"
+        );
+        releaseSonatypeSyncTask.desktopService = mockDesktopService;
+
+        assertEquals(1, releaseSonatypeSyncTask.getStagingRepoList(path).size());
+    }
+
+    @Test
+    void getStagingRepoList(@TempDir Path path) throws IOException {
+        Path pom = path.resolve("pom.xml");
+        if (!Files.exists(pom)) {
+            Files.createFile(pom);
+        }
+
+        MockDesktopService mockDesktopService = new MockDesktopService();
+        mockDesktopService.addCommandResult(
+                "[INFO]  * Connected to Nexus at https://oss.sonatype.org:443/, is version 2.14.20-02 and edition \"Professional\"\n" +
+                        "[INFO] Getting list of available staging repositories...\n" +
+                        "[INFO] \n" +
+                        "[INFO] ID                   State    Description                   \n" +
+                        "[INFO] iobootique-1357      UNKNOWN     Implicitly created (auto staging).\n" +
+                        "[INFO] iobootique-1358      OPEN     Implicitly created (auto staging).\n" +
+                        "[INFO] iobootique-1359      OPEN     Implicitly created (auto staging).\n" +
+                        "[INFO] iobootique-1360      OPEN     Implicitly created (auto staging).\n" +
+                        "[INFO] ------------------------------------------------------------------------\n" +
+                        "[INFO] Reactor Summary for bootique-framework-parent 2.0.B2-SNAPSHOT:\n" +
+                        "[INFO] \n" +
+                        "[INFO] bootique-framework-parent .......................... SUCCESS [  4.525 s]\n"
+        );
+        releaseSonatypeSyncTask.desktopService = mockDesktopService;
+
+        assertEquals(4, releaseSonatypeSyncTask.getStagingRepoList(path).size());
+    }
+
+    @Test
+    void getStagingRepoListWithSameRepo(@TempDir Path path) throws IOException {
+        Path pom = path.resolve("pom.xml");
+        if (!Files.exists(pom)) {
+            Files.createFile(pom);
+        }
+
+        MockDesktopService mockDesktopService = new MockDesktopService();
+        mockDesktopService.addCommandResult(
+                "[INFO]  * Connected to Nexus at https://oss.sonatype.org:443/, is version 2.14.20-02 and edition \"Professional\"\n" +
+                        "[INFO] Getting list of available staging repositories...\n" +
+                        "[INFO] \n" +
+                        "[INFO] ID                   State    Description                   \n" +
+                        "[INFO] iobootique-1357      OPEN     Implicitly created (auto staging).\n" +
+                        "[INFO] iobootique-1357      OPEN     Implicitly created (auto staging).\n" +
+                        "[INFO] ------------------------------------------------------------------------\n" +
+                        "[INFO] Reactor Summary for bootique-framework-parent 2.0.B2-SNAPSHOT:\n" +
+                        "[INFO] \n" +
+                        "[INFO] bootique-framework-parent .......................... SUCCESS [  4.525 s]\n"
+        );
+        releaseSonatypeSyncTask.desktopService = mockDesktopService;
+
+        assertEquals(2, releaseSonatypeSyncTask.getStagingRepoList(path).size());
+    }
+
+    @Test
+    void getRepoFromListEmpty() {
+        Repository repository = new Repository("repository 0");
+
+        List<ReleaseSonatypeSyncTask.StagingRepo> stagingRepoList = new ArrayList<>();
+        stagingRepoList.add(new ReleaseSonatypeSyncTask.StagingRepo("1", ReleaseSonatypeSyncTask.RepoState.OPEN,"some description"));
+        stagingRepoList.add(new ReleaseSonatypeSyncTask.StagingRepo("2", ReleaseSonatypeSyncTask.RepoState.CLOSED,"some description"));
+
+        assertThrows(JobException.class, () -> releaseSonatypeSyncTask
+                        .getRepoFromList(stagingRepoList,repository,"test description"),
+                "Staging repos for the project " + repository.getName() + " not found, check release perform stage logs."
+        );
+    }
+
+    @Test
+    void getRepoFromListOne() {
+        Repository repository = new Repository("repository 0");
+
+        List<ReleaseSonatypeSyncTask.StagingRepo> stagingRepoList = new ArrayList<>();
+        stagingRepoList.add(new ReleaseSonatypeSyncTask.StagingRepo("1", ReleaseSonatypeSyncTask.RepoState.OPEN,"test description"));
+        stagingRepoList.add(new ReleaseSonatypeSyncTask.StagingRepo("2", ReleaseSonatypeSyncTask.RepoState.CLOSED,"some description"));
+
+        assertEquals(stagingRepoList.get(0), releaseSonatypeSyncTask
+                .getRepoFromList(stagingRepoList,repository,"test description")
+        );
+    }
+
+    @Test
+    void getRepoFromListMany() {
+        Repository repository = new Repository("repository 0");
+
+        List<ReleaseSonatypeSyncTask.StagingRepo> stagingRepoList = new ArrayList<>();
+        stagingRepoList.add(new ReleaseSonatypeSyncTask.StagingRepo("1", ReleaseSonatypeSyncTask.RepoState.OPEN,"test description"));
+        stagingRepoList.add(new ReleaseSonatypeSyncTask.StagingRepo("2", ReleaseSonatypeSyncTask.RepoState.CLOSED,"test description"));
+
+        assertThrows(JobException.class, () -> releaseSonatypeSyncTask
+                        .getRepoFromList(stagingRepoList,repository,"test description"),
+                "Staging repos for the project " + repository.getName() + " not found, check release perform stage logs."
+        );
+    }
+
+    @Test
+    void getStagingUnknownRepo(@TempDir Path path) throws IOException {
+        Path pom = path.resolve("pom.xml");
+        if (!Files.exists(pom)) {
+            Files.createFile(pom);
+        }
+
+        MockDesktopService mockDesktopService = new MockDesktopService();
+        mockDesktopService.addCommandResult(
+                "[INFO]  * Connected to Nexus at https://oss.sonatype.org:443/, is version 2.14.20-02 and edition \"Professional\"\n" +
+                        "[INFO] Getting list of available staging repositories...\n" +
+                        "[INFO] \n" +
+                        "[INFO] ID                   State    Description                   \n" +
+                        "[INFO] iobootique-1357      UNKNOWN     Implicitly created (auto staging).\n" +
+                        "[INFO] ------------------------------------------------------------------------\n" +
+                        "[INFO] Reactor Summary for bootique-framework-parent 2.0.B2-SNAPSHOT:\n" +
+                        "[INFO] \n" +
+                        "[INFO] bootique-framework-parent .......................... SUCCESS [  4.525 s]\n"
+        );
+        releaseSonatypeSyncTask.desktopService = mockDesktopService;
+
+        assertSame(ReleaseSonatypeSyncTask.RepoState.UNKNOWN,
+                releaseSonatypeSyncTask.getStagingRepo(path, project.getRepository()).getState());
+    }
+
+    @Test
+    void getStagingOpenRepo(@TempDir Path path) throws IOException {
+        Path pom = path.resolve("pom.xml");
+        if (!Files.exists(pom)) {
+            Files.createFile(pom);
+        }
+
+        MockDesktopService mockDesktopService = new MockDesktopService();
+        mockDesktopService.addCommandResult(
+                "[INFO]  * Connected to Nexus at https://oss.sonatype.org:443/, is version 2.14.20-02 and edition \"Professional\"\n" +
+                        "[INFO] Getting list of available staging repositories...\n" +
+                        "[INFO] \n" +
+                        "[INFO] ID                   State    Description                   \n" +
+                        "[INFO] iobootique-1357      OPEN     Implicitly created (auto staging).\n" +
+                        "[INFO] ------------------------------------------------------------------------\n" +
+                        "[INFO] Reactor Summary for bootique-framework-parent 2.0.B2-SNAPSHOT:\n" +
+                        "[INFO] \n" +
+                        "[INFO] bootique-framework-parent .......................... SUCCESS [  4.525 s]\n"
+        );
+        releaseSonatypeSyncTask.desktopService = mockDesktopService;
+
+        assertSame(ReleaseSonatypeSyncTask.RepoState.OPEN,
+                releaseSonatypeSyncTask.getStagingRepo(path, project.getRepository()).getState());
+    }
+
+    @Test
+    void getStagingReleasedRepo(@TempDir Path path) throws IOException {
+        Path pom = path.resolve("pom.xml");
+        if (!Files.exists(pom)) {
+            Files.createFile(pom);
+        }
+
+        MockDesktopService mockDesktopService = new MockDesktopService();
+        mockDesktopService.addCommandResult(
+                "[INFO]  * Connected to Nexus at https://oss.sonatype.org:443/, is version 2.14.20-02 and edition \"Professional\"\n" +
+                        "[INFO] Getting list of available staging repositories...\n" +
+                        "[INFO] \n" +
+                        "[INFO] ID                   State    Description                   \n" +
+                        "[INFO] iobootique-1357      RELEASED     Implicitly created (auto staging).\n" +
+                        "[INFO] ------------------------------------------------------------------------\n" +
+                        "[INFO] Reactor Summary for bootique-framework-parent 2.0.B2-SNAPSHOT:\n" +
+                        "[INFO] \n" +
+                        "[INFO] bootique-framework-parent .......................... SUCCESS [  4.525 s]\n"
+        );
+        releaseSonatypeSyncTask.desktopService = mockDesktopService;
+
+        assertSame(ReleaseSonatypeSyncTask.RepoState.RELEASED,
+                releaseSonatypeSyncTask.getStagingRepo(path, project.getRepository()).getState());
+    }
+
+    @Test
+    void runTaskWithUnknownRepo(@TempDir Path path) throws IOException {
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
         Path pom = path.resolve("pom.xml");
         if (!Files.exists(pom)) {
@@ -119,7 +311,7 @@ class ReleaseSonatypeSyncTaskTest {
     }
 
     @Test
-    void runOpenRepo(@TempDir Path path) throws IOException {
+    void runTaskWithOpenRepo(@TempDir Path path) throws IOException {
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
         Path pom = path.resolve("pom.xml");
         if (!Files.exists(pom)) {
@@ -143,7 +335,7 @@ class ReleaseSonatypeSyncTaskTest {
     }
 
     @Test
-    void runReleasedRepo(@TempDir Path path) throws IOException {
+    void runTaskWithReleasedRepo(@TempDir Path path) throws IOException {
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
         Path pom = path.resolve("pom.xml");
         if (!Files.exists(pom)) {
@@ -165,29 +357,4 @@ class ReleaseSonatypeSyncTaskTest {
         releaseSonatypeSyncTask.desktopService = mockDesktopService;
         releaseSonatypeSyncTask.apply(project.getRepository());
     }
-
-//    @Test
-//    void runOPenRepo(@TempDir Path path) throws IOException {
-//        mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
-//        Path pom = path.resolve("pom.xml");
-//        if (!Files.exists(pom)) {
-//            Files.createFile(pom);
-//        }
-//
-//        MockDesktopService mockDesktopService = new MockDesktopService();
-//        mockDesktopService.addCommandResult(
-//                "[INFO]  * Connected to Nexus at https://oss.sonatype.org:443/, is version 2.14.20-02 and edition \"Professional\"\n" +
-//                        "[INFO] Getting list of available staging repositories...\n" +
-//                        "[INFO] \n" +
-//                        "[INFO] ID                   State    Description                   \n" +
-//                        "[INFO] iobootique-1357      OPEN     Implicitly created (auto staging).\n" +
-//                        "[INFO] iobootique-1367      OPEN     Implicitly created (auto staging).\n" +
-//                        "[INFO] ------------------------------------------------------------------------\n" +
-//                        "[INFO] Reactor Summary for bootique-framework-parent 2.0.B2-SNAPSHOT:\n" +
-//                        "[INFO] \n" +
-//                        "[INFO] bootique-framework-parent .......................... SUCCESS [  4.525 s]\n"
-//        );
-//        releaseSonatypeSyncTask.desktopService = mockDesktopService;
-//        releaseSonatypeSyncTask.apply(project.getRepository());
-//    }
 }
