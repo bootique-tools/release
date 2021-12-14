@@ -1,10 +1,11 @@
 package io.bootique.tools.release.service.git;
 
 import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
-import io.bootique.tools.release.service.release.ReleaseService;
+import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,13 +14,13 @@ import javax.inject.Inject;
 public class ExternalGitService implements GitService {
 
     @Inject
-    private DesktopService desktopService;
+    protected DesktopService desktopService;
 
     @Inject
-    private PreferenceService preferenceService;
+    protected PreferenceService preferenceService;
 
     @Inject
-    private ReleaseService releaseService;
+    protected ReleaseDescriptorService releaseDescriptorService;
 
     @Override
     public void clone(Repository repository) {
@@ -68,7 +69,7 @@ public class ExternalGitService implements GitService {
         Path target = getBasePathOrThrow().resolve(repository.getName());
         desktopService.runCommand(target, "git", "add", ".");
         desktopService.runCommand(target, "git", "commit", "-m", "rollback the release of "
-                + releaseService.getReleaseDescriptor().getReleaseVersion());
+                + releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().getReleaseVersion());
         desktopService.runCommand(target, "git", "push", "origin", "master");
     }
 
@@ -119,11 +120,4 @@ public class ExternalGitService implements GitService {
         return preferenceService.get(BASE_PATH_PREFERENCE);
     }
 
-    public void setDesktopService(DesktopService desktopService) {
-        this.desktopService = desktopService;
-    }
-
-    public void setPreferenceService(PreferenceService preferenceService) {
-        this.preferenceService = preferenceService;
-    }
 }

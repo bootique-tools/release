@@ -219,7 +219,7 @@ export const releaseBaseMethods = {
                     state = true;
                 }
             }
-            axios.get(`/ui/release/select-projects?version=${this.currentVersion}&projects=${JSON.stringify(currApp.selectedModules)}&selectedProject=${project}&state=${state}`)
+            axios.get(`/ui/release/project?version=${this.currentVersion}&projects=${JSON.stringify(currApp.selectedModules)}&selectedProject=${project}&state=${state}`)
                 .then(function (response) {
                     currApp.selectedModules = [];
                     const currList = response.data;

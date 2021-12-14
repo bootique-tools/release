@@ -46,6 +46,7 @@ class BaseDesktopServiceTest {
         assertEquals(result.trim(), "test");
     }
 
+    // todo run maven command not work
     @Test
     @DisplayName("Running maven command test")
     void testRunningMavenCommand(@TempDir Path tempPath) throws IOException {
