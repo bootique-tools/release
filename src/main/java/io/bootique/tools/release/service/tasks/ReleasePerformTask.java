@@ -44,7 +44,6 @@ public class ReleasePerformTask implements Function<Repository, String>  {
                 "-P", "gpg",
                 "-DskipTests",
                 "-Dgpg.pinentry-mode=default",
-                "-Darguments=\"-Dgpg.pinentry-mode=default\"",
                 // "-DdryRun=true"
         };
 

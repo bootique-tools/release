@@ -55,6 +55,7 @@ public class MavenProjectsImport extends BaseJob {
 
         // sync Maven projects with repositories
         List<Project> createdProjects = syncProjects(context, repositories);
+        patchOrphanModules(createdProjects);
         context.commitChanges();
 
         // link projects with each other
@@ -97,5 +98,21 @@ public class MavenProjectsImport extends BaseJob {
                 }
             }
         }
+    }
+
+    private void patchOrphanModules(List<Project> createdProjects) {
+        createdProjects.stream()
+                .flatMap(p -> p.getModules().stream())
+                .flatMap(m -> m.getDependencies().stream())
+                .filter(d -> d.getModule().getProject() == null)
+                .forEach(orphan -> {
+                    String group = orphan.getModule().getGroupStr();
+                    for(Project project : createdProjects) {
+                        if(group.equals(project.getRootModule().getGroupStr())) {
+                            orphan.getModule().setProject(project);
+                            break;
+                        }
+                    }
+                });
     }
 }

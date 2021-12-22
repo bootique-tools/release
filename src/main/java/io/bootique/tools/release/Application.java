@@ -72,7 +72,7 @@ public class Application implements BQModule {
                 .app(args)
                 .autoLoadModules()
                 .module(Application.class)
-                .args("--config=classpath:settings.yml")
+                .args("--config=classpath:settings.yml", "--server", "--config=release-manager.yml")
                 .exec()
                 .exit();
     }
