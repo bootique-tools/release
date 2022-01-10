@@ -27,7 +27,7 @@
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1",
     "vue": "^2.6.11",
-    "axios": "^0.19.2",
+    "axios": "^0.21.2",
     "@fortawesome/fontawesome-free": "^5.13.0"
   },
   "scripts": {
