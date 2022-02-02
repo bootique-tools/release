@@ -167,7 +167,7 @@ public class GitHubDataImportJob extends BaseJob {
 
         // search for the uncommitted entity
         for (Object next : context.newObjects()) {
-            if (entityType.isInstance(next) && ((T) next).getGithubId().equals(githubId)) {
+            if (entityType.isInstance(next) && githubId.equals(((T) next).getGithubId())) {
                 return (T) next;
             }
         }
