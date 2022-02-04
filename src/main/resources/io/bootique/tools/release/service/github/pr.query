@@ -24,6 +24,9 @@ query ($owner: String!, $name: String!, $totalCount: Int!) {
                 id
                 name
               }
+              ... on Bot {
+                id
+              }
             }
             labels(first: 10) {
               totalCount

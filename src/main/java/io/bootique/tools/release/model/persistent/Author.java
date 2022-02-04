@@ -9,12 +9,6 @@ public class Author extends _Author implements Comparable<Author> {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String NULL_GITHUB_ID = "null-github-id";
-
-    public Author() {
-        githubId = NULL_GITHUB_ID;
-    }
-
     @Override
     @JsonProperty("__typename")
     public String getType() {
