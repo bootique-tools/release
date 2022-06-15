@@ -15,14 +15,14 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <bq.version>2.0.RC1</bq.version>
+        <bq.version>2.0.1</bq.version>
         <jetty.version>9.4.43.v20210629</jetty.version>
         <jackson.version>2.12.3</jackson.version>
-        <mysql.jdbc.version>8.0.24</mysql.jdbc.version>
+        <mysql.jdbc.version>8.0.28</mysql.jdbc.version>
         <sqlite.version>3.34.0</sqlite.version>
 
         <mockito.version>1.10.19</mockito.version>
-        <junit.jupiter.version>5.7.1</junit.jupiter.version>
+        <junit.jupiter.version>5.8.2</junit.jupiter.version>
 
         <frontend.plugin.version>1.11.3</frontend.plugin.version>
         <node.version>v12.16.3</node.version>
