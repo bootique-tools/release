@@ -21,7 +21,7 @@
         <mysql.jdbc.version>8.0.29</mysql.jdbc.version>
         <sqlite.version>3.36.0.3</sqlite.version>
 
-        <mockito.version>1.10.19</mockito.version>
+        <mockito.version>4.6.1</mockito.version>
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
 
         <frontend.plugin.version>1.11.3</frontend.plugin.version>
@@ -88,7 +88,7 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
+                <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
             </dependency>
         </dependencies>
@@ -162,7 +162,7 @@
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
