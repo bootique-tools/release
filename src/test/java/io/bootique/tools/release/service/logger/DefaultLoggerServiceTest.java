@@ -75,7 +75,7 @@ class DefaultLoggerServiceTest {
         }
 
         assertTrue(Files.exists(Paths.get(mockPreferenceService.get(LoggerService.LOGGER_BASE_PATH))));
-        Path loggerPath = Paths.get(mockPreferenceService.get(LoggerService.LOGGER_BASE_PATH), releaseDescriptor.getReleaseVersions().getReleaseVersion(), repository.getName());
+        Path loggerPath = Paths.get(mockPreferenceService.get(LoggerService.LOGGER_BASE_PATH), releaseDescriptor.getReleaseVersions().releaseVersion(), repository.getName());
         Path loggerReleasePath = loggerPath.resolve(Paths.get("release"));
         Path loggerRollbackPath = loggerPath.resolve(Paths.get("rollback"));
 

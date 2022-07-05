@@ -51,10 +51,10 @@ public class ReleasePrepareTask implements Function<Repository, String> {
                 "-P", "gpg",
                 "-DskipTests",
                 "-Dgpg.pinentry-mode=default",
-                "-Dbootique.version=" + releaseDescriptor.getReleaseVersions().getReleaseVersion(),
-                "-Dtag=" + releaseDescriptor.getReleaseVersions().getReleaseVersion(),
-                "-DreleaseVersion=" + releaseDescriptor.getReleaseVersions().getReleaseVersion(),
-                "-DdevelopmentVersion=" + releaseDescriptor.getReleaseVersions().getDevVersion(),
+                "-Dbootique.version=" + releaseDescriptor.getReleaseVersions().releaseVersion(),
+                "-Dtag=" + releaseDescriptor.getReleaseVersions().releaseVersion(),
+                "-DreleaseVersion=" + releaseDescriptor.getReleaseVersions().releaseVersion(),
+                "-DdevelopmentVersion=" + releaseDescriptor.getReleaseVersions().devVersion(),
                 // "-DdryRun=true"
         };
 

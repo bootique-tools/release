@@ -123,7 +123,7 @@ public class ReleaseExecutor implements ReleaseExecutorService {
         job.addListener(() -> {
             if (job.isDone()) {
                 var jobResult = job.getResults().get(job.getDone() - 1);
-                if (!(jobResult.getStatus() == BatchJobStatus.FAILURE || stageManager.isStageSyncCurrent(jobResult.getData()))) {
+                if (!(jobResult.status() == BatchJobStatus.FAILURE || stageManager.isStageSyncCurrent(jobResult.data()))) {
                     executeRelease();
                 }
             }

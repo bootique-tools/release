@@ -50,8 +50,8 @@ class BatchJobResultCallable<T, R> implements Callable<BatchJobResult<T, R>> {
     }
 
     private R getResultFromException(Exception ex) {
-        if(ex instanceof JobException) {
-            return ((JobException) ex).getResult();
+        if(ex instanceof JobException jex) {
+            return jex.getResult();
         } else {
             return null;
         }

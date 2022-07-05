@@ -56,7 +56,7 @@ public class RollbackMvnGitTask implements Function<Repository, String> {
 
             gitService.addAndCommit(repo);
 
-            gitService.deleteTag(repo, releaseDescriptor.getReleaseVersions().getReleaseVersion());
+            gitService.deleteTag(repo, releaseDescriptor.getReleaseVersions().releaseVersion());
             return "";
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);
@@ -65,24 +65,23 @@ public class RollbackMvnGitTask implements Function<Repository, String> {
 
     protected void rollbackPom(String repoName, ReleaseDescriptor releaseDescriptor) {
 
-        LOGGER.debug("Rollback from " + releaseDescriptor.getReleaseVersions().getDevVersion() + " to "
-                + releaseDescriptor.getReleaseVersions().getFromVersion());
+        LOGGER.debug("Rollback from " + releaseDescriptor.getReleaseVersions().devVersion() + " to "
+                + releaseDescriptor.getReleaseVersions().fromVersion());
         Path path = preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repoName);
-        try {
-            Files.walk(path)
-                    .filter(Files::isRegularFile)
+        try(Stream<Path> fileStream = Files.walk(path)) {
+            fileStream.filter(Files::isRegularFile)
                     .filter(name -> (name.getFileName().toString().equals("pom.xml") &&
                             !name.toString().contains(File.pathSeparator + "target" + File.pathSeparator)))
                     .forEach(filePath -> {
                         try (Stream<String> lines = Files.lines(filePath)) {
                             List<String> replaced = lines
                                     .map(line -> line.replaceAll("<version>" +
-                                                    releaseDescriptor.getReleaseVersions().getDevVersion() + "</version>",
-                                            "<version>" + releaseDescriptor.getReleaseVersions().getFromVersion() + "</version>")
+                                                    releaseDescriptor.getReleaseVersions().devVersion() + "</version>",
+                                            "<version>" + releaseDescriptor.getReleaseVersions().fromVersion() + "</version>")
                                     )
                                     .collect(Collectors.toList());
                             replaced.forEach(line -> {
-                                if (line.contains("<tag>" + releaseDescriptor.getReleaseVersions().getReleaseVersion() + "</tag>")) {
+                                if (line.contains("<tag>" + releaseDescriptor.getReleaseVersions().releaseVersion() + "</tag>")) {
                                     LOGGER.warn("Project: " + repoName + " contains tag with release version. Use manual mode to rollback this module.");
                                 }
                             });

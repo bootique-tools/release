@@ -31,21 +31,15 @@ public class RollbackExecutionLogger implements ExecutionLogger {
     @Override
     public String getLogs(RepositoryDescriptor repositoryDescriptor, ReleaseStage releaseStage) {
         try {
-            RollbackStage rollbackStage = RollbackStage.NO_ROLLBACK;
-
-            switch (releaseStage) {
-                case RELEASE_PREPARE: {
-                    rollbackStage = RollbackStage.ROLLBACK_MVN;
-                    break;
-                }
-                case RELEASE_PERFORM: {
-                    rollbackStage = RollbackStage.ROLLBACK_SONATYPE;
-                }
-            }
+            RollbackStage rollbackStage = switch (releaseStage) {
+                case RELEASE_PREPARE -> RollbackStage.ROLLBACK_MVN;
+                case RELEASE_PERFORM -> RollbackStage.ROLLBACK_SONATYPE;
+                default              -> RollbackStage.NO_ROLLBACK;
+            };
             var fileAppender = getFileAppender(repositoryDescriptor, rollbackStage);
             return String.join("\n", Files.readAllLines(Path.of(fileAppender.getFile())));
         } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
+            LOGGER.warn("Unable to get logs for the stage " + releaseStage, e);
         }
         return "";
     }
@@ -64,7 +58,7 @@ public class RollbackExecutionLogger implements ExecutionLogger {
         return loggerService
                 .getMultiAppender()
                 .getAppenderMap()
-                .get(Arrays.asList(releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().getReleaseVersion(),
+                .get(Arrays.asList(releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().releaseVersion(),
                         repositoryDescriptor.getRepositoryName(), "rollback", rollbackStage.toString())
                 );
     }

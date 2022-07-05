@@ -22,15 +22,8 @@ public class ReleaseStatusMsg {
 
     public void setMsg(String msg) {
         switch (msg) {
-            case "Done":
-                this.color = "green";
-                break;
-            case "Process" :
-                this.color = "green";
-                break;
-            case "Wait" :
-                this.color = "red";
-                break;
+            case "Done", "Process" -> this.color = "green";
+            case "Wait"            -> this.color = "red";
         }
         this.msg = msg;
     }

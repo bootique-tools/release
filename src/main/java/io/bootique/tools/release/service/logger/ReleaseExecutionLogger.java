@@ -50,7 +50,7 @@ public class ReleaseExecutionLogger implements ExecutionLogger {
         return loggerService
                 .getMultiAppender()
                 .getAppenderMap()
-                .get(Arrays.asList(releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().getReleaseVersion(),
+                .get(Arrays.asList(releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().releaseVersion(),
                         repositoryDescriptor.getRepositoryName(), "release", releaseStage.toString())
                 );
     }

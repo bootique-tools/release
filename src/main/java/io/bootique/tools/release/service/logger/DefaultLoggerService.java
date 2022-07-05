@@ -23,7 +23,7 @@ public class DefaultLoggerService implements LoggerService {
         if (multiAppender == null) {
             multiAppender = (MultiAppender) LOGGER.getAppender("multiAppender");
             multiAppender.createAppenderMap(releaseDescriptor, preferenceService.get(LoggerService.LOGGER_BASE_PATH));
-            this.releaseVersion = releaseDescriptor.getReleaseVersions().getReleaseVersion();
+            this.releaseVersion = releaseDescriptor.getReleaseVersions().releaseVersion();
         }
     }
 

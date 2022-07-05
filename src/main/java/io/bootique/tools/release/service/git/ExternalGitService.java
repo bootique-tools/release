@@ -69,7 +69,7 @@ public class ExternalGitService implements GitService {
         Path target = getBasePathOrThrow().resolve(repository.getName());
         desktopService.runCommand(target, "git", "add", ".");
         desktopService.runCommand(target, "git", "commit", "-m", "rollback the release of "
-                + releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().getReleaseVersion());
+                + releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().releaseVersion());
         desktopService.runCommand(target, "git", "push", "origin", "master");
     }
 

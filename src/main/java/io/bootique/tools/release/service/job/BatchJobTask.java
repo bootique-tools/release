@@ -10,8 +10,8 @@ public class BatchJobTask<T> extends FutureTask<T> {
 
     public BatchJobTask(Callable<T> callable) {
         super(callable);
-        if(callable instanceof BatchJobResultCallable) {
-            data = ((BatchJobResultCallable<?, ?>) callable).getData();
+        if(callable instanceof BatchJobResultCallable jobResult) {
+            data = jobResult.getData();
         } else {
             throw new RuntimeException("BatchJobResultCallable expected, got " + callable);
         }

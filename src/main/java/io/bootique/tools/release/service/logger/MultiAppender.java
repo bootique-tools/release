@@ -55,12 +55,12 @@ public class MultiAppender extends AppenderBase<ILoggingEvent> {
                     continue;
                 }
 
-                String logFile = loggerPath + File.separator + releaseDescriptor.getReleaseVersions().getReleaseVersion() + File.separator +
+                String logFile = loggerPath + File.separator + releaseDescriptor.getReleaseVersions().releaseVersion() + File.separator +
                         repositoryDescriptor.getRepositoryName() + File.separator +
                         "release" + File.separator +
                         releaseStage + ".log";
 
-                appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersions().getReleaseVersion(),
+                appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersions().releaseVersion(),
                         repositoryDescriptor.getRepositoryName(),
                         "release", String.valueOf(releaseStage)), createAppender(logFile, ple, repositoryDescriptor.getRepositoryName()));
             }
@@ -69,11 +69,11 @@ public class MultiAppender extends AppenderBase<ILoggingEvent> {
                 if (rollbackStage == RollbackStage.NO_ROLLBACK) {
                     continue;
                 }
-                String logFile = loggerPath + File.separator + releaseDescriptor.getReleaseVersions().getReleaseVersion() + File.separator +
+                String logFile = loggerPath + File.separator + releaseDescriptor.getReleaseVersions().releaseVersion() + File.separator +
                         repositoryDescriptor.getRepositoryName() + File.separator +
                         "rollback" + File.separator +
                         rollbackStage + ".log";
-                appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersions().getReleaseVersion(),
+                appenderMap.put(Arrays.asList(releaseDescriptor.getReleaseVersions().releaseVersion(),
                         repositoryDescriptor.getRepositoryName(),
                         "rollback", String.valueOf(rollbackStage)), createAppender(logFile, ple, repositoryDescriptor.getRepositoryName()));
             }

@@ -36,9 +36,9 @@ public class ReleasePersistentServiceImpl implements ReleasePersistentService {
 
         ReleaseDescriptor releaseDescriptor = releaseDescriptorService.getReleaseDescriptor();
 
-        Path path = Paths.get(preferences.get(SAVE_PATH), releaseDescriptor.getReleaseVersions().getReleaseVersion());
+        Path path = Paths.get(preferences.get(SAVE_PATH), releaseDescriptor.getReleaseVersions().releaseVersion());
         Path lockPath = Paths.get(preferences.get(SAVE_PATH), "lock.txt");
-        Path pathFile = path.resolve(releaseDescriptor.getReleaseVersions().getReleaseVersion() + ".json");
+        Path pathFile = path.resolve(releaseDescriptor.getReleaseVersions().releaseVersion() + ".json");
         try {
             if (!Files.exists(path)) {
                 Files.createDirectories(path);
@@ -46,7 +46,7 @@ public class ReleasePersistentServiceImpl implements ReleasePersistentService {
             if (!Files.exists(lockPath)) {
                 Files.createFile(lockPath);
             }
-            Files.write(lockPath, releaseDescriptor.getReleaseVersions().getReleaseVersion().getBytes());
+            Files.write(lockPath, releaseDescriptor.getReleaseVersions().releaseVersion().getBytes());
             if (!Files.exists(pathFile)) {
                 Files.createFile(pathFile);
             }

@@ -52,8 +52,8 @@ class DefaultBatchJobServiceTest {
         List<BatchJobResult<String, Void>> resultList = job.getResults();
         assertEquals(4, resultList.size());
         resultList.forEach(r -> {
-            assertTrue(r.getData().contains("str"));
-            assertEquals(BatchJobStatus.SUCCESS, r.getStatus());
+            assertTrue(r.data().contains("str"));
+            assertEquals(BatchJobStatus.SUCCESS, r.status());
         });
     }
 }
