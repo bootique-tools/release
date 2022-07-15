@@ -182,7 +182,7 @@ export const releaseBaseMethods = {
         additionalMethod: function (currApp) {
             let versionSet = new Set();
             for (let i = 0; i < currApp.allItems.data.length; i++) {
-                versionSet.add(currApp.allItems.data[i].rootModule.version);
+                versionSet.add(currApp.allItems.data[i].version);
                 currApp.allItems.data[i].disable = true;
             }
             currApp.versions = Array.from(versionSet);

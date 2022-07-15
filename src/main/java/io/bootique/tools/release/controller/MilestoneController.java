@@ -41,7 +41,7 @@ public class MilestoneController extends BaseJobController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
-        return fetchProjects("[\"repository\",\"modules\",\"rootModule\",\"repository.milestones.openIssues\"," +
+        return fetchProjects("[\"repository\",\"repository.milestones.openIssues\"," +
                 "{\"path\":\"repository.milestones\",\"exp\":\"state like 'OPEN'\"}]");
     }
 
