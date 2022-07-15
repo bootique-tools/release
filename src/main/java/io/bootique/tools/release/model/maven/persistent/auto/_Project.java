@@ -12,7 +12,6 @@ import org.apache.cayenne.exp.property.ListProperty;
 import org.apache.cayenne.exp.property.PropertyFactory;
 import org.apache.cayenne.exp.property.StringProperty;
 
-import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
 
@@ -30,22 +29,20 @@ public abstract class _Project extends BaseDataObject {
 
     public static final StringProperty<String> BRANCH_NAME = PropertyFactory.createString("branchName", String.class);
     public static final BaseProperty<Boolean> DISABLE = PropertyFactory.createBase("disable", Boolean.class);
+    public static final StringProperty<String> GROUP_STR = PropertyFactory.createString("groupStr", String.class);
     public static final StringProperty<String> PATH_STR = PropertyFactory.createString("pathStr", String.class);
     public static final StringProperty<String> VERSION = PropertyFactory.createString("version", String.class);
     public static final ListProperty<Project> DEPENDENCIES = PropertyFactory.createList("dependencies", Project.class);
-    public static final ListProperty<Module> MODULES = PropertyFactory.createList("modules", Module.class);
     public static final EntityProperty<Repository> REPOSITORY = PropertyFactory.createEntity("repository", Repository.class);
-    public static final EntityProperty<Module> ROOT_MODULE = PropertyFactory.createEntity("rootModule", Module.class);
 
     protected String branchName;
     protected Boolean disable;
+    protected String groupStr;
     protected String pathStr;
     protected String version;
 
     protected Object dependencies;
-    protected Object modules;
     protected Object repository;
-    protected Object rootModule;
 
     public void setBranchName(String branchName) {
         beforePropertyWrite("branchName", this.branchName, branchName);
@@ -68,6 +65,16 @@ public abstract class _Project extends BaseDataObject {
             return false;
         }
         return this.disable;
+    }
+
+    public void setGroupStr(String groupStr) {
+        beforePropertyWrite("groupStr", this.groupStr, groupStr);
+        this.groupStr = groupStr;
+    }
+
+    public String getGroupStr() {
+        beforePropertyRead("groupStr");
+        return this.groupStr;
     }
 
     public void setPathStr(String pathStr) {
@@ -103,33 +110,12 @@ public abstract class _Project extends BaseDataObject {
         return (List<Project>)readProperty("dependencies");
     }
 
-    public void addToModules(Module obj) {
-        addToManyTarget("modules", obj, true);
-    }
-
-    public void removeFromModules(Module obj) {
-        removeToManyTarget("modules", obj, true);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Module> getModules() {
-        return (List<Module>)readProperty("modules");
-    }
-
     public void setRepository(Repository repository) {
         setToOneTarget("repository", repository, true);
     }
 
     public Repository getRepository() {
         return (Repository)readProperty("repository");
-    }
-
-    public void setRootModule(Module rootModule) {
-        setToOneTarget("rootModule", rootModule, true);
-    }
-
-    public Module getRootModule() {
-        return (Module)readProperty("rootModule");
     }
 
     @Override
@@ -143,18 +129,16 @@ public abstract class _Project extends BaseDataObject {
                 return this.branchName;
             case "disable":
                 return this.disable;
+            case "groupStr":
+                return this.groupStr;
             case "pathStr":
                 return this.pathStr;
             case "version":
                 return this.version;
             case "dependencies":
                 return this.dependencies;
-            case "modules":
-                return this.modules;
             case "repository":
                 return this.repository;
-            case "rootModule":
-                return this.rootModule;
             default:
                 return super.readPropertyDirectly(propName);
         }
@@ -173,6 +157,9 @@ public abstract class _Project extends BaseDataObject {
             case "disable":
                 this.disable = (Boolean)val;
                 break;
+            case "groupStr":
+                this.groupStr = (String)val;
+                break;
             case "pathStr":
                 this.pathStr = (String)val;
                 break;
@@ -182,14 +169,8 @@ public abstract class _Project extends BaseDataObject {
             case "dependencies":
                 this.dependencies = val;
                 break;
-            case "modules":
-                this.modules = val;
-                break;
             case "repository":
                 this.repository = val;
-                break;
-            case "rootModule":
-                this.rootModule = val;
                 break;
             default:
                 super.writePropertyDirectly(propName, val);
@@ -209,12 +190,11 @@ public abstract class _Project extends BaseDataObject {
         super.writeState(out);
         out.writeObject(this.branchName);
         out.writeObject(this.disable);
+        out.writeObject(this.groupStr);
         out.writeObject(this.pathStr);
         out.writeObject(this.version);
         out.writeObject(this.dependencies);
-        out.writeObject(this.modules);
         out.writeObject(this.repository);
-        out.writeObject(this.rootModule);
     }
 
     @Override
@@ -222,12 +202,11 @@ public abstract class _Project extends BaseDataObject {
         super.readState(in);
         this.branchName = (String)in.readObject();
         this.disable = (Boolean)in.readObject();
+        this.groupStr = (String)in.readObject();
         this.pathStr = (String)in.readObject();
         this.version = (String)in.readObject();
         this.dependencies = in.readObject();
-        this.modules = in.readObject();
         this.repository = in.readObject();
-        this.rootModule = in.readObject();
     }
 
 }
