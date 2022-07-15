@@ -1,6 +1,6 @@
 package io.bootique.tools.release.service.tasks;
 
-import io.bootique.tools.release.model.maven.persistent.Module;
+
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
@@ -50,7 +50,8 @@ class RollbackMvnGitTaskTest {
 
         Repository repository = context.newObject(Repository.class);
         repository.setName("");
-        project = new Project(repository, Paths.get(""), new Module());
+        project = new Project();
+        project.setRepository(repository);
 
         ReleaseDescriptorServiceImpl releaseDescriptorService = new ReleaseDescriptorServiceImpl(null);
         releaseDescriptorService.setRepositoryDescriptorService(new RepositoryDescriptorServiceImpl());

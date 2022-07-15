@@ -1,15 +1,14 @@
 package io.bootique.tools.release.service.maven;
 
-import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.maven.persistent.ModuleDependency;
-import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import io.bootique.tools.release.util.CopyDirVisitor;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -23,6 +22,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,36 +42,75 @@ class DefaultMavenServiceTest {
         service = new DefaultMavenService(mockPreferenceService);
     }
 
+
     @Test
-    @DisplayName("Resolve root module test")
-    void resolveRootModule() {
-        Module module = service.resolveModule(Paths.get("."));
-        assertNotNull(module);
-        assertEquals("io.bootique.tools", module.getGroupStr());
-        assertEquals("release", module.getGithubId());
-        assertEquals("1.0-SNAPSHOT", module.getVersion());
-        assertTrue(module.getDependencies().isEmpty());
+    void isMavenProjectTest () {
+        File file = new File("src/test/resources/bootique");
+        Path path = file.toPath();
+        Repository repository = context.newObject(Repository.class);
+        mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
+        repository.setName("bootique");
+        boolean mavenProject = service.isMavenProject(repository);
+        assertTrue(mavenProject);
     }
 
     @Test
-    @DisplayName("Get set of modules test")
-    void testSetOfModules(@TempDir Path destPath) throws IOException {
-        Path srcPath = Paths.get("src" + File.separator + "test" + File.separator + "resources" + File.separator + "bootique");
-        Files.walkFileTree(srcPath, new CopyDirVisitor(srcPath, destPath, StandardCopyOption.REPLACE_EXISTING));
-        mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, destPath);
-        Module rootModule = service.resolveModule(destPath);
-        rootModule.setObjectContext(context);
-        List<Module> moduleList = service.getModules(rootModule, destPath);
-        assertEquals(5, moduleList.size());
-        List<String> names = Arrays.asList("bootique-framework-parent", "bootique",
-                "bootique-test", "bootique-test-badspi-it", "bootique-curator");
-        for(Module module : moduleList) {
-            assertTrue(module.getGroupStr().startsWith("io.bootique"));
-            assertEquals("0.26-SNAPSHOT", module.getVersion());
-            assertTrue(names.contains(module.getGithubId()));
-        }
+    void getProjectPathTest(@TempDir Path path) {
+        Repository repository = context.newObject(Repository.class);
+        mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
+        repository.setName("test");
+        Path projectPath = service.getProjectPath(repository);
+        assertEquals(path + File.separator + repository.getName(), projectPath.toString());
     }
 
+    @Test
+    void getMavenCoordinatesTest() {
+        File file = new File("src/test/resources/bootique");
+        Path path = file.toPath();
+        MavenCoordinates mavenCoordinates = service.getMavenCoordinates(path);
+        assertEquals("io.bootique", mavenCoordinates.getGroupId());
+        assertEquals("bootique-framework-parent", mavenCoordinates.getArtifactId());
+        assertEquals("0.26-SNAPSHOT", mavenCoordinates.getVersion());
+    }
+
+    @Test
+    void getDependenciesGroupIdsTest() {
+        File file = new File("src/test/resources/bootique");
+        Path path = file.toPath();
+        Project project = new Project();
+        project.setPath(path);
+        Set<String> dependenciesGroupIds = service.getDependenciesGroupIds(project);
+        assertEquals(12, dependenciesGroupIds.size());
+    }
+
+//    @Test
+//    void syncDependencies() {
+//        File file = new File("src/test/resources/mavenServiceTestProject");
+//        Path path = file.toPath();
+//        Project project = new Project();
+//        project.setPath(path);
+//        project.setGroupStr(service.getMavenCoordinates(new File("src/test/resources/mavenServiceTestProject").toPath()).getGroupId());
+//
+//
+//        Project dependencyProject1 = new Project();
+//        dependencyProject1.setGroupStr(service.getMavenCoordinates(new File("src/test/resources/mavenServiceTestProject/project1").toPath()).getGroupId());
+//
+//        Project dependencyProject2 = new Project();
+//        dependencyProject2.setGroupStr(service.getMavenCoordinates(new File("src/test/resources/mavenServiceTestProject/project2").toPath()).getGroupId());
+//
+//        project.addToDependencies(dependencyProject1);
+//
+//        ArrayList<Project> projects = new ArrayList<>();
+//        projects.add(dependencyProject1);
+//        projects.add(dependencyProject2);
+//
+//        service.syncDependencies(project, projects);
+//        assertEquals("", "");
+//
+//    }
+
+
+    @Disabled
     @Test
     @DisplayName("Create project test")
     void createProject(@TempDir Path path) throws IOException {
@@ -81,16 +120,18 @@ class DefaultMavenServiceTest {
         Files.walkFileTree(preparePom, new CopyDirVisitor(preparePom, path, StandardCopyOption.REPLACE_EXISTING));
         Repository repository = context.newObject(Repository.class);
         repository.setName("bootique");
-        Project project = service.createProject(repository);
+        Project project = service.createOrUpdateProject(repository);
+
+
         assertNotNull(project);
-        assertEquals(5, project.getModules().size());
+        assertEquals(5, project.getDependencies().size());
 
         List<String> names = Arrays.asList("bootique-framework-parent", "bootique",
                 "bootique-test", "bootique-test-badspi-it", "bootique-curator");
-        for(Module module : project.getModules()) {
-            assertTrue(module.getGroupStr().startsWith("io.bootique"));
-            assertEquals("0.26-SNAPSHOT", module.getVersion());
-            assertTrue(names.contains(module.getGithubId()));
+        for (Project p : project.getDependencies()) {
+            assertTrue(p.getGroupStr().startsWith("io.bootique"));
+            assertEquals("0.26-SNAPSHOT", p.getVersion());
+            assertTrue(names.contains(p.getGroupStr()));
         }
     }
 
