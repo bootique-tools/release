@@ -1,6 +1,6 @@
 package io.bootique.tools.release.service.tasks;
 
-import io.bootique.tools.release.model.maven.persistent.Module;
+
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseVersions;
@@ -15,6 +15,7 @@ import io.bootique.tools.release.service.release.descriptors.repository.Reposito
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 
+@Disabled
 class ReleaseSonatypeSyncTaskTest {
 
     private final MockPreferenceService mockPreferenceService = new MockPreferenceService();
@@ -36,6 +38,7 @@ class ReleaseSonatypeSyncTaskTest {
     ReleaseSonatypeSyncTask releaseSonatypeSyncTask;
     Project project;
 
+    /*
     @BeforeEach
     void setUp(@TempDir Path path) {
 
@@ -62,7 +65,7 @@ class ReleaseSonatypeSyncTaskTest {
         releaseSonatypeSyncTask.logger = mock(LoggerService.class);
         releaseSonatypeSyncTask.mavenService = new DefaultMavenService(mockPreferenceService);
     }
-
+*/
     @Test
     void runWithoutPom() {
         ServerRuntime cayenneRuntime = ServerRuntime.builder()

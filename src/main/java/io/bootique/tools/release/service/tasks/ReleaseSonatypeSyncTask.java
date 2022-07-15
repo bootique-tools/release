@@ -22,6 +22,11 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * @deprecated need to be refactoring for new model of project. After removing module entity (and rootModule from project),
+ * the is no gitHubId property for query.
+ */
+@Deprecated
 public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
 
     @Inject
@@ -49,7 +54,7 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
             throw new JobException("NO_POM", "No pom.xml for repo " + repo);
         }
         Path repoPath = preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName());
-        StagingRepo stagingRepo = getStagingRepo(repoPath,repo);
+        StagingRepo stagingRepo = getStagingRepo(repoPath, repo);
 
         if (stagingRepo.state == RepoState.UNKNOWN) {
             throw new JobException("STAGING_REPO_UNKNOWN_STATE", "Staging repo is in unknown or unsupported state." +
@@ -75,6 +80,7 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
         stagingPlugin(localRepoPath, "rc-release", "-DstagingRepositoryId=" + remoteRepo.getId());
     }
 
+    //TODO need to be refactoring
     protected StagingRepo getStagingRepo(Path repoPath, Repository repo) {
         List<StagingRepo> repos = getStagingRepoList(repoPath);
 
@@ -83,10 +89,13 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
             Project project = ObjectSelect.query(Project.class)
                     .where(Project.REPOSITORY.dot(Repository.NAME).eq(repo.getName()))
                     .selectOne(context);
-            String projectDescription = project.getRootModule().getGroupStr()
-                    + ":" + project.getRootModule().getGithubId()
+
+
+            String projectDescription = project.getGroupStr()
+                    //+ ":" + project.getRootModule().getGithubId()
+                    + ":" + project.getGroupStr()
                     + ":" + releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().releaseVersion();
-           return getRepoFromList(repos, repo, projectDescription);
+            return getRepoFromList(repos, repo, projectDescription);
 
         } else {
             return repos.get(0);

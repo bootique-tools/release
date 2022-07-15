@@ -12,6 +12,11 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * @deprecated need to be refactoring for new model of project. After removing module entity (and rootModule from project),
+ * the is no gitHubId property for query.
+ */
+@Deprecated
 public class DefaultMvnCentralService implements MvnCentralService {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(DefaultMvnCentralService.class);
@@ -26,9 +31,11 @@ public class DefaultMvnCentralService implements MvnCentralService {
                     .newTarget("mvncentral")
                     .path("/solrsearch/select")
                     .queryParam("q", "g:%22"
-                            + project.getRootModule().getGroupStr()
+                            + project.getGroupStr()
                             + "%22 AND a:%22"
-                            + project.getRootModule().getGithubId()
+                            //TODO need to be refactoring
+                            //   + project.getRootModule().getGithubId()
+                            + project.getGroupStr()
                             + "%22 AND v:%22"
                             + version
                             + "%22")
