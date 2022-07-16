@@ -77,6 +77,7 @@ public class BranchesController extends BaseJobController {
             try {
                 gitService.checkoutBranch(project.getRepository(), branch);
                 project.setBranchName(branch);
+                mavenService.createOrUpdateProject(project.getRepository());
                 project.getObjectContext().commitChanges();
                 return "";
             } catch (DesktopException ex) {
