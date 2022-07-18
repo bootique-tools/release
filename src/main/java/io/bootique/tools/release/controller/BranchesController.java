@@ -33,7 +33,7 @@ public class BranchesController extends BaseJobController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
-        return fetchProjects("[\"repository\",\"rootModule\"]");
+        return fetchProjects("[\"repository\"]");
     }
 
     @GET
@@ -77,6 +77,7 @@ public class BranchesController extends BaseJobController {
             try {
                 gitService.checkoutBranch(project.getRepository(), branch);
                 project.setBranchName(branch);
+                mavenService.createOrUpdateProject(project.getRepository());
                 project.getObjectContext().commitChanges();
                 return "";
             } catch (DesktopException ex) {

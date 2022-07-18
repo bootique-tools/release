@@ -19,7 +19,7 @@
 
                 <tr v-for="project in allItems.data">
                     <td>[[project.repository.name]]</td>
-                    <td>[[project.rootModule.version]]</td>
+                    <td>[[project.version]]</td>
                     <td>
                         <ul>
                             <li v-for="dependency in project.dependencies">

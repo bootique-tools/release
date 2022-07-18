@@ -50,7 +50,7 @@
                                 <label v-else>Repository = null</label>
                             </td>
                             <td>
-                                [[module.rootModule.version]]
+                                [[module.version]]
                             </td>
                             <td>
                                 <ul>
@@ -69,10 +69,10 @@
                                 [[statusMap.get(module)]]
                             </td>
                             <td>
-                                <button v-if="errorMap.get(module)" class="btn btn-sm btn-outline-primary btn-verify-results" data-toggle="modal" :data-target="'.verify-result-' + module.rootModule.githubId">
+                                <button v-if="errorMap.get(module)" class="btn btn-sm btn-outline-primary btn-verify-results" data-toggle="modal" :data-target="'.verify-result-' + module.groupStr">
                                     <i class="far fa-eye"></i>
                                 </button>
-                                <div v-bind:class="'modal fade verify-result-' + module.rootModule.githubId" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div v-bind:class="'modal fade verify-result-' + module.groupStr" tabindex="-1" role="dialog" aria-hidden="true">
                                     <div class="modal-dialog modal-lg">
                                         <div class="modal-content p-2 m-2">
                                             <pre><code>[[errorMap.get(module)]]</code></pre>

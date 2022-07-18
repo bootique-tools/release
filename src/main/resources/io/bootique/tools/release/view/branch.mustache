@@ -30,31 +30,14 @@
                             <th>Module</th>
                             <th>Version</th>
                             <th>Current branch</th>
-                            <th>Status</th>
-                            <th>Result</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr v-for="module in allItems.data">
                             <td><input type="checkbox" v-bind:id="module.repository.name" v-bind:value="module.repository.name"  v-model.lazy="selectedModules"></td>
                             <td><label v-bind:for="module.repository.name"><a v-bind:href="module.repository.url" target="_blank">[[module.repository.name]]</a></label></td>
-                            <td>[[module.rootModule.version]]</td>
+                            <td>[[module.version]]</td>
                             <td>[[module.branchName]]</td>
-                            <td>
-                                [[statusMap.get(module)]]
-                            </td>
-                            <td>
-                                <button v-if="errorMap.get(module)" class="btn btn-sm btn-outline-primary btn-verify-results" data-toggle="modal" :data-target="'.verify-result-' + module.rootModule.githubId">
-                                    <i class="far fa-eye"></i>
-                                </button>
-                                <div v-bind:class="'modal fade verify-result-' + module.rootModule.githubId" tabindex="-1" role="dialog" aria-hidden="true">
-                                    <div class="modal-dialog modal-lg">
-                                        <div class="modal-content p-2 m-2">
-                                            <pre><code>[[errorMap.get(module)]]</code></pre>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
                         </tr>
                         </tbody>
                     </table>

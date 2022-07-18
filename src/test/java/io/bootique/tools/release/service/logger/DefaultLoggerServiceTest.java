@@ -1,7 +1,6 @@
 package io.bootique.tools.release.service.logger;
 
 import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.maven.persistent.Module;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.*;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
@@ -29,7 +28,7 @@ class DefaultLoggerServiceTest {
     private ReleaseDescriptor releaseDescriptor;
     private Repository repository;
 
-    @BeforeEach
+ /*   @BeforeEach
     void createService(@TempDir Path tempDirectory) {
         Path path = tempDirectory.resolve(Paths.get("release-status" + File.separator + "logs"));
         mockPreferenceService.set(LoggerService.LOGGER_BASE_PATH, path.toString());
@@ -47,7 +46,7 @@ class DefaultLoggerServiceTest {
         releaseDescriptor = new ReleaseDescriptor(
                 new ReleaseVersions("1-SNAPSHOT", "1", "2-SNAPSHOT"), repositoryDescriptorList);
 
-    }
+    }*/
 
     /*
     The test is disabled due to the fact that the configuration of the logger has been changed.

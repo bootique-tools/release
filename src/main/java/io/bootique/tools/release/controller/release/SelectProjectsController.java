@@ -41,14 +41,14 @@ public class SelectProjectsController extends BaseController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showAll() {
-        return fetchProjects("[\"repository\",\"rootModule\",\"dependencies.repository\"]");
+        return fetchProjects("[\"repository\",\"dependencies.repository\"]");
     }
 
     @GET
     @Path("show-projects")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Project> showProjects(@QueryParam("version") String version) {
-        DataResponse<Project> projectDataResponse = fetchProjects("[\"dependencies\",\"repository\",\"rootModule\"]");
+        DataResponse<Project> projectDataResponse = fetchProjects("[\"dependencies\",\"repository\"]");
 
         projectDataResponse.getObjects().forEach(project -> {
             project.setDisable(true);
@@ -70,7 +70,7 @@ public class SelectProjectsController extends BaseController {
                                                 @QueryParam("state") boolean state) throws IOException {
         @SuppressWarnings("unchecked")
         List<String> selectedProjects = objectMapper.readValue(selected, List.class);
-        DataResponse<Project> allProjects = fetchProjects("[\"repository\",\"rootModule\",\"rootModule.dependencies\"]");
+        DataResponse<Project> allProjects = fetchProjects("[\"repository\"]");
         List<Project> selectedProjectsResp = allProjects.getObjects().stream()
                 .filter(project -> selectedProjects.contains(project.getRepository().getName()) && project.getVersion().equals(version))
                 .collect(Collectors.toList());
@@ -88,7 +88,7 @@ public class SelectProjectsController extends BaseController {
         allProjects.forEach(project -> {
             if (state && !selectedProjectsResp.contains(project)) {
                 currentProject.getDependencies().forEach(dependency -> {
-                    if (dependency.getRootModule().equals(project.getRootModule())
+                    if (dependency.getGroupStr().equals(project.getGroupStr())
                             && dependency.getVersion().equals(currentProject.getVersion())) {
                         selectedProjectsResp.add(project);
                         buildOrder(selectedProjectsResp, true, project, allProjects);
@@ -96,7 +96,7 @@ public class SelectProjectsController extends BaseController {
                 });
             } else if (!state && selectedProjectsResp.contains(project)) {
                 project.getDependencies().forEach(dependency -> {
-                    if (dependency.getRootModule().equals(currentProject.getRootModule())
+                    if (dependency.getGroupStr().equals(currentProject.getGroupStr())
                             && dependency.getVersion().equals(project.getVersion())) {
                         selectedProjectsResp.remove(project);
                         buildOrder(selectedProjectsResp, false, project, allProjects);

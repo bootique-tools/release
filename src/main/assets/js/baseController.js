@@ -128,35 +128,35 @@ export const defaultBaseMethods = {
     },
     methods: {
         disableStartButton: function () {
-            this.showButton = !(this.selectedModules.length !== 0 && sessionStorage.showProcess == null);
+            this.showButton = !(this.selectedModules.length !== 0 /*&& sessionStorage.showProcess == null*/);
         },
         checkStatus: function () {
-            let currApp = this;
-            let intervalCheck = setInterval(function () {
-                axios.get(`/ui/release/process/status`)
-                    .then(function (response) {
-                        currApp.progress = response.data.percent;
-                        if (currApp.allItems != null) {
-                            for (let i = 0; i < currApp.allItems.data.length; i++) {
-                                for (let j = 0; j < response.data.results.length; j++) {
-                                    if (currApp.allItems.data[i].repository.name === response.data.results[j].data.repository.name) {
-                                        currApp.allItems.data[i] = response.data.results[j].data;
-                                        currApp.statusMap.set(currApp.allItems.data[i], response.data.results[j].status);
-                                        currApp.errorMap.set(currApp.allItems.data[i], response.data.results[j].result);
-                                    }
-                                }
-                            }
-                        }
-                        if (currApp.progress === 100) {
-                            clearInterval(intervalCheck);
-                            window.sessionStorage.removeItem('showProcess');
-                        }
-                    })
-                    .catch(function () {
-                        console.log("Error in checking status.");
-                        window.sessionStorage.removeItem('showProcess');
-                    })
-            }, 100);
+            // let currApp = this;
+            // let intervalCheck = setInterval(function () {
+            //     axios.get(`/ui/release/process/status`)
+            //         .then(function (response) {
+            //             currApp.progress = response.data.percent;
+            //             if (currApp.allItems != null) {
+            //                 for (let i = 0; i < currApp.allItems.data.length; i++) {
+            //                     for (let j = 0; j < response.data.results.length; j++) {
+            //                         if (currApp.allItems.data[i].repository.name === response.data.results[j].data.repository.name) {
+            //                             currApp.allItems.data[i] = response.data.results[j].data;
+            //                             currApp.statusMap.set(currApp.allItems.data[i], response.data.results[j].status);
+            //                             currApp.errorMap.set(currApp.allItems.data[i], response.data.results[j].result);
+            //                         }
+            //                     }
+            //                 }
+            //             }
+            //             if (currApp.progress === 100) {
+            //                 clearInterval(intervalCheck);
+            //                 window.sessionStorage.removeItem('showProcess');
+            //             }
+            //         })
+            //         .catch(function () {
+            //             console.log("Error in checking status.");
+            //             window.sessionStorage.removeItem('showProcess');
+            //         })
+            // }, 100);
         },
     }
 }
@@ -182,7 +182,7 @@ export const releaseBaseMethods = {
         additionalMethod: function (currApp) {
             let versionSet = new Set();
             for (let i = 0; i < currApp.allItems.data.length; i++) {
-                versionSet.add(currApp.allItems.data[i].rootModule.version);
+                versionSet.add(currApp.allItems.data[i].version);
                 currApp.allItems.data[i].disable = true;
             }
             currApp.versions = Array.from(versionSet);

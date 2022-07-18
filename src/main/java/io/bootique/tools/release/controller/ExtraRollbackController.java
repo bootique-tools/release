@@ -17,6 +17,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * @deprecated need to be refactoring for new model of project. After removing module entity (and rootModule from project),
+ * the is no gitHubId property for query.
+ */
+@Deprecated
 @Path("/extra-rollback")
 public class ExtraRollbackController extends BaseController {
 
