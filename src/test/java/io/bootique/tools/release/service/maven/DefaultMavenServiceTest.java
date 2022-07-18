@@ -129,9 +129,9 @@ class DefaultMavenServiceTest {
         List<String> names = Arrays.asList("bootique-framework-parent", "bootique",
                 "bootique-test", "bootique-test-badspi-it", "bootique-curator");
         for (Project p : project.getDependencies()) {
-            assertTrue(p.getGroupStr().startsWith("io.bootique"));
+            assertTrue(p.getGroupId().startsWith("io.bootique"));
             assertEquals("0.26-SNAPSHOT", p.getVersion());
-            assertTrue(names.contains(p.getGroupStr()));
+            assertTrue(names.contains(p.getGroupId()));
         }
     }
 

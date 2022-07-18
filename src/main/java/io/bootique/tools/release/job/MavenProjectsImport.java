@@ -5,7 +5,6 @@ import io.bootique.job.JobMetadata;
 import io.bootique.job.runnable.JobResult;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.persistent.auto._Repository;
 import io.bootique.tools.release.service.maven.MavenService;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
@@ -40,9 +39,9 @@ public class MavenProjectsImport extends BaseJob {
         ObjectContext context = cayenneRuntimeProvider.get().newContext();
 
         List<Repository> repositories = ObjectSelect.query(Repository.class)
-                .where(_Repository.UPSTREAM.isFalse())
+                .where(Repository.UPSTREAM.isFalse())
                 .select(context);
-        if(repositories.isEmpty()) {
+        if (repositories.isEmpty()) {
             LOGGER.info("No repositories yet, return.");
             return JobResult.success(getMetadata());
         }
@@ -50,6 +49,7 @@ public class MavenProjectsImport extends BaseJob {
         // sync Maven projects with repositories
         List<Project> createdProjects = syncProjects(repositories);
         context.commitChanges();
+
         syncDependencies(createdProjects);
         context.commitChanges();
 
@@ -59,18 +59,16 @@ public class MavenProjectsImport extends BaseJob {
     }
 
     private void syncDependencies(List<Project> projects) {
-        for (Project project : projects) {
-            mavenService.syncDependencies(project, projects);
-        }
+        projects.forEach(mavenService::syncDependencies);
     }
 
     private List<Project> syncProjects(List<Repository> repositories) {
         List<Project> createdProjects = new ArrayList<>();
-        for(Repository repo : repositories) {
-            if(!mavenService.isMavenProject(repo)) {
+        for (Repository repo : repositories) {
+            if (!mavenService.isMavenProject(repo)) {
                 continue;
             }
-            Project project = mavenService.createOrUpdateProject( repo);
+            Project project = mavenService.createOrUpdateProject(repo);
             createdProjects.add(project);
         }
         return createdProjects;

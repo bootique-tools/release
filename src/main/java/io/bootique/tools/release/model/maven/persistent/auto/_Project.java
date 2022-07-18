@@ -29,7 +29,7 @@ public abstract class _Project extends BaseDataObject {
 
     public static final StringProperty<String> BRANCH_NAME = PropertyFactory.createString("branchName", String.class);
     public static final BaseProperty<Boolean> DISABLE = PropertyFactory.createBase("disable", Boolean.class);
-    public static final StringProperty<String> GROUP_STR = PropertyFactory.createString("groupStr", String.class);
+    public static final StringProperty<String> GROUP_ID = PropertyFactory.createString("groupId", String.class);
     public static final StringProperty<String> PATH_STR = PropertyFactory.createString("pathStr", String.class);
     public static final StringProperty<String> VERSION = PropertyFactory.createString("version", String.class);
     public static final ListProperty<Project> DEPENDENCIES = PropertyFactory.createList("dependencies", Project.class);
@@ -37,7 +37,7 @@ public abstract class _Project extends BaseDataObject {
 
     protected String branchName;
     protected Boolean disable;
-    protected String groupStr;
+    protected String groupId;
     protected String pathStr;
     protected String version;
 
@@ -67,14 +67,14 @@ public abstract class _Project extends BaseDataObject {
         return this.disable;
     }
 
-    public void setGroupStr(String groupStr) {
-        beforePropertyWrite("groupStr", this.groupStr, groupStr);
-        this.groupStr = groupStr;
+    public void setGroupId(String groupId) {
+        beforePropertyWrite("groupId", this.groupId, groupId);
+        this.groupId = groupId;
     }
 
-    public String getGroupStr() {
-        beforePropertyRead("groupStr");
-        return this.groupStr;
+    public String getGroupId() {
+        beforePropertyRead("groupId");
+        return this.groupId;
     }
 
     public void setPathStr(String pathStr) {
@@ -129,8 +129,8 @@ public abstract class _Project extends BaseDataObject {
                 return this.branchName;
             case "disable":
                 return this.disable;
-            case "groupStr":
-                return this.groupStr;
+            case "groupId":
+                return this.groupId;
             case "pathStr":
                 return this.pathStr;
             case "version":
@@ -157,8 +157,8 @@ public abstract class _Project extends BaseDataObject {
             case "disable":
                 this.disable = (Boolean)val;
                 break;
-            case "groupStr":
-                this.groupStr = (String)val;
+            case "groupId":
+                this.groupId = (String)val;
                 break;
             case "pathStr":
                 this.pathStr = (String)val;
@@ -190,7 +190,7 @@ public abstract class _Project extends BaseDataObject {
         super.writeState(out);
         out.writeObject(this.branchName);
         out.writeObject(this.disable);
-        out.writeObject(this.groupStr);
+        out.writeObject(this.groupId);
         out.writeObject(this.pathStr);
         out.writeObject(this.version);
         out.writeObject(this.dependencies);
@@ -202,7 +202,7 @@ public abstract class _Project extends BaseDataObject {
         super.readState(in);
         this.branchName = (String)in.readObject();
         this.disable = (Boolean)in.readObject();
-        this.groupStr = (String)in.readObject();
+        this.groupId = (String)in.readObject();
         this.pathStr = (String)in.readObject();
         this.version = (String)in.readObject();
         this.dependencies = in.readObject();

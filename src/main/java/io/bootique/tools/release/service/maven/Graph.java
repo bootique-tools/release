@@ -1,7 +1,14 @@
 package io.bootique.tools.release.service.maven;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The implementation here is basically an adjacency list, but a {@link Map} is
@@ -16,8 +23,8 @@ class Graph<V> {
     /**
      * {@link LinkedHashMap} is used for supporting insertion order.
      */
-    private Map<V, List<V>> neighbors = new LinkedHashMap<>();
-    private Map<V, Integer> inDegree = new LinkedHashMap<>();
+    private final Map<V, List<V>> neighbors = new LinkedHashMap<>();
+    private final Map<V, Integer> inDegree = new LinkedHashMap<>();
 
     Graph() {
     }
@@ -77,7 +84,7 @@ class Graph<V> {
             throw new IllegalStateException("Cycle detected in list." + remainingKeys);
         }
 
-        return Arrays.stream(result).collect(Collectors.toList());
+        return Arrays.asList(result);
     }
 
     /**

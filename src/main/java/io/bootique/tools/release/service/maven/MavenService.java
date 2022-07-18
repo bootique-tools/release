@@ -16,7 +16,8 @@ public interface MavenService {
 
     Project createOrUpdateProject(Repository repository);
 
+    void syncDependencies(Project project);
+
     List<Project> sortProjects(List<Project> projects);
 
-    void syncDependencies(Project project, List<Project> projects);
 }

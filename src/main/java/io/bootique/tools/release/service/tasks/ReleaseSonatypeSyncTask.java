@@ -91,9 +91,9 @@ public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
                     .selectOne(context);
 
 
-            String projectDescription = project.getGroupStr()
+            String projectDescription = project.getGroupId()
                     //+ ":" + project.getRootModule().getGithubId()
-                    + ":" + project.getGroupStr()
+                    + ":" + project.getGroupId()
                     + ":" + releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().releaseVersion();
             return getRepoFromList(repos, repo, projectDescription);
 

@@ -88,7 +88,7 @@ public class SelectProjectsController extends BaseController {
         allProjects.forEach(project -> {
             if (state && !selectedProjectsResp.contains(project)) {
                 currentProject.getDependencies().forEach(dependency -> {
-                    if (dependency.getGroupStr().equals(project.getGroupStr())
+                    if (dependency.getGroupId().equals(project.getGroupId())
                             && dependency.getVersion().equals(currentProject.getVersion())) {
                         selectedProjectsResp.add(project);
                         buildOrder(selectedProjectsResp, true, project, allProjects);
@@ -96,7 +96,7 @@ public class SelectProjectsController extends BaseController {
                 });
             } else if (!state && selectedProjectsResp.contains(project)) {
                 project.getDependencies().forEach(dependency -> {
-                    if (dependency.getGroupStr().equals(currentProject.getGroupStr())
+                    if (dependency.getGroupId().equals(currentProject.getGroupId())
                             && dependency.getVersion().equals(project.getVersion())) {
                         selectedProjectsResp.remove(project);
                         buildOrder(selectedProjectsResp, false, project, allProjects);

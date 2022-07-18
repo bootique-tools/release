@@ -31,11 +31,11 @@ public class DefaultMvnCentralService implements MvnCentralService {
                     .newTarget("mvncentral")
                     .path("/solrsearch/select")
                     .queryParam("q", "g:%22"
-                            + project.getGroupStr()
+                            + project.getGroupId()
                             + "%22 AND a:%22"
                             //TODO need to be refactoring
                             //   + project.getRootModule().getGithubId()
-                            + project.getGroupStr()
+                            + project.getGroupId()
                             + "%22 AND v:%22"
                             + version
                             + "%22")
