@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MavenProjectsImport extends BaseJob {
 
@@ -63,14 +63,9 @@ public class MavenProjectsImport extends BaseJob {
     }
 
     private List<Project> syncProjects(List<Repository> repositories) {
-        List<Project> createdProjects = new ArrayList<>();
-        for (Repository repo : repositories) {
-            if (!mavenService.isMavenProject(repo)) {
-                continue;
-            }
-            Project project = mavenService.createOrUpdateProject(repo);
-            createdProjects.add(project);
-        }
-        return createdProjects;
+        return repositories.stream()
+                .filter(mavenService::isMavenProject)
+                .map(mavenService::createOrUpdateProject)
+                .collect(Collectors.toList());
     }
 }

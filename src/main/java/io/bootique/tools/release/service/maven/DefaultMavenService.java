@@ -69,6 +69,7 @@ public class DefaultMavenService implements MavenService {
     @Override
     public void syncDependencies(Project project) {
         Map<String, Project> projectByGroupId = ObjectSelect.query(Project.class)
+                .localCache()
                 .select(project.getObjectContext())
                 .stream()
                 .collect(Collectors.toMap(Project::getGroupId, Function.identity()));
@@ -114,8 +115,10 @@ public class DefaultMavenService implements MavenService {
             Node groupId = (Node) xpath.evaluate("/project/groupId", document, XPathConstants.NODE);
             Node artifactId = (Node) xpath.evaluate("/project/artifactId", document, XPathConstants.NODE);
             Node version = (Node) xpath.evaluate("/project/version", document, XPathConstants.NODE);
-            if (groupId == null || version == null) {
+            if (groupId == null) {
                 groupId = (Node) xpath.evaluate("/project/parent/groupId", document, XPathConstants.NODE);
+            }
+            if (version == null) {
                 version = (Node) xpath.evaluate("/project/parent/version", document, XPathConstants.NODE);
             }
             coordinates.setGroupId(groupId.getTextContent());
@@ -134,6 +137,11 @@ public class DefaultMavenService implements MavenService {
             NodeList dependenciesNodes = getNodeList(path, "/project/dependencies/dependency/groupId");
             for (int i = 0; i < dependenciesNodes.getLength(); i++) {
                 allDependenciesGroupIds.add(dependenciesNodes.item(i).getTextContent());
+            }
+            // we have bootique-asciidoc-internal as a plugin dependency for all documentation modules
+            NodeList pluginDependenciesNodes = getNodeList(path, "/project/build/plugins/plugin/dependencies/dependency/groupId");
+            for (int i = 0; i < pluginDependenciesNodes.getLength(); i++) {
+                allDependenciesGroupIds.add(pluginDependenciesNodes.item(i).getTextContent());
             }
         }
         return allDependenciesGroupIds;
