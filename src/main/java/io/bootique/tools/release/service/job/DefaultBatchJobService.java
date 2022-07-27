@@ -47,7 +47,6 @@ public class DefaultBatchJobService implements BatchJobService {
         return (BatchJob<T, R>)jobMap.get(id);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T, R> BatchJob<T, R> getCurrentJob() {
         return preferences.have(BatchJobService.CURRENT_JOB_ID)
