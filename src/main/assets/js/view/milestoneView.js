@@ -19,7 +19,8 @@ export function initMilestoneView() {
         beforeMount() {
             let currApp = this;
             if (sessionStorage.showProcess === 'initMilestoneView') {
-                currApp.checkStatus();
+                currApp.connectJobStatusWebsocket();
+                currApp.checkJobStatus();
             }
         },
         watch: {
@@ -77,7 +78,8 @@ export function initMilestoneView() {
                 sessionStorage.showProcess = 'initMilestoneView';
                 axios.get(`/ui/milestone/${String(val).toLowerCase()}?milestoneTitle=${this.milestoneTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}&milestoneNewTitle=${this.milestoneNewTitle}`)
                 .then(function (response) {
-                    currApp.checkStatus();
+                    currApp.connectJobStatusWebsocket();
+                    currApp.checkJobStatus();
                     $("#milestone-modal").modal('hide');
                 })
                 .catch(function () {

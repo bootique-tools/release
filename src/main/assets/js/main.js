@@ -27,7 +27,7 @@ window.initReleaseNotesView = initReleaseNotesView;
 window.initValidationView = initValidationView;
 window.initRelease = initRelease;
 window.initReleaseProcess = initReleaseProcess;
-window.initReleaseTableHead = initReleaseTableHead
+//window.initReleaseTableHead = initReleaseTableHead
 
 $(document).ready(() => init());
 
