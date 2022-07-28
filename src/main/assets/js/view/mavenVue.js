@@ -1,12 +1,14 @@
 import Vue from 'vue/dist/vue'
 import axios from 'axios/dist/axios'
 
-import {baseMethods} from "../baseController";
+
+import {baseMethods, defaultBaseMethods} from "../baseController";
+
 
 export function initMavenVue() {
     return new Vue({
         el: '#mavenVue',
-        mixins: [baseMethods],
+        mixins: [baseMethods,defaultBaseMethods],
         data: {
             showProcess: false,
             progress: 0,
@@ -34,34 +36,17 @@ export function initMavenVue() {
                 let currApp = this;
                 currApp.showProcess = true;
                 sessionStorage.showProcess = 'initMavenVue';
+                currApp.progress = 0;
                 this.$showProcessGlobal = true;
                 axios.post(`/ui/maven/verify`)
-                    .then(function (response) {
-                        currApp.checkStatus();
+                    .then(function () {
+                        currApp.connectJobStatusWebsocket();
+                        currApp.checkJobStatus();
                     })
                     .catch(function () {
                         console.log("Error start mvn verify.");
                         window.sessionStorage.removeItem('showProcess');
-                        window.sessionStorage.removeItem('showProcess');
                     })
-            },
-            checkStatus: function () {
-                let currApp = this;
-                let intervalCheck = setInterval(function () {
-                    axios.get(`/ui/release/process/status`)
-                        .then(function (response) {
-                            currApp.progress = response.data.percent.percent;
-                            currApp.statusArr = response.data.results;
-                            currApp.stageName = response.data.name;
-                            if (response.data.percent.percent === 100) {
-                                clearInterval(intervalCheck);
-                            }
-                        })
-                        .catch(function () {
-                            console.log("Error in checking status.");
-                            window.sessionStorage.removeItem('showProcess');
-                        })
-                }, 1200);
             },
         }
     });

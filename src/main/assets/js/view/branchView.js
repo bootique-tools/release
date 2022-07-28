@@ -13,8 +13,10 @@ export function initBranchView() {
         },
         beforeMount() {
             let currApp = this;
+            console.log('beforeMount')
             if (sessionStorage.showProcess === 'initBranchView') {
-                currApp.checkStatus();
+                currApp.connectJobStatusWebsocket()
+                currApp.checkJobStatus();
             }
         },
         watch: {
@@ -30,11 +32,13 @@ export function initBranchView() {
                 let currApp = this;
                 sessionStorage.showProcess = 'initBranchView';
                 currApp.progress = 0;
+                console.log('startTask')
                 axios.get(`/ui/branches/${String(task)}?branchTitle=${this.branchTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                     .then(function (response) {
-                        currApp.checkStatus();
+                        currApp.connectJobStatusWebsocket();
+                        currApp.checkJobStatus();
                     })
-                    .catch(function () {
+            .catch(function () {
                         console.log("Error in " + task);
                         window.sessionStorage.removeItem('showProcess');
                     })

@@ -17,7 +17,9 @@ import io.bootique.jetty.websocket.JettyWebSocketModule;
 import io.bootique.job.command.ScheduleCommand;
 import io.bootique.job.runtime.JobModule;
 import io.bootique.tools.release.controller.RepoController;
+import io.bootique.tools.release.controller.websocket.JobStatusWebSocket;
 import io.bootique.tools.release.controller.websocket.ReleaseWebSocket;
+import io.bootique.tools.release.controller.websocket.TestWebSocket;
 import io.bootique.tools.release.job.GitHubDataImportJob;
 import io.bootique.tools.release.job.MavenProjectsImport;
 import io.bootique.tools.release.model.persistent.Repository;
@@ -108,6 +110,10 @@ public class Application implements BQModule {
 
         JettyWebSocketModule.extend(binder)
                 .addEndpoint(ReleaseWebSocket.class);
+
+        JettyWebSocketModule.extend(binder).addEndpoint(TestWebSocket.class);
+
+        JettyWebSocketModule.extend(binder).addEndpoint(JobStatusWebSocket.class);
 
         JettyModule.extend(binder)
                 .useDefaultServlet();
