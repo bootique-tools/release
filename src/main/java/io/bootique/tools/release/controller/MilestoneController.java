@@ -71,7 +71,10 @@ public class MilestoneController extends BaseJobController {
                 if(milestone != null) {
                     return;
                 }
-                gitHubRestAPI.createMilestone(repository, title);
+                Milestone createdMilestone = gitHubRestAPI.createMilestone(repository, title);
+                ObjectContext objectContext = repository.getObjectContext();
+                objectContext.registerNewObject(createdMilestone);
+                createdMilestone.setRepository(repository);
             }
         };
         startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
@@ -86,8 +89,10 @@ public class MilestoneController extends BaseJobController {
         Function<Project, String> repoProcessor = new MilestoneProcessor(title) {
             @Override
             void process(Repository repository, Milestone milestone) {
+                if(milestone == null) {
+                    return;
+                }
                 gitHubRestAPI.closeMilestone(milestone);
-                milestone.setRepository(null);
             }
         };
         startJob(repoProcessor, selectedModules, CONTROLLER_NAME);
@@ -103,8 +108,10 @@ public class MilestoneController extends BaseJobController {
         Function<Project, String> repoProcessor = new MilestoneProcessor(title) {
             @Override
             void process(Repository repository, Milestone milestone) {
+                if(milestone == null) {
+                    return;
+                }
                 gitHubRestAPI.renameMilestone(milestone, milestoneNewTitle);
-                milestone.setTitle(milestoneNewTitle);
             }
         };
 

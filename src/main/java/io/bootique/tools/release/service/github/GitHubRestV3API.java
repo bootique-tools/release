@@ -82,19 +82,16 @@ public class GitHubRestV3API implements GitHubRestAPI {
         data.put("state", state);
 
         Repository repository = milestone.getRepository();
-        Response response;
-        try {
-            response = prepareRequest(
-                    "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones/" + milestone.getNumber())
-                    .build("PATCH", Entity.json(mapper.writeValueAsString(data)))
-                    .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
-                    .invoke();
+        try (Response response = prepareRequest(
+                "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones/" + milestone.getNumber())
+                .build("PATCH", Entity.json(mapper.writeValueAsString(data)))
+                .property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true)
+                .invoke()) {
+            if (response.getStatus() != 200) {
+                throw new DesktopException("Can't patch milestone for " + repository.getName());
+            }
         } catch (JsonProcessingException e) {
             throw new DesktopException(e.getMessage());
-        }
-
-        if (response.getStatus() != 200) {
-            throw new DesktopException("Can't patch milestone for " + repository.getName());
         }
 
         milestone.setTitle(title);

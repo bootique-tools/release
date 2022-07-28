@@ -14,8 +14,10 @@
 ### Usage
 ```
 $ mvn clean install
-$ java -jar target/release-1.0-SNAPSHOT.jar
+$ java --add-opens java.base/sun.net.www.protocol.https=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED -jar target/release-1.0-SNAPSHOT.jar
 ```
+
+**NOTE**: `--add-opens` required for the Jersey Client to be able to send `PATCH` request
 
 Then just go to http://127.0.0.1:9999/ui/
 
