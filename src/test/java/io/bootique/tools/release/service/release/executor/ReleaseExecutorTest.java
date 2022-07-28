@@ -27,7 +27,7 @@ class ReleaseExecutorTest {
 
         ReleaseExecutor releaseExecutor = new ReleaseExecutor();
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
-        assertTrue(releaseExecutor.releaseNotFinish());
+        assertTrue(releaseExecutor.releaseInProgress());
     }
 
     @Test
@@ -38,7 +38,7 @@ class ReleaseExecutorTest {
 
         ReleaseExecutor releaseExecutor = new ReleaseExecutor();
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
-        assertFalse(releaseExecutor.releaseNotFinish());
+        assertFalse(releaseExecutor.releaseInProgress());
     }
 
     @Test
@@ -50,7 +50,7 @@ class ReleaseExecutorTest {
         ReleaseExecutor releaseExecutor = new ReleaseExecutor();
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
-        assertFalse(releaseExecutor.releaseCanRunning());
+        assertFalse(releaseExecutor.canExecuteRelease());
     }
 
     @Test
@@ -63,7 +63,7 @@ class ReleaseExecutorTest {
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
 
-        assertFalse(releaseExecutor.releaseCanRunning());
+        assertFalse(releaseExecutor.canExecuteRelease());
     }
 
     @Test
@@ -77,7 +77,7 @@ class ReleaseExecutorTest {
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
         releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_SYNC,ReleaseStageStatus.Skip);
-        assertTrue(releaseExecutor.releaseCanRunning());
+        assertTrue(releaseExecutor.canExecuteRelease());
     }
 
     @Test
@@ -91,13 +91,13 @@ class ReleaseExecutorTest {
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
         releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_INSTALL,ReleaseStageStatus.Fail);
-        assertFalse(releaseExecutor.releaseCanRunning());
+        assertFalse(releaseExecutor.canExecuteRelease());
 
         releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_INSTALL,ReleaseStageStatus.Success);
         releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_PERFORM,ReleaseStageStatus.Fail_Rollback);
-        assertFalse(releaseExecutor.releaseCanRunning());
+        assertFalse(releaseExecutor.canExecuteRelease());
     }
 
     @Test
@@ -111,7 +111,7 @@ class ReleaseExecutorTest {
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
         releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_PREPARE,ReleaseStageStatus.Rollback);
-        assertFalse(releaseExecutor.releaseCanRunning());
+        assertFalse(releaseExecutor.canExecuteRelease());
     }
 
 
@@ -124,10 +124,10 @@ class ReleaseExecutorTest {
 
         ReleaseExecutor releaseExecutor = new ReleaseExecutor();
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
-        assertTrue(releaseExecutor.isReleaseNotRunning());
+        assertTrue(releaseExecutor.releaseNotRunning());
 
         releaseDescriptor.getRepositoryDescriptorList().get(0)
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_SYNC, ReleaseStageStatus.In_Progress);
-        assertFalse(releaseExecutor.isReleaseNotRunning());
+        assertFalse(releaseExecutor.releaseNotRunning());
     }
 }

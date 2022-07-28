@@ -44,49 +44,48 @@ public class ReleaseExecutor implements ReleaseExecutorService {
 
     @Override
     public void executeRelease() {
-        if (releaseCanRunning() && isReleaseNotRunning()) {
+        if (canExecuteRelease() && releaseNotRunning()) {
             BatchJobDescriptor<RepositoryDescriptor, String> jobDescriptor = jobDescriptorCreator
                     .createReleaseJobDescriptor(releaseDescriptorService.getUnfinishedRepositoryDescriptorList());
             executeReleaseStage(jobDescriptor);
         }
     }
 
-    protected boolean releaseNotFinish() {
-        return !releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().stream().allMatch(
-                repositoryDescriptor -> repositoryDescriptor.getStageStatusMap().get(ReleaseStage.RELEASE_SYNC) == ReleaseStageStatus.Success ^
-                        repositoryDescriptor.getStageStatusMap().get(ReleaseStage.RELEASE_SYNC) == ReleaseStageStatus.Skip
-        );
+    protected boolean releaseInProgress() {
+        return releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList()
+                .stream()
+                .map(repo -> repo.getStageStatusMap().get(ReleaseStage.RELEASE_SYNC))
+                .anyMatch(status -> status != ReleaseStageStatus.Success && status != ReleaseStageStatus.Skip);
     }
 
-    protected boolean releaseCanRunning() {
-
+    protected boolean canExecuteRelease() {
         if (!stageManager.releaseHaveFailStage() && !stageManager.releaseHaveRollbackStage()) {
-            boolean performStageFinished = releaseDescriptorService
-                    .getReleaseDescriptor()
-                    .getRepositoryDescriptorList()
+            boolean performStageFinished = releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList()
                     .stream()
-                    .allMatch(repository -> {
-                        ReleaseStageStatus performStatus = repository.getStageStatusMap().get(ReleaseStage.RELEASE_PERFORM);
-                        return performStatus == ReleaseStageStatus.Success ^ performStatus == ReleaseStageStatus.Skip;
-                    });
-
+                    .map(repo -> repo.getStageStatusMap().get(ReleaseStage.RELEASE_PERFORM))
+                    .allMatch(performStatus -> performStatus == ReleaseStageStatus.Success || performStatus == ReleaseStageStatus.Skip);
             if (performStageFinished) {
-                return releaseNotFinish() && releaseDescriptorService
-                        .getReleaseDescriptor()
-                        .getRepositoryDescriptorList()
-                        .stream()
-                        .anyMatch(repositoryDescriptor ->
-                                repositoryDescriptor.getStageStatusMap().get(ReleaseStage.RELEASE_SYNC) != ReleaseStageStatus.Not_Start
-                        );
+                return releaseInProgress() && syncStageStarted();
             }
             return true;
         }
         return false;
     }
 
-    protected boolean isReleaseNotRunning() {
+    private boolean syncStageStarted() {
+        return releaseDescriptorService
+                .getReleaseDescriptor()
+                .getRepositoryDescriptorList()
+                .stream()
+                .anyMatch(repositoryDescriptor ->
+                        repositoryDescriptor.getStageStatusMap().get(ReleaseStage.RELEASE_SYNC) != ReleaseStageStatus.Not_Start
+                );
+    }
+
+    protected boolean releaseNotRunning() {
         return releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList()
-                .stream().noneMatch(descriptor -> descriptor.getStageStatusMap().containsValue(ReleaseStageStatus.In_Progress));
+                .stream()
+                .noneMatch(descriptor -> descriptor.getStageStatusMap().containsValue(ReleaseStageStatus.In_Progress));
 
     }
 
