@@ -79,7 +79,6 @@ export function initMilestoneView() {
                 axios.get(`/ui/milestone/${String(val).toLowerCase()}?milestoneTitle=${this.milestoneTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}&milestoneNewTitle=${this.milestoneNewTitle}`)
                 .then(function (response) {
                     currApp.connectJobStatusWebsocket();
-                    currApp.checkJobStatus();
                     $("#milestone-modal").modal('hide');
                 })
                 .catch(function () {
