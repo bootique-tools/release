@@ -32,11 +32,10 @@ export function initBranchView() {
                 let currApp = this;
                 sessionStorage.showProcess = 'initBranchView';
                 currApp.progress = 0;
-                console.log('startTask')
+                console.log('startBranchTask')
                 axios.get(`/ui/branches/${String(task)}?branchTitle=${this.branchTitle}&selectedModules=${JSON.stringify(currApp.selectedModules)}`)
                     .then(function (response) {
                         currApp.connectJobStatusWebsocket();
-                        currApp.checkJobStatus();
                     })
             .catch(function () {
                         console.log("Error in " + task);

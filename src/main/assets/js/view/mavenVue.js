@@ -34,14 +34,13 @@ export function initMavenVue() {
             },
             verify: function () {
                 let currApp = this;
-                currApp.showProcess = true;
                 sessionStorage.showProcess = 'initMavenVue';
+                currApp.showProcess = true;
                 currApp.progress = 0;
                 this.$showProcessGlobal = true;
                 axios.post(`/ui/maven/verify`)
                     .then(function () {
                         currApp.connectJobStatusWebsocket();
-                        currApp.checkJobStatus();
                     })
                     .catch(function () {
                         console.log("Error start mvn verify.");

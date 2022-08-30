@@ -150,8 +150,17 @@ export const defaultBaseMethods = {
             let currApp = this;
             axios.get(`/ui/job/status`)
                 .then(function (response) {
-                    console.log('checkJobStatus ' + response.data)
-                    currApp.progress = response.data;
+                    currApp.progress = response.data.progress;
+                    if (currApp.allItems != null) {
+                        for (const element of currApp.allItems.data) {
+                            if (element.repository.name === response.data.projectName) {
+                                element.version = response.data.version;
+                                element.branchName = response.data.branchName;
+                                currApp.statusMap.set(element, response.data.status);
+                                currApp.errorMap.set(element, response.data.result);
+                            }
+                        }
+                    }
                     if (currApp.progress === 100) {
                         currApp.connection.close();
                         console.log("Job done, websocket connection closed");
@@ -162,7 +171,6 @@ export const defaultBaseMethods = {
                     console.log("Error in checking status.");
                     window.sessionStorage.removeItem('showProcess');
                 })
-            currApp.checkCache();
         },
     }
 }
