@@ -113,4 +113,19 @@ public abstract class BaseDesktopService implements DesktopService {
         System.arraycopy(args, 0, commands, 1, args.length);
         return runCommand(Path.of("."), "./maven.sh", commands);
     }
+
+    /**
+     * Perform mvn release:operation, made a separate method to better control and modify parameters.
+     *
+     * @param path to the directory where to perform release operation
+     * @param operation type (prepare, perform, rollback or clean)
+     * @return output
+     */
+    @Override
+    public String performReleasePlugin(Path path, String operation) {
+        String[] commands = new String[2];
+        commands[0] = path.toAbsolutePath().resolve("pom.xml").toString();
+        commands[1] = operation;
+        return runCommand(Path.of("."), "./release.sh", commands);
+    }
 }

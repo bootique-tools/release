@@ -35,6 +35,9 @@ log:
     - FILE
 
   loggers:
+    org.apache.cayenne.log.JdbcEventLogger:
+      level: warn
+
     io.bootique.jersey.client.instrumented.ClientTimingFilter:
       level: error
 
@@ -42,6 +45,7 @@ log:
       level: trace
       appenderRefs:
         - multiAppender
+        - FILE
 
 preferences:
   organizationName: bootique

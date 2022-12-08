@@ -38,17 +38,8 @@ public class ReleasePerformTask implements Function<Repository, String>  {
         }
 
         Path repoPath = preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName());
-        String[] performArgs = {
-                "-B", // non-interactive batch mode
-                "release:perform",
-                "-P", "gpg",
-                "-DskipTests",
-                "-Dgpg.pinentry-mode=default",
-                // "-DdryRun=true"
-        };
-
         try {
-            return desktopService.runMavenCommand(repoPath, performArgs);
+            return desktopService.performReleasePlugin(repoPath, "perform");
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);
         }

@@ -16,4 +16,12 @@ public class WindowsDesktopService extends BaseDesktopService {
         System.arraycopy(args, 0, commands, 1, args.length);
         return runCommand(Path.of("."), "maven.bat", commands);
     }
+
+    @Override
+    public String performReleasePlugin(Path path, String operation) {
+        String[] commands = new String[2];
+        commands[0] = path.toAbsolutePath().resolve("pom.xml").toString();
+        commands[1] = operation;
+        return runCommand(Path.of("."), "maven.bat", commands);
+    }
 }
