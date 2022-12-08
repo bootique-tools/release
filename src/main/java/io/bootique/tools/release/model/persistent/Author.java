@@ -9,6 +9,17 @@ public class Author extends _Author implements Comparable<Author> {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Author that denotes deleted account
+     */
+    public static Author GHOST;
+    static {
+        GHOST = new Author();
+        GHOST.setName("ghost");
+        GHOST.setLogin("ghost");
+        GHOST.setGithubId("-");
+    }
+
     @Override
     @JsonProperty("__typename")
     public String getType() {

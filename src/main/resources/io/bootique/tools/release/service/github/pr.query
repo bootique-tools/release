@@ -26,6 +26,15 @@ query ($owner: String!, $name: String!, $totalCount: Int!) {
               }
               ... on Bot {
                 id
+                name: login
+              }
+              ... on Mannequin {
+                id
+                name: login
+              }
+              ... on EnterpriseUserAccount {
+                id
+                name
               }
             }
             labels(first: 10) {

@@ -24,6 +24,18 @@ query ($owner: String!, $name: String!, $totalCount: Int!) {
                 id
                 name
               }
+              ... on Bot {
+                id
+                name: login
+              }
+              ... on Mannequin {
+                id
+                name: login
+              }
+              ... on EnterpriseUserAccount {
+                id
+                name
+              }
             }
             milestone {
               id

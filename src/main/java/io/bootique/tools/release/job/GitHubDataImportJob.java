@@ -121,6 +121,10 @@ public class GitHubDataImportJob extends BaseJob {
     private void syncOpenIssues(ObjectContext context, Repository repository) {
         List<OpenIssue> issues = gitHubApiImport.getIssueCollection(repository);
         for(OpenIssue next : issues) {
+            // seems like GitHub doesn't provide any info in case of author was deleted
+            if(next.getAuthor() == null) {
+                next.setAuthor(Author.GHOST);
+            }
             OpenIssue issue = syncEntity(context, OpenIssue.class, next);
             issue.setRepository(repository);
         }
@@ -137,6 +141,10 @@ public class GitHubDataImportJob extends BaseJob {
     private void syncPullRequests(ObjectContext context, Repository repository) {
         List<PullRequest> pullRequests = gitHubApiImport.getPullRequestCollection(repository);
         for (PullRequest next : pullRequests) {
+            // seems like GitHub doesn't provide any info in case of author was deleted
+            if(next.getAuthor() == null) {
+                next.setAuthor(Author.GHOST);
+            }
             PullRequest pr = syncEntity(context, PullRequest.class, next);
             pr.setRepository(repository);
         }
@@ -160,7 +168,9 @@ public class GitHubDataImportJob extends BaseJob {
     @SuppressWarnings("unchecked")
     static <T extends GitHubEntity> T findEntity(ObjectContext context, Class<T> entityType, String githubId) {
         // lookup in the DB
-        T entityFromDb = ObjectSelect.query(entityType, GitHubEntity.GITHUB_ID.eq(githubId)).selectOne(context);
+        T entityFromDb = ObjectSelect.query(entityType, GitHubEntity.GITHUB_ID.eq(githubId))
+                .localCache()
+                .selectOne(context);
         if(entityFromDb != null) {
             return entityFromDb;
         }
