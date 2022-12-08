@@ -38,4 +38,12 @@ public class MockDesktopService implements DesktopService {
         }
         return nextCommandResult.remove();
     }
+
+    @Override
+    public String performReleasePlugin(Path path, String operation) {
+        if(nextCommandResult.isEmpty()) {
+            return "";
+        }
+        return nextCommandResult.remove();
+    }
 }
