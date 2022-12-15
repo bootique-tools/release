@@ -22,6 +22,6 @@ public interface DesktopService {
      * @param operation type (prepare, perform, rollback or clean)
      * @return output
      */
-    String performReleasePlugin(Path path, String operation);
+    String performReleasePlugin(Path path, String operation, String additionalArgs);
 
 }

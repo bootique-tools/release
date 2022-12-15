@@ -40,7 +40,7 @@ public class MockDesktopService implements DesktopService {
     }
 
     @Override
-    public String performReleasePlugin(Path path, String operation) {
+    public String performReleasePlugin(Path path, String operation, String additionalArgs) {
         if(nextCommandResult.isEmpty()) {
             return "";
         }

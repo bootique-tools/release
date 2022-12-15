@@ -122,10 +122,13 @@ public abstract class BaseDesktopService implements DesktopService {
      * @return output
      */
     @Override
-    public String performReleasePlugin(Path path, String operation) {
-        String[] commands = new String[2];
+    public String performReleasePlugin(Path path, String operation, String additionalArgs) {
+        String[] commands = new String[additionalArgs == null ? 2 : 3];
         commands[0] = path.toAbsolutePath().resolve("pom.xml").toString();
         commands[1] = operation;
+        if(additionalArgs != null) {
+            commands[2] = additionalArgs;
+        }
         return runCommand(Path.of("."), "./release.sh", commands);
     }
 }

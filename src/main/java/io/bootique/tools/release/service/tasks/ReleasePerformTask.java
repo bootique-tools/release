@@ -39,7 +39,7 @@ public class ReleasePerformTask implements Function<Repository, String>  {
 
         Path repoPath = preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName());
         try {
-            return desktopService.performReleasePlugin(repoPath, "perform");
+            return desktopService.performReleasePlugin(repoPath, "perform", null);
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);
         }

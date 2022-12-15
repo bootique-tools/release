@@ -44,22 +44,14 @@ public class ReleasePrepareTask implements Function<Repository, String> {
 
         Path repoPath = preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repo.getName());
         ReleaseDescriptor releaseDescriptor = releaseDescriptorService.getReleaseDescriptor();
-        String[] prepareArgs = {
-                "-DpreparationGoals=clean",
-                "-B", // non-interactive batch mode
-                "release:prepare",
-                "-P", "gpg",
-                "-DskipTests",
-                "-Dgpg.pinentry-mode=default",
-                "-Dbootique.version=" + releaseDescriptor.getReleaseVersions().releaseVersion(),
-                "-Dtag=" + releaseDescriptor.getReleaseVersions().releaseVersion(),
-                "-DreleaseVersion=" + releaseDescriptor.getReleaseVersions().releaseVersion(),
-                "-DdevelopmentVersion=" + releaseDescriptor.getReleaseVersions().devVersion(),
-                // "-DdryRun=true"
-        };
+        String additionalArgs = "-DpreparationGoals=clean"
+                + " -Dbootique.version=" + releaseDescriptor.getReleaseVersions().releaseVersion()
+                + " -Dtag=" + releaseDescriptor.getReleaseVersions().releaseVersion()
+                + " -DreleaseVersion=" + releaseDescriptor.getReleaseVersions().releaseVersion()
+                + " -DdevelopmentVersion=" + releaseDescriptor.getReleaseVersions().devVersion();
 
         try {
-            return desktopService.runMavenCommand(repoPath, prepareArgs);
+            return desktopService.performReleasePlugin(repoPath, "prepare", additionalArgs);
         } catch (DesktopException ex) {
             throw new JobException(ex.getMessage(), ex);
         }
