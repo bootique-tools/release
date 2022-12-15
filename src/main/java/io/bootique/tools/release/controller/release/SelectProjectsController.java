@@ -12,8 +12,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Path("/release")
@@ -74,10 +74,10 @@ public class SelectProjectsController extends BaseController {
         List<Project> selectedProjectsResp = allProjects.getObjects().stream()
                 .filter(project -> selectedProjects.contains(project.getRepository().getName()) && project.getVersion().equals(version))
                 .collect(Collectors.toList());
-        Optional<Project> haveProject = allProjects.getObjects().stream()
+        allProjects.getObjects().stream()
                 .filter(p -> selectedProject.equals(p.getRepository().getName()))
-                .findFirst();
-        haveProject.ifPresent(project -> buildOrder(selectedProjectsResp, state, project, allProjects.getObjects()));
+                .findFirst()
+                .ifPresent(project -> buildOrder(selectedProjectsResp, state, project, allProjects.getObjects()));
 
         filter(allProjects, selectedProjectsResp);
 
@@ -109,6 +109,9 @@ public class SelectProjectsController extends BaseController {
     private void filter(DataResponse<Project> allProjects, List<Project> selectedProjectsResp) {
         DataResponse<Project> dataResponse = fetchProjects();
 
+        // objects collection could be unmodifiable, so copy it§
+        List<Project> allProjectContent = new ArrayList<>(allProjects.getObjects());
+
         int flag = 0;
         for (Project selectedProjectResp : dataResponse.getObjects()) {
             for (Project project : selectedProjectsResp) {
@@ -117,10 +120,12 @@ public class SelectProjectsController extends BaseController {
                 }
             }
             if (flag == 0) {
-                allProjects.getObjects().remove(selectedProjectResp);
+                allProjectContent.remove(selectedProjectResp);
             }
             flag = 0;
         }
+
+        allProjects.setObjects(allProjectContent);
     }
 
     private void checkDependencies(Project project) {
