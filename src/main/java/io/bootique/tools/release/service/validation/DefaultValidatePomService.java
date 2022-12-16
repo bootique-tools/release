@@ -10,10 +10,14 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import ch.qos.logback.classic.Logger;
 import io.bootique.tools.release.service.desktop.DesktopException;
@@ -30,6 +34,7 @@ public class DefaultValidatePomService implements ValidatePomService {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(DefaultValidatePomService.class);
     private static final String PROJECT_VERSION = "${project.version}";
+    private static final String VERSION_TEG = "version";
 
     @Inject
     PreferenceService preferences;
@@ -39,16 +44,17 @@ public class DefaultValidatePomService implements ValidatePomService {
         LOGGER.debug("Validate POM of " + repoName);
         Path path = preferences.get(GitService.BASE_PATH_PREFERENCE).resolve(repoName);
         List<String> failedPoms = new ArrayList<>();
-        try {
-            Files.walk(path)
-                    .filter(Files::isRegularFile)
+        try (Stream<Path> stream = Files.walk(path)) {
+            stream.filter(Files::isRegularFile)
                     .filter(name -> (name.getFileName().toString().equals("pom.xml") &&
                             !name.toString().contains(File.pathSeparator + "target" + File.pathSeparator)))
                     .forEach(pom -> {
                         try {
-                            if(!validatePom(pom)) {
-                                String[] pomPathSegments = pom.toString().split(File.separator);
-                                failedPoms.add(pomPathSegments[pomPathSegments.length - 2]);
+                            if (!validatePom(pom)) {
+                                failedPoms.add("Incorrect pom: " + pom);
+                            }
+                            if (!validateDependencies(pom)) {
+                                failedPoms.add("Incorrect dependencies definition: " + pom);
                             }
                         } catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException e) {
                             throw new DesktopException("Can't validate pom for " + repoName, e);
@@ -60,6 +66,67 @@ public class DefaultValidatePomService implements ValidatePomService {
 
         return failedPoms;
     }
+
+    public boolean validateDependencies(Path path) {
+        Node groupId = getNode(path, "/project/groupId");
+        if (groupId == null) {
+            groupId = getNode(path, "/project/parent/groupId");
+        }
+        NodeList dependenciesNodes = getNodeList(path, "/project/dependencies/dependency");
+        for (int i = 0; i < dependenciesNodes.getLength(); i++) {
+            boolean isSameGroupId = false;
+            boolean isVersionDefined = false;
+            NodeList childNodes = dependenciesNodes.item(i).getChildNodes();
+            for (int j = 0; j < childNodes.getLength(); j++) {
+                if ((childNodes.item(j).getTextContent().equals(groupId.getTextContent()))) {
+                    isSameGroupId = true;
+                }
+                if (VERSION_TEG.equals(childNodes.item(j).getNodeName())) {
+                    isVersionDefined = true;
+                }
+            }
+            if (isSameGroupId && isVersionDefined) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static NodeList getNodeList(Path path, String expression) {
+        try {
+            Document document = readDocument(path.toUri().toURL());
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            return (NodeList) xpath.evaluate(expression, document, XPathConstants.NODESET);
+        } catch (MalformedURLException | XPathExpressionException ex) {
+            throw new RuntimeException("Invalid path " + path, ex);
+        }
+    }
+
+    private Node getNode(Path path, String expression) {
+        try {
+            Document document = readDocument(path.toUri().toURL());
+            XPath xpath = XPathFactory.newInstance().newXPath();
+            return (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
+        } catch (MalformedURLException | XPathExpressionException ex) {
+            throw new RuntimeException("Invalid path " + path, ex);
+        }
+    }
+
+    private static Document readDocument(URL url) {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(false);
+        try {
+            DocumentBuilder domBuilder = documentBuilderFactory.newDocumentBuilder();
+            try (InputStream inputStream = url.openStream()) {
+                return domBuilder.parse(inputStream);
+            } catch (IOException | SAXException e) {
+                throw new RuntimeException("Error loading configuration from " + url, e);
+            }
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private boolean validatePom(Path path) throws ParserConfigurationException, IOException,
             SAXException, XPathExpressionException {
@@ -106,7 +173,6 @@ public class DefaultValidatePomService implements ValidatePomService {
         if(rootGroupId.equals(groupId) && !version.isEmpty()) {
             return version.equals(PROJECT_VERSION);
         }
-
         return true;
     }
 }
