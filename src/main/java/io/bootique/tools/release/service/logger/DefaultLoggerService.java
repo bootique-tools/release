@@ -20,11 +20,13 @@ public class DefaultLoggerService implements LoggerService {
     private String releaseVersion;
 
     public void prepareLogger(ReleaseDescriptor releaseDescriptor) {
-        if (multiAppender == null) {
+        if (multiAppender != null) {
+            multiAppender.getAppenderMap().clear();
+        } else {
             multiAppender = (MultiAppender) LOGGER.getAppender("multiAppender");
-            multiAppender.createAppenderMap(releaseDescriptor, preferenceService.get(LoggerService.LOGGER_BASE_PATH));
-            this.releaseVersion = releaseDescriptor.getReleaseVersions().releaseVersion();
         }
+        multiAppender.createAppenderMap(releaseDescriptor, preferenceService.get(LoggerService.LOGGER_BASE_PATH));
+        this.releaseVersion = releaseDescriptor.getReleaseVersions().releaseVersion();
     }
 
     @Override
