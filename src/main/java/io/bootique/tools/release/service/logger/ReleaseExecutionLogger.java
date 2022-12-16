@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Arrays;
 
@@ -27,9 +28,11 @@ public class ReleaseExecutionLogger implements ExecutionLogger {
 
     @Override
     public String getLogs(RepositoryDescriptor repositoryDescriptor, ReleaseStage releaseStage) {
+        var fileAppender = getFileAppender(repositoryDescriptor, releaseStage);
         try {
-            var fileAppender = getFileAppender(repositoryDescriptor, releaseStage);
             return String.join("\n", Files.readAllLines(Path.of(fileAppender.getFile())));
+        } catch (NoSuchFileException e) {
+            return "Logfile not found: " + fileAppender.getFile();
         } catch (IOException | NullPointerException e) {
             e.printStackTrace();
         }
@@ -46,7 +49,7 @@ public class ReleaseExecutionLogger implements ExecutionLogger {
         }
     }
 
-    private FileAppender<ILoggingEvent> getFileAppender(RepositoryDescriptor repositoryDescriptor, ReleaseStage releaseStage) throws IOException {
+    private FileAppender<ILoggingEvent> getFileAppender(RepositoryDescriptor repositoryDescriptor, ReleaseStage releaseStage) {
         return loggerService
                 .getMultiAppender()
                 .getAppenderMap()
