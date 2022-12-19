@@ -16,9 +16,9 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.function.Function;
 
-public class ReleaseInstallTask implements Function<Repository, String> {
+public class ReleaseValidationTask implements Function<Repository, String> {
 
-    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ReleaseInstallTask.class);
+    private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ReleaseValidationTask.class);
 
     @Inject
     LoggerService logger;
@@ -35,7 +35,7 @@ public class ReleaseInstallTask implements Function<Repository, String> {
 
     @Override
     public String apply(Repository repo) {
-        logger.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_INSTALL));
+        logger.setAppender(repo.getName(), "release", String.valueOf(ReleaseStage.RELEASE_VALIDATION));
         validate(repo);
         return install(repo);
     }

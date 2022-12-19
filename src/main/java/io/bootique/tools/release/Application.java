@@ -120,7 +120,7 @@ public class Application implements BQModule {
 
         contributeReleaseTask(binder)
                 .put(ReleaseStage.RELEASE_PULL, ReleasePullTask.class)
-                .put(ReleaseStage.RELEASE_INSTALL, ReleaseInstallTask.class)
+                .put(ReleaseStage.RELEASE_VALIDATION, ReleaseValidationTask.class)
                 .put(ReleaseStage.RELEASE_PREPARE, ReleasePrepareTask.class)
                 .put(ReleaseStage.RELEASE_PERFORM, ReleasePerformTask.class)
                 .put(ReleaseStage.RELEASE_SYNC, ReleaseSonatypeSyncTask.class);

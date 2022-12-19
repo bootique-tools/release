@@ -32,7 +32,7 @@ class JobDescriptorFactoryImplTest {
         releaseDescriptor.getRepositoryDescriptorList().get(0).
                 getStageStatusMap().replace(ReleaseStage.RELEASE_PULL, ReleaseStageStatus.Success);
         releaseDescriptor.getRepositoryDescriptorList().get(0).
-                getStageStatusMap().replace(ReleaseStage.RELEASE_INSTALL, ReleaseStageStatus.Success);
+                getStageStatusMap().replace(ReleaseStage.RELEASE_VALIDATION, ReleaseStageStatus.Success);
 
         assertEquals(jobDescriptorFactory.getExecuteStages(releaseDescriptor.getRepositoryDescriptorList()),
                 List.of(ReleaseStage.RELEASE_PREPARE, ReleaseStage.RELEASE_PERFORM)
