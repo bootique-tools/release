@@ -40,7 +40,7 @@ public class ValidatePomTest {
         URL url = getClass().getClassLoader().getResource("bootique");
         Path path = Path.of(Objects.requireNonNull(url).toURI());
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
-        assertEquals(1, validatePomService.validatePom("").size());
+        assertEquals(3, validatePomService.validatePom("").size());
     }
 
     @Test
