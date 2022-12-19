@@ -88,7 +88,12 @@ public class ValidationController extends BaseJobController {
             return "All poms are valid.";
         }
 
-        return failedRepos.size()+" failed poms: " + String.join(", ", failedRepos);
+        StringBuilder sb = new StringBuilder();
+        sb.append(failedRepos.size()).append(" failed poms: ");
+        for (String failedRepo : failedRepos) {
+            sb.append("\n").append(failedRepo);
+        }
+        return sb.toString();
     }
 
 }
