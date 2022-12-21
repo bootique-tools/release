@@ -47,7 +47,7 @@ log:
         - multiAppender
         - FILE
 
-    io.bootique.tools.release.service.tasks.ReleaseInstallTask:
+    io.bootique.tools.release.service.tasks.ReleaseValidationTask:
       level: error
       appenderRefs:
         - multiAppender
