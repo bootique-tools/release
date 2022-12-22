@@ -23,7 +23,9 @@ public class BatchJobTask<T> extends FutureTask<T> {
 
     @Override
     protected void done() {
-        listener.run();
+        if(listener != null) {
+            listener.run();
+        }
     }
 
     @SuppressWarnings("unchecked")
