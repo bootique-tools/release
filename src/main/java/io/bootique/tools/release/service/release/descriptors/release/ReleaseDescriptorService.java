@@ -2,6 +2,7 @@ package io.bootique.tools.release.service.release.descriptors.release;
 
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
+import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.ReleaseVersions;
 import io.bootique.tools.release.model.release.RepositoryDescriptor;
 
@@ -15,7 +16,7 @@ public interface ReleaseDescriptorService {
 
     void dropReleaseDescriptor();
 
-    List<RepositoryDescriptor> getUnfinishedRepositoryDescriptorList();
+    List<RepositoryDescriptor> getUnfinishedRepositoryDescriptorList(ReleaseStage stage);
 
     RepositoryDescriptor getRepositoryDescriptorByName(String name);
 
