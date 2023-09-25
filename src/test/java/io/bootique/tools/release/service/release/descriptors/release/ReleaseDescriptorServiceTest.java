@@ -55,7 +55,7 @@ class ReleaseDescriptorServiceTest {
                 new ReleaseDescriptorServiceImpl(() -> mock(ReleasePersistentService.class));
         releaseDescriptorService.setReleaseDescriptor(releaseDescriptor);
 
-        assertEquals(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(),
+        assertEquals(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL),
                 releaseDescriptor.getRepositoryDescriptorList());
     }
 
@@ -65,7 +65,7 @@ class ReleaseDescriptorServiceTest {
                 new ReleaseDescriptorServiceImpl(() -> mock(ReleasePersistentService.class));
         releaseDescriptorService.setReleaseDescriptor(releaseDescriptorFactory.createFinishDescriptor(2));
 
-        assertEquals(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(), Collections.emptyList());
+        assertEquals(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL), Collections.emptyList());
     }
 
     @Test
@@ -80,7 +80,7 @@ class ReleaseDescriptorServiceTest {
                 .getStageStatusMap()
                 .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Not_Start);
 
-        assertEquals(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(),
+        assertEquals(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL),
                 releaseDescriptor.getRepositoryDescriptorList().subList(0, 1));
     }
 
@@ -97,7 +97,7 @@ class ReleaseDescriptorServiceTest {
                 .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Reload);
 
         assertEquals(releaseDescriptor.getRepositoryDescriptorList().subList(1,2),
-                releaseDescriptorService.getUnfinishedRepositoryDescriptorList());
+                releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL));
     }
 
     @Test
@@ -113,6 +113,6 @@ class ReleaseDescriptorServiceTest {
                 .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Skip);
 
         assertEquals(releaseDescriptor.getRepositoryDescriptorList(),
-                releaseDescriptorService.getUnfinishedRepositoryDescriptorList());
+                releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL));
     }
 }

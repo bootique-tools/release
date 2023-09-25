@@ -90,11 +90,11 @@ class ReleaseExecutorTest {
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
         releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
-                .getStageStatusMap().replace(ReleaseStage.RELEASE_INSTALL,ReleaseStageStatus.Fail);
+                .getStageStatusMap().replace(ReleaseStage.RELEASE_VALIDATION,ReleaseStageStatus.Fail);
         assertFalse(releaseExecutor.canExecuteRelease());
 
         releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
-                .getStageStatusMap().replace(ReleaseStage.RELEASE_INSTALL,ReleaseStageStatus.Success);
+                .getStageStatusMap().replace(ReleaseStage.RELEASE_VALIDATION,ReleaseStageStatus.Success);
         releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_PERFORM,ReleaseStageStatus.Fail_Rollback);
         assertFalse(releaseExecutor.canExecuteRelease());

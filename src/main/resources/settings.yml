@@ -47,6 +47,12 @@ log:
         - multiAppender
         - FILE
 
+    io.bootique.tools.release.service.tasks.ReleaseValidationTask:
+      level: error
+      appenderRefs:
+        - multiAppender
+        - FILE
+
 preferences:
   organizationName: bootique
   organizationGroupId: io.bootique

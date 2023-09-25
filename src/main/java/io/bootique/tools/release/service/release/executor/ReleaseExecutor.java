@@ -46,7 +46,7 @@ public class ReleaseExecutor implements ReleaseExecutorService {
     public void executeRelease() {
         if (canExecuteRelease() && releaseNotRunning()) {
             BatchJobDescriptor<RepositoryDescriptor, String> jobDescriptor = jobDescriptorCreator
-                    .createReleaseJobDescriptor(releaseDescriptorService.getUnfinishedRepositoryDescriptorList());
+                    .createReleaseJobDescriptor(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL));
             executeReleaseStage(jobDescriptor);
         }
     }
@@ -92,7 +92,7 @@ public class ReleaseExecutor implements ReleaseExecutorService {
     @Override
     public void startSyncStage() {
         BatchJobDescriptor<RepositoryDescriptor, String> jobDescriptor = jobDescriptorCreator
-                .createReleaseJobDescriptor(releaseDescriptorService.getUnfinishedRepositoryDescriptorList());
+                .createReleaseJobDescriptor(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_SYNC));
         executeReleaseStage(jobDescriptor);
     }
 
@@ -103,7 +103,10 @@ public class ReleaseExecutor implements ReleaseExecutorService {
         stageUpdater.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Skip);
         saverService.saveRelease();
 
-        executeRelease();
+        BatchJobDescriptor<RepositoryDescriptor, String> jobDescriptor = jobDescriptorCreator
+                .createReleaseJobDescriptor(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(stage));
+        executeReleaseStage(jobDescriptor);
+
     }
 
     @Override
@@ -113,7 +116,7 @@ public class ReleaseExecutor implements ReleaseExecutorService {
         stageUpdater.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Reload);
 
         BatchJobDescriptor<RepositoryDescriptor, String> jobDescriptor = jobDescriptorCreator
-                .createReleaseJobDescriptor(releaseDescriptorService.getUnfinishedRepositoryDescriptorList());
+                .createReleaseJobDescriptor(releaseDescriptorService.getUnfinishedRepositoryDescriptorList(stage));
         executeReleaseStage(jobDescriptor);
     }
 

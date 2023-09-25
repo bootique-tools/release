@@ -10,6 +10,7 @@ import javax.inject.Provider;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ReleaseDescriptorServiceImpl implements ReleaseDescriptorService {
@@ -42,9 +43,7 @@ public class ReleaseDescriptorServiceImpl implements ReleaseDescriptorService {
 
     @Override
     public ReleaseDescriptor getReleaseDescriptor() {
-
         if (releaseDescriptor == null) {
-
             if (!persistentServiceProvider.get().isReleaseSaved()) {
                 return null;
             }
@@ -65,19 +64,40 @@ public class ReleaseDescriptorServiceImpl implements ReleaseDescriptorService {
     }
 
     @Override
-    public List<RepositoryDescriptor> getUnfinishedRepositoryDescriptorList() {
+    public List<RepositoryDescriptor> getUnfinishedRepositoryDescriptorList(ReleaseStage stage) {
+        if (stage == ReleaseStage.RELEASE_PREPARE || stage == ReleaseStage.RELEASE_PERFORM) {
+            return getLastUnfinishedRepositoryDescriptors(List.of(ReleaseStage.RELEASE_PREPARE, ReleaseStage.RELEASE_PERFORM));
+        } else {
+            return getFirstUnfinishedRepositoryDescriptorList();
+        }
+    }
 
+    private List<RepositoryDescriptor> getFirstUnfinishedRepositoryDescriptorList() {
         for (ReleaseStage stage : ReleaseStage.values()) {
-            var result = releaseDescriptor.getRepositoryDescriptorList().stream().filter(repositoryDescriptor ->
-                    repositoryDescriptor.getStageStatusMap().get(stage) == ReleaseStageStatus.Not_Start ^
-                            repositoryDescriptor.getStageStatusMap().get(stage) == ReleaseStageStatus.Reload
-            ).collect(Collectors.toList());
-
+            List<RepositoryDescriptor> result = getUnfinishedRepositoryDescriptorsByStage(stage);
             if (!result.isEmpty()) {
                 return result;
             }
         }
         return Collections.emptyList();
+    }
+
+    private List<RepositoryDescriptor> getLastUnfinishedRepositoryDescriptors(List<ReleaseStage> stages) {
+        List<RepositoryDescriptor> unfinishedRepoDescriptorList = null;
+        for (ReleaseStage stage : stages) {
+            List<RepositoryDescriptor> descriptorList = getUnfinishedRepositoryDescriptorsByStage(stage);
+            if (!descriptorList.isEmpty()) {
+                unfinishedRepoDescriptorList = descriptorList;
+            }
+        }
+        return Objects.requireNonNullElse(unfinishedRepoDescriptorList, Collections.emptyList());
+    }
+
+    private List<RepositoryDescriptor> getUnfinishedRepositoryDescriptorsByStage(ReleaseStage stage) {
+        return releaseDescriptor.getRepositoryDescriptorList().stream().filter(repositoryDescriptor ->
+                repositoryDescriptor.getStageStatusMap().get(stage) == ReleaseStageStatus.Not_Start ^
+                        repositoryDescriptor.getStageStatusMap().get(stage) == ReleaseStageStatus.Reload
+        ).collect(Collectors.toList());
     }
 
     @Override
@@ -87,6 +107,5 @@ public class ReleaseDescriptorServiceImpl implements ReleaseDescriptorService {
                 .filter(repoDescriptor -> repoDescriptor.getRepositoryName().equals(name))
                 .findFirst().get();
     }
-
 
 }
