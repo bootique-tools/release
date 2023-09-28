@@ -9,11 +9,14 @@
     <div class="row">
         <div class="col-sm-12" style="padding: 30px; text-align:left;">
             <div class="row">
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <input type="text" v-model="milestoneTitle" placeholder="Milestone Title"/>
                 </div>
-                <div class="col-sm-2" >
-                    <button type="button" class="btn btn-success" v-bind:disabled="disableButton" v-on:click="generate()">Generate</button>
+                <div class="col-sm-3" >
+                    <button type="button" class="btn btn-success" v-bind:disabled="disableButton" v-on:click="generate(false)">Issues done</button>
+                </div>
+                <div class="col-sm-3" >
+                    <button type="button" class="btn btn-info" v-on:click="generate(true)">Issues To Do</button>
                 </div>
             </div>
             <pre style="padding: 30px;">[[releaseNotes]]

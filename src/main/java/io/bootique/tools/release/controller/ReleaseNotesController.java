@@ -23,7 +23,8 @@ public class ReleaseNotesController extends BaseController {
 
     @GET
     @Path("/generate")
-    public String getBranch(@QueryParam("milestoneTitle") String milestoneTitle) {
-        return releaseNotesService.createReleaseNotes(milestoneTitle);
+    public String getBranch(@QueryParam("milestoneTitle") String milestoneTitle,
+                            @QueryParam("todo") boolean todo) {
+        return releaseNotesService.createReleaseNotes(milestoneTitle, todo);
     }
 }

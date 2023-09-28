@@ -19,10 +19,10 @@ export function initReleaseNotesView() {
             disableGenerateButton: function () {
                 this.disableButton = !this.milestoneTitle;
             },
-            generate: function () {
+            generate: function (todo) {
                 let currApp = this;
                 $('#bar').fadeIn();
-                axios.get(`/ui/release-notes/generate?cayenneExp=milestones.title="${currApp.milestoneTitle}"&milestoneTitle=${currApp.milestoneTitle}`)
+                axios.get(`/ui/release-notes/generate?milestoneTitle=${currApp.milestoneTitle}&todo=${todo}`)
                     .then(function (response) {
                         currApp.releaseNotes = response.data;
                         $('#bar').fadeOut();
