@@ -36,12 +36,6 @@
                 <artifactId>bootique-logback</artifactId>
                 <version>${bootique.version}</version>
             </dependency>
-            <dependency>
-                <groupId>io.bootique.logback</groupId>
-                <artifactId>bootique-logback</artifactId>
-                <version>${bootique.version}</version>
-                <type>test-jar</type>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -66,6 +60,7 @@
         <dependency>
             <groupId>io.bootique.logback</groupId>
             <artifactId>bootique-logback</artifactId>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

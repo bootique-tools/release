@@ -10,6 +10,7 @@ import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -44,10 +45,16 @@ public class ValidatePomTest {
     }
 
     @Test
-    void validateDependenciesTest() {
-        Path incorrectProjectPath = Paths.get("src/test/resources/dummy-org-00/dummy-dependencies/incorrectProject/pom.xml");
-        assertFalse(validatePomService.validateDependencies(incorrectProjectPath));
-        Path correctProjectPath = Paths.get("src/test/resources/dummy-org-00/dummy-dependencies/correctProject/pom.xml");
-        assertTrue(validatePomService.validateDependencies(correctProjectPath));
+    void validateInvalidDependencies() {
+        URL url = getClass().getClassLoader().getResource("dummy-org-00/dummy-dependencies/incorrectProject/pom.xml");
+        Document document = DefaultValidatePomService.readDocument(url);
+        assertFalse(validatePomService.validateDependencies(document));
+    }
+
+    @Test
+    void validateValidDependencies() {
+        URL url = getClass().getClassLoader().getResource("dummy-org-00/dummy-dependencies/correctProject/pom.xml");
+        Document document = DefaultValidatePomService.readDocument(url);
+        assertTrue(validatePomService.validateDependencies(document));
     }
 }

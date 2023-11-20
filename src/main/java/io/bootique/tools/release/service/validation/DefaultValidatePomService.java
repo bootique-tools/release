@@ -35,6 +35,7 @@ public class DefaultValidatePomService implements ValidatePomService {
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(DefaultValidatePomService.class);
     private static final String PROJECT_VERSION = "${project.version}";
     private static final String VERSION_TEG = "version";
+    private static final String GROUP_ID_TAG = "groupId";
 
     @Inject
     PreferenceService preferences;
@@ -48,6 +49,8 @@ public class DefaultValidatePomService implements ValidatePomService {
             stream.filter(Files::isRegularFile)
                     .filter(name -> (name.getFileName().toString().equals("pom.xml") &&
                             !name.toString().contains(File.pathSeparator + "target" + File.pathSeparator)))
+                    .map(DefaultValidatePomService::pathToURL)
+                    .map(DefaultValidatePomService::readDocument)
                     .forEach(pom -> {
                         try {
                             if (!validatePom(pom)) {
@@ -56,7 +59,7 @@ public class DefaultValidatePomService implements ValidatePomService {
                             if (!validateDependencies(pom)) {
                                 failedPoms.add("Incorrect dependencies definition: " + pom);
                             }
-                        } catch (IOException | ParserConfigurationException | SAXException | XPathExpressionException e) {
+                        } catch (XPathExpressionException e) {
                             throw new DesktopException("Can't validate pom for " + repoName, e);
                         }
                     });
@@ -67,21 +70,24 @@ public class DefaultValidatePomService implements ValidatePomService {
         return failedPoms;
     }
 
-    public boolean validateDependencies(Path path) {
-        Node groupId = getNode(path, "/project/groupId");
+    public boolean validateDependencies(Document document) {
+        Node groupId = getNode(document, "/project/groupId");
         if (groupId == null) {
-            groupId = getNode(path, "/project/parent/groupId");
+            groupId = getNode(document, "/project/parent/groupId");
         }
-        NodeList dependenciesNodes = getNodeList(path, "/project/dependencies/dependency");
+        NodeList dependenciesNodes = getNodeList(document, "/project/dependencies/dependency");
         for (int i = 0; i < dependenciesNodes.getLength(); i++) {
             boolean isSameGroupId = false;
             boolean isVersionDefined = false;
             NodeList childNodes = dependenciesNodes.item(i).getChildNodes();
             for (int j = 0; j < childNodes.getLength(); j++) {
-                if ((childNodes.item(j).getTextContent().equals(groupId.getTextContent()))) {
+                Node item = childNodes.item(j);
+                if(GROUP_ID_TAG.equals(item.getNodeName())
+                        && item.getTextContent().equals(groupId.getTextContent())) {
                     isSameGroupId = true;
                 }
-                if (VERSION_TEG.equals(childNodes.item(j).getNodeName())) {
+                if (VERSION_TEG.equals(item.getNodeName())
+                        && !"${project.version}".equals(item.getTextContent())) {
                     isVersionDefined = true;
                 }
             }
@@ -92,27 +98,33 @@ public class DefaultValidatePomService implements ValidatePomService {
         return true;
     }
 
-    private static NodeList getNodeList(Path path, String expression) {
+    private static NodeList getNodeList(Document document, String expression) {
         try {
-            Document document = readDocument(path.toUri().toURL());
             XPath xpath = XPathFactory.newInstance().newXPath();
             return (NodeList) xpath.evaluate(expression, document, XPathConstants.NODESET);
-        } catch (MalformedURLException | XPathExpressionException ex) {
-            throw new RuntimeException("Invalid path " + path, ex);
+        } catch (XPathExpressionException ex) {
+            throw new RuntimeException("Invalid XPath expression", ex);
         }
     }
 
-    private Node getNode(Path path, String expression) {
+    private static URL pathToURL(Path path) {
         try {
-            Document document = readDocument(path.toUri().toURL());
+            return path.toUri().toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Node getNode(Document document, String expression) {
+        try {
             XPath xpath = XPathFactory.newInstance().newXPath();
             return (Node) xpath.evaluate(expression, document, XPathConstants.NODE);
-        } catch (MalformedURLException | XPathExpressionException ex) {
-            throw new RuntimeException("Invalid path " + path, ex);
+        } catch (XPathExpressionException ex) {
+            throw new RuntimeException("Invalid XPath expression", ex);
         }
     }
 
-    private static Document readDocument(URL url) {
+    static Document readDocument(URL url) {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(false);
         try {
@@ -128,12 +140,7 @@ public class DefaultValidatePomService implements ValidatePomService {
     }
 
 
-    private boolean validatePom(Path path) throws ParserConfigurationException, IOException,
-            SAXException, XPathExpressionException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(path.toFile());
-
+    private boolean validatePom(Document document) throws XPathExpressionException {
         XPath xpath = XPathFactory.newInstance().newXPath();
         Node rootGroup = (Node)xpath.evaluate("/project/groupId", document, XPathConstants.NODE);
         if(rootGroup == null) {
