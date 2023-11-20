@@ -50,13 +50,13 @@ public class DefaultValidatePomService implements ValidatePomService {
                     .filter(name -> (name.getFileName().toString().equals("pom.xml") &&
                             !name.toString().contains(File.pathSeparator + "target" + File.pathSeparator)))
                     .map(DefaultValidatePomService::pathToURL)
-                    .map(DefaultValidatePomService::readDocument)
                     .forEach(pom -> {
                         try {
-                            if (!validatePom(pom)) {
+                            Document document = readDocument(pom);
+                            if (!validatePom(document)) {
                                 failedPoms.add("Incorrect pom: " + pom);
                             }
-                            if (!validateDependencies(pom)) {
+                            if (!validateDependencies(document)) {
                                 failedPoms.add("Incorrect dependencies definition: " + pom);
                             }
                         } catch (XPathExpressionException e) {
@@ -87,7 +87,7 @@ public class DefaultValidatePomService implements ValidatePomService {
                     isSameGroupId = true;
                 }
                 if (VERSION_TEG.equals(item.getNodeName())
-                        && !"${project.version}".equals(item.getTextContent())) {
+                        && !PROJECT_VERSION.equals(item.getTextContent())) {
                     isVersionDefined = true;
                 }
             }

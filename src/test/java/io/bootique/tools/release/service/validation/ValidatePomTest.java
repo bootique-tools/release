@@ -4,6 +4,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 import io.bootique.tools.release.service.git.GitService;
@@ -41,7 +42,8 @@ public class ValidatePomTest {
         URL url = getClass().getClassLoader().getResource("bootique");
         Path path = Path.of(Objects.requireNonNull(url).toURI());
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
-        assertEquals(3, validatePomService.validatePom("").size());
+        List<String> validated = validatePomService.validatePom("");
+        assertEquals(1, validated.size());
     }
 
     @Test
