@@ -3,7 +3,6 @@ package io.bootique.tools.release.service.validation;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ValidatePomTest {
 
     private DefaultValidatePomService validatePomService;
-    private MockPreferenceService mockPreferenceService = new MockPreferenceService();
+    private final MockPreferenceService mockPreferenceService = new MockPreferenceService();
 
     @BeforeEach
     void createService() {
