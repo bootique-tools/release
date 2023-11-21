@@ -34,6 +34,15 @@ class StageManagerServiceTest {
     }
 
     @Test
+    void partialReleasePreparePerformFailure() {
+        ReleaseDescriptor releaseDescriptor = releaseDescriptorFactory.createPartialPrepareDescriptor(2);
+        StageManagerService managerService = createStageManager(releaseDescriptor);
+
+        assertFalse(managerService.isStageSyncCurrent(releaseDescriptor.getRepositoryDescriptorList().get(0)));
+        assertFalse(managerService.isStageSyncCurrent(releaseDescriptor.getRepositoryDescriptorList().get(1)));
+    }
+
+    @Test
     void isStageSyncCurrentWithFailPerformDescriptor() {
         ReleaseDescriptor releaseDescriptor = releaseDescriptorFactory.createNotSyncDescriptor(2);
         StageManagerService managerService = createStageManager(releaseDescriptor);

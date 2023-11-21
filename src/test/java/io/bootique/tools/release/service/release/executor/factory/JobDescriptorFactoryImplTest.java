@@ -3,6 +3,7 @@ package io.bootique.tools.release.service.release.executor.factory;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.ReleaseStageStatus;
+import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.ReleaseDescriptorFactory;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ class JobDescriptorFactoryImplTest {
         JobDescriptorFactoryImpl jobDescriptorFactory = new JobDescriptorFactoryImpl();
 
         assertEquals(jobDescriptorFactory.getExecuteStages(
-                        releaseDescriptorFactory.createNotStartDescriptor(3).getRepositoryDescriptorList()),
+                        releaseDescriptorFactory.createNotStartDescriptor(3).getRepositoryDescriptorList().get(0)),
                 List.of(ReleaseStage.RELEASE_PULL)
         );
     }
@@ -34,7 +35,7 @@ class JobDescriptorFactoryImplTest {
         releaseDescriptor.getRepositoryDescriptorList().get(0).
                 getStageStatusMap().replace(ReleaseStage.RELEASE_VALIDATION, ReleaseStageStatus.Success);
 
-        assertEquals(jobDescriptorFactory.getExecuteStages(releaseDescriptor.getRepositoryDescriptorList()),
+        assertEquals(jobDescriptorFactory.getExecuteStages(releaseDescriptor.getRepositoryDescriptorList().get(0)),
                 List.of(ReleaseStage.RELEASE_PREPARE, ReleaseStage.RELEASE_PERFORM)
         );
     }
@@ -44,7 +45,7 @@ class JobDescriptorFactoryImplTest {
         JobDescriptorFactoryImpl jobDescriptorFactory = new JobDescriptorFactoryImpl();
 
         assertEquals(jobDescriptorFactory.getExecuteStages(
-                        releaseDescriptorFactory.createNotSyncDescriptor(2).getRepositoryDescriptorList()),
+                        releaseDescriptorFactory.createNotSyncDescriptor(2).getRepositoryDescriptorList().get(0)),
                 List.of(ReleaseStage.RELEASE_SYNC)
         );
     }
@@ -53,9 +54,18 @@ class JobDescriptorFactoryImplTest {
     void getExecuteStagesWithFinishDescriptor() {
         JobDescriptorFactoryImpl jobDescriptorFactory = new JobDescriptorFactoryImpl();
 
-        assertEquals(jobDescriptorFactory.getExecuteStages(
-                        releaseDescriptorFactory.createFinishDescriptor(2).getRepositoryDescriptorList()),
-                Collections.emptyList()
+        List<ReleaseStage> stages = jobDescriptorFactory.getExecuteStages(
+                releaseDescriptorFactory.createFinishDescriptor(2).getRepositoryDescriptorList().get(0)
         );
+        assertEquals(Collections.emptyList(), stages);
+    }
+
+    @Test
+    void getExecuteStagesWithPartialPreparePerformDescriptor() {
+        JobDescriptorFactoryImpl jobDescriptorFactory = new JobDescriptorFactoryImpl();
+        List<RepositoryDescriptor> repositoryDescriptorList = releaseDescriptorFactory.createPartialPrepareDescriptor(2).getRepositoryDescriptorList();
+
+        assertEquals(List.of(ReleaseStage.RELEASE_SYNC), jobDescriptorFactory.getExecuteStages(repositoryDescriptorList.get(0)));
+        assertEquals(List.of(ReleaseStage.RELEASE_PREPARE, ReleaseStage.RELEASE_PERFORM), jobDescriptorFactory.getExecuteStages(repositoryDescriptorList.get(1)));
     }
 }

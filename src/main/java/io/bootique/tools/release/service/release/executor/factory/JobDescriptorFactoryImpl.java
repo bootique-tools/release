@@ -27,11 +27,10 @@ public class JobDescriptorFactoryImpl implements JobDescriptorFactory {
 
     @Override
     public BatchJobDescriptor<RepositoryDescriptor, String> createReleaseJobDescriptor(List<RepositoryDescriptor> data) {
-        List<ReleaseStage> stages = getExecuteStages(data);
-
         return BatchJobDescriptor.<RepositoryDescriptor, String>builder()
                 .data(data)
                 .processor(repositoryDescriptor -> {
+                    List<ReleaseStage> stages = getExecuteStages(repositoryDescriptor);
                     Repository repository = repositoryDescriptorService.loadRepository(repositoryDescriptor);
                     return releaseTaskFactory.createTask(repository, stages).apply(repositoryDescriptor);
                 })
@@ -39,10 +38,10 @@ public class JobDescriptorFactoryImpl implements JobDescriptorFactory {
                 .build();
     }
 
-    protected List<ReleaseStage> getExecuteStages(List<RepositoryDescriptor> data) {
+    protected List<ReleaseStage> getExecuteStages(RepositoryDescriptor data) {
         List<ReleaseStage> executeStages = new ArrayList<>();
         try {
-            ReleaseStage stage = getCurrentStage(data.get(0));
+            ReleaseStage stage = getCurrentStage(data);
             executeStages.add(stage);
             if (stage == ReleaseStage.RELEASE_PREPARE) {
                 executeStages.add(ReleaseStage.RELEASE_PERFORM);

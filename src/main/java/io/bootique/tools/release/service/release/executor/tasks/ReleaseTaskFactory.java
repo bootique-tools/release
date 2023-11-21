@@ -26,31 +26,29 @@ public class ReleaseTaskFactory implements TaskFactory {
 
     @Override
     public Function<RepositoryDescriptor, String> createTask(Repository repository, List<ReleaseStage> executeStages) {
-
         return repositoryDescriptor -> {
-
-            executeStages.forEach((stage) -> {
-
-                resetSubsequentStages(repositoryDescriptor,stage);
-                stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.In_Progress);
-
-                try {
-                    releaseTaskMap.get(stage).apply(repository);
-
-                    stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Success);
-                } catch (Exception e) {
-                    stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Fail);
-                    throw e;
-                } finally {
-                    saverService.saveRelease();
-                }
-            });
+            executeStages.forEach(stage -> executeRepoStage(repository, repositoryDescriptor, stage));
             return "";
         };
     }
 
-    private void resetSubsequentStages(RepositoryDescriptor repositoryDescriptor,ReleaseStage stage) {
-        Map<ReleaseStage,ReleaseStageStatus> statusStageMap = repositoryDescriptor.getStageStatusMap();
+    protected void executeRepoStage(Repository repository, RepositoryDescriptor repositoryDescriptor, ReleaseStage stage) {
+        resetSubsequentStages(repositoryDescriptor, stage);
+        stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.In_Progress);
+
+        try {
+            releaseTaskMap.get(stage).apply(repository);
+            stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Success);
+        } catch (Exception e) {
+            stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Fail);
+            throw e;
+        } finally {
+            saverService.saveRelease();
+        }
+    }
+
+    private void resetSubsequentStages(RepositoryDescriptor repositoryDescriptor, ReleaseStage stage) {
+        Map<ReleaseStage, ReleaseStageStatus> statusStageMap = repositoryDescriptor.getStageStatusMap();
         var stageArray = new ArrayList<>(statusStageMap.keySet());
 
         for (int i = stageArray.indexOf(stage) + 1; i < stageArray.size() - 1; i++) {

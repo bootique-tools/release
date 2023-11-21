@@ -3,6 +3,7 @@ package io.bootique.tools.release.service.release.descriptors.release;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.ReleaseStageStatus;
+import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.ReleaseDescriptorFactory;
 import io.bootique.tools.release.service.release.persistent.MockReleasePersistentService;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import javax.inject.Provider;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -96,8 +98,8 @@ class ReleaseDescriptorServiceTest {
                 .getStageStatusMap()
                 .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Reload);
 
-        assertEquals(releaseDescriptor.getRepositoryDescriptorList().subList(1,2),
-                releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL));
+        List<RepositoryDescriptor> unfinishedRepositoryDescriptorList = releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL);
+        assertEquals(releaseDescriptor.getRepositoryDescriptorList().subList(1,2), unfinishedRepositoryDescriptorList);
     }
 
     @Test
@@ -112,7 +114,25 @@ class ReleaseDescriptorServiceTest {
                 .getStageStatusMap()
                 .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Skip);
 
-        assertEquals(releaseDescriptor.getRepositoryDescriptorList(),
-                releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL));
+        List<RepositoryDescriptor> unfinishedRepositoryDescriptorList = releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PULL);
+        assertEquals(releaseDescriptor.getRepositoryDescriptorList(), unfinishedRepositoryDescriptorList);
+    }
+
+    @Test
+    void getSkipReleasePerformUnfinishedRepositoryDescriptor() {
+        ReleaseDescriptor releaseDescriptor = releaseDescriptorFactory.createPartialPrepareDescriptor(2);
+        ReleaseDescriptorServiceImpl releaseDescriptorService =
+                new ReleaseDescriptorServiceImpl(() -> mock(ReleasePersistentService.class));
+        releaseDescriptorService.setReleaseDescriptor(releaseDescriptor);
+
+        releaseDescriptor.getRepositoryDescriptorList()
+                .get(0)
+                .getStageStatusMap()
+                .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Skip);
+
+        List<RepositoryDescriptor> unfinishedRepositoryDescriptorList
+                = releaseDescriptorService.getUnfinishedRepositoryDescriptorList(ReleaseStage.RELEASE_PERFORM);
+        assertEquals(releaseDescriptor.getRepositoryDescriptorList().subList(1, 2),
+                unfinishedRepositoryDescriptorList);
     }
 }

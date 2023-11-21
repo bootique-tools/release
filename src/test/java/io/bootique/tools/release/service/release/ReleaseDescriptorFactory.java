@@ -63,6 +63,34 @@ public class ReleaseDescriptorFactory {
         return releaseDescriptor;
     }
 
+    public ReleaseDescriptor createPartialPrepareDescriptor(int repoCount) {
+        ReleaseDescriptor releaseDescriptor = createDescriptorWithoutStatusMap(repoCount);
+        releaseDescriptor.getRepositoryDescriptorList().forEach( repositoryDescriptor -> {
+            LinkedHashMap<ReleaseStage, ReleaseStageStatus> stageStatusMap =
+                    Arrays.stream(ReleaseStage.values())
+                            .collect(Collectors.toMap(
+                                    key -> key,
+                                    value -> ReleaseStageStatus.Success,
+                                    (e1, e2) -> e1,
+                                    LinkedHashMap::new));
+            repositoryDescriptor.setStageStatusMap(stageStatusMap);
+        });
+
+        RepositoryDescriptor lastRepositoryDescriptor = releaseDescriptor.getRepositoryDescriptorList().get(repoCount - 1);
+        lastRepositoryDescriptor.getStageStatusMap().put(ReleaseStage.RELEASE_PREPARE, ReleaseStageStatus.Not_Start);
+        lastRepositoryDescriptor.getStageStatusMap().put(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Not_Start);
+        lastRepositoryDescriptor.getStageStatusMap().put(ReleaseStage.RELEASE_SYNC, ReleaseStageStatus.Not_Start);
+        if(repoCount > 1) {
+            RepositoryDescriptor oneBeforeLastDescriptor = releaseDescriptor.getRepositoryDescriptorList().get(repoCount - 2);
+            oneBeforeLastDescriptor.getStageStatusMap().put(ReleaseStage.RELEASE_PREPARE, ReleaseStageStatus.Success);
+            oneBeforeLastDescriptor.getStageStatusMap().put(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Skip);
+            oneBeforeLastDescriptor.getStageStatusMap().put(ReleaseStage.RELEASE_SYNC, ReleaseStageStatus.Not_Start);
+
+        }
+        return releaseDescriptor;
+    }
+
+
     public ReleaseDescriptor createDescriptorWithoutStatusMap(int repoCount) {
         ReleaseDescriptor releaseDescriptor = new ReleaseDescriptor();
         releaseDescriptor.setReleaseVersions(new ReleaseVersions(fromVersion,version,devVersion));
