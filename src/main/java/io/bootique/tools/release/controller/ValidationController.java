@@ -16,14 +16,15 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 @Path("/validation")
 public class ValidationController extends BaseJobController {
 
-    private final String CONTROLLER_NAME = "validation";
+    private static final String CONTROLLER_NAME = "validation";
 
     @Inject
     private DesktopService desktopService;
@@ -77,10 +78,10 @@ public class ValidationController extends BaseJobController {
     public String validatePom() {
         ObjectContext context = cayenneRuntime.newContext();
         List<Repository> repositories = ObjectSelect.query(Repository.class).select(context);
-        List<String> failedRepos = new ArrayList<>();
+        Map<String, List<String>> failedRepos = new LinkedHashMap<>();
         for (Repository repository : repositories) {
             if(mavenService.isMavenProject(repository)) {
-                failedRepos.addAll(validatePomService.validatePom(repository.getName()));
+                failedRepos.putAll(validatePomService.validatePom(repository.getName()));
             }
         }
 
@@ -89,10 +90,11 @@ public class ValidationController extends BaseJobController {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(failedRepos.size()).append(" failed poms: ");
-        for (String failedRepo : failedRepos) {
-            sb.append("\n").append(failedRepo);
-        }
+        sb.append(failedRepos.size()).append(" failed POMs: \n");
+        failedRepos.forEach((pom, msgs) -> {
+            sb.append(pom).append(":\n");
+            msgs.forEach(m -> sb.append("   - ").append(m).append("\n"));
+        });
         return sb.toString();
     }
 

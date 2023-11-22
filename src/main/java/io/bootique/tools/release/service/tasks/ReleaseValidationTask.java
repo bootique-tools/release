@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public class ReleaseValidationTask implements Function<Repository, String> {
@@ -50,11 +51,10 @@ public class ReleaseValidationTask implements Function<Repository, String> {
     }
 
     private void validate(Repository repo) {
-        List<String> failedPoms = validatePomService.validatePom(repo.getName());
+        Map<String, List<String>> failedPoms = validatePomService.validatePom(repo.getName());
         if (!failedPoms.isEmpty()) {
-            for (String failedPom : failedPoms) {
-                LOGGER.error("Error in pom: " + failedPom);
-            }
+            failedPoms.forEach((pom, msgs)
+                    -> LOGGER.error("Error in pom: " + pom + ", " + String.join(";", msgs)));
             throw new DesktopException("Pom validation error");
         }
     }

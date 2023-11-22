@@ -1,9 +1,10 @@
 package io.bootique.tools.release.service.validation;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ValidatePomService {
 
-    List<String> validatePom(String repoName);
+    Map<String, List<String>> validatePom(String repoName);
 
 }

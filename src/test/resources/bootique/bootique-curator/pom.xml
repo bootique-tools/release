@@ -73,7 +73,7 @@
             <dependency>
                 <groupId>io.bootique</groupId>
                 <artifactId>bootique-test</artifactId>
-                <version>${bootique.version}</version>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
