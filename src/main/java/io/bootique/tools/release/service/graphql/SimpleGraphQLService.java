@@ -8,8 +8,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
-import org.eclipse.jetty.client.util.StringContentProvider;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.client.dynamic.HttpClientTransportDynamic;
+import org.eclipse.jetty.client.util.StringRequestContent;
+import org.eclipse.jetty.http.HttpHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,8 @@ public class SimpleGraphQLService implements GraphQLService {
                 .registerModule(new JavaTimeModule())
                 .registerModule(new Jdk8Module());
 
-        httpClient = new HttpClient(new SslContextFactory.Client.Client());
+        HttpClientTransportDynamic transport = new HttpClientTransportDynamic();
+        httpClient = new HttpClient(transport);
         httpClient.start();
     }
 
@@ -57,8 +59,8 @@ public class SimpleGraphQLService implements GraphQLService {
 
     private byte[] sendRequest(URI endpoint, String authToken, String query, Map<String, Object> variables) throws Exception {
         Request request = httpClient.POST(Objects.requireNonNull(endpoint));
-        request.header("Authorization", "Bearer " + Objects.requireNonNull(authToken));
-        request.content(new StringContentProvider(queryToJsonString(query, variables)));
+        request.headers(fields -> fields.add(HttpHeader.AUTHORIZATION, "Bearer " + Objects.requireNonNull(authToken)));
+        request.body(new StringRequestContent(queryToJsonString(query, variables)));
         ContentResponse response = request.send();
         if(response.getStatus() != 200) {
             throw new Exception(response.getContentAsString());

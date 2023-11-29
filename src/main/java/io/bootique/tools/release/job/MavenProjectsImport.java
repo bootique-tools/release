@@ -2,7 +2,7 @@ package io.bootique.tools.release.job;
 
 import io.bootique.job.BaseJob;
 import io.bootique.job.JobMetadata;
-import io.bootique.job.runnable.JobResult;
+import io.bootique.job.JobResult;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.maven.MavenService;

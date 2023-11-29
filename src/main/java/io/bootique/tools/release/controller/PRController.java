@@ -1,7 +1,7 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
 import io.agrest.DataResponse;
+import io.agrest.jaxrs2.AgJaxrs;
 import io.bootique.tools.release.model.persistent.PullRequest;
 import io.bootique.tools.release.view.PullRequestView;
 
@@ -25,6 +25,8 @@ public class PRController extends BaseController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<PullRequest> showAll(@Context UriInfo uriInfo) {
-        return Ag.select(PullRequest.class, configuration).uri(uriInfo).get();
+        return AgJaxrs.select(PullRequest.class, configuration)
+                .clientParams(uriInfo.getQueryParameters())
+                .get();
     }
 }

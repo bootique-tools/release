@@ -9,7 +9,7 @@ import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
-@ServerEndpoint(value = "ui/release/socket")
+@ServerEndpoint(value = "/ui/release/socket")
 public class ReleaseWebSocket {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ReleaseWebSocket.class);

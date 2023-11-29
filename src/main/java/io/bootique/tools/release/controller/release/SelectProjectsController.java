@@ -50,7 +50,7 @@ public class SelectProjectsController extends BaseController {
     public DataResponse<Project> showProjects(@QueryParam("version") String version) {
         DataResponse<Project> projectDataResponse = fetchProjects("[\"dependencies\",\"repository\"]");
 
-        projectDataResponse.getObjects().forEach(project -> {
+        projectDataResponse.getData().forEach(project -> {
             project.setDisable(true);
             if (project.getVersion().equals(version)) {
                 project.setDisable(false);
@@ -71,20 +71,18 @@ public class SelectProjectsController extends BaseController {
         @SuppressWarnings("unchecked")
         List<String> selectedProjects = objectMapper.readValue(selected, List.class);
         DataResponse<Project> allProjects = fetchProjects("[\"repository\"]");
-        List<Project> selectedProjectsResp = allProjects.getObjects().stream()
+        List<Project> selectedProjectsResp = allProjects.getData().stream()
                 .filter(project -> selectedProjects.contains(project.getRepository().getName()) && project.getVersion().equals(version))
                 .collect(Collectors.toList());
-        allProjects.getObjects().stream()
+        allProjects.getData().stream()
                 .filter(p -> selectedProject.equals(p.getRepository().getName()))
                 .findFirst()
-                .ifPresent(project -> buildOrder(selectedProjectsResp, state, project, allProjects.getObjects()));
+                .ifPresent(project -> buildOrder(selectedProjectsResp, state, project, allProjects.getData()));
 
-        filter(allProjects, selectedProjectsResp);
-
-        return allProjects;
+        return filter(allProjects, selectedProjectsResp);
     }
 
-    private void buildOrder(List<Project> selectedProjectsResp, boolean state, Project currentProject, List<Project> allProjects) {
+    private void buildOrder(List<Project> selectedProjectsResp, boolean state, Project currentProject, List<? extends Project> allProjects) {
         allProjects.forEach(project -> {
             if (state && !selectedProjectsResp.contains(project)) {
                 currentProject.getDependencies().forEach(dependency -> {
@@ -106,14 +104,14 @@ public class SelectProjectsController extends BaseController {
         });
     }
 
-    private void filter(DataResponse<Project> allProjects, List<Project> selectedProjectsResp) {
+    private DataResponse<Project> filter(DataResponse<Project> allProjects, List<Project> selectedProjectsResp) {
         DataResponse<Project> dataResponse = fetchProjects();
 
         // objects collection could be unmodifiable, so copy it§
-        List<Project> allProjectContent = new ArrayList<>(allProjects.getObjects());
+        List<Project> allProjectContent = new ArrayList<>(allProjects.getData());
 
         int flag = 0;
-        for (Project selectedProjectResp : dataResponse.getObjects()) {
+        for (Project selectedProjectResp : dataResponse.getData()) {
             for (Project project : selectedProjectsResp) {
                 if (selectedProjectResp.compareTo(project) == 0) {
                     flag++;
@@ -125,7 +123,9 @@ public class SelectProjectsController extends BaseController {
             flag = 0;
         }
 
-        allProjects.setObjects(allProjectContent);
+        return DataResponse.of(allProjects.getStatus(), allProjectContent)
+                .encoder(allProjects.getEncoder())
+                .build();
     }
 
     private void checkDependencies(Project project) {

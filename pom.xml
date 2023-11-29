@@ -15,14 +15,14 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <bq.version>2.0.1</bq.version>
-        <jetty.version>9.4.43.v20210629</jetty.version>
-        <jackson.version>2.12.6</jackson.version>
-        <mysql.jdbc.version>8.0.29</mysql.jdbc.version>
-        <sqlite.version>3.36.0.3</sqlite.version>
+        <bq.version>3.0.M2</bq.version>
+        <jetty.version>10.0.16</jetty.version>
+        <jackson.version>2.14.3</jackson.version>
+        <mysql.jdbc.version>8.2.0</mysql.jdbc.version>
+        <sqlite.version>3.44.1.0</sqlite.version>
 
         <mockito.version>4.6.1</mockito.version>
-        <junit.jupiter.version>5.8.2</junit.jupiter.version>
+        <junit.jupiter.version>5.9.1</junit.jupiter.version>
 
         <frontend.plugin.version>1.11.3</frontend.plugin.version>
         <node.version>v12.16.3</node.version>
@@ -77,8 +77,8 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
                 <version>${mysql.jdbc.version}</version>
             </dependency>
             <dependency>
@@ -121,7 +121,7 @@
         </dependency>
         <dependency>
             <groupId>io.bootique.agrest</groupId>
-            <artifactId>bootique-agrest-cayenne42</artifactId>
+            <artifactId>bootique-agrest5</artifactId>
         </dependency>
         <dependency>
             <groupId>io.bootique.jdbc</groupId>
@@ -146,8 +146,8 @@
 
         <!--  Db connectors  -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
         <dependency>
             <groupId>org.xerial</groupId>

@@ -1,7 +1,7 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
 import io.agrest.DataResponse;
+import io.agrest.jaxrs2.AgJaxrs;
 import io.bootique.tools.release.model.persistent.OpenIssue;
 import io.bootique.tools.release.view.IssueView;
 
@@ -25,6 +25,7 @@ public class IssueController extends BaseController {
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<OpenIssue> showAll(@Context UriInfo uriInfo) {
-        return Ag.select(OpenIssue.class, configuration).uri(uriInfo).get();
+        return AgJaxrs.select(OpenIssue.class, configuration)
+                .clientParams(uriInfo.getQueryParameters()).get();
     }
 }

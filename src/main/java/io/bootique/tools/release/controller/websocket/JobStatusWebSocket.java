@@ -9,7 +9,7 @@ import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
-@ServerEndpoint(value = "job/status")
+@ServerEndpoint(value = "/job/status")
 public class JobStatusWebSocket {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(JobStatusWebSocket.class);
@@ -43,7 +43,7 @@ public class JobStatusWebSocket {
     }
 
     @OnMessage
-    public void onMessage(String message) throws IOException, InterruptedException {
+    public void onMessage(String message) {
         LOGGER.debug("SEND MESSAGE: " + message);
     }
 }

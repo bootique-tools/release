@@ -1,25 +1,21 @@
 package io.bootique.tools.release.service.central;
 
-import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.jersey.client.HttpTargets;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.client.ClientBuilder;
-import java.nio.file.Paths;
-import java.util.Collections;
+import javax.ws.rs.client.WebTarget;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
  * @deprecated need to be refactoring for new model of project. After removing module entity (and rootModule from project),
  * the is no gitHubId property for query.
  */
+@Deprecated
 class CheckMavenCentral {
 
     private DefaultMvnCentralService mvnCentralService;
@@ -29,8 +25,17 @@ class CheckMavenCentral {
     @BeforeEach
     void createService() {
         mvnCentralService = new DefaultMvnCentralService();
-        mvnCentralService.targets = targets ->
-                ClientBuilder.newClient().target("http://search.maven.org");
+        mvnCentralService.targets = new HttpTargets() {
+            @Override
+            public WebTarget newTarget(String targetName) {
+                return ClientBuilder.newClient().target("http://search.maven.org");
+            }
+
+            @Override
+            public Set<String> getTargetNames() {
+                return Set.of("test");
+            }
+        };
 
         ServerRuntime cayenneRuntime = ServerRuntime.builder()
                 .addConfig("cayenne/cayenne-project.xml")

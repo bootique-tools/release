@@ -112,7 +112,7 @@ Build started with following configuration:
               Util: "exports-loader?Util!bootstrap/js/dist/util"
           }),
           new HtmlWebpackPlugin({
-              filename: "../../../target/classes/assets.mustache",
+              filename: "../../../target/classes/io/bootique/tools/release/view/assets.mustache",
               template: "assets.ejs",
               inject: false
           })

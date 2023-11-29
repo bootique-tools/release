@@ -15,7 +15,7 @@ import io.bootique.jetty.JettyModule;
 import io.bootique.jetty.command.ServerCommand;
 import io.bootique.jetty.websocket.JettyWebSocketModule;
 import io.bootique.job.command.ScheduleCommand;
-import io.bootique.job.runtime.JobModule;
+import io.bootique.job.JobModule;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.controller.websocket.JobStatusWebSocket;
 import io.bootique.tools.release.controller.websocket.ReleaseWebSocket;

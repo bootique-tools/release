@@ -1,7 +1,7 @@
 package io.bootique.tools.release.controller;
 
-import io.agrest.Ag;
 import io.agrest.DataResponse;
+import io.agrest.jaxrs2.AgJaxrs;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.view.RepoView;
@@ -34,9 +34,9 @@ public class RepoController extends BaseController {
     @Path("repo/show-all")
     @Produces(MediaType.APPLICATION_JSON)
     public DataResponse<Repository> getAll(@Context UriInfo uriInfo) {
-        return Ag.select(Repository.class, configuration)
-                .request(Ag.request(configuration).andExp("upstream = false").build())
-                .uri(uriInfo)
+        return AgJaxrs.select(Repository.class, configuration)
+                .request(AgJaxrs.request(configuration).andExp("upstream = false").build())
+                .clientParams(uriInfo.getQueryParameters())
                 .get();
     }
 }

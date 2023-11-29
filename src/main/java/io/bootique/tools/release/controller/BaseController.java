@@ -1,11 +1,11 @@
 package io.bootique.tools.release.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.agrest.Ag;
 import io.agrest.AgRequest;
 import io.agrest.DataResponse;
 import io.agrest.RootResourceEntity;
 import io.agrest.SelectStage;
+import io.agrest.jaxrs2.AgJaxrs;
 import io.agrest.runtime.processor.select.SelectContext;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.maven.persistent.Project;
@@ -67,8 +67,8 @@ public abstract class BaseController {
     }
 
     protected DataResponse<Project> fetchProjects(String include) {
-        AgRequest request = Ag.request(configuration).addInclude(include).build();
-        return Ag.select(Project.class, configuration)
+        AgRequest request = AgJaxrs.request(configuration).addInclude(include).build();
+        return AgJaxrs.select(Project.class, configuration)
                 .stage(SelectStage.FETCH_DATA, new MavenProjectSorter(mavenService))
                 .request(request)
                 .get();
@@ -99,7 +99,7 @@ public abstract class BaseController {
         @Override
         public void accept(SelectContext<Project> context) {
             RootResourceEntity<Project> entity = context.getEntity();
-            entity.setResult(mavenService.sortProjects(entity.getResult()));
+            entity.setData(mavenService.sortProjects(entity.getData()));
         }
     }
 }

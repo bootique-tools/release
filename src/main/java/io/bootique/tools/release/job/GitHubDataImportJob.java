@@ -2,7 +2,7 @@ package io.bootique.tools.release.job;
 
 import io.bootique.job.BaseJob;
 import io.bootique.job.JobMetadata;
-import io.bootique.job.runnable.JobResult;
+import io.bootique.job.JobResult;
 import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApiImport;
