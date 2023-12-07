@@ -27,8 +27,8 @@
         <frontend.plugin.version>1.11.3</frontend.plugin.version>
         <node.version>v12.16.3</node.version>
 
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
         <main.class>io.bootique.tools.release.Application</main.class>
     </properties>
 
