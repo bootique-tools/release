@@ -57,14 +57,16 @@ Build started with following configuration:
                 }, {
                     loader: "postcss-loader",
                     options: {
-                        plugins: function () {
-                            return [
-                                autoprefixer
-                            ];
-                        },
-                        url: false,
-                        minimize: true,
-                        sourceMap: true
+                        postcssOptions: {
+                            plugins: function () {
+                                return [
+                                    autoprefixer
+                                ];
+                            },
+                            url: false,
+                            minimize: true,
+                            sourceMap: true
+                        }
                     }
                 }, {
                     loader: "sass-loader",

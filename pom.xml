@@ -25,7 +25,7 @@
         <junit.jupiter.version>5.9.1</junit.jupiter.version>
 
         <frontend.plugin.version>1.11.3</frontend.plugin.version>
-        <node.version>v12.16.3</node.version>
+        <node.version>v14.21.3</node.version>
 
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.source>21</maven.compiler.source>
