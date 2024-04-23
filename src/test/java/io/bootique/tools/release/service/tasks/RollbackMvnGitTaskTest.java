@@ -71,16 +71,17 @@ class RollbackMvnGitTaskTest {
 
     private DesktopService createDesktopService() {
         String os = System.getProperty("os.name").toLowerCase();
+        String javaHome = "/usr/libexec/java_home -v 11";
         if (os.contains("win")) {
-            return new WindowsDesktopService();
+            return new WindowsDesktopService(javaHome);
         }
         if (os.contains("mac")) {
-            return new MacOSService();
+            return new MacOSService(javaHome);
         }
         if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            return new LinuxDesktopService();
+            return new LinuxDesktopService(javaHome);
         }
-        return new GenericDesktopService();
+        return new GenericDesktopService(javaHome);
     }
 
     @Test

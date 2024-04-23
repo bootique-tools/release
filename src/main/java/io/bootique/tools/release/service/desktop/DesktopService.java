@@ -1,9 +1,13 @@
 package io.bootique.tools.release.service.desktop;
 
+import io.bootique.tools.release.service.preferences.Preference;
+
 import java.io.File;
 import java.nio.file.Path;
 
 public interface DesktopService {
+
+    Preference<String> JAVA_HOME = Preference.of("javaHome", String.class);
 
     File selectFile();
 

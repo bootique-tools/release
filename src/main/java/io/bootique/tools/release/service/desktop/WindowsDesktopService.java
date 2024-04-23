@@ -4,6 +4,10 @@ import java.nio.file.Path;
 
 public class WindowsDesktopService extends BaseDesktopService {
 
+    public WindowsDesktopService(String javaHome) {
+        super(javaHome);
+    }
+
     @Override
     public void openTerminal(Path path) {
         runCommand(path, "cmd.exe", "/c", "start", "cmd");

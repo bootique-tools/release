@@ -24,6 +24,12 @@ public abstract class BaseDesktopService implements DesktopService {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(DesktopService.class);
 
+    private final String javaHome;
+
+    protected BaseDesktopService(String javaHome) {
+        this.javaHome = javaHome;
+    }
+
     public synchronized File selectFile() {
         JFrame frame = new JFrame("FileChooserDemo");
         FileChooser chooser = new FileChooser();
@@ -108,9 +114,10 @@ public abstract class BaseDesktopService implements DesktopService {
 
     @Override
     public String runMavenCommand(Path path, String... args) {
-        String[] commands = new String[args.length + 1];
-        commands[0] = path.toAbsolutePath().resolve("pom.xml").toString();
-        System.arraycopy(args, 0, commands, 1, args.length);
+        String[] commands = new String[args.length + 2];
+        commands[0] = javaHome;
+        commands[1] = path.toAbsolutePath().resolve("pom.xml").toString();
+        System.arraycopy(args, 0, commands, 2, args.length);
         return runCommand(Path.of("."), "./maven.sh", commands);
     }
 
@@ -123,11 +130,12 @@ public abstract class BaseDesktopService implements DesktopService {
      */
     @Override
     public String performReleasePlugin(Path path, String operation, String additionalArgs) {
-        String[] commands = new String[additionalArgs == null ? 2 : 3];
-        commands[0] = path.toAbsolutePath().resolve("pom.xml").toString();
-        commands[1] = operation;
+        String[] commands = new String[additionalArgs == null ? 3 : 4];
+        commands[0] = javaHome;
+        commands[1] = path.toAbsolutePath().resolve("pom.xml").toString();
+        commands[2] = operation;
         if(additionalArgs != null) {
-            commands[2] = additionalArgs;
+            commands[3] = additionalArgs;
         }
         return runCommand(Path.of("."), "./release.sh", commands);
     }

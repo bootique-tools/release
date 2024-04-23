@@ -3,6 +3,7 @@ package io.bootique.tools.release.service.preferences.credential;
 import io.bootique.annotation.BQConfig;
 import io.bootique.annotation.BQConfigProperty;
 import io.bootique.tools.release.service.desktop.DesktopException;
+import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApiImport;
 import io.bootique.tools.release.service.logger.LoggerService;
@@ -22,6 +23,7 @@ public class PreferenceCredentialFactory {
     private String gitHubToken;
     private String basePath;
     private String groupIdPattern;
+    private String javaHome;
 
     private String logsPath;
     private String savePath;
@@ -61,6 +63,11 @@ public class PreferenceCredentialFactory {
         this.savePath = savePath;
     }
 
+    @BQConfigProperty
+    public void setJavaHome(String javaHome) {
+        this.javaHome = javaHome;
+    }
+
     public PreferenceService createPreferenceService(){
         if(gitHubToken == null) {
             throw new DesktopException("Can't find gitHub token.");
@@ -89,6 +96,10 @@ public class PreferenceCredentialFactory {
 
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             preferences.set(GitService.BASE_PATH_PREFERENCE, Paths.get(basePath));
+        }
+
+        if(!preferences.have(DesktopService.JAVA_HOME)) {
+            preferences.set(DesktopService.JAVA_HOME, javaHome);
         }
 
         if (!preferences.have(ReleasePersistentService.SAVE_PATH)) {

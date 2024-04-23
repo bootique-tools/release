@@ -1,11 +1,11 @@
 package io.bootique.tools.release;
 
 import io.bootique.BQCoreModule;
+import io.bootique.BQModule;
 import io.bootique.Bootique;
 import io.bootique.cayenne.v42.CayenneModule;
 import io.bootique.command.CommandDecorator;
 import io.bootique.config.ConfigurationFactory;
-import io.bootique.di.BQModule;
 import io.bootique.di.Binder;
 import io.bootique.di.MapBuilder;
 import io.bootique.di.Provides;
@@ -15,7 +15,7 @@ import io.bootique.jetty.JettyModule;
 import io.bootique.jetty.command.ServerCommand;
 import io.bootique.jetty.websocket.JettyWebSocketModule;
 import io.bootique.job.command.ScheduleCommand;
-import io.bootique.job.JobModule;
+import io.bootique.job.JobsModule;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.controller.websocket.JobStatusWebSocket;
 import io.bootique.tools.release.controller.websocket.ReleaseWebSocket;
@@ -136,7 +136,7 @@ public class Application implements BQModule {
         CayenneModule.extend(binder)
                 .addProject("cayenne/cayenne-project.xml");
 
-        JobModule.extend(binder)
+        JobsModule.extend(binder)
                 .addJob(GitHubDataImportJob.class)
                 .addJob(MavenProjectsImport.class);
     }
@@ -159,18 +159,19 @@ public class Application implements BQModule {
 
     @Provides
     @Singleton
-    DesktopService createDesktopService() {
+    DesktopService createDesktopService(PreferenceService preferenceService) {
         String os = System.getProperty("os.name").toLowerCase();
+        String javaHome = preferenceService.get(DesktopService.JAVA_HOME);
         if (os.contains("win")) {
-            return new WindowsDesktopService();
+            return new WindowsDesktopService(javaHome);
         }
         if (os.contains("mac")) {
-            return new MacOSService();
+            return new MacOSService(javaHome);
         }
         if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            return new LinuxDesktopService();
+            return new LinuxDesktopService(javaHome);
         }
-        return new GenericDesktopService();
+        return new GenericDesktopService(javaHome);
     }
 
     @Singleton

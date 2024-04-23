@@ -139,10 +139,10 @@ public class DefaultMavenService implements MavenService {
                 allDependenciesGroupIds.add(dependenciesNodes.item(i).getTextContent());
             }
             // we have bootique-asciidoc-internal as a plugin dependency for all documentation modules
-            NodeList pluginDependenciesNodes = getNodeList(path, "/project/build/plugins/plugin/dependencies/dependency/groupId");
-            for (int i = 0; i < pluginDependenciesNodes.getLength(); i++) {
-                allDependenciesGroupIds.add(pluginDependenciesNodes.item(i).getTextContent());
-            }
+//            NodeList pluginDependenciesNodes = getNodeList(path, "/project/build/plugins/plugin/dependencies/dependency/groupId");
+//            for (int i = 0; i < pluginDependenciesNodes.getLength(); i++) {
+//                allDependenciesGroupIds.add(pluginDependenciesNodes.item(i).getTextContent());
+//            }
         }
         return allDependenciesGroupIds;
     }

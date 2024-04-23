@@ -1,6 +1,7 @@
 preferences:
   gitHubToken: token
   basePath: /Users/username/work/bootique/path
+  javaHome: '/usr/libexec/java_home -v 11'
 
 jdbc:
   sqlite:
