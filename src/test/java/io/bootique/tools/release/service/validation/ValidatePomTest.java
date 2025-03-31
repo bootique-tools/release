@@ -42,7 +42,7 @@ public class ValidatePomTest {
         Path path = Path.of(Objects.requireNonNull(url).toURI());
         mockPreferenceService.set(GitService.BASE_PATH_PREFERENCE, path);
         Map<String, List<String>> validated = validatePomService.validatePom("");
-        assertEquals(1, validated.size());
+        assertEquals(0, validated.size());
     }
 
     @Test

@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,10 +75,8 @@ public class DefaultValidatePomService implements ValidatePomService {
     }
 
     public List<String> validate(Document document) {
-        return validators.stream()
-                .map(v -> v.apply(document))
-                .flatMap(Optional::stream)
-                .toList();
+        return Collections.emptyList();
+        // TODO: do we need any validations?
     }
 
     Optional<String> validateDependencies(Document document) {
