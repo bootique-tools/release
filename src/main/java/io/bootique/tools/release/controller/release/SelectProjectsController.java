@@ -92,14 +92,6 @@ public class SelectProjectsController extends BaseController {
                         buildOrder(selectedProjectsResp, true, project, allProjects);
                     }
                 });
-            } else if (!state && selectedProjectsResp.contains(project)) {
-                project.getDependencies().forEach(dependency -> {
-                    if (dependency.getGroupId().equals(currentProject.getGroupId())
-                            && dependency.getVersion().equals(project.getVersion())) {
-                        selectedProjectsResp.remove(project);
-                        buildOrder(selectedProjectsResp, false, project, allProjects);
-                    }
-                });
             }
         });
     }
