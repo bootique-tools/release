@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
  * the is no gitHubId property for query.
  */
 @Deprecated
-public class ReleaseSonatypeSyncTask implements Function<Repository, String> {
+public class ReleaseSonatypeSyncTask implements ReleaseTask {
 
     @Inject
     LoggerService logger;

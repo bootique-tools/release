@@ -99,7 +99,7 @@ public class SelectProjectsController extends BaseController {
     private DataResponse<Project> filter(DataResponse<Project> allProjects, List<Project> selectedProjectsResp) {
         DataResponse<Project> dataResponse = fetchProjects();
 
-        // objects collection could be unmodifiable, so copy it§
+        // objects collection could be unmodifiable, so copy it
         List<Project> allProjectContent = new ArrayList<>(allProjects.getData());
 
         int flag = 0;

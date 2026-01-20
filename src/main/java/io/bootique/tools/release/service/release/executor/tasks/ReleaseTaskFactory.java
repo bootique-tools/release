@@ -6,6 +6,7 @@ import io.bootique.tools.release.model.release.ReleaseStageStatus;
 import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterService;
+import io.bootique.tools.release.service.tasks.ReleaseTask;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class ReleaseTaskFactory implements TaskFactory {
     private ReleasePersistentService saverService;
 
     @Inject
-    private Map<ReleaseStage, Function<Repository, String>> releaseTaskMap;
+    private Map<ReleaseStage, ReleaseTask> releaseTaskMap;
 
     @Override
     public Function<RepositoryDescriptor, String> createTask(Repository repository, List<ReleaseStage> executeStages) {
@@ -37,8 +38,8 @@ public class ReleaseTaskFactory implements TaskFactory {
         stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.In_Progress);
 
         try {
-            releaseTaskMap.get(stage).apply(repository);
-            stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Success);
+            String out = releaseTaskMap.get(stage).apply(repository);
+            stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Success, out);
         } catch (Exception e) {
             stageUpdaterService.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Fail);
             throw e;

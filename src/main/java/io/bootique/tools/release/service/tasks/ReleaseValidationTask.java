@@ -15,9 +15,8 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
-public class ReleaseValidationTask implements Function<Repository, String> {
+public class ReleaseValidationTask implements ReleaseTask {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ReleaseValidationTask.class);
 

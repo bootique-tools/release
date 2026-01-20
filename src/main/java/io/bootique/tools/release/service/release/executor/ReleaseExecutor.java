@@ -98,7 +98,7 @@ public class ReleaseExecutor implements ReleaseExecutorService {
 
     @Override
     public void skipRepository(RepositoryDescriptor repositoryDescriptor, ReleaseStage stage) {
-        executionLogger.writeLogs(repositoryDescriptor.getRepositoryName(), stage.name(), ReleaseStageStatus.Skip.getMessage());
+        executionLogger.writeLogs(repositoryDescriptor.getRepositoryName(), stage, ReleaseStageStatus.Skip.getMessage());
 
         stageUpdater.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Skip);
         saverService.saveRelease();
@@ -111,7 +111,7 @@ public class ReleaseExecutor implements ReleaseExecutorService {
 
     @Override
     public void restartExecute(RepositoryDescriptor repositoryDescriptor, ReleaseStage stage) {
-        executionLogger.writeLogs(repositoryDescriptor.getRepositoryName(), stage.name(), ReleaseStageStatus.Reload.getMessage());
+        executionLogger.writeLogs(repositoryDescriptor.getRepositoryName(), stage, ReleaseStageStatus.Reload.getMessage());
 
         stageUpdater.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Reload);
 
@@ -125,7 +125,7 @@ public class ReleaseExecutor implements ReleaseExecutorService {
         job.addListener(() -> {
             if (job.isDone()) {
                 var jobResult = job.getResults().get(job.getDone() - 1);
-                if (!(jobResult.status() == BatchJobStatus.FAILURE || stageManager.isStageSyncCurrent(jobResult.data()))) {
+                if (jobResult.status() != BatchJobStatus.FAILURE && !stageManager.isStageSyncCurrent(jobResult.data())) {
                     executeRelease();
                 }
             }

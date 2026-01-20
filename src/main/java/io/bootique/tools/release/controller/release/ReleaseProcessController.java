@@ -28,7 +28,7 @@ public class ReleaseProcessController extends BaseController {
 
     @GET
     @Path("/stage")
-    public List<String> geReleaseStages() {
+    public List<String> getReleaseStages() {
 
         ReleaseStage[] releaseStages = ReleaseStage.values();
 

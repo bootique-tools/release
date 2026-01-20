@@ -7,5 +7,5 @@ public interface ExecutionLogger {
 
     String getLogs(RepositoryDescriptor repositoryDescriptor, ReleaseStage releaseStage);
 
-    void writeLogs(String repositoryName, String stage, String text);
+    void writeLogs(String repositoryName, ReleaseStage stage, String text);
 }

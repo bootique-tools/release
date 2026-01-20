@@ -12,9 +12,8 @@ import io.bootique.tools.release.service.preferences.PreferenceService;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
-import java.util.function.Function;
 
-public class ReleasePerformTask implements Function<Repository, String>  {
+public class ReleasePerformTask implements ReleaseTask  {
 
     @Inject
     private LoggerService logger;

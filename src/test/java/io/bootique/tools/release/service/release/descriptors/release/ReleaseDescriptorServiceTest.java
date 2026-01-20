@@ -27,7 +27,7 @@ class ReleaseDescriptorServiceTest {
         ReleaseDescriptorServiceImpl releaseDescriptorService = new ReleaseDescriptorServiceImpl(provider);
         releaseDescriptorService.setReleaseDescriptor(null);
 
-        assertNull(((ReleaseDescriptorService) releaseDescriptorService).getReleaseDescriptor());
+        assertNull(releaseDescriptorService.getReleaseDescriptor());
     }
 
     @Test
@@ -36,7 +36,7 @@ class ReleaseDescriptorServiceTest {
         ReleaseDescriptorServiceImpl releaseDescriptorService = new ReleaseDescriptorServiceImpl(provider);
         releaseDescriptorService.setReleaseDescriptor(null);
 
-        assertNotNull(((ReleaseDescriptorService) releaseDescriptorService).getReleaseDescriptor());
+        assertNotNull(releaseDescriptorService.getReleaseDescriptor());
     }
 
     @Test

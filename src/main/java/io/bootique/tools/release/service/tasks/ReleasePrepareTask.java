@@ -14,9 +14,8 @@ import io.bootique.tools.release.service.release.descriptors.release.ReleaseDesc
 
 import javax.inject.Inject;
 import java.nio.file.Path;
-import java.util.function.Function;
 
-public class ReleasePrepareTask implements Function<Repository, String> {
+public class ReleasePrepareTask implements ReleaseTask {
 
     @Inject
     private LoggerService logger;

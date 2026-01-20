@@ -13,9 +13,8 @@ import io.bootique.tools.release.service.preferences.PreferenceService;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.function.Function;
 
-public class RollbackSonatypeTask implements Function<Repository, String> {
+public class RollbackSonatypeTask implements ReleaseTask {
 
     private static final Path CHECKOUT_PATH = Paths.get("target/checkout/");
 

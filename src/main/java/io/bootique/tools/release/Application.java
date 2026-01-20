@@ -64,7 +64,6 @@ import io.bootique.tools.release.service.validation.ValidatePomService;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import javax.inject.Singleton;
-import java.util.function.Function;
 
 //--config="release-manager.yml" --server
 public class Application implements BQModule {
@@ -118,7 +117,7 @@ public class Application implements BQModule {
                 .addFeature(JacksonFeature.class)
                 .addPackage(RepoController.class.getPackage());
 
-        contributeReleaseTask(binder)
+        binder.bindMap(ReleaseStage.class, ReleaseTask.class)
                 .put(ReleaseStage.RELEASE_PULL, ReleasePullTask.class)
                 .put(ReleaseStage.RELEASE_VALIDATION, ReleaseValidationTask.class)
                 .put(ReleaseStage.RELEASE_PREPARE, ReleasePrepareTask.class)
@@ -126,7 +125,7 @@ public class Application implements BQModule {
                 .put(ReleaseStage.RELEASE_SYNC, ReleaseSonatypeSyncTask.class);
 
 
-        contributeRollbackTask(binder)
+        binder.bindMap(RollbackStage.class, ReleaseTask.class)
                 .put(RollbackStage.ROLLBACK_SONATYPE, RollbackSonatypeTask.class)
                 .put(RollbackStage.ROLLBACK_MVN, RollbackMvnGitTask.class);
 
@@ -139,22 +138,6 @@ public class Application implements BQModule {
         JobsModule.extend(binder)
                 .addJob(GitHubDataImportJob.class)
                 .addJob(MavenProjectsImport.class);
-    }
-
-    private static MapBuilder<ReleaseStage, Function<Repository, String>> contributeReleaseTask(Binder binder) {
-        TypeLiteral<Function<Repository, String>> type = new TypeLiteral<>() {
-        };
-        TypeLiteral<ReleaseStage> key = new TypeLiteral<>() {
-        };
-        return binder.bindMap(key, type);
-    }
-
-    private static MapBuilder<RollbackStage, Function<Repository, String>> contributeRollbackTask(Binder binder) {
-        TypeLiteral<Function<Repository, String>> type = new TypeLiteral<>() {
-        };
-        TypeLiteral<RollbackStage> key = new TypeLiteral<>() {
-        };
-        return binder.bindMap(key, type);
     }
 
     @Provides

@@ -7,6 +7,7 @@ import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterService;
+import io.bootique.tools.release.service.tasks.ReleaseTask;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class RollbackTaskFactory implements TaskFactory {
     private StageUpdaterService stageUpdaterService;
 
     @Inject
-    Map<RollbackStage, Function<Repository, String>> rollbackMap;
+    Map<RollbackStage, ReleaseTask> rollbackMap;
 
     @Inject
     private ReleasePersistentService saverService;

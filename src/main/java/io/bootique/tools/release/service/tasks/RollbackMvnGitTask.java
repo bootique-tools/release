@@ -18,12 +18,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 
-public class RollbackMvnGitTask implements Function<Repository, String> {
+public class RollbackMvnGitTask implements ReleaseTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DesktopService.class);
 

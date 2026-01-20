@@ -6,6 +6,7 @@ public class RepositoryDescriptor {
 
     private String repositoryName;
     private Map<ReleaseStage, ReleaseStageStatus> stageStatusMap;
+    private String centralDeploymentId;
 
     public RepositoryDescriptor(String repositoryName, Map<ReleaseStage, ReleaseStageStatus> stages) {
         this.repositoryName = repositoryName;
@@ -29,5 +30,13 @@ public class RepositoryDescriptor {
 
     public void setStageStatusMap(Map<ReleaseStage, ReleaseStageStatus> stageStatusMap) {
         this.stageStatusMap = stageStatusMap;
+    }
+
+    public void setCentralDeploymentId(String centralDeploymentId) {
+        this.centralDeploymentId = centralDeploymentId;
+    }
+
+    public String getCentralDeploymentId() {
+        return centralDeploymentId;
     }
 }

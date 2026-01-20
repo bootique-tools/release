@@ -5,5 +5,11 @@ import io.bootique.tools.release.model.release.ReleaseStageStatus;
 import io.bootique.tools.release.model.release.RepositoryDescriptor;
 
 public interface StageUpdaterService {
-    void updateStage(RepositoryDescriptor repositoryDescriptor, ReleaseStage releaseStage, ReleaseStageStatus status);
+
+    default void updateStage(RepositoryDescriptor repositoryDescriptor, ReleaseStage releaseStage, ReleaseStageStatus status) {
+        updateStage(repositoryDescriptor, releaseStage, status, null);
+    }
+
+    void updateStage(RepositoryDescriptor repositoryDescriptor, ReleaseStage releaseStage, ReleaseStageStatus status, String out);
+
 }

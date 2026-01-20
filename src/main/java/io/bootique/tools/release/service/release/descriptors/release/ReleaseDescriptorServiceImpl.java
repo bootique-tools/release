@@ -15,20 +15,22 @@ import java.util.stream.Collectors;
 
 public class ReleaseDescriptorServiceImpl implements ReleaseDescriptorService {
 
-    public void setRepositoryDescriptorService(RepositoryDescriptorService repositoryDescriptorService) {
-        this.repositoryDescriptorService = repositoryDescriptorService;
-    }
-
-    @Inject
-    protected RepositoryDescriptorService repositoryDescriptorService;
-
-    protected ReleaseDescriptor releaseDescriptor;
+    final protected RepositoryDescriptorService repositoryDescriptorService;
 
     final Provider<ReleasePersistentService> persistentServiceProvider;
 
+    protected ReleaseDescriptor releaseDescriptor;
+
     @Inject
-    public ReleaseDescriptorServiceImpl(Provider<ReleasePersistentService> persistentServiceProvider) {
+    public ReleaseDescriptorServiceImpl(Provider<ReleasePersistentService> persistentServiceProvider,
+                                        RepositoryDescriptorService repositoryDescriptorService) {
         this.persistentServiceProvider = persistentServiceProvider;
+        this.repositoryDescriptorService = repositoryDescriptorService;
+    }
+
+    // for tests only
+    public ReleaseDescriptorServiceImpl(Provider<ReleasePersistentService> persistentServiceProvider) {
+        this(persistentServiceProvider, null);
     }
 
     public void setReleaseDescriptor(ReleaseDescriptor releaseDescriptor) {

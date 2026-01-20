@@ -40,7 +40,7 @@ public class ReleaseExecutionLogger implements ExecutionLogger {
     }
 
     @Override
-    public void writeLogs(String repositoryName, String stage, String text) {
+    public void writeLogs(String repositoryName, ReleaseStage stage, String text) {
         try {
             loggerService.setAppender(repositoryName, "release", String.valueOf(stage));
             LOGGER.info(text);

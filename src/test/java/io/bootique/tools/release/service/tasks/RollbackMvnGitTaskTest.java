@@ -53,8 +53,8 @@ class RollbackMvnGitTaskTest {
         project = new Project();
         project.setRepository(repository);
 
-        ReleaseDescriptorServiceImpl releaseDescriptorService = new ReleaseDescriptorServiceImpl(null);
-        releaseDescriptorService.setRepositoryDescriptorService(new RepositoryDescriptorServiceImpl());
+        ReleaseDescriptorServiceImpl releaseDescriptorService
+                = new ReleaseDescriptorServiceImpl(null, new RepositoryDescriptorServiceImpl());
         releaseDescriptorService.createReleaseDescriptor(
                 new ReleaseVersions("1.0.5-SNAPSHOT", "1.0.5", "1.0.6-SNAPSHOT"),
                 List.of(project)

@@ -51,7 +51,7 @@ public class RollbackExecutor implements RollbackExecutorService {
 
     @Override
     public void skip(RepositoryDescriptor repositoryDescriptor, ReleaseStage stage) {
-        executionLogger.writeLogs(repositoryDescriptor.getRepositoryName(),stage.name(), ReleaseStageStatus.Rollback + " skipped");
+        executionLogger.writeLogs(repositoryDescriptor.getRepositoryName(), stage, ReleaseStageStatus.Rollback + " skipped");
         stageUpdater.updateStage(repositoryDescriptor, stage, ReleaseStageStatus.Rollback);
         saverService.saveRelease();
     }

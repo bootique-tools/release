@@ -45,9 +45,9 @@ public class RollbackExecutionLogger implements ExecutionLogger {
     }
 
     @Override
-    public void writeLogs(String repositoryName, String stage, String text) {
+    public void writeLogs(String repositoryName, ReleaseStage stage, String text) {
         try {
-            loggerService.setAppender(repositoryName, "rollback", stage);
+            loggerService.setAppender(repositoryName, "rollback", stage.name());
             LOGGER.info(text);
         } catch (NullPointerException e) {
             e.printStackTrace();
