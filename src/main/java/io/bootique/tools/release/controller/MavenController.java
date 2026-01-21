@@ -9,12 +9,12 @@ import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.view.MavenView;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 import org.apache.cayenne.query.ObjectSelect;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import java.util.List;
 import java.util.function.Function;
 

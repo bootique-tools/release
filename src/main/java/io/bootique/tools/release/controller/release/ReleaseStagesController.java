@@ -6,12 +6,15 @@ import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.logger.ExecutionLogger;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
 import io.bootique.tools.release.service.release.executor.ReleaseExecutorService;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 
 @Path("/release")
 @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -29,7 +32,7 @@ public class ReleaseStagesController {
 
     @POST
     @Path("/skip-stage")
-    public void skipRepositoryStage(@FormParam("repository") String repositoryName, @FormParam("stage") String stage) throws IOException {
+    public void skipRepositoryStage(@FormParam("repository") String repositoryName, @FormParam("stage") String stage) {
 
         RepositoryDescriptor repositoryDescriptor = releaseDescriptorService.getRepositoryDescriptorByName(repositoryName);
         ReleaseStage repositoryStage = ReleaseStage.valueOf(stage);
@@ -39,7 +42,7 @@ public class ReleaseStagesController {
 
     @POST
     @Path("/restart-stage")
-    public void reloadRepositoryStage(@FormParam("repository") String repositoryName, @FormParam("stage") String stage) throws IOException {
+    public void reloadRepositoryStage(@FormParam("repository") String repositoryName, @FormParam("stage") String stage) {
 
         RepositoryDescriptor repositoryDescriptor = releaseDescriptorService.getRepositoryDescriptorByName(repositoryName);
         ReleaseStage repositoryStage = ReleaseStage.valueOf(stage);

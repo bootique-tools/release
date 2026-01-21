@@ -5,15 +5,18 @@ import io.agrest.AgRequest;
 import io.agrest.DataResponse;
 import io.agrest.RootResourceEntity;
 import io.agrest.SelectStage;
-import io.agrest.jaxrs2.AgJaxrs;
+import io.agrest.jaxrs3.AgJaxrs;
 import io.agrest.runtime.processor.select.SelectContext;
-import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.persistent.User;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Configuration;
+import jakarta.ws.rs.core.Context;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 
@@ -21,9 +24,6 @@ import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
-import javax.inject.Inject;
-import javax.ws.rs.core.Configuration;
-import javax.ws.rs.core.Context;
 
 public abstract class BaseController {
 

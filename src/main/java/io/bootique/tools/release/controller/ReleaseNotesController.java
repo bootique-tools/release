@@ -2,13 +2,10 @@ package io.bootique.tools.release.controller;
 
 import io.bootique.tools.release.service.readme.ReleaseNotesService;
 import io.bootique.tools.release.view.ReleaseNotesView;
-
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 
 @Path("/release-notes")
 public class ReleaseNotesController extends BaseController {
@@ -17,7 +14,7 @@ public class ReleaseNotesController extends BaseController {
     private ReleaseNotesService releaseNotesService;
 
     @GET
-    public ReleaseNotesView home(@Context UriInfo uriInfo) {
+    public ReleaseNotesView home() {
         return new ReleaseNotesView(getCurrentUser(), getCurrentOrganization());
     }
 

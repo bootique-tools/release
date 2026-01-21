@@ -8,11 +8,11 @@ import io.bootique.tools.release.service.release.descriptors.release.ReleaseDesc
 import io.bootique.tools.release.service.release.persistent.MockReleasePersistentService;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
 import io.bootique.tools.release.service.release.stage.manager.MockReleaseManagerFactory;
+import jakarta.inject.Provider;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Provider;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReleaseExecutorTest {
 
@@ -75,7 +75,7 @@ class ReleaseExecutorTest {
         ReleaseExecutor releaseExecutor = new ReleaseExecutor();
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
-        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
+        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().getFirst()
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_SYNC,ReleaseStageStatus.Skip);
         assertTrue(releaseExecutor.canExecuteRelease());
     }
@@ -89,13 +89,13 @@ class ReleaseExecutorTest {
         ReleaseExecutor releaseExecutor = new ReleaseExecutor();
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
-        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
+        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().getFirst()
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_VALIDATION,ReleaseStageStatus.Fail);
         assertFalse(releaseExecutor.canExecuteRelease());
 
-        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
+        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().getFirst()
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_VALIDATION,ReleaseStageStatus.Success);
-        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
+        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().getFirst()
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_PERFORM,ReleaseStageStatus.Fail_Rollback);
         assertFalse(releaseExecutor.canExecuteRelease());
     }
@@ -109,7 +109,7 @@ class ReleaseExecutorTest {
         ReleaseExecutor releaseExecutor = new ReleaseExecutor();
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
         releaseExecutor.stageManager = releaseManagerFactory.createStageManager(releaseDescriptorService.getReleaseDescriptor());
-        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().get(0)
+        releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList().getFirst()
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_PREPARE,ReleaseStageStatus.Rollback);
         assertFalse(releaseExecutor.canExecuteRelease());
     }
@@ -126,7 +126,7 @@ class ReleaseExecutorTest {
         releaseExecutor.releaseDescriptorService = releaseDescriptorService;
         assertTrue(releaseExecutor.releaseNotRunning());
 
-        releaseDescriptor.getRepositoryDescriptorList().get(0)
+        releaseDescriptor.getRepositoryDescriptorList().getFirst()
                 .getStageStatusMap().replace(ReleaseStage.RELEASE_SYNC, ReleaseStageStatus.In_Progress);
         assertFalse(releaseExecutor.releaseNotRunning());
     }

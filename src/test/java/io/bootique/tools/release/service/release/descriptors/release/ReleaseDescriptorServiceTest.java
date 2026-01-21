@@ -7,9 +7,8 @@ import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.ReleaseDescriptorFactory;
 import io.bootique.tools.release.service.release.persistent.MockReleasePersistentService;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
+import jakarta.inject.Provider;
 import org.junit.jupiter.api.Test;
-
-import javax.inject.Provider;
 
 import java.util.Collections;
 import java.util.List;
@@ -78,7 +77,7 @@ class ReleaseDescriptorServiceTest {
         releaseDescriptorService.setReleaseDescriptor(releaseDescriptor);
 
         releaseDescriptor.getRepositoryDescriptorList()
-                .get(0)
+                .getFirst()
                 .getStageStatusMap()
                 .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Not_Start);
 
@@ -110,7 +109,7 @@ class ReleaseDescriptorServiceTest {
         releaseDescriptorService.setReleaseDescriptor(releaseDescriptor);
 
         releaseDescriptor.getRepositoryDescriptorList()
-                .get(0)
+                .getFirst()
                 .getStageStatusMap()
                 .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Skip);
 
@@ -126,7 +125,7 @@ class ReleaseDescriptorServiceTest {
         releaseDescriptorService.setReleaseDescriptor(releaseDescriptor);
 
         releaseDescriptor.getRepositoryDescriptorList()
-                .get(0)
+                .getFirst()
                 .getStageStatusMap()
                 .replace(ReleaseStage.RELEASE_PERFORM, ReleaseStageStatus.Skip);
 

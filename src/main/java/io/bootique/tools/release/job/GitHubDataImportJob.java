@@ -2,11 +2,21 @@ package io.bootique.tools.release.job;
 
 import io.bootique.job.BaseJob;
 import io.bootique.job.JobMetadata;
-import io.bootique.job.JobResult;
-import io.bootique.tools.release.model.persistent.*;
+import io.bootique.job.JobOutcome;
+import io.bootique.tools.release.model.persistent.Author;
+import io.bootique.tools.release.model.persistent.ClosedIssue;
+import io.bootique.tools.release.model.persistent.GitHubEntity;
+import io.bootique.tools.release.model.persistent.Milestone;
+import io.bootique.tools.release.model.persistent.OpenIssue;
+import io.bootique.tools.release.model.persistent.Organization;
+import io.bootique.tools.release.model.persistent.PullRequest;
+import io.bootique.tools.release.model.persistent.Repository;
+import io.bootique.tools.release.model.persistent.User;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApiImport;
 import io.bootique.tools.release.service.preferences.PreferenceService;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.map.EntityResolver;
@@ -18,8 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
-import javax.inject.Provider;
 
 public class GitHubDataImportJob extends BaseJob {
 
@@ -48,14 +56,14 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     @Override
-    public JobResult run(Map<String, Object> map) {
+    public JobOutcome run(Map<String, Object> map) {
         ServerRuntime runtime = runtimeProvider.get();
 
         ObjectContext context = runtime.newContext();
         syncGitHubDataData(context);
         context.commitChanges();
 
-        return JobResult.success(getMetadata());
+        return JobOutcome.succeeded();
     }
 
     private void syncGitHubDataData(ObjectContext context) {

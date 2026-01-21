@@ -2,11 +2,15 @@ package io.bootique.tools.release.controller.websocket;
 
 import ch.qos.logback.classic.Logger;
 import io.bootique.tools.release.service.job.BatchJobService;
+import jakarta.inject.Inject;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.ServerEndpoint;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
 @ServerEndpoint(value = "/job/status")

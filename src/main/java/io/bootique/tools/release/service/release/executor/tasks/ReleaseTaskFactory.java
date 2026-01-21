@@ -7,8 +7,8 @@ import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterService;
 import io.bootique.tools.release.service.tasks.ReleaseTask;
+import jakarta.inject.Inject;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

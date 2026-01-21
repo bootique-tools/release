@@ -5,13 +5,13 @@ import io.bootique.tools.release.model.persistent.Milestone;
 import io.bootique.tools.release.model.persistent.OpenIssue;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.persistent.RepositoryNode;
+import jakarta.inject.Inject;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import javax.inject.Inject;
 
 public class DefaultReleaseNotesService implements ReleaseNotesService {
 

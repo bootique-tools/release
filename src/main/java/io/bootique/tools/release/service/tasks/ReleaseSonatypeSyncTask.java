@@ -11,12 +11,12 @@ import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,7 +97,7 @@ public class ReleaseSonatypeSyncTask implements ReleaseTask {
             return getRepoFromList(repos, repo, projectDescription);
 
         } else {
-            return repos.get(0);
+            return repos.getFirst();
         }
     }
 
@@ -120,7 +120,7 @@ public class ReleaseSonatypeSyncTask implements ReleaseTask {
 
         List<StagingRepo> stagingForRepo = repos.stream()
                 .filter(r -> r.description.contains(finalProjectDescription))
-                .collect(Collectors.toList());
+                .toList();
         if (stagingForRepo.isEmpty()) {
             throw new JobException("NO_STAGING_REPO", "Staging repos for the project " + repo.getName() + " not found, check release perform stage logs.");
         } else if (stagingForRepo.size() > 1) {
@@ -128,7 +128,7 @@ public class ReleaseSonatypeSyncTask implements ReleaseTask {
                     "Multiple staging repos found, can't automatically deal with them. "
                             + "Please go to https://oss.sonatype.org and check them manually.");
         }
-        return stagingForRepo.get(0);
+        return stagingForRepo.getFirst();
     }
 
     private String stagingPlugin(Path repoPath, String... commands) {

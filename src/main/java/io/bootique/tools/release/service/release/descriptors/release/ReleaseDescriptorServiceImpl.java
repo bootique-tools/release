@@ -1,12 +1,16 @@
 package io.bootique.tools.release.service.release.descriptors.release;
 
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.model.release.*;
+import io.bootique.tools.release.model.release.ReleaseDescriptor;
+import io.bootique.tools.release.model.release.ReleaseStage;
+import io.bootique.tools.release.model.release.ReleaseStageStatus;
+import io.bootique.tools.release.model.release.ReleaseVersions;
+import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.descriptors.repository.RepositoryDescriptorService;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;

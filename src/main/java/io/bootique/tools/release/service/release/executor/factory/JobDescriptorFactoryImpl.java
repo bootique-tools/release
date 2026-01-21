@@ -9,10 +9,13 @@ import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.descriptors.repository.RepositoryDescriptorService;
 import io.bootique.tools.release.service.release.executor.tasks.ReleaseTaskFactory;
 import io.bootique.tools.release.service.release.executor.tasks.RollbackTaskFactory;
+import jakarta.inject.Inject;
 
-import javax.inject.Inject;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 public class JobDescriptorFactoryImpl implements JobDescriptorFactory {
 

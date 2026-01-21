@@ -10,13 +10,13 @@ import io.bootique.tools.release.model.persistent.Milestone;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.preferences.PreferenceService;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.core.Response;
 import org.apache.cayenne.ObjectId;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 
-import javax.inject.Inject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,12 +51,10 @@ public class GitHubRestV3API implements GitHubRestAPI {
         data.put("title", title);
         data.put("description", "");
 
-        try {
-            Response response = prepareRequest(
-                    "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones")
-                    .buildPost(Entity.json(mapper.writeValueAsString(data)))
-                    .invoke();
-
+        try(Response response = prepareRequest(
+                "/repos/" + repository.getOrganization().getLogin() + "/" + repository.getName() + "/milestones")
+                .buildPost(Entity.json(mapper.writeValueAsString(data)))
+                .invoke()) {
             if (response.getStatus() != 201) {
                 throw new DesktopException("Can't create milestone for " + repository.getName());
             }

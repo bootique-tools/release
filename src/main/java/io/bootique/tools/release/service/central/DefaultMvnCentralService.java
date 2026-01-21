@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.bootique.jersey.client.HttpTargets;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class DefaultMvnCentralService implements MvnCentralService {
             }
             try {
                 JsonNode node = new ObjectMapper().readTree(response.readEntity(String.class));
-                if (node.get("response").get("docs").size() != 0) {
+                if (!node.get("response").get("docs").isEmpty()) {
                     return true;
                 }
             } catch (IOException e) {

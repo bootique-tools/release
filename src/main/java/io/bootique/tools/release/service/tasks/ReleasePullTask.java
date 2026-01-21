@@ -6,8 +6,7 @@ import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.logger.LoggerService;
-
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class ReleasePullTask implements ReleaseTask {
 

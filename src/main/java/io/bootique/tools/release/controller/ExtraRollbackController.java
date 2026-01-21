@@ -4,15 +4,13 @@ import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.central.MvnCentralService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
 import io.bootique.tools.release.view.ExtraRollbackView;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 
-import javax.inject.Inject;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
@@ -32,16 +30,14 @@ public class ExtraRollbackController extends BaseController {
     private ReleaseDescriptorService releaseDescriptorService;
 
     @GET
-    public ExtraRollbackView home(@Context UriInfo uriInfo) {
+    public ExtraRollbackView home() {
        return new ExtraRollbackView(getCurrentUser(), getCurrentOrganization());
 
     }
 
     @POST
     @Path("/create-descriptor")
-    public Response createDescriptor(@FormParam("devVersion") String devVersion,
-                                     @FormParam("releaseVersion") String releaseVersion,
-                                     @FormParam("prevVersion") String prevVersion,
+    public Response createDescriptor(@FormParam("releaseVersion") String releaseVersion,
                                      @FormParam("projects") String selected) throws IOException {
 
         List<Project> selectedProjects = getSelectedProjects(selected);

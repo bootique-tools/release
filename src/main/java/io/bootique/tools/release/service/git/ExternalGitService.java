@@ -1,15 +1,14 @@
 package io.bootique.tools.release.service.git;
 
 import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
+import jakarta.inject.Inject;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import javax.inject.Inject;
 
 public class ExternalGitService implements GitService {
 

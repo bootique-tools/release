@@ -7,10 +7,13 @@ import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.logger.ExecutionLogger;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
 import io.bootique.tools.release.service.release.executor.RollbackExecutor;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-import javax.ws.rs.*;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 
 @Path("/release")
 public class RollbackController extends BaseController {

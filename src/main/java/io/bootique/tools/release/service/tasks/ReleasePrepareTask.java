@@ -11,8 +11,8 @@ import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
+import jakarta.inject.Inject;
 
-import javax.inject.Inject;
 import java.nio.file.Path;
 
 public class ReleasePrepareTask implements ReleaseTask {

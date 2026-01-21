@@ -7,8 +7,8 @@ import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
+import jakarta.inject.Inject;
 
-import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -73,7 +73,7 @@ public class ReleasePersistentServiceImpl implements ReleasePersistentService {
             if (lockList.size() != 1) {
                 throw new DesktopException("Can't load last release.");
             }
-            Path path = Paths.get(preferences.get(SAVE_PATH), lockList.get(0), lockList.get(0) + ".json");
+            Path path = Paths.get(preferences.get(SAVE_PATH), lockList.getFirst(), lockList.getFirst() + ".json");
             byte[] jsonDescriptor = Files.readAllBytes(path);
 
             return objectMapper.readValue(jsonDescriptor, ReleaseDescriptor.class);

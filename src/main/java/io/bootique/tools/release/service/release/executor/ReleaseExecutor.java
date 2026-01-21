@@ -12,10 +12,9 @@ import io.bootique.tools.release.service.release.executor.factory.JobDescriptorF
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
 import io.bootique.tools.release.service.release.stage.manager.StageManagerService;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterService;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.jvnet.hk2.annotations.Service;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 @Service
 public class ReleaseExecutor implements ReleaseExecutorService {

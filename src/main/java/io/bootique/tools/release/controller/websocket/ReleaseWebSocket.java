@@ -2,11 +2,15 @@ package io.bootique.tools.release.controller.websocket;
 
 import ch.qos.logback.classic.Logger;
 import io.bootique.tools.release.service.release.stage.updater.StageListener;
+import jakarta.inject.Inject;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.ServerEndpoint;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.websocket.*;
-import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 
 @ServerEndpoint(value = "/ui/release/socket")
@@ -40,7 +44,7 @@ public class ReleaseWebSocket {
     }
 
     @OnMessage
-    public void onMessage(String message) throws IOException {
+    public void onMessage(String message) {
         LOGGER.error("SEND MESSAGE: " + message);
     }
 }

@@ -4,10 +4,10 @@ import ch.qos.logback.classic.Logger;
 import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
+import jakarta.inject.Inject;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
-import javax.inject.Inject;
 
 public class DefaultLoggerService implements LoggerService {
 

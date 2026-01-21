@@ -1,20 +1,20 @@
 package io.bootique.tools.release.controller;
 
-import io.bootique.tools.release.model.persistent.*;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.validation.ValidatePomService;
 import io.bootique.tools.release.view.ValidationView;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.QueryParam;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.query.ObjectSelect;
 
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;

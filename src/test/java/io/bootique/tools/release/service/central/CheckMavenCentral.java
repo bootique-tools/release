@@ -1,12 +1,12 @@
 package io.bootique.tools.release.service.central;
 
 import io.bootique.jersey.client.HttpTargets;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.junit.jupiter.api.BeforeEach;
 
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 import java.util.Set;
 
 

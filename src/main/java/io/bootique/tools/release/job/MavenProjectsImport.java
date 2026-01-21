@@ -2,18 +2,18 @@ package io.bootique.tools.release.job;
 
 import io.bootique.job.BaseJob;
 import io.bootique.job.JobMetadata;
-import io.bootique.job.JobResult;
+import io.bootique.job.JobOutcome;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.maven.MavenService;
+import jakarta.inject.Inject;
+import jakarta.inject.Provider;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.configuration.server.ServerRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +33,7 @@ public class MavenProjectsImport extends BaseJob {
     }
 
     @Override
-    public JobResult run(Map<String, Object> map) {
+    public JobOutcome run(Map<String, Object> map) {
         LOGGER.info("Run Maven projects import job.");
 
         ObjectContext context = cayenneRuntimeProvider.get().newContext();
@@ -43,7 +43,7 @@ public class MavenProjectsImport extends BaseJob {
                 .select(context);
         if (repositories.isEmpty()) {
             LOGGER.info("No repositories yet, return.");
-            return JobResult.success(getMetadata());
+            return JobOutcome.succeeded();
         }
 
         // sync Maven projects with repositories
@@ -55,7 +55,7 @@ public class MavenProjectsImport extends BaseJob {
 
         LOGGER.info("Job done, created {} projects.", createdProjects.size());
 
-        return JobResult.success(getMetadata());
+        return JobOutcome.succeeded();
     }
 
     private void syncDependencies(List<Project> projects) {

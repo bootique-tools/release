@@ -3,9 +3,8 @@ package io.bootique.tools.release.service.tasks;
 import io.bootique.jersey.client.HttpTargets;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
-
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 public class ReleaseCentralPublishTask implements ReleaseTask {
 

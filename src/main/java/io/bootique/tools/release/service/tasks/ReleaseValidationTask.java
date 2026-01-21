@@ -10,9 +10,9 @@ import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.validation.ValidatePomService;
+import jakarta.inject.Inject;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Map;
 

@@ -1,9 +1,14 @@
 package io.bootique.tools.release.controller.websocket;
 
-import javax.websocket.Session;
+import jakarta.websocket.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 public class StageStatusListener implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(StageStatusListener.class);
 
     private enum Commands {
         LOAD
@@ -21,7 +26,7 @@ public class StageStatusListener implements Runnable {
             try {
                 this.session.getBasicRemote().sendText(Commands.LOAD.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.info("Unable to send message to client", e);
             }
         }
     }

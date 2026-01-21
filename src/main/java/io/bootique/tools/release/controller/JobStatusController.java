@@ -5,9 +5,9 @@ import io.bootique.tools.release.model.job.BatchJobResult;
 import io.bootique.tools.release.model.job.JobStatusResponse;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.job.BatchJobService;
-
-import javax.inject.Inject;
-import javax.ws.rs.*;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
 
 @Path("job")
 public class JobStatusController extends BaseJobController {

@@ -4,13 +4,13 @@ import io.bootique.tools.release.model.job.BatchJob;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.job.BatchJobResult;
 import io.bootique.tools.release.service.preferences.PreferenceService;
+import jakarta.inject.Inject;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
 
 public class DefaultBatchJobService implements BatchJobService {
 

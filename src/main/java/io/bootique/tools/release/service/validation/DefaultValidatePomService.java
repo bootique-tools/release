@@ -1,6 +1,16 @@
 package io.bootique.tools.release.service.validation;
 
-import javax.inject.Inject;
+import ch.qos.logback.classic.Logger;
+import io.bootique.tools.release.service.desktop.DesktopException;
+import io.bootique.tools.release.service.git.GitService;
+import io.bootique.tools.release.service.preferences.PreferenceService;
+import jakarta.inject.Inject;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,16 +33,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import ch.qos.logback.classic.Logger;
-import io.bootique.tools.release.service.desktop.DesktopException;
-import io.bootique.tools.release.service.git.GitService;
-import io.bootique.tools.release.service.preferences.PreferenceService;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 public class DefaultValidatePomService implements ValidatePomService {
 

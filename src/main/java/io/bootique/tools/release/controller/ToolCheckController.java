@@ -1,12 +1,12 @@
 package io.bootique.tools.release.controller;
 
-import java.nio.file.Paths;
-import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.view.ToolCheckView;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+
+import java.nio.file.Paths;
 
 @Path("/tool-check")
 public class ToolCheckController extends BaseController {

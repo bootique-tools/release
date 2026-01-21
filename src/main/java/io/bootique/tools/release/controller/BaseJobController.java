@@ -3,11 +3,11 @@ package io.bootique.tools.release.controller;
 import io.bootique.tools.release.model.job.BatchJobDescriptor;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.service.job.BatchJobService;
+import jakarta.inject.Inject;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
-import javax.inject.Inject;
 
 class BaseJobController extends BaseController {
 

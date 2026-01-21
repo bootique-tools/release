@@ -10,9 +10,8 @@ import io.bootique.tools.release.service.release.descriptors.release.ReleaseDesc
 import io.bootique.tools.release.service.release.executor.factory.JobDescriptorFactoryImpl;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterService;
-
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 public class RollbackExecutor implements RollbackExecutorService {
 

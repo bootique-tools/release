@@ -10,6 +10,7 @@ import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.inject.Inject;
 
 public class RollbackMvnGitTask implements ReleaseTask {
 

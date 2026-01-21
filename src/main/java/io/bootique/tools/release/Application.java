@@ -7,26 +7,28 @@ import io.bootique.cayenne.v42.CayenneModule;
 import io.bootique.command.CommandDecorator;
 import io.bootique.config.ConfigurationFactory;
 import io.bootique.di.Binder;
-import io.bootique.di.MapBuilder;
 import io.bootique.di.Provides;
-import io.bootique.di.TypeLiteral;
 import io.bootique.jersey.JerseyModule;
 import io.bootique.jetty.JettyModule;
+import io.bootique.jetty.MappedServlet;
 import io.bootique.jetty.command.ServerCommand;
 import io.bootique.jetty.websocket.JettyWebSocketModule;
-import io.bootique.job.command.ScheduleCommand;
 import io.bootique.job.JobsModule;
+import io.bootique.job.command.ScheduleCommand;
 import io.bootique.tools.release.controller.RepoController;
 import io.bootique.tools.release.controller.websocket.JobStatusWebSocket;
 import io.bootique.tools.release.controller.websocket.ReleaseWebSocket;
 import io.bootique.tools.release.job.GitHubDataImportJob;
 import io.bootique.tools.release.job.MavenProjectsImport;
-import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
 import io.bootique.tools.release.service.central.DefaultMvnCentralService;
 import io.bootique.tools.release.service.central.MvnCentralService;
-import io.bootique.tools.release.service.desktop.*;
+import io.bootique.tools.release.service.desktop.DesktopService;
+import io.bootique.tools.release.service.desktop.GenericDesktopService;
+import io.bootique.tools.release.service.desktop.LinuxDesktopService;
+import io.bootique.tools.release.service.desktop.MacOSService;
+import io.bootique.tools.release.service.desktop.WindowsDesktopService;
 import io.bootique.tools.release.service.git.ExternalGitService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.github.GitHubApiImport;
@@ -37,33 +39,46 @@ import io.bootique.tools.release.service.graphql.GraphQLService;
 import io.bootique.tools.release.service.graphql.SimpleGraphQLService;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.DefaultBatchJobService;
-import io.bootique.tools.release.service.logger.*;
+import io.bootique.tools.release.service.logger.DefaultLoggerService;
+import io.bootique.tools.release.service.logger.ExecutionLogger;
+import io.bootique.tools.release.service.logger.LoggerService;
+import io.bootique.tools.release.service.logger.ReleaseExecutionLogger;
+import io.bootique.tools.release.service.logger.RollbackExecutionLogger;
 import io.bootique.tools.release.service.maven.DefaultMavenService;
 import io.bootique.tools.release.service.maven.MavenService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.preferences.credential.PreferenceCredentialFactory;
 import io.bootique.tools.release.service.readme.DefaultReleaseNotesService;
 import io.bootique.tools.release.service.readme.ReleaseNotesService;
-import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorServiceImpl;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
-import io.bootique.tools.release.service.release.descriptors.repository.RepositoryDescriptorServiceImpl;
+import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorServiceImpl;
 import io.bootique.tools.release.service.release.descriptors.repository.RepositoryDescriptorService;
-import io.bootique.tools.release.service.release.executor.*;
+import io.bootique.tools.release.service.release.descriptors.repository.RepositoryDescriptorServiceImpl;
+import io.bootique.tools.release.service.release.executor.ReleaseExecutor;
+import io.bootique.tools.release.service.release.executor.ReleaseExecutorService;
+import io.bootique.tools.release.service.release.executor.RollbackExecutor;
+import io.bootique.tools.release.service.release.executor.RollbackExecutorService;
 import io.bootique.tools.release.service.release.executor.factory.JobDescriptorFactory;
 import io.bootique.tools.release.service.release.executor.factory.JobDescriptorFactoryImpl;
-import io.bootique.tools.release.service.release.persistent.ReleasePersistentServiceImpl;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
+import io.bootique.tools.release.service.release.persistent.ReleasePersistentServiceImpl;
 import io.bootique.tools.release.service.release.stage.manager.StageManagerImplService;
 import io.bootique.tools.release.service.release.stage.manager.StageManagerService;
 import io.bootique.tools.release.service.release.stage.updater.StageListener;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterImpService;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterService;
-import io.bootique.tools.release.service.tasks.*;
+import io.bootique.tools.release.service.tasks.ReleasePerformTask;
+import io.bootique.tools.release.service.tasks.ReleasePrepareTask;
+import io.bootique.tools.release.service.tasks.ReleasePullTask;
+import io.bootique.tools.release.service.tasks.ReleaseSonatypeSyncTask;
+import io.bootique.tools.release.service.tasks.ReleaseTask;
+import io.bootique.tools.release.service.tasks.ReleaseValidationTask;
+import io.bootique.tools.release.service.tasks.RollbackMvnGitTask;
+import io.bootique.tools.release.service.tasks.RollbackSonatypeTask;
 import io.bootique.tools.release.service.validation.DefaultValidatePomService;
 import io.bootique.tools.release.service.validation.ValidatePomService;
+import jakarta.inject.Singleton;
 import org.glassfish.jersey.jackson.JacksonFeature;
-
-import javax.inject.Singleton;
 
 //--config="release-manager.yml" --server
 public class Application implements BQModule {
@@ -111,7 +126,7 @@ public class Application implements BQModule {
                 .addEndpoint(JobStatusWebSocket.class);
 
         JettyModule.extend(binder)
-                .useDefaultServlet();
+                .addMappedServlet(MappedServlet.ofStatic("/").name("default").build());
 
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)

@@ -4,8 +4,8 @@ import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.ReleaseStageStatus;
 import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
+import jakarta.inject.Inject;
 
-import javax.inject.Inject;
 import java.util.List;
 
 public class StageManagerImplService implements StageManagerService {

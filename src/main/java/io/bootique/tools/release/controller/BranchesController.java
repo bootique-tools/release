@@ -6,16 +6,14 @@ import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.job.JobException;
 import io.bootique.tools.release.view.BranchesView;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
 import org.apache.cayenne.query.ObjectSelect;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.function.Function;
 
@@ -25,14 +23,14 @@ public class BranchesController extends BaseJobController {
     private final String CONTROLLER_NAME = "branches";
 
     @GET
-    public BranchesView home(@Context UriInfo uriInfo) {
+    public BranchesView home() {
         return new BranchesView(getCurrentUser(), getCurrentOrganization());
     }
 
     @GET
     @Path("/show-all")
     @Produces(MediaType.APPLICATION_JSON)
-    public DataResponse<Project> showAll(@Context UriInfo uriInfo) {
+    public DataResponse<Project> showAll() {
         return fetchProjects("[\"repository\"]");
     }
 
