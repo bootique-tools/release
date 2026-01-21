@@ -3,6 +3,13 @@ preferences:
   basePath: /Users/username/work/bootique/path
   javaHome: '/usr/libexec/java_home -v 11'
 
+jerseyclient:
+  auth:
+    central-auth:
+      type: "apiKeyHeader"
+      name: "Authorization"
+      key: "Bearer xxxxxxxxxxxxxxx" #  printf "user:password" | base64
+
 jdbc:
   sqlite:
     jdbcUrl: 'jdbc:sqlite:file:github.db?cache=shared&date_class=text'

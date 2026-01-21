@@ -64,6 +64,9 @@ jerseyclient:
       url: "http://search.maven.org"
     github:
       url: "https://api.github.com"
+    central:
+      url: "https://central.sontatype.org"
+      auth: central-auth
 
 scheduler:
   threadPoolSize: 3
