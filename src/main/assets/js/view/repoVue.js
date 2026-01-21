@@ -1,5 +1,4 @@
 import Vue from 'vue/dist/vue'
-import axios from 'axios/dist/axios'
 
 import { baseMethods } from "../baseController";
 

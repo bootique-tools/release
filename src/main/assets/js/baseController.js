@@ -44,7 +44,7 @@ export const baseMethods = {
                 } else {
                     this.sortDir = "DESC";
                 }
-                uri += "sort=" + sort + "&dir=" + this.sortDir;
+                uri += "sort=" + sort + "&direction=" + this.sortDir;
                 this.isASC = !this.isASC;
             }
             if (filter !== null) {

@@ -22,8 +22,6 @@ import io.bootique.tools.release.job.GitHubDataImportJob;
 import io.bootique.tools.release.job.MavenProjectsImport;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RollbackStage;
-import io.bootique.tools.release.service.central.DefaultMvnCentralService;
-import io.bootique.tools.release.service.central.MvnCentralService;
 import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.desktop.GenericDesktopService;
 import io.bootique.tools.release.service.desktop.LinuxDesktopService;
@@ -67,10 +65,10 @@ import io.bootique.tools.release.service.release.stage.manager.StageManagerServi
 import io.bootique.tools.release.service.release.stage.updater.StageListener;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterImpService;
 import io.bootique.tools.release.service.release.stage.updater.StageUpdaterService;
+import io.bootique.tools.release.service.tasks.ReleaseCentralPublishTask;
 import io.bootique.tools.release.service.tasks.ReleasePerformTask;
 import io.bootique.tools.release.service.tasks.ReleasePrepareTask;
 import io.bootique.tools.release.service.tasks.ReleasePullTask;
-import io.bootique.tools.release.service.tasks.ReleaseSonatypeSyncTask;
 import io.bootique.tools.release.service.tasks.ReleaseTask;
 import io.bootique.tools.release.service.tasks.ReleaseValidationTask;
 import io.bootique.tools.release.service.tasks.RollbackMvnGitTask;
@@ -100,7 +98,6 @@ public class Application implements BQModule {
         binder.bind(MavenService.class).to(DefaultMavenService.class).inSingletonScope();
         binder.bind(BatchJobService.class).to(DefaultBatchJobService.class).inSingletonScope();
         binder.bind(LoggerService.class).to(DefaultLoggerService.class).inSingletonScope();
-        binder.bind(MvnCentralService.class).to(DefaultMvnCentralService.class).inSingletonScope();
         binder.bind(ReleaseNotesService.class).to(DefaultReleaseNotesService.class).inSingletonScope();
         binder.bind(ValidatePomService.class).to(DefaultValidatePomService.class).inSingletonScope();
 
@@ -137,7 +134,7 @@ public class Application implements BQModule {
                 .put(ReleaseStage.RELEASE_VALIDATION, ReleaseValidationTask.class)
                 .put(ReleaseStage.RELEASE_PREPARE, ReleasePrepareTask.class)
                 .put(ReleaseStage.RELEASE_PERFORM, ReleasePerformTask.class)
-                .put(ReleaseStage.RELEASE_SYNC, ReleaseSonatypeSyncTask.class);
+                .put(ReleaseStage.RELEASE_SYNC, ReleaseCentralPublishTask.class);
 
 
         binder.bindMap(RollbackStage.class, ReleaseTask.class)
