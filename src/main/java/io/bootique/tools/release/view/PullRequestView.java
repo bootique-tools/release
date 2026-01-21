@@ -5,14 +5,14 @@ import io.bootique.tools.release.model.persistent.User;
 
 public class PullRequestView extends BaseView {
 
-    private String filter;
-    private String sort;
-    private String field;
+    private final String filter;
+    private final String sort;
+    private final String field;
 
     public PullRequestView(User user, Organization organization, String sort, String filter, String field) {
         super("pr", user, organization);
         this.filter = filter;
-        this.sort = sort;
+        this.sort = sort == null ? "createdAt" : sort;
         this.field = field;
     }
 

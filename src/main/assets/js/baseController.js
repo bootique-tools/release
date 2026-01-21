@@ -12,7 +12,7 @@ export const baseMethods = {
     data: {
         allItems: null,
         errorMessage: '',
-        isASC: true,
+        isASC: false,
         sortDir: null,
     },
     methods: {
@@ -47,9 +47,9 @@ export const baseMethods = {
                 uri += "sort=" + sort + "&direction=" + this.sortDir;
                 this.isASC = !this.isASC;
             }
-            if (filter !== null) {
+            if (filter !== null && filter !== "") {
                 if (uri !== "") {
-                    uri = "&" + uri;
+                    uri += "&";
                 }
                 uri += "cayenneExp=[\"" + filter + " like $b\",\"" + baseFilterField + "\"]";
             }

@@ -57,22 +57,6 @@ public class ExternalGitService implements GitService {
     }
 
     @Override
-    public void deleteTag(Repository repository, String releaseVersion) {
-        Path target = getBasePathOrThrow().resolve(repository.getName());
-        desktopService.runCommand(target, "git", "tag", "-d", releaseVersion);
-        desktopService.runCommand(target, "git", "push", "origin", ":" + releaseVersion);
-    }
-
-    @Override
-    public void addAndCommit(Repository repository) {
-        Path target = getBasePathOrThrow().resolve(repository.getName());
-        desktopService.runCommand(target, "git", "add", ".");
-        desktopService.runCommand(target, "git", "commit", "-m", "rollback the release of "
-                + releaseDescriptorService.getReleaseDescriptor().getReleaseVersions().releaseVersion());
-        desktopService.runCommand(target, "git", "push", "origin", "master");
-    }
-
-    @Override
     public void createBranch(Repository repository, String branchTitle) {
         Path target = getBasePathOrThrow().resolve(repository.getName());
         desktopService.runCommand(target, "git", "checkout", "-b", branchTitle);

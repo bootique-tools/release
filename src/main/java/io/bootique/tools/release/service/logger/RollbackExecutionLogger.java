@@ -31,7 +31,7 @@ public class RollbackExecutionLogger implements ExecutionLogger {
         try {
             RollbackStage rollbackStage = switch (releaseStage) {
                 case RELEASE_PREPARE -> RollbackStage.ROLLBACK_MVN;
-                case RELEASE_PERFORM -> RollbackStage.ROLLBACK_SONATYPE;
+                case RELEASE_PERFORM -> RollbackStage.ROLLBACK_DEPLOYMENT;
                 default              -> RollbackStage.NO_ROLLBACK;
             };
             var fileAppender = getFileAppender(repositoryDescriptor, rollbackStage);

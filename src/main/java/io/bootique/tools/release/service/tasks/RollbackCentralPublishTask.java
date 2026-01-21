@@ -7,7 +7,7 @@ import io.bootique.tools.release.service.release.descriptors.release.ReleaseDesc
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
-public class ReleaseCentralPublishTask implements ReleaseTask {
+public class RollbackCentralPublishTask implements ReleaseTask {
 
     @Inject
     ReleaseDescriptorService releaseDescriptorService;
@@ -24,7 +24,7 @@ public class ReleaseCentralPublishTask implements ReleaseTask {
         try(Response resp = targets.newTarget("central")
                 .path(desc.getCentralDeploymentId())
                 .request()
-                .post(null)) {
+                .delete()) {
             if(!(resp.getStatusInfo() == Response.Status.OK)) {
                 throw new RuntimeException("Can't publish release to maven central.");
             }

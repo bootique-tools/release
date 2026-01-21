@@ -15,10 +15,6 @@ public interface GitService {
 
     void update(Repository repository);
 
-    void deleteTag(Repository repository, String releaseVersion);
-
-    void addAndCommit(Repository repository);
-
     void createBranch(Repository repository, String branchTitle);
 
     String getCurrentBranchName(Repository repository);

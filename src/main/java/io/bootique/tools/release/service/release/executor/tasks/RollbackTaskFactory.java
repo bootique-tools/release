@@ -34,7 +34,7 @@ public class RollbackTaskFactory implements TaskFactory {
             functionList.add(rollbackMap.get(RollbackStage.ROLLBACK_MVN));
         }
         if (executeStages.contains(ReleaseStage.RELEASE_PERFORM)) {
-            functionList.add(rollbackMap.get(RollbackStage.ROLLBACK_SONATYPE));
+            functionList.add(rollbackMap.get(RollbackStage.ROLLBACK_DEPLOYMENT));
         }
 
         return repositoryDescriptor -> {

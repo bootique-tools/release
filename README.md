@@ -11,7 +11,7 @@
    - Add key to keychain to prevent password request for every module.
 4. Create folder to have local copy of releasing project. Set **basePath** variable in config file.
 5. Setup [RSA key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to access repositories on the GitHub
-6. Create `.m2/settings.xml` or add a Bootique release repo (`oss-sonatype-releases`) credentials to the existing one. You could get your Sonatype API key at the [OSS website](https://oss.sonatype.org/#profile;User%20Token):
+6. Create `.m2/settings.xml` and add the Central repo (`sonatype-central`) credentials. You could get your Sonatype API key at the [Central website](https://central.sonatype.com/usertoken):
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
    <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
@@ -19,7 +19,7 @@
     xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <servers>
         <server>
-            <id>oss-sonatype-releases</id>
+            <id>sonatype-central</id>
             <username>API_key_name</username>
             <password>API_key_password</password>
         </server>

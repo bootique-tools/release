@@ -71,14 +71,13 @@ import io.bootique.tools.release.service.tasks.ReleasePrepareTask;
 import io.bootique.tools.release.service.tasks.ReleasePullTask;
 import io.bootique.tools.release.service.tasks.ReleaseTask;
 import io.bootique.tools.release.service.tasks.ReleaseValidationTask;
-import io.bootique.tools.release.service.tasks.RollbackMvnGitTask;
-import io.bootique.tools.release.service.tasks.RollbackSonatypeTask;
+import io.bootique.tools.release.service.tasks.RollbackCentralPublishTask;
+import io.bootique.tools.release.service.tasks.RollbackMvnRelease;
 import io.bootique.tools.release.service.validation.DefaultValidatePomService;
 import io.bootique.tools.release.service.validation.ValidatePomService;
 import jakarta.inject.Singleton;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
-//--config="release-manager.yml" --server
 public class Application implements BQModule {
     public static void main(String[] args) {
         Bootique
@@ -138,8 +137,8 @@ public class Application implements BQModule {
 
 
         binder.bindMap(RollbackStage.class, ReleaseTask.class)
-                .put(RollbackStage.ROLLBACK_SONATYPE, RollbackSonatypeTask.class)
-                .put(RollbackStage.ROLLBACK_MVN, RollbackMvnGitTask.class);
+                .put(RollbackStage.ROLLBACK_DEPLOYMENT, RollbackCentralPublishTask.class)
+                .put(RollbackStage.ROLLBACK_MVN, RollbackMvnRelease.class);
 
         BQCoreModule.extend(binder)
                 .decorateCommand(ServerCommand.class, CommandDecorator.beforeRun(ScheduleCommand.class));

@@ -65,7 +65,7 @@ jerseyclient:
     github:
       url: "https://api.github.com"
     central:
-      url: "https://central.sontatype.org"
+      url: "https://central.sontatype.org/api/v1/publisher/deployment/"
       auth: central-auth
 
 scheduler:

@@ -2,7 +2,7 @@ package io.bootique.tools.release.model.release;
 
 public enum RollbackStage {
     NO_ROLLBACK("No rollback"),
-    ROLLBACK_SONATYPE("Rollback sonatype"),
+    ROLLBACK_DEPLOYMENT("Rollback central deployment"),
     ROLLBACK_MVN("Rollback git");
 
     private final String text;

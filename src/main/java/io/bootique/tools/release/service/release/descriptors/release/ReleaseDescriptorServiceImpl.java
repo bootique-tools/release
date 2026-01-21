@@ -111,7 +111,8 @@ public class ReleaseDescriptorServiceImpl implements ReleaseDescriptorService {
         return releaseDescriptor.getRepositoryDescriptorList()
                 .stream()
                 .filter(repoDescriptor -> repoDescriptor.getRepositoryName().equals(name))
-                .findFirst().get();
+                .findFirst()
+                .orElseThrow();
     }
 
 }

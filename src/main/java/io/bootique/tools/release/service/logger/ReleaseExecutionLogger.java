@@ -4,7 +4,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RepositoryDescriptor;
-import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ import java.util.Arrays;
 
 public class ReleaseExecutionLogger implements ExecutionLogger {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DesktopService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseExecutionLogger.class);
 
     @Inject
     private LoggerService loggerService;
@@ -34,7 +33,7 @@ public class ReleaseExecutionLogger implements ExecutionLogger {
         } catch (NoSuchFileException e) {
             return "Logfile not found: " + fileAppender.getFile();
         } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
+            LOGGER.warn("Unable to get logs for the stage {}", releaseStage, e);
         }
         return "";
     }
@@ -45,7 +44,7 @@ public class ReleaseExecutionLogger implements ExecutionLogger {
             loggerService.setAppender(repositoryName, "release", String.valueOf(stage));
             LOGGER.info(text);
         } catch (NullPointerException e) {
-            e.printStackTrace();
+            LOGGER.warn("Unable to write logs for the stage {}", stage, e);
         }
     }
 
