@@ -39,8 +39,10 @@ public class CustomAppenderFactory extends AppenderFactory {
         }
         appender.setName(getName());
         appender.setContext(context);
+        if (filters != null) {
+            filters.forEach(filter -> appender.addFilter(filter.createFilter()));
+        }
         appender.start();
-        createFilters(appender);
         return appender;
     }
 }

@@ -148,7 +148,7 @@ public class Application implements BQModule {
                 .decorateCommand(ServerCommand.class, CommandDecorator.beforeRun(ScheduleCommand.class));
 
         CayenneModule.extend(binder)
-                .addProject("cayenne/cayenne-project.xml");
+                .addLocation("classpath:cayenne/cayenne-project.xml");
 
         JobsModule.extend(binder)
                 .addJob(GitHubDataImportJob.class)
