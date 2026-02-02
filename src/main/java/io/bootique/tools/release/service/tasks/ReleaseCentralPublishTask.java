@@ -25,9 +25,11 @@ public class ReleaseCentralPublishTask implements ReleaseTask {
                 .path(desc.getCentralDeploymentId())
                 .request()
                 .post(null)) {
-            if(!(resp.getStatusInfo() == Response.Status.OK)) {
+            if(!(resp.getStatusInfo() == Response.Status.NO_CONTENT)) {
                 throw new RuntimeException("Can't publish release to maven central.");
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Can't publish release to maven central.", e);
         }
         return "ok";
     }
