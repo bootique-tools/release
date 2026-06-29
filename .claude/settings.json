@@ -1,0 +1,34 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Grep|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/block-secrets.sh\"",
+            "statusMessage": "Checking secrets-file guard"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "bootique@bootique": true,
+    "apache-cayenne@apache-cayenne": true
+  },
+  "extraKnownMarketplaces": {
+    "bootique": {
+      "source": {
+        "source": "github",
+        "repo": "bootique/bootique-ai-plugin"
+      }
+    },
+    "apache-cayenne": {
+      "source": {
+        "source": "github",
+        "repo": "apache/cayenne"
+      }
+    }
+  }
+}
