@@ -52,7 +52,7 @@ public class ReleaseTaskFactory implements TaskFactory {
         Map<ReleaseStage, ReleaseStageStatus> statusStageMap = repositoryDescriptor.getStageStatusMap();
         var stageArray = new ArrayList<>(statusStageMap.keySet());
 
-        for (int i = stageArray.indexOf(stage) + 1; i < stageArray.size() - 1; i++) {
+        for (int i = stageArray.indexOf(stage) + 1; i < stageArray.size(); i++) {
             statusStageMap.replace(stageArray.get(i), ReleaseStageStatus.Not_Start);
         }
         repositoryDescriptor.setStageStatusMap(statusStageMap);

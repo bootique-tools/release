@@ -69,6 +69,9 @@ export function initReleaseProcess() {
 
                 axios.post(`/ui/release/restart-stage`, params, {'Content-Type': 'application/x-www-form-urlencoded'});
             },
+            startSyncStage: function () {
+                axios.post(`/ui/release/start-sync-stage`);
+            },
             skipRollback: function (name, stage) {
 
                 const params = new URLSearchParams();

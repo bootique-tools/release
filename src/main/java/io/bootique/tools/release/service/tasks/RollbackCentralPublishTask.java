@@ -25,8 +25,9 @@ public class RollbackCentralPublishTask implements ReleaseTask {
                 .path(desc.getCentralDeploymentId())
                 .request()
                 .delete()) {
-            if(!(resp.getStatusInfo() == Response.Status.OK)) {
-                throw new RuntimeException("Can't publish release to maven central.");
+            if(resp.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                throw new RuntimeException("Maven Central drop (rollback) failed: HTTP "
+                        + resp.getStatus() + " — " + resp.readEntity(String.class));
             }
         }
         return "ok";

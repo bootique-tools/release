@@ -19,12 +19,12 @@
                         <div class="row justify-content-md-left align-items-center">
                             <div class="col-sm-7">[[stage]]</div>
                             <div class="col-sm-1" v-if="stage === `RELEASE_SYNC` && !!syncStageIsEnable()">
-                                <form action="/ui/release/start-sync-stage" method="post"
-                                      id="execute-sync-stage-form">
-                                    <button class="btn btn-sm btn-outline-success mr-1 ml-1">
-                                        <i class="fas fa-play"></i>
-                                    </button>
-                                </form>
+                                <button class="btn btn-sm btn-outline-success mr-1 ml-1"
+                                        type="button"
+                                        :disabled="releaseRunning"
+                                        v-on:click="startSyncStage()">
+                                    <i class="fas fa-play"></i>
+                                </button>
                             </div>
                         </div>
                     </th>
