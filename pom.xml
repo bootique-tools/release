@@ -15,7 +15,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <bq.version>4.0-M2</bq.version>
+        <bq.version>4.0-M3</bq.version>
         <jetty.version>12.1.5</jetty.version>
         <jackson.version>2.19.4</jackson.version>
         <mysql.jdbc.version>9.5.0</mysql.jdbc.version>
