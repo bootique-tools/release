@@ -1,11 +1,13 @@
 package io.bootique.tools.release.service.desktop;
 
+import io.bootique.tools.release.service.preferences.PreferenceService;
+
 import java.nio.file.Path;
 
 public class WindowsDesktopService extends BaseDesktopService {
 
-    public WindowsDesktopService(String javaHome) {
-        super(javaHome);
+    public WindowsDesktopService(PreferenceService preferences) {
+        super(preferences);
     }
 
     @Override
@@ -18,7 +20,7 @@ public class WindowsDesktopService extends BaseDesktopService {
         String[] commands = new String[args.length + 1];
         commands[0] = path.toAbsolutePath().resolve("pom.xml").toString();
         System.arraycopy(args, 0, commands, 1, args.length);
-        return runCommand(Path.of("."), "maven.bat", commands);
+        return runCommand(Path.of("."), mavenEnvironment(), "maven.bat", commands);
     }
 
     @Override
@@ -29,6 +31,6 @@ public class WindowsDesktopService extends BaseDesktopService {
         if(additionalArgs != null) {
             commands[2] = additionalArgs;
         }
-        return runCommand(Path.of("."), "maven.bat", commands);
+        return runCommand(Path.of("."), mavenEnvironment(), "maven.bat", commands);
     }
 }

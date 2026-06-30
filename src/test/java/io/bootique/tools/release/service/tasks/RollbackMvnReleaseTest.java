@@ -70,17 +70,17 @@ class RollbackMvnReleaseTest {
 
     private DesktopService createDesktopService() {
         String os = System.getProperty("os.name").toLowerCase();
-        String javaHome = "/usr/libexec/java_home -v 11";
+        mockPreferenceService.set(DesktopService.JAVA_HOME, "/usr/libexec/java_home -v 11");
         if (os.contains("win")) {
-            return new WindowsDesktopService(javaHome);
+            return new WindowsDesktopService(mockPreferenceService);
         }
         if (os.contains("mac")) {
-            return new MacOSService(javaHome);
+            return new MacOSService(mockPreferenceService);
         }
         if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            return new LinuxDesktopService(javaHome);
+            return new LinuxDesktopService(mockPreferenceService);
         }
-        return new GenericDesktopService(javaHome);
+        return new GenericDesktopService(mockPreferenceService);
     }
 
     @Test

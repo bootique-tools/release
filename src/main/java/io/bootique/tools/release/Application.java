@@ -156,17 +156,16 @@ public class Application implements BQModule {
     @Singleton
     DesktopService createDesktopService(PreferenceService preferenceService) {
         String os = System.getProperty("os.name").toLowerCase();
-        String javaHome = preferenceService.get(DesktopService.JAVA_HOME);
         if (os.contains("win")) {
-            return new WindowsDesktopService(javaHome);
+            return new WindowsDesktopService(preferenceService);
         }
         if (os.contains("mac")) {
-            return new MacOSService(javaHome);
+            return new MacOSService(preferenceService);
         }
         if (os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            return new LinuxDesktopService(javaHome);
+            return new LinuxDesktopService(preferenceService);
         }
-        return new GenericDesktopService(javaHome);
+        return new GenericDesktopService(preferenceService);
     }
 
     @Singleton

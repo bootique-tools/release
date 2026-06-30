@@ -1,5 +1,7 @@
 package io.bootique.tools.release.service.desktop;
 
+import io.bootique.tools.release.service.preferences.PreferenceService;
+
 import java.awt.Desktop;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -12,7 +14,10 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -24,10 +29,27 @@ public abstract class BaseDesktopService implements DesktopService {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(DesktopService.class);
 
-    private final String javaHome;
+    private final PreferenceService preferences;
 
-    protected BaseDesktopService(String javaHome) {
-        this.javaHome = javaHome;
+    protected BaseDesktopService(PreferenceService preferences) {
+        this.preferences = preferences;
+    }
+
+    /**
+     * Environment passed to Maven/release subprocesses. When a GPG passphrase is configured it is
+     * exposed as {@code MAVEN_GPG_PASSPHRASE} so {@code maven-gpg-plugin} (>= 3.1.0) can sign
+     * non-interactively (loopback pinentry). It is intentionally passed via the environment rather
+     * than the command line so it never appears in the scripts' echo, {@code logs.log}, or the UI
+     * log stream.
+     */
+    protected Map<String, String> mavenEnvironment() {
+        String gpgPassphrase = preferences.get(GPG_PASSPHRASE, null);
+        if (gpgPassphrase == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, String> env = new HashMap<>();
+        env.put("MAVEN_GPG_PASSPHRASE", gpgPassphrase);
+        return env;
     }
 
     public synchronized File selectFile() {
@@ -64,6 +86,10 @@ public abstract class BaseDesktopService implements DesktopService {
 
     @Override
     public String runCommand(java.nio.file.Path path, String command, String... args) {
+        return runCommand(path, Collections.emptyMap(), command, args);
+    }
+
+    protected String runCommand(java.nio.file.Path path, Map<String, String> env, String command, String... args) {
         List<String> commands = new ArrayList<>(1 + args.length);
         commands.add(command);
         commands.addAll(Arrays.asList(args));
@@ -73,11 +99,12 @@ public abstract class BaseDesktopService implements DesktopService {
             LOGGER.debug("Running command: {}", String.join(" ", commands));
         }
         try {
-            Process process = new ProcessBuilder()
+            ProcessBuilder processBuilder = new ProcessBuilder()
                     .directory(path.toFile())
                     .command(commands)
-                    .redirectErrorStream(true)
-                    .start();
+                    .redirectErrorStream(true);
+            processBuilder.environment().putAll(env);
+            Process process = processBuilder.start();
 
             InputStream stream = process.getInputStream();
             try(BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
@@ -115,10 +142,10 @@ public abstract class BaseDesktopService implements DesktopService {
     @Override
     public String runMavenCommand(Path path, String... args) {
         String[] commands = new String[args.length + 2];
-        commands[0] = javaHome;
+        commands[0] = preferences.get(JAVA_HOME);
         commands[1] = path.toAbsolutePath().resolve("pom.xml").toString();
         System.arraycopy(args, 0, commands, 2, args.length);
-        return runCommand(Path.of("."), "./maven.sh", commands);
+        return runCommand(Path.of("."), mavenEnvironment(), "./maven.sh", commands);
     }
 
     /**
@@ -131,12 +158,12 @@ public abstract class BaseDesktopService implements DesktopService {
     @Override
     public String performReleasePlugin(Path path, String operation, String additionalArgs) {
         String[] commands = new String[additionalArgs == null ? 3 : 4];
-        commands[0] = javaHome;
+        commands[0] = preferences.get(JAVA_HOME);
         commands[1] = path.toAbsolutePath().resolve("pom.xml").toString();
         commands[2] = operation;
         if(additionalArgs != null) {
             commands[3] = additionalArgs;
         }
-        return runCommand(Path.of("."), "./release.sh", commands);
+        return runCommand(Path.of("."), mavenEnvironment(), "./release.sh", commands);
     }
 }

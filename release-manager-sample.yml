@@ -2,6 +2,11 @@ preferences:
   gitHubToken: token
   basePath: /Users/username/work/bootique/path
   javaHome: '/usr/libexec/java_home -v 11'
+  # Optional. Passphrase of the GPG signing key, used to sign artifacts non-interactively
+  # (loopback pinentry) during a release. Passed to Maven via the MAVEN_GPG_PASSPHRASE env var,
+  # so it never appears on the command line or in the logs. Requires maven-gpg-plugin >= 3.1.0
+  # in the released modules. Leave unset to keep the old behavior (pre-unlock the key manually).
+  gpgPassphrase: 'your-gpg-key-passphrase'
 
 jerseyclient:
   auth:

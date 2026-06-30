@@ -1,10 +1,12 @@
 package io.bootique.tools.release.service.desktop;
 
+import io.bootique.tools.release.service.preferences.PreferenceService;
+
 import java.nio.file.Path;
 
 public class GenericDesktopService extends BaseDesktopService {
-    public GenericDesktopService(String javaHome) {
-        super(javaHome);
+    public GenericDesktopService(PreferenceService preferences) {
+        super(preferences);
     }
 
     @Override

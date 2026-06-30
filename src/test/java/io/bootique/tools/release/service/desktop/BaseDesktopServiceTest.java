@@ -1,5 +1,6 @@
 package io.bootique.tools.release.service.desktop;
 
+import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import io.bootique.tools.release.util.CopyDirVisitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,17 +28,18 @@ class BaseDesktopServiceTest {
 
     private DesktopService createDesktopService() {
         String os = System.getProperty("os.name").toLowerCase();
-        String javaHome = "/usr/libexec/java_home -v 11";
+        MockPreferenceService preferences = new MockPreferenceService();
+        preferences.set(DesktopService.JAVA_HOME, "/usr/libexec/java_home -v 11");
         if(os.contains("win")) {
-            return new WindowsDesktopService(javaHome);
+            return new WindowsDesktopService(preferences);
         }
         if(os.contains("mac")) {
-            return new MacOSService(javaHome);
+            return new MacOSService(preferences);
         }
         if(os.contains("nix") || os.contains("nux") || os.contains("aix")) {
-            return new LinuxDesktopService(javaHome);
+            return new LinuxDesktopService(preferences);
         }
-        return new GenericDesktopService(javaHome);
+        return new GenericDesktopService(preferences);
     }
 
     @Test

@@ -24,6 +24,7 @@ public class PreferenceCredentialFactory {
     private String basePath;
     private String groupIdPattern;
     private String javaHome;
+    private String gpgPassphrase;
 
     private String logsPath;
     private String savePath;
@@ -68,6 +69,11 @@ public class PreferenceCredentialFactory {
         this.javaHome = javaHome;
     }
 
+    @BQConfigProperty("GPG signing key passphrase")
+    public void setGpgPassphrase(String gpgPassphrase) {
+        this.gpgPassphrase = gpgPassphrase;
+    }
+
     public PreferenceService createPreferenceService(){
         if(gitHubToken == null) {
             throw new DesktopException("Can't find gitHub token.");
@@ -100,6 +106,10 @@ public class PreferenceCredentialFactory {
 
         if(!preferences.have(DesktopService.JAVA_HOME)) {
             preferences.set(DesktopService.JAVA_HOME, javaHome);
+        }
+
+        if(gpgPassphrase != null && !preferences.have(DesktopService.GPG_PASSPHRASE)) {
+            preferences.set(DesktopService.GPG_PASSPHRASE, gpgPassphrase);
         }
 
         if (!preferences.have(ReleasePersistentService.SAVE_PATH)) {

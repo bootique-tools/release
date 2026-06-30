@@ -9,6 +9,8 @@ public interface DesktopService {
 
     Preference<String> JAVA_HOME = Preference.of("javaHome", String.class);
 
+    Preference<String> GPG_PASSPHRASE = Preference.of("gpgPassphrase", String.class);
+
     File selectFile();
 
     void openFolder(Path path);
