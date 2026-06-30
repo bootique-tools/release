@@ -22,7 +22,6 @@
         <sqlite.version>3.44.1.0</sqlite.version>
 
         <mockito.version>4.6.1</mockito.version>
-        <junit.jupiter.version>5.10.2</junit.jupiter.version>
 
         <frontend.plugin.version>1.11.3</frontend.plugin.version>
         <node.version>v14.21.3</node.version>
@@ -169,6 +168,14 @@
 
     <build>
         <plugins>
+            <plugin>
+                <!-- Override the parent's surefire 2.22.1, whose JUnit Platform provider is too old
+                     to discover the JUnit 5.14 / Platform 1.14 tests pulled in by bootique-junit5
+                     (it silently runs 0 tests). 3.x provisions a matching junit-platform-launcher. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
