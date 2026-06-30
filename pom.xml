@@ -15,9 +15,9 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <bq.version>4.0-M3</bq.version>
-        <jetty.version>12.1.5</jetty.version>
-        <jackson.version>2.19.4</jackson.version>
+        <bq.version>4.0-M4</bq.version>
+        <jetty.version>12.1.10</jetty.version>
+        <jackson.version>2.22.0</jackson.version>
         <mysql.jdbc.version>9.5.0</mysql.jdbc.version>
         <sqlite.version>3.44.1.0</sqlite.version>
 
@@ -156,7 +156,7 @@
         <!-- Test -->
         <dependency>
             <groupId>io.bootique</groupId>
-            <artifactId>bootique-junit5</artifactId>
+            <artifactId>bootique-junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -170,7 +170,7 @@
         <plugins>
             <plugin>
                 <!-- Override the parent's surefire 2.22.1, whose JUnit Platform provider is too old
-                     to discover the JUnit 5.14 / Platform 1.14 tests pulled in by bootique-junit5
+                     to discover the JUnit 6.0 tests pulled in by bootique-junit
                      (it silently runs 0 tests). 3.x provisions a matching junit-platform-launcher. -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

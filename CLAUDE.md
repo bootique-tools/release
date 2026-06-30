@@ -67,7 +67,7 @@ Custom Logback setup (`service/logger/`): `MultiAppender` + per-release/per-roll
 
 ## Testing notes
 
-JUnit 5 (`bootique-junit5`) + Mockito. Tests instantiate services directly and hand-build a Cayenne `ServerRuntime` from `cayenne/cayenne-project.xml` rather than booting the full app. Hand-written `Mock*` doubles (e.g. `MockPreferenceService`, `MockGitHubApi`, `MockReleasePersistentService`) live alongside the tests and are the preferred way to fake collaborators. Some tests are `@Disabled` (they depend on local git/maven state) — don't assume the whole suite runs clean offline. Test fixtures (sample POMs/repos) are under `src/test/resources/`.
+JUnit 5 (`bootique-junit`) + Mockito. Tests instantiate services directly and hand-build a Cayenne `ServerRuntime` from `cayenne/cayenne-project.xml` rather than booting the full app. Hand-written `Mock*` doubles (e.g. `MockPreferenceService`, `MockGitHubApi`, `MockReleasePersistentService`) live alongside the tests and are the preferred way to fake collaborators. Some tests are `@Disabled` (they depend on local git/maven state) — don't assume the whole suite runs clean offline. Test fixtures (sample POMs/repos) are under `src/test/resources/`.
 
 ## Coding standards
 
