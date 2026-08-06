@@ -20,7 +20,7 @@ public class WindowsDesktopService extends BaseDesktopService {
         String[] commands = new String[args.length + 1];
         commands[0] = path.toAbsolutePath().resolve("pom.xml").toString();
         System.arraycopy(args, 0, commands, 1, args.length);
-        return runCommand(Path.of("."), mavenEnvironment(), "maven.bat", commands);
+        return runCommand(Path.of("."), mavenEnvironment(), script("maven.bat"), commands);
     }
 
     @Override
@@ -31,6 +31,15 @@ public class WindowsDesktopService extends BaseDesktopService {
         if(additionalArgs != null) {
             commands[2] = additionalArgs;
         }
-        return runCommand(Path.of("."), mavenEnvironment(), "maven.bat", commands);
+        return runCommand(Path.of("."), mavenEnvironment(), script("release.bat"), commands);
+    }
+
+    /**
+     * Windows resolves a relative executable name against the parent process' working directory and
+     * PATH, ignoring the one given to {@code ProcessBuilder}, so the repo-root scripts must be passed
+     * as absolute paths or {@code CreateProcess} fails with "the system cannot find the file specified".
+     */
+    private static String script(String name) {
+        return Path.of(name).toAbsolutePath().toString();
     }
 }

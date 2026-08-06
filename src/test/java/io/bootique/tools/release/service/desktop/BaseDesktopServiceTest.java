@@ -26,11 +26,15 @@ class BaseDesktopServiceTest {
         desktopService = createDesktopService();
     }
 
+    private static boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
+    }
+
     private DesktopService createDesktopService() {
         String os = System.getProperty("os.name").toLowerCase();
         MockPreferenceService preferences = new MockPreferenceService();
         preferences.set(DesktopService.JAVA_HOME, "/usr/libexec/java_home -v 11");
-        if(os.contains("win")) {
+        if(isWindows()) {
             return new WindowsDesktopService(preferences);
         }
         if(os.contains("mac")) {
@@ -45,11 +49,14 @@ class BaseDesktopServiceTest {
     @Test
     @DisplayName("Running desktop command test")
     void testRunningDesktopCommand() {
-        String result = desktopService.runCommand(Paths.get(System.getProperty("user.home")), "echo", "test");
-        assertEquals(result.trim(), "test");
+        Path home = Paths.get(System.getProperty("user.home"));
+        // "echo" is a cmd.exe builtin on Windows, there is no executable to launch directly
+        String result = isWindows()
+                ? desktopService.runCommand(home, "cmd.exe", "/c", "echo", "test")
+                : desktopService.runCommand(home, "echo", "test");
+        assertEquals("test", result.trim());
     }
 
-    // todo run maven command not work
     @Test
     @DisplayName("Running maven command test")
     void testRunningMavenCommand(@TempDir Path tempPath) throws IOException {
