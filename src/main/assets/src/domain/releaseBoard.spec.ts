@@ -229,9 +229,26 @@ describe('stageActions', () => {
         expect(stageActions([NOT_STARTED], NOT_STARTED, 'RELEASE_PULL')).toEqual([])
     })
 
-    it('offers nothing but hides the log while a stage is in progress', () => {
+    it('offers nothing at all while a stage is in progress, not even the log', () => {
         const running = repo('a', ['Success', 'In_Progress', 'Not_Start', 'Not_Start', 'Not_Start'])
         expect(stageActions([running], running, 'RELEASE_VALIDATION')).toEqual([])
+    })
+
+    it('offers nothing for a stage awaiting a reload', () => {
+        const reloading = repo('a', ['Success', 'Reload', 'Not_Start', 'Not_Start', 'Not_Start'])
+        expect(stageActions([reloading], reloading, 'RELEASE_VALIDATION')).toEqual([])
+    })
+
+    // the only cell that offers four actions, and so the only one where the order of rollback
+    // against restart/skip is observable - the template renders this list verbatim
+    it('orders a failed, rollback-able stage as log, rollback, restart, skip', () => {
+        const failed = repo('a', ['Success', 'Success', 'Success', 'Fail', 'Not_Start'])
+        expect(stageActions([failed], failed, 'RELEASE_PERFORM')).toEqual([
+            'log',
+            'rollback',
+            'restart',
+            'skip',
+        ])
     })
 
     it('offers only the log for a stage that succeeded and cannot be rolled back', () => {

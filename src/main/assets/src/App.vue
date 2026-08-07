@@ -8,7 +8,11 @@ import { useCacheWarmup } from './composables/useCacheWarmup'
 const validationOpen = ref(false)
 
 // Without this, an unreachable backend just leaves every page spinning with no explanation.
-const { error: warmupError, retry: retryWarmup } = useCacheWarmup()
+const { error: warmupError, dismiss: dismissWarmup } = useCacheWarmup()
+
+function reloadPage() {
+    window.location.reload()
+}
 </script>
 
 <!--
@@ -20,11 +24,13 @@ const { error: warmupError, retry: retryWarmup } = useCacheWarmup()
     <AppNav @validate-pom="validationOpen = true" />
 
     <main class="container-xxl app-main">
+        <!-- a reload, not a retry: the views have already failed by now, and only a reload re-runs
+             their loaders as well as the warmup poll -->
         <ErrorAlert
             :message="warmupError"
-            action-label="Retry"
-            @action="retryWarmup"
-            @dismiss="retryWarmup"
+            action-label="Reload"
+            @action="reloadPage"
+            @dismiss="dismissWarmup"
         />
 
         <RouterView v-slot="{ Component, route }">

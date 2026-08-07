@@ -38,6 +38,8 @@ interface ActionSpec {
     /** Both the tooltip and, expanded with the repository and stage, the accessible name. */
     title: string
     variant: string
+    /** Changes release state, so it is unavailable while any stage is running. Reading a log isn't. */
+    mutating: boolean
     run: (descriptor: RepositoryDescriptor, stage: ReleaseStage) => void
 }
 
@@ -46,42 +48,50 @@ const ACTIONS: Record<StageAction, ActionSpec> = {
     log: {
         icon: 'bi-info-circle',
         title: 'Show log',
+        mutating: false,
         variant: 'btn-outline-secondary',
-        run: (d, stage) => openLog(d.repositoryName, stage, logKind(statusOf(d, stage), stage) ?? 'release'),
+        // non-null by construction: 'log' is only in the list when logKind returned a kind
+        run: (d, stage) => openLog(d.repositoryName, stage, logKind(statusOf(d, stage), stage)!),
     },
     rollback: {
         icon: 'bi-chevron-double-left',
         title: 'Roll this stage back',
+        mutating: true,
         variant: 'btn-outline-info',
         run: (d, stage) => act(() => api.rollbackRepository(d.repositoryName, stage)),
     },
     restart: {
         icon: 'bi-arrow-clockwise',
         title: 'Restart this stage',
+        mutating: true,
         variant: 'btn-outline-dark',
         run: (d, stage) => act(() => api.restartStage(d.repositoryName, stage)),
     },
     skip: {
         icon: 'bi-skip-forward-fill',
         title: 'Skip this stage',
+        mutating: true,
         variant: 'btn-outline-success',
         run: (d, stage) => act(() => api.skipStage(d.repositoryName, stage)),
     },
     resume: {
         icon: 'bi-chevron-double-right',
         title: 'Resume from this stage',
+        mutating: true,
         variant: 'btn-outline-success',
         run: (d, stage) => act(() => api.restartStage(d.repositoryName, stage)),
     },
     retryRollback: {
         icon: 'bi-arrow-clockwise',
         title: 'Retry the rollback',
+        mutating: true,
         variant: 'btn-outline-dark',
         run: (d, stage) => act(() => api.rollbackRepository(d.repositoryName, stage)),
     },
     skipRollback: {
         icon: 'bi-skip-forward-fill',
         title: 'Skip the rollback',
+        mutating: true,
         variant: 'btn-outline-success',
         run: (d, stage) => act(() => api.skipRollback(d.repositoryName, stage)),
     },
@@ -215,7 +225,7 @@ onMounted(start)
                                         type="button"
                                         class="btn"
                                         :class="ACTIONS[action].variant"
-                                        :disabled="action !== 'log' && running"
+                                        :disabled="ACTIONS[action].mutating && running"
                                         :title="ACTIONS[action].title"
                                         :aria-label="`${ACTIONS[action].title} - ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
                                         @click="ACTIONS[action].run(descriptor, stage)"

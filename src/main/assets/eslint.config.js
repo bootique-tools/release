@@ -19,6 +19,9 @@ export default defineConfigWithVueTs(
         rules: {
             'vue/multi-word-component-names': 'off', // App.vue
             'vue/html-self-closing': 'off', // <LoadingBar :loading="loading"/> is house style
+            // a type-only optional prop is undefined when omitted, which is exactly what `?:` says;
+            // this rule predates <script setup lang="ts"> and would force meaningless defaults
+            'vue/require-default-prop': 'off',
             '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'inline-type-imports' }],
             '@typescript-eslint/no-unused-vars': 'off', // tsconfig's noUnused* already gates this
         },

@@ -1,5 +1,6 @@
 import { readonly, ref } from 'vue'
 import { checkCache } from '@/api/session'
+import { errorMessage } from '@/api/http'
 
 const INITIAL_DELAY_MS = 200
 const MAX_DELAY_MS = 2_000
@@ -28,7 +29,7 @@ async function poll(): Promise<void> {
             failures = 0
         } catch (e) {
             if (++failures >= MAX_FAILURES) {
-                error.value = `Cannot reach the server: ${e instanceof Error ? e.message : String(e)}`
+                error.value = `Cannot reach the server: ${errorMessage(e)}`
                 return
             }
         }
@@ -56,12 +57,16 @@ export function useCacheWarmup() {
             return pending
         },
 
-        retry(): Promise<void> {
+        /**
+         * Hides the banner without retrying.
+         *
+         * There is deliberately no retry(): waitForCache RESOLVES when the poller gives up rather
+         * than rejecting, so by the time this message appears every view has already run its loader
+         * and failed. Re-polling alone would leave the page just as empty, so the only honest
+         * remedy the banner can offer is a reload.
+         */
+        dismiss(): void {
             error.value = ''
-            pending ??= poll().finally(() => {
-                pending = null
-            })
-            return pending
         },
     }
 }
