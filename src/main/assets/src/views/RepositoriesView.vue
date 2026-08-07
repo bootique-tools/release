@@ -2,9 +2,13 @@
 import { ref } from 'vue'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
-import ErrorAlert from '@/components/ErrorAlert.vue'
+import AppAlert from '@/components/AppAlert.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SortableTh from '@/components/SortableTh.vue'
+import TableFrame from '@/components/TableFrame.vue'
+import BusyButton from '@/components/BusyButton.vue'
+import ChipLink from '@/components/ChipLink.vue'
+import ExternalLink from '@/components/ExternalLink.vue'
 import { useAgrestList } from '@/composables/useAgrestList'
 import { useSession } from '@/composables/useSession'
 import {
@@ -29,6 +33,12 @@ const actionError = ref('')
 const pathNotSet = ref(false)
 const busy = ref<string | null>(null)
 const pickingPath = ref(false)
+
+/** One banner, two sources: the listing and the row actions have separate lifecycles. */
+function dismissErrors() {
+    actionError.value = ''
+    error.value = ''
+}
 
 function handle(error: unknown) {
     if (error instanceof ApiError && error.isPathNotSet) {
@@ -74,187 +84,144 @@ async function chooseBasePath() {
 <template>
     <PageShell title="Repositories" :subtitle="`${total} tracked`">
         <template #actions>
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-primary"
-                :disabled="pickingPath || busy !== null"
+            <BusyButton
+                variant="primary"
+                icon="bi-folder2-open"
+                :busy="pickingPath"
+                :disabled="busy !== null"
                 @click="chooseBasePath"
             >
-                <span
-                    v-if="pickingPath"
-                    class="spinner-border spinner-border-sm me-1"
-                    aria-hidden="true"
-                ></span>
-                <i v-else class="bi bi-folder2-open me-1" aria-hidden="true"></i>
                 Set local path
-            </button>
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary"
+            </BusyButton>
+            <BusyButton
+                icon="bi-arrow-repeat"
+                :busy="busy === 'update-all'"
                 :disabled="busy !== null"
                 @click="run('update-all', updateAll)"
             >
-                <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Update all
-            </button>
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary"
+                Update all
+            </BusyButton>
+            <BusyButton
+                icon="bi-files"
+                :busy="busy === 'clone-all'"
                 :disabled="busy !== null"
                 @click="run('clone-all', cloneAll)"
             >
-                <i class="bi bi-files me-1" aria-hidden="true"></i>Clone all
-            </button>
+                Clone all
+            </BusyButton>
         </template>
 
-        <div v-if="pickingPath" class="alert alert-info d-flex align-items-center gap-2">
-            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            A folder picker has opened on the machine running the server.
-        </div>
+        <AppAlert
+            v-if="pickingPath"
+            tone="info"
+            busy
+            :dismissible="false"
+            message="A folder picker has opened on the machine running the server."
+        />
 
-        <ErrorAlert
-            :message="actionError"
+        <!-- list and action errors have separate lifecycles, but only ever one banner -->
+        <AppAlert
+            :message="actionError || error"
             :action-label="pathNotSet ? 'Set path' : undefined"
             @action="chooseBasePath"
-            @dismiss="actionError = ''"
+            @dismiss="dismissErrors"
         />
-        <ErrorAlert :message="error" @dismiss="error = ''" />
         <LoadingBar :loading="loading" />
 
-        <div v-if="items.length" class="table-responsive">
-            <table class="table table-sm table-hover align-middle">
-                <thead>
-                    <tr>
-                        <SortableTh
-                            field="name"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
+        <TableFrame v-if="items.length">
+            <thead>
+                <tr>
+                    <SortableTh field="name" :active-field="sort" :direction="direction" @sort="toggleSort">
+                        Repository
+                    </SortableTh>
+                    <SortableTh
+                        field="pullRequests"
+                        :active-field="sort"
+                        :direction="direction"
+                        @sort="toggleSort"
+                    >
+                        PRs
+                    </SortableTh>
+                    <SortableTh field="issues" :active-field="sort" :direction="direction" @sort="toggleSort">
+                        Issues
+                    </SortableTh>
+                    <SortableTh
+                        field="pushedAt"
+                        :active-field="sort"
+                        :direction="direction"
+                        @sort="toggleSort"
+                    >
+                        Last push
+                    </SortableTh>
+                    <th scope="col">Milestones</th>
+                    <th scope="col" class="text-end">Local copy</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="repo in items" :key="repo.id">
+                    <td>
+                        <ExternalLink :href="repo.url">{{ repo.name }}</ExternalLink>
+                        <ChipLink v-if="repo.parent" :href="repo.parent.url" class="ms-1"> parent </ChipLink>
+                    </td>
+                    <td>
+                        <RouterLink
+                            :to="{ path: '/pr', query: { filter: 'repository.name', field: repo.name } }"
                         >
-                            Repository
-                        </SortableTh>
-                        <SortableTh
-                            field="pullRequests"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
+                            {{ repo.pullRequests?.length ?? 0 }}
+                        </RouterLink>
+                    </td>
+                    <td>
+                        <RouterLink
+                            :to="{
+                                path: '/issue',
+                                query: { filter: 'repository.name', field: repo.name },
+                            }"
                         >
-                            PRs
-                        </SortableTh>
-                        <SortableTh
-                            field="issues"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
-                        >
-                            Issues
-                        </SortableTh>
-                        <SortableTh
-                            field="pushedAt"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
-                        >
-                            Last push
-                        </SortableTh>
-                        <th scope="col">Milestones</th>
-                        <th scope="col" class="text-end">Local copy</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="repo in items" :key="repo.id">
-                        <td>
-                            <a :href="repo.url" target="_blank" rel="noopener">{{ repo.name }}</a>
-                            <a
-                                v-if="repo.parent"
-                                :href="repo.parent.url"
-                                target="_blank"
-                                rel="noopener"
-                                class="badge text-bg-secondary ms-1 text-decoration-none"
-                                >parent</a
+                            {{ repo.issues?.length ?? 0 }}
+                        </RouterLink>
+                    </td>
+                    <td class="text-nowrap">{{ repo.pushedAtStr }}</td>
+                    <td>
+                        <ChipLink to="/milestone">{{ repo.milestones?.length ?? 0 }}</ChipLink>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <!-- MISSING means there is no local clone yet, so only cloning is offered -->
+                        <div v-if="repo.localStatus === 'MISSING'" class="btn-group btn-group-sm">
+                            <BusyButton
+                                variant="primary"
+                                icon="bi-files"
+                                :busy="busy === repo.name"
+                                :disabled="busy !== null"
+                                @click="run(repo.name, () => cloneRepository(repo.name))"
                             >
-                        </td>
-                        <td>
-                            <RouterLink
-                                :to="{ path: '/pr', query: { filter: 'repository.name', field: repo.name } }"
-                            >
-                                {{ repo.pullRequests?.length ?? 0 }}
-                            </RouterLink>
-                        </td>
-                        <td>
-                            <RouterLink
-                                :to="{
-                                    path: '/issue',
-                                    query: { filter: 'repository.name', field: repo.name },
-                                }"
-                            >
-                                {{ repo.issues?.length ?? 0 }}
-                            </RouterLink>
-                        </td>
-                        <td class="text-nowrap">{{ repo.pushedAtStr }}</td>
-                        <td>
-                            <RouterLink to="/milestone" class="badge text-bg-secondary text-decoration-none">
-                                {{ repo.milestones?.length ?? 0 }}
-                            </RouterLink>
-                        </td>
-                        <td class="text-end text-nowrap">
-                            <!-- MISSING means there is no local clone yet, so only cloning is offered -->
-                            <div v-if="repo.localStatus === 'MISSING'" class="btn-group btn-group-sm">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-primary"
-                                    :disabled="busy !== null"
-                                    @click="run(repo.name, () => cloneRepository(repo.name))"
-                                >
-                                    <span
-                                        v-if="busy === repo.name"
-                                        class="spinner-border spinner-border-sm me-1"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <i v-else class="bi bi-files me-1" aria-hidden="true"></i>Clone
-                                </button>
-                            </div>
-                            <div v-else class="btn-group btn-group-sm">
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-secondary"
-                                    :disabled="busy !== null"
-                                    :aria-label="`Open ${repo.name} in a file manager`"
-                                    title="Open in file manager"
-                                    @click="run(repo.name, () => openRepository(repo.name, 'files'))"
-                                >
-                                    <i class="bi bi-folder2-open" aria-hidden="true"></i>
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-secondary"
-                                    :disabled="busy !== null"
-                                    :aria-label="`Open ${repo.name} in a terminal`"
-                                    title="Open in terminal"
-                                    @click="run(repo.name, () => openRepository(repo.name, 'terminal'))"
-                                >
-                                    <i class="bi bi-terminal" aria-hidden="true"></i>
-                                </button>
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-secondary"
-                                    :disabled="busy !== null"
-                                    :aria-label="`Pull ${repo.name}`"
-                                    title="Pull latest"
-                                    @click="run(repo.name, () => updateRepository(repo.name))"
-                                >
-                                    <span
-                                        v-if="busy === repo.name"
-                                        class="spinner-border spinner-border-sm"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <i v-else class="bi bi-arrow-repeat" aria-hidden="true"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                                Clone
+                            </BusyButton>
+                        </div>
+                        <div v-else class="btn-group btn-group-sm">
+                            <BusyButton
+                                icon="bi-folder2-open"
+                                :label="`Open ${repo.name} in a file manager`"
+                                :disabled="busy !== null"
+                                @click="run(repo.name, () => openRepository(repo.name, 'files'))"
+                            />
+                            <BusyButton
+                                icon="bi-terminal"
+                                :label="`Open ${repo.name} in a terminal`"
+                                :disabled="busy !== null"
+                                @click="run(repo.name, () => openRepository(repo.name, 'terminal'))"
+                            />
+                            <BusyButton
+                                icon="bi-arrow-repeat"
+                                :label="`Pull ${repo.name}`"
+                                :busy="busy === repo.name"
+                                :disabled="busy !== null"
+                                @click="run(repo.name, () => updateRepository(repo.name))"
+                            />
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </TableFrame>
 
         <EmptyState
             v-else-if="!loading"

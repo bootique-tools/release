@@ -2,10 +2,11 @@
 import { computed, onMounted, ref } from 'vue'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
-import ErrorAlert from '@/components/ErrorAlert.vue'
+import AppAlert from '@/components/AppAlert.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ModuleTable from '@/components/ModuleTable.vue'
 import JobProgress from '@/components/JobProgress.vue'
+import BusyButton from '@/components/BusyButton.vue'
 import { useModuleSelection } from '@/composables/useModuleSelection'
 import { useJobStatus } from '@/composables/useJobStatus'
 import { useAsyncResource } from '@/composables/useAsyncResource'
@@ -60,30 +61,17 @@ onMounted(resumeJob)
                 id="branch-title"
                 v-model="branchTitle"
                 type="text"
-                class="form-control form-control-sm"
-                style="width: 14rem"
+                class="form-control form-control-sm app-toolbar-input"
                 placeholder="Branch name"
                 :disabled="jobRunning"
             />
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-primary"
-                :disabled="!canStart"
-                @click="run('createBranch')"
-            >
+            <BusyButton variant="primary" :disabled="!canStart" @click="run('createBranch')">
                 Create
-            </button>
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary"
-                :disabled="!canStart"
-                @click="run('checkoutBranch')"
-            >
-                Check out
-            </button>
+            </BusyButton>
+            <BusyButton :disabled="!canStart" @click="run('checkoutBranch')">Check out</BusyButton>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <AppAlert :message="error" @dismiss="error = ''" />
         <JobProgress :progress="jobProgress" :running="jobRunning" />
         <LoadingBar :loading="loading" />
 

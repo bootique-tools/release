@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import AppModal from './AppModal.vue'
+import AppAlert from './AppAlert.vue'
+import InlineSpinner from './InlineSpinner.vue'
+import LogOutput from './LogOutput.vue'
 import { STAGE_LABELS, type ReleaseStage } from '@/api/types'
 
 defineProps<{
@@ -27,12 +30,8 @@ const emit = defineEmits<{ close: [] }>()
             {{ stage ? STAGE_LABELS[stage] : '' }}
         </p>
 
-        <div v-if="loading" class="d-flex align-items-center gap-2 text-body-secondary">
-            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            Loading&hellip;
-        </div>
-        <p v-else-if="error" class="text-danger mb-0">{{ error }}</p>
-        <pre v-else-if="text.trim()" class="log-output mb-0"><code>{{ text }}</code></pre>
-        <p v-else class="text-body-secondary mb-0">This stage produced no log output.</p>
+        <InlineSpinner v-if="loading" />
+        <AppAlert v-else-if="error" :message="error" :dismissible="false" />
+        <LogOutput v-else :text="text" empty-message="This stage produced no log output." />
     </AppModal>
 </template>

@@ -24,5 +24,11 @@
     "baseUrl": ".",
     "paths": { "@/*": ["./src/*"] }
   },
+
+  // Without this a component used in a template but never imported silently compiles as an unknown
+  // HTML element and renders nothing, and prop types are not checked at the call site.
+  "vueCompilerOptions": {
+    "strictTemplates": true
+  },
   "include": ["src/**/*.ts", "src/**/*.vue", "env.d.ts"]
 }

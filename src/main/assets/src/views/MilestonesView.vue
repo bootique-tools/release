@@ -2,11 +2,14 @@
 import { computed, onMounted, ref } from 'vue'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
-import ErrorAlert from '@/components/ErrorAlert.vue'
+import AppAlert from '@/components/AppAlert.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import ModuleTable from '@/components/ModuleTable.vue'
 import JobProgress from '@/components/JobProgress.vue'
 import MilestoneActionModal from '@/components/MilestoneActionModal.vue'
+import ChipLink from '@/components/ChipLink.vue'
+import ExternalLink from '@/components/ExternalLink.vue'
+import BusyButton from '@/components/BusyButton.vue'
 import { useModuleSelection } from '@/composables/useModuleSelection'
 import { useJobStatus } from '@/composables/useJobStatus'
 import { useAsyncResource } from '@/composables/useAsyncResource'
@@ -61,19 +64,18 @@ onMounted(resumeJob)
 <template>
     <PageShell title="Milestones" subtitle="Create, close or rename milestones across modules">
         <template #actions>
-            <button
+            <BusyButton
                 v-for="action in ['create', 'close', 'rename'] as MilestoneAction[]"
                 :key="action"
-                type="button"
-                class="btn btn-sm btn-outline-primary"
+                variant="primary"
                 :disabled="!hasSelection || jobRunning"
                 @click="pendingAction = action"
             >
                 {{ action[0]!.toUpperCase() + action.slice(1) }}
-            </button>
+            </BusyButton>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <AppAlert :message="error" @dismiss="error = ''" />
         <JobProgress :progress="jobProgress" :running="jobRunning" />
         <LoadingBar :loading="loading" />
 
@@ -91,16 +93,16 @@ onMounted(resumeJob)
             <template #row="{ module }">
                 <td>
                     <div v-for="milestone in module.repository.milestones" :key="milestone.id" class="small">
-                        <a :href="milestone.url" target="_blank" rel="noopener">{{ milestone.title }}</a>
-                        <RouterLink
+                        <ExternalLink :href="milestone.url">{{ milestone.title }}</ExternalLink>
+                        <ChipLink
                             :to="{
                                 path: '/issue',
                                 query: { filter: 'milestone.title', field: milestone.title },
                             }"
-                            class="badge text-bg-secondary ms-1 text-decoration-none"
+                            class="ms-1"
                         >
                             {{ milestone.openIssues?.length ?? 0 }} issues
-                        </RouterLink>
+                        </ChipLink>
                     </div>
                     <span v-if="!module.repository.milestones?.length" class="text-body-secondary small">
                         none

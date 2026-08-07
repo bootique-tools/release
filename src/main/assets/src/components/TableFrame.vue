@@ -13,17 +13,25 @@ withDefaults(
 </script>
 
 <!--
-  The single place the canonical table classes are written. Six tables used to open with their own
-  hand-copied wrapper, and had already drifted into three different class sets.
+  A table, framed as a card and scrollable inside it.
+
+  The single place the canonical table classes are written: six tables used to open with their own
+  hand-copied wrapper and had already drifted into three different class sets. Every table in the
+  app is framed, so this owns the card rather than each view wrapping it in an AppSection.
+
+  The scroll container is inside the card, so the card's overflow clipping is an ancestor of the
+  scrollport rather than between it and the sticky first column - which is what lets `matrix` work.
 -->
 
 <template>
-    <div class="table-responsive">
-        <table
-            class="table table-sm app-table"
-            :class="variant === 'matrix' ? 'app-table--sticky-first' : 'table-hover'"
-        >
-            <slot />
-        </table>
-    </div>
+    <section class="card app-section app-section--flush">
+        <div class="table-responsive">
+            <table
+                class="table table-sm app-table"
+                :class="variant === 'matrix' ? 'app-table--sticky-first' : 'table-hover'"
+            >
+                <slot />
+            </table>
+        </div>
+    </section>
 </template>

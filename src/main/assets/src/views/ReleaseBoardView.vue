@@ -3,10 +3,12 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
-import ErrorAlert from '@/components/ErrorAlert.vue'
+import AppAlert from '@/components/AppAlert.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import LogModal from '@/components/LogModal.vue'
+import TableFrame from '@/components/TableFrame.vue'
+import BusyButton from '@/components/BusyButton.vue'
 import { useReleaseBoard } from '@/composables/useReleaseBoard'
 import { useReleaseSummary } from '@/composables/useReleaseSummary'
 import * as api from '@/api/releaseProcess'
@@ -159,86 +161,80 @@ onMounted(start)
         "
     >
         <template #actions>
-            <button type="button" class="btn btn-sm btn-outline-secondary" @click="refresh()">
-                <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Refresh
-            </button>
-            <button
+            <BusyButton icon="bi-arrow-repeat" :busy="loading" @click="refresh()">Refresh</BusyButton>
+            <BusyButton
                 v-if="canRollbackRelease(repositories)"
-                type="button"
-                class="btn btn-sm btn-outline-warning"
+                variant="warning"
+                icon="bi-arrow-counterclockwise"
                 :disabled="running"
                 @click="confirm = 'rollback'"
             >
-                <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Roll back
-            </button>
-            <button
+                Roll back
+            </BusyButton>
+            <BusyButton
                 v-if="canDropRelease(repositories)"
-                type="button"
-                class="btn btn-sm btn-outline-danger"
+                variant="danger"
+                icon="bi-trash"
                 @click="confirm = 'drop'"
             >
-                <i class="bi bi-trash me-1" aria-hidden="true"></i>Drop release
-            </button>
+                Drop release
+            </BusyButton>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <AppAlert :message="error" @dismiss="error = ''" />
         <LoadingBar :loading="loading" />
 
-        <div class="table-responsive">
-            <table class="table table-sm align-middle stage-board">
-                <thead>
-                    <tr>
-                        <th scope="col" class="stage-board__repo">Repository</th>
-                        <th v-for="stage in stages" :key="stage" scope="col">
-                            {{ STAGE_LABELS[stage] }}
-                            <button
-                                v-if="stage === 'RELEASE_SYNC' && syncEnabled(repositories)"
-                                type="button"
-                                class="btn btn-sm btn-outline-success ms-1"
-                                :disabled="running"
-                                aria-label="Start the Central sync stage"
-                                title="Start sync"
-                                @click="act(api.startSyncStage)"
-                            >
-                                <i class="bi bi-play-fill" aria-hidden="true"></i>
-                            </button>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="descriptor in repositories" :key="descriptor.repositoryName">
-                        <th scope="row" class="stage-board__repo fw-normal">
-                            {{ descriptor.repositoryName }}
-                        </th>
-                        <td
-                            v-for="stage in stages"
-                            :key="stage"
-                            :class="{ 'table-active': statusOf(descriptor, stage) === 'In_Progress' }"
-                        >
-                            <div class="d-flex align-items-center gap-2">
-                                <StatusBadge :status="statusOf(descriptor, stage)" />
+        <TableFrame variant="matrix">
+            <thead>
+                <tr>
+                    <th scope="col">Repository</th>
+                    <th v-for="stage in stages" :key="stage" scope="col">
+                        {{ STAGE_LABELS[stage] }}
+                        <BusyButton
+                            v-if="stage === 'RELEASE_SYNC' && syncEnabled(repositories)"
+                            variant="success"
+                            icon="bi-play-fill"
+                            class="ms-1"
+                            label="Start the Central sync stage"
+                            :disabled="running"
+                            @click="act(api.startSyncStage)"
+                        />
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="descriptor in repositories" :key="descriptor.repositoryName">
+                    <th scope="row" class="fw-normal">
+                        {{ descriptor.repositoryName }}
+                    </th>
+                    <td
+                        v-for="stage in stages"
+                        :key="stage"
+                        :class="{ 'table-active': statusOf(descriptor, stage) === 'In_Progress' }"
+                    >
+                        <div class="d-flex align-items-center gap-2">
+                            <StatusBadge :status="statusOf(descriptor, stage)" />
 
-                                <div class="btn-group btn-group-sm">
-                                    <button
-                                        v-for="action in stageActions(repositories, descriptor, stage)"
-                                        :key="action"
-                                        type="button"
-                                        class="btn"
-                                        :class="ACTIONS[action].variant"
-                                        :disabled="ACTIONS[action].mutating && running"
-                                        :title="ACTIONS[action].title"
-                                        :aria-label="`${ACTIONS[action].title} - ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
-                                        @click="ACTIONS[action].run(descriptor, stage)"
-                                    >
-                                        <i class="bi" :class="ACTIONS[action].icon" aria-hidden="true"></i>
-                                    </button>
-                                </div>
+                            <div class="btn-group btn-group-sm">
+                                <button
+                                    v-for="action in stageActions(repositories, descriptor, stage)"
+                                    :key="action"
+                                    type="button"
+                                    class="btn"
+                                    :class="ACTIONS[action].variant"
+                                    :disabled="ACTIONS[action].mutating && running"
+                                    :title="ACTIONS[action].title"
+                                    :aria-label="`${ACTIONS[action].title} - ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
+                                    @click="ACTIONS[action].run(descriptor, stage)"
+                                >
+                                    <i class="bi" :class="ACTIONS[action].icon" aria-hidden="true"></i>
+                                </button>
                             </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </TableFrame>
 
         <ConfirmModal
             :open="confirm === 'drop'"

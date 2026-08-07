@@ -2,7 +2,10 @@
 import { computed, ref } from 'vue'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
-import ErrorAlert from '@/components/ErrorAlert.vue'
+import AppAlert from '@/components/AppAlert.vue'
+import BusyButton from '@/components/BusyButton.vue'
+import LogOutput from '@/components/LogOutput.vue'
+import AppSection from '@/components/AppSection.vue'
 import { generateReleaseNotes } from '@/api/releaseNotes'
 import { errorMessage } from '@/api/http'
 
@@ -40,48 +43,43 @@ async function copy() {
 <template>
     <PageShell title="Release notes" subtitle="Generated from the issues in a milestone">
         <template #actions>
-            <button v-if="notes" type="button" class="btn btn-sm btn-outline-secondary" @click="copy">
-                <i class="bi me-1" :class="copied ? 'bi-check2' : 'bi-clipboard'" aria-hidden="true"></i>
+            <BusyButton v-if="notes" :icon="copied ? 'bi-check2' : 'bi-clipboard'" @click="copy">
                 {{ copied ? 'Copied' : 'Copy' }}
-            </button>
+            </BusyButton>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <AppAlert :message="error" @dismiss="error = ''" />
 
-        <div class="row g-2 align-items-end mb-3">
-            <div class="col-sm-5">
-                <label class="form-label" for="milestone-title">Milestone title</label>
-                <input
-                    id="milestone-title"
-                    v-model="milestoneTitle"
-                    type="text"
-                    class="form-control"
-                    placeholder="e.g. 4.0.M1"
-                    @keyup.enter="canGenerate && generate(false)"
-                />
+        <AppSection title="Milestone">
+            <div class="row g-2 align-items-end">
+                <div class="col-sm-5">
+                    <label class="form-label" for="milestone-title">Milestone title</label>
+                    <input
+                        id="milestone-title"
+                        v-model="milestoneTitle"
+                        type="text"
+                        class="form-control"
+                        placeholder="e.g. 4.0.M1"
+                        @keyup.enter="canGenerate && generate(false)"
+                    />
+                </div>
+                <div class="col-sm-auto">
+                    <BusyButton variant="success" :disabled="!canGenerate" @click="generate(false)">
+                        Issues done
+                    </BusyButton>
+                </div>
+                <div class="col-sm-auto">
+                    <BusyButton variant="info" :disabled="!canGenerate" @click="generate(true)">
+                        Issues to do
+                    </BusyButton>
+                </div>
             </div>
-            <div class="col-sm-auto">
-                <button
-                    type="button"
-                    class="btn btn-success"
-                    :disabled="!canGenerate"
-                    @click="generate(false)"
-                >
-                    Issues done
-                </button>
-            </div>
-            <div class="col-sm-auto">
-                <button type="button" class="btn btn-info" :disabled="!canGenerate" @click="generate(true)">
-                    Issues to do
-                </button>
-            </div>
-        </div>
+        </AppSection>
 
         <LoadingBar :loading="loading" />
 
-        <pre
-            v-if="notes"
-            class="log-output border rounded p-3 bg-body-tertiary mb-0"
-        ><code>{{ notes }}</code></pre>
+        <AppSection v-if="notes" title="Notes">
+            <LogOutput :text="notes" />
+        </AppSection>
     </PageShell>
 </template>

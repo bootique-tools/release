@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import AppNav from './components/AppNav.vue'
-import ErrorAlert from './components/ErrorAlert.vue'
+import AppAlert from './components/AppAlert.vue'
 import ValidationModal from './components/ValidationModal.vue'
 import { useCacheWarmup } from './composables/useCacheWarmup'
 
@@ -26,7 +26,7 @@ function reloadPage() {
     <main class="container-xxl app-main">
         <!-- a reload, not a retry: the views have already failed by now, and only a reload re-runs
              their loaders as well as the warmup poll -->
-        <ErrorAlert
+        <AppAlert
             :message="warmupError"
             action-label="Reload"
             @action="reloadPage"

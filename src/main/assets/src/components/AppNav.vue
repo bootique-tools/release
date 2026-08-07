@@ -67,13 +67,17 @@ function isActive(to: string, exact?: boolean): boolean {
                             :class="{ active: isActive(link.to, link.exact) }"
                         >
                             {{ link.label }}
-                            <span v-if="link.badge != null" class="badge text-bg-secondary">
+                            <span v-if="link.badge != null" class="badge chip-secondary">
                                 {{ link.badge }}
                             </span>
                         </RouterLink>
                     </li>
                     <li class="nav-item">
-                        <button type="button" class="nav-link btn btn-link" @click="emit('validatePom')">
+                        <button
+                            type="button"
+                            class="nav-link border-0 bg-transparent"
+                            @click="emit('validatePom')"
+                        >
                             Validate pom
                         </button>
                     </li>

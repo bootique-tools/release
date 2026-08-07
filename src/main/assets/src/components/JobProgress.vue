@@ -7,9 +7,11 @@ const percent = computed(() => Math.round(props.progress))
 </script>
 
 <template>
-    <div v-if="running || progress > 0" class="mb-3">
+    <!-- the bar is the same height as LoadingBar so the two are interchangeable in one slot, which
+         leaves no room for the label inside it -->
+    <div v-if="running || progress > 0" class="d-flex align-items-center gap-2">
         <div
-            class="progress"
+            class="progress flex-grow-1"
             role="progressbar"
             :aria-valuenow="percent"
             aria-valuemin="0"
@@ -20,9 +22,8 @@ const percent = computed(() => Math.round(props.progress))
                 class="progress-bar"
                 :class="{ 'progress-bar-animated progress-bar-striped': running }"
                 :style="{ width: `${percent}%` }"
-            >
-                {{ percent }}%
-            </div>
+            ></div>
         </div>
+        <span class="small text-body-secondary text-nowrap">{{ percent }}%</span>
     </div>
 </template>

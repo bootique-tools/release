@@ -3,9 +3,12 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
-import ErrorAlert from '@/components/ErrorAlert.vue'
+import AppAlert from '@/components/AppAlert.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import AppModal from '@/components/AppModal.vue'
+import ModuleTable from '@/components/ModuleTable.vue'
+import AppSection from '@/components/AppSection.vue'
+import BusyButton from '@/components/BusyButton.vue'
 import { useAsyncResource } from '@/composables/useAsyncResource'
 import { nextDevVersionOf, releaseVersionOf } from '@/domain/version'
 import {
@@ -78,21 +81,17 @@ async function selectVersion() {
  * returns the resulting set in release order.
  *
  * The server expects the selection as it will be AFTER the toggle, plus whether the clicked module
- * is now selected - it only pulls in dependencies when that flag is true.
+ * is now selected - it only pulls in dependencies when that flag is true. ModuleTable has already
+ * applied the optimistic update by the time this runs, so `selected` is that post-toggle set.
  */
-async function toggle(module: Project) {
+async function toggle(module: Project, willSelect: boolean) {
     if (!currentVersion.value) {
         return
     }
     const name = module.repository.name
-    const willSelect = !selected.value.includes(name)
-    const next = willSelect ? [...selected.value, name] : selected.value.filter((n) => n !== name)
-
     error.value = ''
-    // optimistic, so the checkbox tracks the click even when the server returns an identical set
-    selected.value = next
     try {
-        const response = await toggleProjectSelection(currentVersion.value, next, name, willSelect)
+        const response = await toggleProjectSelection(currentVersion.value, selected.value, name, willSelect)
         selected.value = (response.data ?? []).map((m) => m.repository.name)
     } catch (e) {
         error.value = errorMessage(e)
@@ -129,76 +128,56 @@ onMounted(async () => {
 <template>
     <PageShell title="Start a release" subtitle="Pick a version, then the modules to release">
         <template #actions>
-            <button
-                type="button"
-                class="btn btn-sm btn-success"
+            <BusyButton
+                variant="success"
+                icon="bi-play-fill"
                 :disabled="!canStart"
                 @click="confirmOpen = true"
             >
-                <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Start release
-            </button>
+                Start release
+            </BusyButton>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <AppAlert :message="error" @dismiss="error = ''" />
 
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <label class="form-label" for="current-version">Current version</label>
-                <select
-                    id="current-version"
-                    v-model="currentVersion"
-                    class="form-select"
-                    @change="selectVersion"
-                >
-                    <option value="" disabled>Choose a version&hellip;</option>
-                    <option v-for="version in versions" :key="version" :value="version">
-                        {{ version }}
-                    </option>
-                </select>
+        <AppSection title="Versions">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label" for="current-version">Current version</label>
+                    <select
+                        id="current-version"
+                        v-model="currentVersion"
+                        class="form-select"
+                        @change="selectVersion"
+                    >
+                        <option value="" disabled>Choose a version&hellip;</option>
+                        <option v-for="version in versions" :key="version" :value="version">
+                            {{ version }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="release-version">Release version</label>
+                    <input id="release-version" v-model="releaseVersion" type="text" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="dev-version">Next dev version</label>
+                    <input id="dev-version" v-model="nextDevVersion" type="text" class="form-control" />
+                </div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label" for="release-version">Release version</label>
-                <input id="release-version" v-model="releaseVersion" type="text" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label" for="dev-version">Next dev version</label>
-                <input id="dev-version" v-model="nextDevVersion" type="text" class="form-control" />
-            </div>
-        </div>
+        </AppSection>
 
         <LoadingBar :loading="loading" />
 
-        <div v-if="modules.length" class="table-responsive">
-            <table class="table table-sm table-hover align-middle">
-                <thead>
-                    <tr>
-                        <th scope="col" style="width: 1%">Release</th>
-                        <th scope="col">Module</th>
-                        <th scope="col">Version</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="module in modules" :key="module.id" :class="{ 'opacity-50': module.disable }">
-                        <td>
-                            <input
-                                :id="`rel-${module.repository.name}`"
-                                class="form-check-input"
-                                type="checkbox"
-                                :disabled="module.disable"
-                                :checked="selected.includes(module.repository.name)"
-                                @change="toggle(module)"
-                            />
-                        </td>
-                        <td>
-                            <label :for="`rel-${module.repository.name}`" class="mb-0">
-                                {{ module.repository.name }}
-                            </label>
-                        </td>
-                        <td class="text-nowrap">{{ module.version }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <!-- v-model keeps the click optimistic; @toggle round-trips so the server can pull in
+             dependencies, then overwrites the selection with the closure it resolved -->
+        <ModuleTable
+            v-if="modules.length"
+            v-model:selected="selected"
+            :modules="modules"
+            select-header="Release"
+            @toggle="toggle"
+        />
 
         <EmptyState
             v-else-if="!loading && currentVersion"

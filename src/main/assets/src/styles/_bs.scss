@@ -1,9 +1,12 @@
-// The single point where Bootstrap is configured. Every other partial @use's this file, never
-// 'bootstrap/scss/bootstrap' directly: configuring a module that is already loaded is an error,
-// and loading it unconfigured first would silently discard everything below - which is exactly
-// what the previous `@use 'variables'` + `@use 'bootstrap'` pair did. Under the Sass module system
-// a plain `@use` puts the variables in their own namespace, where Bootstrap never sees them, so
-// none of these overrides reached the browser.
+// The single point where Bootstrap is configured. Nothing else may name
+// 'bootstrap/scss/bootstrap': configuring a module that is already loaded is an error, and loading
+// it unconfigured first would silently discard everything below - which is exactly what the
+// previous `@use 'variables'` + `@use 'bootstrap'` pair did. Under the Sass module system a plain
+// `@use` puts the variables in their own namespace, where Bootstrap never sees them, so none of
+// these overrides reached the browser.
+//
+// A partial needing Bootstrap's Sass members would `@use 'bs' as *`; today none do, so the app
+// layer lands after Bootstrap purely by main.scss's @use order.
 //
 // Values must be literals: the module's own variables and functions are not in scope while it is
 // being configured.

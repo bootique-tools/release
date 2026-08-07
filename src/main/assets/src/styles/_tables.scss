@@ -1,5 +1,3 @@
-@use 'bs' as *;
-
 // One table look for the whole app. TableFrame emits `table table-sm app-table` plus, at most,
 // table-hover and app-table--sticky-first. Nothing else - in particular there is no striping:
 // at this row density it is noise, and it fights .table-active on the release board.

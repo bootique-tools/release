@@ -22,7 +22,9 @@ const VARIANT: Record<string, string> = {
     In_Progress: 'primary',
     IN_PROGRESS: 'primary',
     Reload: 'info',
-    Not_Start: 'light',
+    // an empty slot rather than a state, and distinguishable from Skip - the two used to render
+    // as near-identical greys, one of them nearly invisible in light mode
+    Not_Start: 'empty',
 }
 
 const effective = computed(() => (props.status ? (DISPLAY[props.status] ?? props.status) : null))
@@ -32,13 +34,8 @@ const spinning = computed(() => effective.value === 'In_Progress' || effective.v
 </script>
 
 <template>
-    <span v-if="effective" class="badge d-inline-flex align-items-center gap-1" :class="`text-bg-${variant}`">
-        <span
-            v-if="spinning"
-            class="spinner-border spinner-border-sm"
-            aria-hidden="true"
-            style="width: 0.6em; height: 0.6em"
-        ></span>
+    <span v-if="effective" class="badge d-inline-flex align-items-center gap-1" :class="`chip-${variant}`">
+        <span v-if="spinning" class="spinner-border spinner-inline" aria-hidden="true"></span>
         {{ label }}
     </span>
 </template>

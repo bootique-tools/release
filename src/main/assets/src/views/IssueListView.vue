@@ -3,9 +3,14 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
-import ErrorAlert from '@/components/ErrorAlert.vue'
+import AppAlert from '@/components/AppAlert.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import SortableTh from '@/components/SortableTh.vue'
+import TableFrame from '@/components/TableFrame.vue'
+import BusyButton from '@/components/BusyButton.vue'
+import ChipLink from '@/components/ChipLink.vue'
+import ExternalLink from '@/components/ExternalLink.vue'
+import { labelChipVars } from '@/domain/labelColor'
 import { useAgrestList } from '@/composables/useAgrestList'
 import { listIssues, listPullRequests } from '@/api/issues'
 import type { OpenIssue } from '@/api/types'
@@ -38,150 +43,117 @@ const title = computed(() => (isIssues.value ? 'Open issues' : 'Open pull reques
 <template>
     <PageShell :title="title" :subtitle="`${total} total`">
         <template #actions>
-            <button
-                v-if="filterField"
-                type="button"
-                class="btn btn-sm btn-outline-secondary"
-                @click="clearFilter()"
-            >
-                <i class="bi bi-x-lg me-1" aria-hidden="true"></i>
+            <BusyButton v-if="filterField" icon="bi-x-lg" @click="clearFilter()">
                 Clear filter: {{ filterValue }}
-            </button>
-            <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary"
-                :disabled="loading"
-                @click="reload()"
-            >
-                <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Refresh
-            </button>
+            </BusyButton>
+            <BusyButton icon="bi-arrow-repeat" :busy="loading" @click="reload()">Refresh</BusyButton>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <AppAlert :message="error" @dismiss="error = ''" />
         <LoadingBar :loading="loading" />
 
-        <div v-if="items.length" class="table-responsive">
-            <table class="table table-sm table-hover table-striped align-middle">
-                <thead>
-                    <tr>
-                        <SortableTh
-                            field="title"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
+        <TableFrame v-if="items.length">
+            <thead>
+                <tr>
+                    <SortableTh field="title" :active-field="sort" :direction="direction" @sort="toggleSort">
+                        Title
+                    </SortableTh>
+                    <SortableTh
+                        field="author.login"
+                        :active-field="sort"
+                        :direction="direction"
+                        @sort="toggleSort"
+                    >
+                        Author
+                    </SortableTh>
+                    <SortableTh
+                        field="createdAt"
+                        :active-field="sort"
+                        :direction="direction"
+                        @sort="toggleSort"
+                    >
+                        Created
+                    </SortableTh>
+                    <SortableTh
+                        v-if="isIssues"
+                        field="milestone.title"
+                        :active-field="sort"
+                        :direction="direction"
+                        @sort="toggleSort"
+                    >
+                        Milestone
+                    </SortableTh>
+                    <SortableTh field="labels" :active-field="sort" :direction="direction" @sort="toggleSort">
+                        Labels
+                    </SortableTh>
+                    <SortableTh
+                        field="repository.name"
+                        :active-field="sort"
+                        :direction="direction"
+                        @sort="toggleSort"
+                    >
+                        Repository
+                    </SortableTh>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="item in items" :key="item.id">
+                    <td>
+                        <ExternalLink :href="item.url">{{ item.title }}</ExternalLink>
+                        <ChipLink :href="item.url" class="ms-1">#{{ item.number }}</ChipLink>
+                    </td>
+                    <td>
+                        <button
+                            v-if="item.author"
+                            type="button"
+                            class="btn btn-link btn-sm p-0"
+                            @click="applyFilter('author.login', item.author.login)"
                         >
-                            Title
-                        </SortableTh>
-                        <SortableTh
-                            field="author.login"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
+                            {{ item.author.login }}
+                        </button>
+                    </td>
+                    <td class="text-nowrap">{{ item.createdAtStr }}</td>
+                    <td v-if="isIssues">
+                        <button
+                            v-if="item.milestone"
+                            type="button"
+                            class="badge chip-secondary border-0"
+                            @click="applyFilter('milestone.title', item.milestone.title)"
                         >
-                            Author
-                        </SortableTh>
-                        <SortableTh
-                            field="createdAt"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
+                            {{ item.milestone.title }}
+                        </button>
+                    </td>
+                    <td>
+                        <button
+                            v-for="label in item.labels"
+                            :key="label.id"
+                            type="button"
+                            class="badge chip-label border-0 me-1"
+                            :style="labelChipVars(label.color) ?? undefined"
+                            @click="applyFilter('labels.name', label.name)"
                         >
-                            Created
-                        </SortableTh>
-                        <SortableTh
-                            v-if="isIssues"
-                            field="milestone.title"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
+                            {{ label.name }}
+                        </button>
+                    </td>
+                    <td class="text-nowrap">
+                        <button
+                            type="button"
+                            class="btn btn-link btn-sm p-0"
+                            @click="applyFilter('repoName', item.repoName)"
                         >
-                            Milestone
-                        </SortableTh>
-                        <SortableTh
-                            field="labels"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
+                            {{ item.repoName }}
+                        </button>
+                        <ChipLink
+                            v-if="item.repository?.parent"
+                            :href="item.repository.parent.url"
+                            class="ms-1"
                         >
-                            Labels
-                        </SortableTh>
-                        <SortableTh
-                            field="repository.name"
-                            :active-field="sort"
-                            :direction="direction"
-                            @sort="toggleSort"
-                        >
-                            Repository
-                        </SortableTh>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in items" :key="item.id">
-                        <td>
-                            <a :href="item.url" target="_blank" rel="noopener">{{ item.title }}</a>
-                            <a
-                                :href="item.url"
-                                target="_blank"
-                                rel="noopener"
-                                class="badge text-bg-secondary ms-1 text-decoration-none"
-                            >
-                                #{{ item.number }}
-                            </a>
-                        </td>
-                        <td>
-                            <button
-                                v-if="item.author"
-                                type="button"
-                                class="btn btn-link btn-sm p-0"
-                                @click="applyFilter('author.login', item.author.login)"
-                            >
-                                {{ item.author.login }}
-                            </button>
-                        </td>
-                        <td class="text-nowrap">{{ item.createdAtStr }}</td>
-                        <td v-if="isIssues">
-                            <button
-                                v-if="item.milestone"
-                                type="button"
-                                class="badge text-bg-secondary border-0"
-                                @click="applyFilter('milestone.title', item.milestone.title)"
-                            >
-                                {{ item.milestone.title }}
-                            </button>
-                        </td>
-                        <td>
-                            <button
-                                v-for="label in item.labels"
-                                :key="label.id"
-                                type="button"
-                                class="badge border-0 me-1"
-                                :style="{ backgroundColor: `#${label.color}`, color: '#fff' }"
-                                @click="applyFilter('labels.name', label.name)"
-                            >
-                                {{ label.name }}
-                            </button>
-                        </td>
-                        <td class="text-nowrap">
-                            <button
-                                type="button"
-                                class="btn btn-link btn-sm p-0"
-                                @click="applyFilter('repoName', item.repoName)"
-                            >
-                                {{ item.repoName }}
-                            </button>
-                            <a
-                                v-if="item.repository?.parent"
-                                :href="item.repository.parent.url"
-                                target="_blank"
-                                rel="noopener"
-                                class="badge text-bg-secondary ms-1 text-decoration-none"
-                                >parent</a
-                            >
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                            parent
+                        </ChipLink>
+                    </td>
+                </tr>
+            </tbody>
+        </TableFrame>
 
         <EmptyState
             v-else-if="!loading"
