@@ -2,18 +2,21 @@ import { onMounted, ref, shallowRef, type Ref, type ShallowRef } from 'vue'
 import { errorMessage } from '@/api/http'
 import { useCacheWarmup } from './useCacheWarmup'
 
-export interface AsyncResourceOptions<T, A extends unknown[]> {
+export type AsyncResourceOptions<T, A extends unknown[]> = {
     /** Value before the first successful load. */
     initial: T
     load: (...args: A) => Promise<T>
     /** Wait for the GitHub import to populate the local database first. Default false. */
     warmCache?: boolean
-    /**
-     * Load once from onMounted, with no arguments. Default true, so a loader that *requires* an
-     * argument must pass false and drive the first load itself.
-     */
-    immediate?: boolean
-}
+} & ([] extends A
+    ? {
+          /** Load once from onMounted, with no arguments. Default true. */
+          immediate?: boolean
+      }
+    : {
+          /** Required here: the loader takes an argument, so it cannot be called on mount. */
+          immediate: false
+      })
 
 export interface AsyncResource<T, A extends unknown[]> {
     /** Shallow: replaced wholesale on every load, never mutated in place. */

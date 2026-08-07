@@ -16,6 +16,31 @@ const emit = defineEmits<{ close: [] }>()
 
 const dialog = ref<HTMLElement | null>(null)
 
+/**
+ * Refcounted, because several modals are mounted at once - a page can hold two ConfirmModals and a
+ * LogModal, and every table row with a result mounts its own. Releasing unconditionally let a modal
+ * that had never been open clear the lock a genuinely open one was holding, so the page scrolled
+ * behind the dialog.
+ */
+let bodyLocks = 0
+
+function lockBody() {
+    if (++bodyLocks === 1) {
+        document.body.classList.add('modal-open')
+        document.body.style.overflow = 'hidden'
+    }
+}
+
+function unlockBody() {
+    if (--bodyLocks === 0) {
+        document.body.classList.remove('modal-open')
+        document.body.style.overflow = ''
+    }
+}
+
+// whether THIS instance currently holds a lock, so it only ever releases its own
+let locked = false
+
 // so closing returns the keyboard to whatever opened the modal, rather than to <body>
 let previouslyFocused: HTMLElement | null = null
 
@@ -29,14 +54,19 @@ function onKeydown(event: KeyboardEvent) {
 watch(
     () => props.open,
     async (open) => {
-        document.body.classList.toggle('modal-open', open)
-        document.body.style.overflow = open ? 'hidden' : ''
+        if (open === locked) {
+            return
+        }
+        locked = open
+
         if (open) {
+            lockBody()
             previouslyFocused = document.activeElement as HTMLElement | null
             document.addEventListener('keydown', onKeydown)
             await nextTick()
             dialog.value?.focus()
         } else {
+            unlockBody()
             document.removeEventListener('keydown', onKeydown)
             previouslyFocused?.focus()
             previouslyFocused = null
@@ -48,8 +78,10 @@ watch(
 
 onBeforeUnmount(() => {
     document.removeEventListener('keydown', onKeydown)
-    document.body.classList.remove('modal-open')
-    document.body.style.overflow = ''
+    if (locked) {
+        locked = false
+        unlockBody()
+    }
 })
 </script>
 

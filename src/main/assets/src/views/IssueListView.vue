@@ -16,7 +16,7 @@ import { listIssues, listPullRequests } from '@/api/issues'
 import type { OpenIssue } from '@/api/types'
 
 const route = useRoute()
-// one component serves both /issue and /pr; they differ only by source and the milestone column
+// one component serves both routes; they differ only by source and the milestone column
 const isIssues = computed(() => route.meta.kind !== 'pr')
 
 const {

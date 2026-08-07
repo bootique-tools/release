@@ -26,7 +26,7 @@ export function useAgrestList<T>(options: AgrestListOptions<T>) {
     } = useAsyncResource({
         initial: { items: [] as T[], total: 0 },
         warmCache: true,
-        // the onMounted below and the route watcher own the first load between them
+        // onMounted below owns the first load; the route watcher owns every later one
         immediate: false,
         load: async () => {
             const response = await options.fetch({

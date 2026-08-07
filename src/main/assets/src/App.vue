@@ -16,8 +16,8 @@ function reloadPage() {
 </script>
 
 <!--
-  /issue and /pr resolve to the same component, so without a key Vue reuses the instance across them
-  and onMounted never re-fires - the new route would render the previous route's rows.
+  /issues and /pull-requests resolve to the same component, so without a key Vue reuses the instance
+  across them and onMounted never re-fires - the new route would render the previous route's rows.
 -->
 
 <template>
