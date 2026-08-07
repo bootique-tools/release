@@ -41,7 +41,7 @@ async function copy() {
 </script>
 
 <template>
-    <PageShell title="Release notes" subtitle="Generated from the issues in a milestone">
+    <PageShell subtitle="Generated from the issues in a milestone">
         <template #actions>
             <BusyButton v-if="notes" :icon="copied ? 'bi-check2' : 'bi-clipboard'" @click="copy">
                 {{ copied ? 'Copied' : 'Copy' }}

@@ -82,7 +82,7 @@ async function chooseBasePath() {
 </script>
 
 <template>
-    <PageShell title="Repositories" :subtitle="`${total} tracked`">
+    <PageShell :subtitle="`${total} tracked`">
         <template #actions>
             <BusyButton
                 variant="primary"
@@ -165,7 +165,10 @@ async function chooseBasePath() {
                     </td>
                     <td>
                         <RouterLink
-                            :to="{ path: '/pr', query: { filter: 'repository.name', field: repo.name } }"
+                            :to="{
+                                name: 'pullRequests',
+                                query: { filter: 'repository.name', field: repo.name },
+                            }"
                         >
                             {{ repo.pullRequests?.length ?? 0 }}
                         </RouterLink>
@@ -173,7 +176,7 @@ async function chooseBasePath() {
                     <td>
                         <RouterLink
                             :to="{
-                                path: '/issue',
+                                name: 'issues',
                                 query: { filter: 'repository.name', field: repo.name },
                             }"
                         >
@@ -182,7 +185,7 @@ async function chooseBasePath() {
                     </td>
                     <td class="text-nowrap">{{ repo.pushedAtStr }}</td>
                     <td>
-                        <ChipLink to="/milestone">{{ repo.milestones?.length ?? 0 }}</ChipLink>
+                        <ChipLink :to="{ name: 'milestones' }">{{ repo.milestones?.length ?? 0 }}</ChipLink>
                     </td>
                     <td class="text-end text-nowrap">
                         <!-- MISSING means there is no local clone yet, so only cloning is offered -->

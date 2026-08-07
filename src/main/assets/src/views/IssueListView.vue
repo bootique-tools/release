@@ -36,12 +36,10 @@ const {
     fetch: (query) => (route.meta.kind === 'pr' ? listPullRequests(query) : listIssues(query)),
     syncQuery: true,
 })
-
-const title = computed(() => (isIssues.value ? 'Open issues' : 'Open pull requests'))
 </script>
 
 <template>
-    <PageShell :title="title" :subtitle="`${total} total`">
+    <PageShell :subtitle="`${total} total`">
         <template #actions>
             <BusyButton v-if="filterField" icon="bi-x-lg" @click="clearFilter()">
                 Clear filter: {{ filterValue }}

@@ -138,7 +138,7 @@ async function runConfirmed() {
         if (action === 'drop') {
             await api.dropRelease()
             stop()
-            await router.push('/release/select-projects')
+            await router.push({ name: 'releaseSelect' })
         } else if (action === 'rollback') {
             await act(api.rollbackRelease)
         }
@@ -155,7 +155,6 @@ onMounted(start)
 
 <template>
     <PageShell
-        title="Release"
         :subtitle="
             summary?.releaseVersion ? `${summary.releaseVersion} (next dev ${summary.devVersion})` : undefined
         "

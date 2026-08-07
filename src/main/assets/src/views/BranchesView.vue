@@ -54,7 +54,7 @@ onMounted(resumeJob)
 </script>
 
 <template>
-    <PageShell title="Branches" subtitle="Create or check out a branch across modules">
+    <PageShell subtitle="Create or check out a branch across modules">
         <template #actions>
             <label class="visually-hidden" for="branch-title">Branch name</label>
             <input

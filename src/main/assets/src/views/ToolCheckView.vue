@@ -21,10 +21,7 @@ const {
 </script>
 
 <template>
-    <PageShell
-        title="Tool check"
-        subtitle="Versions of the external tools the release pipeline shells out to"
-    >
+    <PageShell subtitle="Versions of the external tools the release pipeline shells out to">
         <template #actions>
             <BusyButton icon="bi-arrow-repeat" :busy="loading" @click="reload()">Re-check</BusyButton>
         </template>

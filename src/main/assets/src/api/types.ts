@@ -126,11 +126,17 @@ export interface JobStatusResponse {
     result: string | null
 }
 
+export interface SessionCounts {
+    repositories: number
+    issues: number
+    pullRequests: number
+}
+
 export interface SessionInfo {
     /** null until the first GitHub import completes */
     organization: { login: string; name: string; url: string } | null
     user: { login: string; name: string | null; url: string } | null
-    counts: { repositories: number; issues: number; pullRequests: number }
+    counts: SessionCounts
 }
 
 export interface ToolCheck {

@@ -1,35 +1,21 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ThemeToggle from './ThemeToggle.vue'
 import { useSession } from '@/composables/useSession'
 import { useBackgroundJob } from '@/composables/useBackgroundJob'
+import { isNavActive, navLinks } from '@/domain/nav'
 
 const emit = defineEmits<{ validatePom: [] }>()
 
 const { session } = useSession()
 const { active: backgroundJob } = useBackgroundJob()
 const route = useRoute()
+const router = useRouter()
 const expanded = ref(false)
 
-const counts = computed(() => session.value?.counts)
-
-const links = computed(() => [
-    { to: '/', label: 'Repos', badge: counts.value?.repositories, exact: true },
-    { to: '/issue', label: 'Issues', badge: counts.value?.issues },
-    { to: '/pr', label: 'PRs', badge: counts.value?.pullRequests },
-    { to: '/milestone', label: 'Milestones' },
-    { to: '/branches', label: 'Branches' },
-    { to: '/maven', label: 'Maven projects' },
-    { to: '/release', label: 'Release' },
-    { to: '/release-notes', label: 'Release notes' },
-    { to: '/tool-check', label: 'Tool check' },
-])
-
-function isActive(to: string, exact?: boolean): boolean {
-    // segment-aware, otherwise /release-notes would also light up the /release entry
-    return exact ? route.path === to : route.path === to || route.path.startsWith(`${to}/`)
-}
+// derived from the route table, so the labels cannot drift from the page titles again
+const links = computed(() => navLinks(router.getRoutes(), session.value?.counts))
 </script>
 
 <template>
@@ -64,7 +50,7 @@ function isActive(to: string, exact?: boolean): boolean {
                         <RouterLink
                             class="nav-link"
                             :to="link.to"
-                            :class="{ active: isActive(link.to, link.exact) }"
+                            :class="{ active: isNavActive(link.to, route.path) }"
                         >
                             {{ link.label }}
                             <span v-if="link.badge != null" class="badge chip-secondary">

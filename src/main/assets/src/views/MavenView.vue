@@ -48,10 +48,7 @@ onMounted(resumeJob)
 </script>
 
 <template>
-    <PageShell
-        title="Maven projects"
-        subtitle="Runs mvn clean install across every module, in dependency order"
-    >
+    <PageShell subtitle="Runs mvn clean install across every module, in dependency order">
         <template #actions>
             <BusyButton variant="primary" icon="bi-play-fill" :busy="jobRunning" @click="verify">
                 Verify all

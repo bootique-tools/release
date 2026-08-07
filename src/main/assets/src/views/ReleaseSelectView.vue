@@ -106,7 +106,7 @@ async function startRelease() {
             projects: selected.value,
         })
         confirmOpen.value = false
-        await router.push('/release/board')
+        await router.push({ name: 'releaseBoard' })
     } catch (e) {
         error.value = errorMessage(e)
     } finally {
@@ -123,7 +123,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <PageShell title="Start a release" subtitle="Pick a version, then the modules to release">
+    <PageShell subtitle="Pick a version, then the modules to release">
         <template #actions>
             <BusyButton
                 variant="success"

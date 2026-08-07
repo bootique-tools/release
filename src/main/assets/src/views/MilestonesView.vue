@@ -62,7 +62,7 @@ onMounted(resumeJob)
 </script>
 
 <template>
-    <PageShell title="Milestones" subtitle="Create, close or rename milestones across modules">
+    <PageShell subtitle="Create, close or rename milestones across modules">
         <template #actions>
             <BusyButton
                 v-for="action in ['create', 'close', 'rename'] as MilestoneAction[]"
@@ -96,7 +96,7 @@ onMounted(resumeJob)
                         <ExternalLink :href="milestone.url">{{ milestone.title }}</ExternalLink>
                         <ChipLink
                             :to="{
-                                path: '/issue',
+                                name: 'issues',
                                 query: { filter: 'milestone.title', field: milestone.title },
                             }"
                             class="ms-1"
