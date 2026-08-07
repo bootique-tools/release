@@ -5,6 +5,27 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/svg+xml" href="/ui/favicon.svg" />
         <title>Release Manager</title>
+        <meta name="color-scheme" content="light dark" />
+        <style>
+            /* The data-bs-theme attribute set below is inert until the stylesheet lands, so the
+               first paint would be white regardless. These rules are the whole anti-flash; the
+               colours mirror Bootstrap's $body-bg / $body-bg-dark.
+
+               scrollbar-gutter also fixes a layout jolt: AppModal locks body scrolling without
+               Bootstrap's scrollbar-width compensation, because Bootstrap's modal JS is
+               deliberately not used. Reserving the gutter makes the lock a no-op visually. */
+            html {
+                scrollbar-gutter: stable;
+            }
+            html[data-bs-theme='light'] {
+                color-scheme: light;
+                background-color: #fff;
+            }
+            html[data-bs-theme='dark'] {
+                color-scheme: dark;
+                background-color: #212529;
+            }
+        </style>
         <script>
             // resolve the theme before first paint, otherwise a dark-mode reload flashes white
             ;(function () {

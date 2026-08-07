@@ -2,7 +2,8 @@
 // Animates transform rather than left, so it stays on the compositor.
 
 .indeterminate-bar {
-    height: 0.5rem;
+    // shared with $progress-height, so swapping this for JobProgress never shifts the layout
+    height: var(--app-bar-height);
     overflow: hidden;
     border-radius: var(--bs-border-radius);
     background-color: var(--bs-secondary-bg);

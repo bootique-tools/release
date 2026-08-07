@@ -34,14 +34,10 @@ export default defineConfig(({ mode }) => {
             preprocessorOptions: {
                 scss: {
                     api: 'modern-compiler',
-                    // Bootstrap 5.3 still uses @import, if(), and the legacy color functions internally
-                    silenceDeprecations: [
-                        'import',
-                        'global-builtin',
-                        'color-functions',
-                        'mixed-decls',
-                        'if-function',
-                    ],
+                    // Bootstrap 5.3 still uses @import, if(), and the legacy color functions
+                    // internally. This is the exact minimal set - notably NOT 'mixed-decls', which
+                    // is obsolete as of Sass 1.100 and warns if you silence it.
+                    silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'if-function'],
                 },
             },
         },

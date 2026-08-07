@@ -1,0 +1,78 @@
+@use 'bs' as *;
+
+.app-main {
+    padding-block: var(--app-gap-section);
+}
+
+// Uniform vertical rhythm without every child carrying its own margin. JobProgress, LoadingBar and
+// AppAlert appear and disappear independently; each owning its own mb-*/my-* is exactly why they
+// stacked unevenly.
+.app-flow > * + * {
+    margin-top: var(--app-gap-stack);
+}
+
+.app-page__header {
+    margin-bottom: var(--app-gap-section);
+}
+
+// A card framing one region of a page. Sections that are nothing but a table go `--flush`: the
+// scrollable table is the card's sole child and the card clips it to its own radius.
+.app-section {
+    margin-bottom: 0;
+}
+
+.app-section--flush > .table-responsive {
+    border-radius: inherit;
+}
+
+// The shared shape behind EmptyState, the Suspense fallback and the 404 page, which had drifted
+// into three near-copies at two different icon sizes.
+.app-placeholder {
+    padding-block: 3rem;
+    text-align: center;
+    color: var(--bs-secondary-color);
+}
+
+.app-placeholder__icon {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.app-toolbar-input {
+    width: var(--app-toolbar-input-width);
+}
+
+// A spinner sized to read as a bullet inside a badge rather than as a control in its own right.
+// Driving Bootstrap's own custom properties also scales the border, which the inline width/height
+// this replaces never touched.
+.spinner-inline {
+    --bs-spinner-width: 0.6em;
+    --bs-spinner-height: 0.6em;
+    --bs-spinner-border-width: 0.12em;
+}
+
+// Server output rendered verbatim: stage logs, POM validation reports, tool versions. One base
+// plus three modifiers, replacing the .log-output / .text-report pair that had drifted apart.
+.log-output {
+    margin-bottom: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.log-output--mono {
+    font-family: var(--bs-font-monospace);
+    font-size: 0.8125rem;
+}
+
+.log-output--scroll {
+    max-height: var(--app-log-max-height);
+    overflow: auto;
+}
+
+.log-output--framed {
+    padding: 1rem;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-tertiary-bg);
+}

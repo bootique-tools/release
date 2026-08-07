@@ -1,0 +1,64 @@
+@use 'bs' as *;
+
+// One table look for the whole app. TableFrame emits `table table-sm app-table` plus, at most,
+// table-hover and app-table--sticky-first. Nothing else - in particular there is no striping:
+// at this row density it is noise, and it fights .table-active on the release board.
+.app-table {
+    // the enclosing .app-flow or card owns the gap; Bootstrap's own $spacer would double it
+    margin-bottom: 0;
+
+    > thead > tr > th {
+        color: var(--bs-secondary-color);
+        font-size: 0.8125rem;
+        white-space: nowrap;
+        // at 13px a header needs a heavier rule, not a fill, to read as a header
+        border-bottom-width: calc(var(--bs-border-width) * 2);
+    }
+}
+
+// Shrink-to-content column (a checkbox, an icon button). `width: 1%` plus nowrap makes the auto
+// table algorithm give the column exactly its content width.
+.app-col-shrink {
+    width: 1%;
+    white-space: nowrap;
+}
+
+// The release board is a repository x stage matrix that outgrows the viewport. Pinning the first
+// column keeps the repository name readable while the stage columns scroll under it.
+.app-table--sticky-first {
+    > thead > tr > :first-child,
+    > tbody > tr > :first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        // the TABLE's background, not the page's: Bootstrap paints hover and .table-active as an
+        // inset box-shadow, which draws above this and so still shows through the pinned cell
+        background-color: var(--bs-table-bg);
+    }
+
+    // a seam, so the pinned column is distinguishable once a row has scrolled beneath it
+    > thead > tr > :first-child::after,
+    > tbody > tr > :first-child::after {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        right: 0;
+        width: var(--bs-border-width);
+        background-color: var(--bs-border-color);
+    }
+
+    td,
+    th {
+        white-space: nowrap;
+    }
+}
+
+// Sortable headers are buttons for keyboard access, but must read as headers.
+.th-sort {
+    --bs-btn-color: var(--bs-secondary-color);
+    --bs-btn-hover-color: var(--bs-link-hover-color);
+    --bs-btn-font-size: inherit;
+    text-decoration: none;
+    font-weight: inherit;
+    white-space: nowrap;
+}

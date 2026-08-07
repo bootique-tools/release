@@ -1,0 +1,36 @@
+// Superseded class names, kept only until the views migrate to the new vocabulary.
+//
+// .stage-board      -> .app-table--sticky-first (_tables.scss)
+// .text-report      -> .log-output (_layout.scss)
+// the scroll/mono half of .log-output -> .log-output--scroll / --mono
+//
+// DELETE THIS FILE once no .vue file references any of the below.
+
+@use 'bs' as *;
+
+.stage-board {
+    th.stage-board__repo,
+    td.stage-board__repo {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: var(--bs-body-bg);
+    }
+
+    td,
+    th {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+}
+
+.log-output {
+    max-height: var(--app-log-max-height);
+    overflow: auto;
+    font-size: 0.8125rem;
+}
+
+.text-report {
+    white-space: pre-wrap;
+    word-break: break-word;
+}

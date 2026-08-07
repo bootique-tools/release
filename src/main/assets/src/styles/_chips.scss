@@ -1,0 +1,52 @@
+@use 'bs' as *;
+
+// Small status and count pills. Always used as `class="badge chip-*"`.
+//
+// These replace Bootstrap's text-bg-* helpers, which are the wrong tool here: text-bg-secondary is
+// a heavy grey block, and text-bg-light resolves to a hardcoded near-white because --bs-light is
+// NOT redefined per theme, so it glares in dark mode. The 5.3 subtle scale below is theme-scoped,
+// so one class works in both themes.
+@each $tone in (primary, success, info, warning, secondary) {
+    .chip-#{$tone} {
+        background-color: var(--bs-#{$tone}-bg-subtle);
+        color: var(--bs-#{$tone}-text-emphasis);
+        border: var(--bs-border-width) solid var(--bs-#{$tone}-border-subtle);
+    }
+}
+
+// Failure is the one state that has to be findable at a glance, so it keeps a solid fill.
+.chip-danger {
+    background-color: var(--bs-danger);
+    color: #fff;
+    border: var(--bs-border-width) solid var(--bs-danger);
+}
+
+// "Not started" is an empty slot rather than a state. A dashed outline says that without adding
+// ink, and unlike text-bg-light it stays visible in both themes.
+.chip-empty {
+    background-color: transparent;
+    color: var(--bs-secondary-color);
+    border: var(--bs-border-width) dashed var(--bs-border-color);
+}
+
+// GitHub label chips. The colour is an arbitrary hex from the API, so the foreground has to be
+// derived rather than assumed - see @/domain/labelColor, which sets --chip-bg and --chip-fg.
+.chip-label {
+    --chip-bg: var(--bs-secondary-bg);
+    --chip-fg: var(--bs-body-color);
+
+    background-color: var(--chip-bg);
+    color: var(--chip-fg);
+    // pale labels (#cfd3d7, #a2eeef) otherwise dissolve into a white card
+    border: var(--bs-border-width) solid rgba(0, 0, 0, 0.18);
+}
+
+// Dark mode is the one place app CSS names the theme, and deliberately: a saturated label as a
+// solid fill is a glare source in a dark table, and --chip-fg was computed against a light page.
+// Using the label colour as an accent instead - tinted fill, text and border - is what GitHub
+// itself does. --chip-fg is ignored here.
+[data-bs-theme='dark'] .chip-label {
+    background-color: color-mix(in srgb, var(--chip-bg) 20%, transparent);
+    color: color-mix(in srgb, var(--chip-bg) 70%, #fff);
+    border-color: color-mix(in srgb, var(--chip-bg) 45%, transparent);
+}

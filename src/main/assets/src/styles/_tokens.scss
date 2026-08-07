@@ -1,0 +1,19 @@
+// App-level design tokens.
+//
+// Rule: no token here ever holds a colour. Bootstrap regenerates the whole --bs-* set under both
+// data-bs-theme values, so a Sass override in _bs.scss gets a correct dark-mode value for free;
+// an --app-* colour would need a hand-written dark twin, and so would every future one after it.
+// What is left - page rhythm and a couple of component geometries - lives here.
+
+:root {
+    // Not a new scale: names for the only three points of Bootstrap's $spacers the app may use.
+    --app-gap-inline: 0.5rem; // between controls on one line
+    --app-gap-stack: 1rem; // between blocks inside a section
+    --app-gap-section: 1.5rem; // between sections, and around the page
+
+    // Shared by JobProgress and LoadingBar, which swap places in the same slot.
+    --app-bar-height: 0.5rem;
+
+    --app-log-max-height: 60vh;
+    --app-toolbar-input-width: 14rem;
+}

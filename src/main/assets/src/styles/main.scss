@@ -1,45 +1,14 @@
-@use 'variables';
-@use 'bootstrap/scss/bootstrap' as *;
+// Order is the cascade: Bootstrap's own CSS lands first so the app layer overrides it without
+// !important. This file holds no rules of its own.
+
+@use 'bs' as *;
 @use 'bootstrap-icons/font/bootstrap-icons.css';
+
+@use 'tokens';
+@use 'layout';
+@use 'tables';
+@use 'chips';
 @use 'indeterminate-bar';
 
-// The release board is a repository x stage matrix that outgrows the viewport. Pinning the first
-// column keeps the repository name readable while the stage columns scroll.
-.stage-board {
-    th.stage-board__repo,
-    td.stage-board__repo {
-        position: sticky;
-        left: 0;
-        z-index: 2;
-        background-color: var(--bs-body-bg);
-    }
-
-    td,
-    th {
-        white-space: nowrap;
-        vertical-align: middle;
-    }
-}
-
-// Sortable table headers are buttons for keyboard access, but should read as headers.
-.th-sort {
-    --bs-btn-color: var(--bs-body-color);
-    --bs-btn-hover-color: var(--bs-link-hover-color);
-    text-decoration: none;
-    font-weight: inherit;
-    white-space: nowrap;
-}
-
-.log-output {
-    max-height: 60vh;
-    overflow: auto;
-    font-size: 0.8125rem;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-
-// Multi-line plain-text reports (POM validation, tool versions) arrive newline-separated.
-.text-report {
-    white-space: pre-wrap;
-    word-break: break-word;
-}
+// Superseded names still referenced by the views. Removed once they migrate.
+@use 'legacy';
