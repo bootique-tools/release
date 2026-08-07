@@ -5,10 +5,7 @@ jetty:
     port: 9999
 
 jersey:
-  urlPattern: "/ui/*"
-
-mvc:
-  templateBase: "classpath:"
+  urlPattern: "/api/*"
 
 log:
   appenders:

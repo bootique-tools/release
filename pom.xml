@@ -23,8 +23,10 @@
 
         <mockito.version>4.6.1</mockito.version>
 
-        <frontend.plugin.version>1.11.3</frontend.plugin.version>
-        <node.version>v14.21.3</node.version>
+        <frontend.plugin.version>1.15.1</frontend.plugin.version>
+        <node.version>v22.20.0</node.version>
+        <!-- -Dskip.frontend=true to build the backend without the node round-trip -->
+        <skip.frontend>false</skip.frontend>
 
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.source>21</maven.compiler.source>
@@ -97,10 +99,6 @@
         <dependency>
             <groupId>io.bootique.jetty</groupId>
             <artifactId>bootique-jetty-websocket</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.bootique.mvc</groupId>
-            <artifactId>bootique-mvc-mustache</artifactId>
         </dependency>
         <dependency>
             <groupId>io.bootique.logback</groupId>
@@ -199,12 +197,12 @@
 
                     <!-- check and install project dependencies -->
                     <execution>
-                        <id>npm install</id>
+                        <id>npm ci</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install</arguments>
+                            <arguments>ci</arguments>
                         </configuration>
                     </execution>
 
@@ -218,11 +216,25 @@
                             <arguments>run build</arguments>
                         </configuration>
                     </execution>
+
+                    <!-- unit tests over the release state machine and version arithmetic -->
+                    <execution>
+                        <id>npm test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>test</arguments>
+                            <skip>${skipTests}</skip>
+                        </configuration>
+                    </execution>
                 </executions>
 
                 <configuration>
                     <nodeVersion>${node.version}</nodeVersion>
                     <workingDirectory>src/main/assets</workingDirectory>
+                    <skip>${skip.frontend}</skip>
                 </configuration>
             </plugin>
         </plugins>

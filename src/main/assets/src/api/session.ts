@@ -1,0 +1,25 @@
+import { getJson, getText } from './http'
+import type { SessionInfo, ToolCheck } from './types'
+
+export function fetchSession(): Promise<SessionInfo> {
+    return getJson<SessionInfo>('/session')
+}
+
+/** True once the scheduled GitHub import has populated the local database. */
+export function checkCache(signal?: AbortSignal): Promise<boolean> {
+    return fetch('/api/checkCache', { credentials: 'same-origin', signal }).then((r) => {
+        if (!r.ok) {
+            throw new Error(`HTTP ${r.status}`)
+        }
+        return r.json() as Promise<boolean>
+    })
+}
+
+export function fetchToolCheck(): Promise<ToolCheck> {
+    return getJson<ToolCheck>('/tool-check')
+}
+
+/** Plain-text POM validation report across all modules. */
+export function validatePoms(): Promise<string> {
+    return getText('/validation/pom', undefined, { noTimeout: true })
+}

@@ -2,30 +2,23 @@ package io.bootique.tools.release.controller.release;
 
 import io.bootique.tools.release.controller.BaseController;
 import io.bootique.tools.release.model.maven.persistent.Project;
+import io.bootique.tools.release.model.release.ReleaseDescriptor;
+import io.bootique.tools.release.model.release.ReleaseSummary;
 import io.bootique.tools.release.model.release.ReleaseVersions;
-import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.logger.LoggerService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
-import io.bootique.tools.release.view.BaseView;
-import io.bootique.tools.release.view.ReleaseProcessView;
-import io.bootique.tools.release.view.ReleaseView;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 @Path("/release")
 public class ReleaseStartController extends BaseController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DesktopService.class);
 
     @Inject
     public ReleaseDescriptorService releaseDescriptorService;
@@ -33,30 +26,44 @@ public class ReleaseStartController extends BaseController {
     @Inject
     public LoggerService loggerService;
 
+    /**
+     * Whether a release descriptor exists, and the versions it targets. Lets a client decide between the
+     * project-selection page and the release board.
+     */
     @GET
-    public BaseView getReleaseView() {
+    @Path("/summary")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ReleaseSummary getSummary() {
 
-        LOGGER.info("load release descriptor");
-        if (releaseDescriptorService.getReleaseDescriptor() == null) {
-            return new ReleaseView(getCurrentUser(), getCurrentOrganization());
+        ReleaseDescriptor descriptor = releaseDescriptorService.getReleaseDescriptor();
+        if (descriptor == null) {
+            return ReleaseSummary.NONE;
         }
 
-        loggerService.prepareLogger(releaseDescriptorService.getReleaseDescriptor());
-        return new ReleaseProcessView(getCurrentUser(), getCurrentOrganization());
+        // the appenders backing the per-stage logs are set up lazily on first look at an active release
+        loggerService.prepareLogger(descriptor);
+        return ReleaseSummary.of(descriptor.getReleaseVersions());
     }
 
     @POST
     @Path("/create-descriptor")
-    public Response createDescriptor(@FormParam("fromVersion") String fromVersion,
-                                     @FormParam("releaseVersion") String releaseVersion,
-                                     @FormParam("devVersion") String devVersion,
-                                     @FormParam("projects") String selected) throws IOException {
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ReleaseSummary createDescriptor(CreateReleaseRequest request) {
 
-        List<Project> selectedProjects = getSelectedProjects(selected);
-        ReleaseVersions versions = new ReleaseVersions(releaseVersion, devVersion, fromVersion);
+        List<Project> selectedProjects = getSelectedProjects(request.projects());
+        ReleaseVersions versions = new ReleaseVersions(
+                request.releaseVersion(), request.devVersion(), request.fromVersion());
 
         releaseDescriptorService.createReleaseDescriptor(versions, selectedProjects);
 
-        return Response.seeOther(URI.create("release/")).build();
+        return getSummary();
+    }
+
+    /**
+     * @param projects repository names of the modules to release, in the order they should be released
+     */
+    public record CreateReleaseRequest(String fromVersion, String releaseVersion, String devVersion,
+                                       List<String> projects) {
     }
 }

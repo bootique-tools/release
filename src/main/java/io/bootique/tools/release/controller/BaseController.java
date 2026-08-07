@@ -77,6 +77,10 @@ public abstract class BaseController {
     protected List<Project> getSelectedProjects(String selectedProjects) throws IOException {
         @SuppressWarnings("unchecked")
         List<String> selectedProjectsNames = objectMapper.readValue(selectedProjects, List.class);
+        return getSelectedProjects(selectedProjectsNames);
+    }
+
+    protected List<Project> getSelectedProjects(List<String> selectedProjectsNames) {
         List<Project> projectList = ObjectSelect.query(Project.class)
                 .where(Project.REPOSITORY.dot(Repository.NAME).in(selectedProjectsNames))
                 .select(cayenneRuntime.newContext());

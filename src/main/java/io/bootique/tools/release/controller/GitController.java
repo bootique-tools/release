@@ -10,7 +10,6 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import org.apache.cayenne.ObjectContext;
 import org.apache.cayenne.query.ObjectSelect;
@@ -21,11 +20,16 @@ import java.util.function.Consumer;
 @Path("/git")
 public class GitController extends BaseController {
 
-    static final String LOCAL_GIT_PATH_COOKIE = "git-path";
+    static final String NO_BASE_PATH_MESSAGE =
+            "Local repository path is not set. Choose it first via 'Select path'.";
 
     @Inject
     private DesktopService desktopService;
 
+    /**
+     * Opens a native folder chooser on the machine running the server, and remembers the choice.
+     * An empty 200 body means the user dismissed the dialog.
+     */
     @Path("select_path")
     @GET
     public Response selectPath() {
@@ -33,12 +37,7 @@ public class GitController extends BaseController {
         if(file != null) {
             java.nio.file.Path path = file.toPath();
             preferences.set(GitService.BASE_PATH_PREFERENCE, path);
-            NewCookie cookie = new NewCookie(LOCAL_GIT_PATH_COOKIE, path.toString(), "/ui",
-                    null, null, -1, false);
-            return Response.ok()
-                    .entity(path.toString())
-                    .cookie(cookie)
-                    .build();
+            return Response.ok().entity(path.toString()).build();
         }
         return Response.ok().build();
     }
@@ -60,7 +59,7 @@ public class GitController extends BaseController {
     public Response updateAll() {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             return Response.status(Response.Status.PRECONDITION_FAILED)
-                    .entity("Path should be set via /ui/git/select_path query.")
+                    .entity(NO_BASE_PATH_MESSAGE)
                     .build();
         }
 
@@ -79,7 +78,7 @@ public class GitController extends BaseController {
     public Response cloneAll() {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             return Response.status(Response.Status.PRECONDITION_FAILED)
-                    .entity("Path should be set via /ui/git/select_path query.")
+                    .entity(NO_BASE_PATH_MESSAGE)
                     .build();
         }
 
@@ -107,7 +106,7 @@ public class GitController extends BaseController {
     private Response checkAndRun(String repoName, Consumer<Repository> action) {
         if(!preferences.have(GitService.BASE_PATH_PREFERENCE)) {
             return Response.status(Response.Status.PRECONDITION_FAILED)
-                    .entity("Path should be set via /ui/git/select_path query.")
+                    .entity(NO_BASE_PATH_MESSAGE)
                     .build();
         }
 

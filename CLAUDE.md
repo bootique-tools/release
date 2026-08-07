@@ -6,13 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A [Bootique](https://bootique.io)-based web app that automates releasing the multi-module Bootique project family to Maven Central. It clones the target repos locally, walks each repo through a multi-stage Maven release pipeline (pull → validate → prepare → perform → Central sync), and drives the whole thing from a Vue web UI at `http://127.0.0.1:9999/ui/`. GitHub metadata (repos, PRs, issues, milestones) is imported on a schedule and persisted to a local SQLite DB.
 
-Single Maven module, Java 21. Backend = Bootique DI + Jersey REST + Jetty + Cayenne ORM. Frontend = Vue 2 / Bootstrap 4 built by webpack.
+Single Maven module, Java 21. Backend = Bootique DI + Jersey REST + Jetty + Cayenne ORM. Frontend = a Vue 3 + TypeScript single-page app on Bootstrap 5, built by Vite.
 
 ## Commands
 
 ```bash
-# Full build — also installs node v14, runs npm install + webpack build via frontend-maven-plugin
+# Full build — also installs node v22, runs npm ci + vite build via frontend-maven-plugin
 mvn clean install
+
+# Backend only, skipping the node round-trip
+mvn clean install -Dskip.frontend=true
 
 # CI build (build + test)
 mvn clean verify
@@ -27,7 +30,7 @@ java --add-opens java.base/sun.net.www.protocol.https=ALL-UNNAMED \
      -jar target/release-1.0-SNAPSHOT.jar
 ```
 
-Frontend-only iteration (from `src/main/assets/`): `npm run build` or `npm run build:watch`. The Maven build invokes this automatically; you rarely run it by hand.
+Frontend-only iteration (from `src/main/assets/`): `npm run build:watch` rebuilds into `target/classes/static/ui/` on save; reload `http://127.0.0.1:9999/ui/` by hand (hard-reload, since watch mode uses stable filenames). Also `npm run typecheck` and `npm test`. There is deliberately **no Vite dev server** — the app must be served by Jetty so `/api` and the WebSockets resolve.
 
 ## Configuration
 
@@ -57,10 +60,21 @@ Actual `mvn` invocations do **not** run in-process. `DesktopService` (per-OS imp
 `GitHubDataImportJob` and `MavenProjectsImport` are Bootique scheduled jobs (cadence in `settings.yml` `scheduler.triggers`). GitHub data is fetched via GraphQL (`GraphQLGitHubApiImport` / `SimpleGraphQLService`) and REST v3 (`GitHubRestV3API`). Everything is persisted via **Apache Cayenne** to SQLite (`github.db`). Cayenne project: `src/main/resources/cayenne/cayenne-project.xml` with two maps — `github.map.xml` and `maven.map.xml`. Persistent classes live in `model/persistent/` and `model/maven/persistent/`; the `_*.java` classes under `auto/` are Cayenne-generated — edit the hand-written subclass, not the `_` superclass.
 
 ### Web layer
-- REST controllers (`controller/`, JAX-RS) are served under `/ui/*` (see `settings.yml` `jersey.urlPattern`). `release/` subpackage holds the release-process endpoints.
-- `view/` classes are Bootique MVC (Mustache) server-side views.
-- WebSocket endpoints (`controller/websocket/`) push live stage/job status to the browser; `StageStatusListener` bridges stage updates to sockets.
-- Frontend lives in `src/main/assets/` (Vue 2 components in `js/view/`, SCSS in `scss/`, webpack config `webpack.config.js`). Built assets are served as static content from `classpath:static`.
+
+**The browser owns `/ui/*`, the REST API owns `/api/*`.** There is no server-side HTML rendering.
+
+- REST controllers (`controller/`, JAX-RS) are served under `/api/*` (see `settings.yml` `jersey.urlPattern`). The `release/` subpackage holds the release-process endpoints; note five classes share `@Path("/release")`.
+- `web/SpaFilter` redirects `/` to `/ui/` and forwards every extension-less `/ui/**` path to `/ui/index.html`, so client-side routes survive a reload. Real files (the hashed assets) and `/api/*` chain straight through to the static servlet.
+- WebSocket endpoints (`controller/websocket/`) push live stage/job status: `/api/release/socket` sends the literal `"LOAD"` on each stage transition, `/job/status` sends `""` on each batch task completion. Both are content-free pings — the client re-fetches. Their paths are absolute against the Jetty context and unaffected by `jersey.urlPattern`.
+- `GET /api/session` supplies the nav's organization, user and badge counts. `organization`/`user` are null until the first GitHub import succeeds, and the UI renders a hint rather than an error.
+
+Frontend lives in `src/main/assets/` — Vite root, sources under `src/`:
+- `api/` — one module per endpoint group over a shared `fetch` wrapper (`http.ts`, base `/api`). `agrest.ts` builds the Agrest `include`/`sort`/`cayenneExp` parameters; `types.ts` mirrors the Java enums and entity shapes.
+- `domain/` — pure, unit-tested logic with no Vue imports: `releaseBoard.ts` holds the release/rollback state machine, `version.ts` the version arithmetic. **Changes to board button visibility belong here, with a test.**
+- `composables/` — shared reactive state (`useAgrestList`, `useJobStatus`, `useReleaseBoard`, `useSession`, `useCacheWarmup`, …).
+- `components/`, `views/`, `styles/`, `router/`.
+
+Vite emits to `target/classes/static/ui/` with `base: '/ui/'`; Jetty serves it from `classpath:static`. Nothing else may be written into `target/classes/static/` — the `ui/` subdirectory is what makes `emptyOutDir` safe.
 
 ### Logging
 Custom Logback setup (`service/logger/`): `MultiAppender` + per-release/per-rollback `ExecutionLogger`s capture stage output so it can be streamed to the UI and written to `logs.log`, in addition to console. Logger config is in `settings.yml` under `log:`.
@@ -68,6 +82,8 @@ Custom Logback setup (`service/logger/`): `MultiAppender` + per-release/per-roll
 ## Testing notes
 
 JUnit 5 (`bootique-junit`) + Mockito. Tests instantiate services directly and hand-build a Cayenne `ServerRuntime` from `cayenne/cayenne-project.xml` rather than booting the full app. Hand-written `Mock*` doubles (e.g. `MockPreferenceService`, `MockGitHubApi`, `MockReleasePersistentService`) live alongside the tests and are the preferred way to fake collaborators. Some tests are `@Disabled` (they depend on local git/maven state) — don't assume the whole suite runs clean offline. Test fixtures (sample POMs/repos) are under `src/test/resources/`.
+
+Frontend tests are Vitest over `src/main/assets/src/domain/*.spec.ts`, wired into the Maven `test` phase (skipped by `-DskipTests`). They cover the release-board predicates and version arithmetic — the logic worth protecting. Components are not mounted in tests; `vue-tsc --noEmit` runs as part of `npm run build`, so a type error fails the Maven build.
 
 ## Coding standards
 

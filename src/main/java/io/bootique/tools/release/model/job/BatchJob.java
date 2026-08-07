@@ -3,15 +3,19 @@ package io.bootique.tools.release.model.job;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.bootique.tools.release.service.job.BatchJobTask;
 import io.bootique.value.Percent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 public class BatchJob<T, R> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchJob.class);
 
     private final long id;
     private final long startTimeNanos;
@@ -20,11 +24,12 @@ public class BatchJob<T, R> {
     @JsonIgnore
     private final List<BatchJobTask<BatchJobResult<T, R>>> tasks;
 
+    // listeners come and go with client connections while tasks complete on worker threads
     @JsonIgnore
-    private final Collection<Runnable> endOfTaskListeners = new ArrayList<>();
+    private final Collection<Runnable> endOfTaskListeners = new CopyOnWriteArrayList<>();
 
     @JsonIgnore
-    private final Runnable taskEndListener = () -> endOfTaskListeners.forEach(Runnable::run);
+    private final Runnable taskEndListener = this::notifyListeners;
 
     public BatchJob(long id, List<BatchJobTask<BatchJobResult<T, R>>> tasks, BatchJobDescriptor<T, R> batchJobDescriptor) {
         this.id = id;
@@ -36,6 +41,21 @@ public class BatchJob<T, R> {
 
     public void addListener(Runnable taskEndListener) {
         this.endOfTaskListeners.add(taskEndListener);
+    }
+
+    public void removeListener(Runnable taskEndListener) {
+        this.endOfTaskListeners.remove(taskEndListener);
+    }
+
+    /** One failing listener must not stop the others, nor fail the task that triggered them. */
+    private void notifyListeners() {
+        for (Runnable listener : endOfTaskListeners) {
+            try {
+                listener.run();
+            } catch (Exception e) {
+                LOGGER.warn("Batch job listener failed", e);
+            }
+        }
     }
 
     public long getId() {

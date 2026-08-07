@@ -13,34 +13,47 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-@ServerEndpoint(value = "/ui/release/socket")
+@ServerEndpoint(value = "/api/release/socket")
 public class ReleaseWebSocket {
 
     private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(ReleaseWebSocket.class);
     private Session session;
+    private StageStatusListener listener;
 
     @Inject
     public StageListener stageUpdaterListener;
 
     @OnOpen
-    public void open(Session session) throws IOException {
+    public void open(Session session) {
         this.session = session;
         session.setMaxIdleTimeout(Integer.MAX_VALUE);
         LOGGER.info("WebSocket connect");
 
-        stageUpdaterListener.addListener(new StageStatusListener(session));
+        this.listener = new StageStatusListener(session);
+        stageUpdaterListener.addListener(listener);
     }
 
     @OnClose
     public void close(Session session) {
         LOGGER.info("WebSocket " + session.getId() + " close");
+        unregister();
     }
 
     @OnError
     public void onError(Throwable error) throws IOException {
         LOGGER.error(error.getMessage(), error);
-        session.close();
-        stageUpdaterListener.removeListener();
+        try {
+            session.close();
+        } finally {
+            unregister();
+        }
+    }
+
+    private void unregister() {
+        if (listener != null) {
+            stageUpdaterListener.removeListener(listener);
+            listener = null;
+        }
     }
 
     @OnMessage

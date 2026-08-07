@@ -1,0 +1,29 @@
+// A progress bar for work with no measurable percentage: a block travelling back and forth.
+// Animates transform rather than left, so it stays on the compositor.
+
+.indeterminate-bar {
+    height: .5rem;
+    overflow: hidden;
+    border-radius: var(--bs-border-radius);
+    background-color: var(--bs-secondary-bg);
+
+    &__block {
+        width: 25%;
+        height: 100%;
+        background-color: var(--bs-primary);
+        animation: bq-bar-travel 1.5s linear infinite alternate;
+    }
+}
+
+@keyframes bq-bar-travel {
+    from { transform: translateX(-4%); }
+    to { transform: translateX(304%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .indeterminate-bar__block {
+        animation: none;
+        width: 100%;
+        opacity: .4;
+    }
+}

@@ -1,0 +1,44 @@
+@use 'variables';
+@use 'bootstrap/scss/bootstrap' as *;
+@use 'bootstrap-icons/font/bootstrap-icons.css';
+@use 'indeterminate-bar';
+
+// The release board is a repository x stage matrix that outgrows the viewport. Pinning the first
+// column keeps the repository name readable while the stage columns scroll.
+.stage-board {
+    th.stage-board__repo,
+    td.stage-board__repo {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background-color: var(--bs-body-bg);
+    }
+
+    td, th {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+}
+
+// Sortable table headers are buttons for keyboard access, but should read as headers.
+.th-sort {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-hover-color: var(--bs-link-hover-color);
+    text-decoration: none;
+    font-weight: inherit;
+    white-space: nowrap;
+}
+
+.log-output {
+    max-height: 60vh;
+    overflow: auto;
+    font-size: .8125rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+// Multi-line plain-text reports (POM validation, tool versions) arrive newline-separated.
+.text-report {
+    white-space: pre-wrap;
+    word-break: break-word;
+}

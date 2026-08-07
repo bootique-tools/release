@@ -4,7 +4,6 @@ import io.agrest.DataResponse;
 import io.agrest.jaxrs3.AgJaxrs;
 import io.bootique.tools.release.model.persistent.Organization;
 import io.bootique.tools.release.model.persistent.Repository;
-import io.bootique.tools.release.view.RepoView;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -15,11 +14,6 @@ import org.apache.cayenne.query.ObjectSelect;
 
 @Path("/")
 public class RepoController extends BaseController {
-
-    @GET
-    public RepoView home() {
-        return new RepoView(getCurrentUser(), getCurrentOrganization());
-    }
 
     @GET
     @Path("/checkCache")

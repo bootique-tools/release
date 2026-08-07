@@ -18,8 +18,16 @@ public class DefaultLoggerService implements LoggerService {
 
     private MultiAppender multiAppender;
     private String releaseVersion;
+    private ReleaseDescriptor preparedDescriptor;
 
     public void prepareLogger(ReleaseDescriptor releaseDescriptor) {
+        // rebuilding the appender map clears it, which would drop output of a stage running right now,
+        // and callers may ask repeatedly for the same release. Keyed on the descriptor instance rather
+        // than its version, so dropping a release and starting another at the same version re-prepares.
+        if (multiAppender != null && releaseDescriptor == preparedDescriptor) {
+            return;
+        }
+
         if (multiAppender != null) {
             multiAppender.getAppenderMap().clear();
         } else {
@@ -27,6 +35,7 @@ public class DefaultLoggerService implements LoggerService {
         }
         multiAppender.createAppenderMap(releaseDescriptor, preferenceService.get(LoggerService.LOGGER_BASE_PATH));
         this.releaseVersion = releaseDescriptor.getReleaseVersions().releaseVersion();
+        this.preparedDescriptor = releaseDescriptor;
     }
 
     @Override

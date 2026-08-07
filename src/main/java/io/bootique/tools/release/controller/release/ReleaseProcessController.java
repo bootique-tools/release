@@ -1,6 +1,7 @@
 package io.bootique.tools.release.controller.release;
 
 import io.bootique.tools.release.controller.BaseController;
+import io.bootique.tools.release.model.release.ReleaseDescriptor;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
@@ -9,10 +10,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Response;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,8 +38,9 @@ public class ReleaseProcessController extends BaseController {
 
     @GET
     @Path("/repository")
-    public List<RepositoryDescriptor> getRepository() throws IOException {
-        return releaseDescriptorService.getReleaseDescriptor().getRepositoryDescriptorList();
+    public List<RepositoryDescriptor> getRepository() {
+        ReleaseDescriptor descriptor = releaseDescriptorService.getReleaseDescriptor();
+        return descriptor == null ? List.of() : descriptor.getRepositoryDescriptorList();
     }
 
     @POST
@@ -58,9 +57,8 @@ public class ReleaseProcessController extends BaseController {
 
     @POST
     @Path("/drop")
-    public Response dropRelease() {
+    public void dropRelease() {
         releaseDescriptorService.dropReleaseDescriptor();
-        return Response.seeOther(URI.create("release/start")).build();
     }
 }
 

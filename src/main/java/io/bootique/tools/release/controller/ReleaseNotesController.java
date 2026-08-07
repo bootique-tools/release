@@ -1,7 +1,6 @@
 package io.bootique.tools.release.controller;
 
 import io.bootique.tools.release.service.readme.ReleaseNotesService;
-import io.bootique.tools.release.view.ReleaseNotesView;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -12,11 +11,6 @@ public class ReleaseNotesController extends BaseController {
 
     @Inject
     private ReleaseNotesService releaseNotesService;
-
-    @GET
-    public ReleaseNotesView home() {
-        return new ReleaseNotesView(getCurrentUser(), getCurrentOrganization());
-    }
 
     @GET
     @Path("/generate")

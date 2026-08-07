@@ -3,43 +3,20 @@ package io.bootique.tools.release.controller.release;
 import io.agrest.DataResponse;
 import io.bootique.tools.release.controller.BaseController;
 import io.bootique.tools.release.model.maven.persistent.Project;
-import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
-import io.bootique.tools.release.view.ReleaseView;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/release")
 public class SelectProjectsController extends BaseController {
-
-    @Inject
-    public ReleasePersistentService persistentService;
-
-    @Path("/start")
-    @GET
-    public Response home() {
-        if (persistentService.isReleaseSaved()) {
-            return Response.seeOther(URI.create("release/")).build();
-        }
-        return Response.seeOther(URI.create("release/select-projects")).build();
-    }
-
-    @GET
-    @Path("/select-projects")
-    public ReleaseView getReleaseView() {
-        return new ReleaseView(getCurrentUser(), getCurrentOrganization());
-    }
 
     @GET
     @Path("/show-all")

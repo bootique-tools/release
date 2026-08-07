@@ -1,10 +1,12 @@
 package io.bootique.tools.release.controller;
 
+import io.bootique.tools.release.model.tools.ToolCheckResponse;
 import io.bootique.tools.release.service.desktop.DesktopService;
-import io.bootique.tools.release.view.ToolCheckView;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
 import java.nio.file.Paths;
 
@@ -15,7 +17,8 @@ public class ToolCheckController extends BaseController {
     private DesktopService desktopService;
 
     @GET
-    public ToolCheckView home() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public ToolCheckResponse check() {
 
         String javaVersion;
         try {
@@ -46,7 +49,7 @@ public class ToolCheckController extends BaseController {
             // TODO: ???
         }
 
-        return new ToolCheckView(getCurrentUser(), getCurrentOrganization(), javaVersion, jdk, mavenVersion);
+        return new ToolCheckResponse(javaVersion, jdk, mavenVersion);
     }
 
 }

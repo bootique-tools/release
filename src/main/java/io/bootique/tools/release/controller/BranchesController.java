@@ -5,7 +5,6 @@ import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.job.JobException;
-import io.bootique.tools.release.view.BranchesView;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -21,11 +20,6 @@ import java.util.function.Function;
 public class BranchesController extends BaseJobController {
 
     private final String CONTROLLER_NAME = "branches";
-
-    @GET
-    public BranchesView home() {
-        return new BranchesView(getCurrentUser(), getCurrentOrganization());
-    }
 
     @GET
     @Path("/show-all")

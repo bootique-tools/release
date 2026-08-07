@@ -19,7 +19,12 @@ public class JobStatusController extends BaseJobController {
     @GET
     @Path("/status")
     public JobStatusResponse getStatus() {
+        // no job has been submitted yet, or the last one has already been reaped
         BatchJob<Project, String> job = jobService.getCurrentJob();
+        if (job == null) {
+            return JobStatusResponse.NO_JOB;
+        }
+
         if (job.getDone() > 0) {
             BatchJobResult<Project, String> lastJobResult = job.getResults().get(job.getDone() - 1);
             String result = lastJobResult.result();
@@ -29,9 +34,9 @@ public class JobStatusController extends BaseJobController {
             String projectName = project.getRepository().getName();
             String status = lastJobResult.status().name();
             double progress = job.getProgress().getPercent();
-            return new JobStatusResponse(projectName, status, progress, version, branchName, result);
+            return new JobStatusResponse(true, projectName, status, progress, version, branchName, result);
         }
-        return new JobStatusResponse(null,null,0.0,null,null,null);
+        return JobStatusResponse.started();
     }
 }
 

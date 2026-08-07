@@ -7,7 +7,6 @@ import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.DesktopException;
 import io.bootique.tools.release.service.github.GitHubRestAPI;
 import io.bootique.tools.release.service.job.JobException;
-import io.bootique.tools.release.view.MilestonesView;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -29,11 +28,6 @@ public class MilestoneController extends BaseJobController {
 
     @Inject
     private GitHubRestAPI gitHubRestAPI;
-
-    @GET
-    public MilestonesView home() {
-        return new MilestonesView(getCurrentUser(), getCurrentOrganization());
-    }
 
     @GET
     @Path("/show-all")

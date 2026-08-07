@@ -75,6 +75,7 @@ import io.bootique.tools.release.service.tasks.RollbackCentralPublishTask;
 import io.bootique.tools.release.service.tasks.RollbackMvnRelease;
 import io.bootique.tools.release.service.validation.DefaultValidatePomService;
 import io.bootique.tools.release.service.validation.ValidatePomService;
+import io.bootique.tools.release.web.SpaFilter;
 import jakarta.inject.Singleton;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
@@ -123,7 +124,8 @@ public class Application implements BQModule {
                 .addEndpoint(JobStatusWebSocket.class);
 
         JettyModule.extend(binder)
-                .addMappedServlet(MappedServlet.ofStatic("/").name("default").build());
+                .addMappedServlet(MappedServlet.ofStatic("/").name("default").build())
+                .addFilter(new SpaFilter(), "spa", 1, "/*");
 
         JerseyModule.extend(binder)
                 .addFeature(JacksonFeature.class)

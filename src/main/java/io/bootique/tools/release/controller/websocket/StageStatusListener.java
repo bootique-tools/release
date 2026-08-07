@@ -25,7 +25,9 @@ public class StageStatusListener implements Runnable {
         if (session.isOpen()) {
             try {
                 this.session.getBasicRemote().sendText(Commands.LOAD.toString());
-            } catch (IOException e) {
+            } catch (IOException | RuntimeException e) {
+                // stages of different repositories complete concurrently, so overlapping blocking
+                // sends on one session can fail with more than an IOException
                 logger.info("Unable to send message to client", e);
             }
         }

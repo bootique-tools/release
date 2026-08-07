@@ -8,9 +8,7 @@ import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.job.BatchJobService;
 import io.bootique.tools.release.service.job.JobException;
-import io.bootique.tools.release.view.MavenView;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import org.apache.cayenne.query.ObjectSelect;
@@ -28,11 +26,6 @@ public class MavenController extends BaseController {
 
     @Inject
     private DesktopService desktopService;
-
-    @GET
-    public MavenView home() {
-        return new MavenView(getCurrentUser(), getCurrentOrganization());
-    }
 
     @POST
     @Path("verify")

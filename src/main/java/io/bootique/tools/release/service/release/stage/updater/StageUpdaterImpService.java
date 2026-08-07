@@ -3,16 +3,23 @@ package io.bootique.tools.release.service.release.stage.updater;
 import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.ReleaseStageStatus;
 import io.bootique.tools.release.model.release.RepositoryDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class StageUpdaterImpService implements StageUpdaterService, StageListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StageUpdaterImpService.class);
 
     private static final OutProcessor NULL_PROCESSOR = (repositoryDescriptor, out) -> {};
 
     Map<ReleaseStage, OutProcessor> outProcessors;
 
-    private Runnable stageListener;
+    // stages are updated from release worker threads while listeners come and go with client connections
+    private final List<Runnable> stageListeners = new CopyOnWriteArrayList<>();
 
     public StageUpdaterImpService() {
         outProcessors = Map.of(ReleaseStage.RELEASE_PERFORM, new CentralDescriptorIdExtractor());
@@ -20,12 +27,12 @@ public class StageUpdaterImpService implements StageUpdaterService, StageListene
 
     @Override
     public void addListener(Runnable stageListener) {
-        this.stageListener = stageListener;
+        stageListeners.add(stageListener);
     }
 
     @Override
-    public void removeListener() {
-        this.stageListener = null;
+    public void removeListener(Runnable stageListener) {
+        stageListeners.remove(stageListener);
     }
 
     @Override
@@ -35,8 +42,15 @@ public class StageUpdaterImpService implements StageUpdaterService, StageListene
                             String out) {
         repositoryDescriptor.getStageStatusMap().replace(releaseStage, status);
         outProcessors.getOrDefault(releaseStage, NULL_PROCESSOR).accept(repositoryDescriptor, out);
-        if(stageListener != null) {
-            stageListener.run();
+
+        // a listener is a client notification, never a reason to fail the stage that just succeeded,
+        // and one broken listener must not hide the transition from the others
+        for (Runnable listener : stageListeners) {
+            try {
+                listener.run();
+            } catch (Exception e) {
+                LOGGER.warn("Stage listener failed", e);
+            }
         }
     }
 }
