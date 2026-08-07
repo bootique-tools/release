@@ -10,7 +10,21 @@
    - Generate your GPG key.
    - Add key to keychain to prevent password request for every module.
 4. Create folder to have local copy of releasing project. Set **basePath** variable in config file.
-5. Setup [RSA key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to access repositories on the GitHub
+5. Setup an [SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) to access repositories on the GitHub.
+   It is used both for cloning and for the commits and tags `release:prepare` pushes — the released modules
+   declare `scm:git:ssh://git@github.com/...`, so there is no HTTPS path through a release. Verify with:
+   ```bash
+   ssh -T git@github.com
+   ```
+   If the key has a passphrase, make sure an ssh-agent holds it, since the tool runs `git` non-interactively.
+
+   Repositories cloned by an older version of this tool have an HTTPS `origin` and keep using it. To convert
+   them, run once in your **basePath**:
+   ```bash
+   for d in */; do
+     git -C "$d" remote set-url origin "git@github.com:bootique/${d%/}.git"
+   done
+   ```
 6. Create `.m2/settings.xml` and add the Central repo (`sonatype-central`) credentials. You could get your Sonatype API key at the [Central website](https://central.sonatype.com/usertoken):
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>

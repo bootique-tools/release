@@ -3,14 +3,28 @@ package io.bootique.tools.release.service.desktop;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Queue;
 
 public class MockDesktopService implements DesktopService {
 
     private Queue<String> nextCommandResult = new ArrayDeque<>();
 
+    private final List<List<String>> invocations = new ArrayList<>();
+
     public void addCommandResult(String result) {
         nextCommandResult.add(result);
+    }
+
+    /** Commands passed to {@link #runCommand}, each as command followed by its arguments. */
+    public List<List<String>> getInvocations() {
+        return invocations;
+    }
+
+    public List<String> lastInvocation() {
+        return invocations.get(invocations.size() - 1);
     }
 
     @Override
@@ -28,7 +42,12 @@ public class MockDesktopService implements DesktopService {
 
     @Override
     public String runCommand(Path path, String command, String... args) {
-        return nextCommandResult.remove();
+        List<String> invocation = new ArrayList<>();
+        invocation.add(command);
+        invocation.addAll(Arrays.asList(args));
+        invocations.add(invocation);
+
+        return nextCommandResult.isEmpty() ? "" : nextCommandResult.remove();
     }
 
     @Override

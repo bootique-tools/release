@@ -6,11 +6,15 @@ import io.bootique.tools.release.service.desktop.DesktopService;
 import io.bootique.tools.release.service.preferences.PreferenceService;
 import io.bootique.tools.release.service.release.descriptors.release.ReleaseDescriptorService;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ExternalGitService implements GitService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitService.class);
 
     @Inject
     protected DesktopService desktopService;
@@ -29,7 +33,17 @@ public class ExternalGitService implements GitService {
             throw new GitException("Target dir " + target + " already exists, should update instead.");
         }
 
-        desktopService.runCommand(basePath, "git", "clone", repository.getUrl());
+        // SSH matches the scm:git:ssh:// developerConnection the released POMs declare, so the working
+        // copy's origin agrees with where maven-release-plugin later pushes commits and tags.
+        // GitHub reports sshUrl in scp form (git@github.com:org/repo.git) while the POMs use
+        // ssh://git@github.com/org/repo - the same host and path, so git treats them alike.
+        String remote = repository.getSshUrl();
+        if (remote == null) {
+            LOGGER.warn("No sshUrl for {}, falling back to https", repository.getName());
+            remote = repository.getUrl();
+        }
+
+        desktopService.runCommand(basePath, "git", "clone", remote);
         repository.setLocalStatus(GitStatus.OK);
     }
 
