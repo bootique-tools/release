@@ -6,7 +6,7 @@ import LoadingBar from '@/components/LoadingBar.vue'
 import ErrorAlert from '@/components/ErrorAlert.vue'
 import EmptyState from '@/components/EmptyState.vue'
 import AppModal from '@/components/AppModal.vue'
-import { useCacheWarmup } from '@/composables/useCacheWarmup'
+import { useAsyncResource } from '@/composables/useAsyncResource'
 import { nextDevVersionOf, releaseVersionOf } from '@/domain/version'
 import {
     createReleaseDescriptor,
@@ -18,20 +18,39 @@ import { errorMessage } from '@/api/http'
 import type { Project } from '@/api/types'
 
 const router = useRouter()
-const { waitForCache } = useCacheWarmup()
 
-// server-ordered: this array is in Maven dependency order and must never be re-sorted here
-const modules = ref<Project[]>([])
 const versions = ref<string[]>([])
 const currentVersion = ref('')
 const releaseVersion = ref('')
 const nextDevVersion = ref('')
 const selected = ref<string[]>([])
 
-const loading = ref(false)
 const submitting = ref(false)
-const error = ref('')
 const confirmOpen = ref(false)
+
+/**
+ * The module listing, either unfiltered or narrowed to one version. Both arrive in Maven dependency
+ * order and must never be re-sorted here - the order is the order the release will follow.
+ */
+const {
+    data: modules,
+    loading,
+    error,
+    reload: loadModules,
+} = useAsyncResource<Project[], [version?: string]>({
+    initial: [],
+    warmCache: true,
+    // the first load has a follow-up (deriving the version list), so it is driven below
+    immediate: false,
+    load: async (version?: string) => {
+        if (version) {
+            return (await listProjectsForVersion(version)).data ?? []
+        }
+        // `disable` is not persisted, so this listing comes back selectable; nothing is releasable
+        // until a version is chosen, so mark every row disabled as the original page did
+        return ((await listReleaseProjects()).data ?? []).map((m) => ({ ...m, disable: true }))
+    },
+})
 
 const canStart = computed(
     () => selected.value.length > 0 && releaseVersion.value !== '' && nextDevVersion.value !== '',
@@ -41,43 +60,16 @@ watch(releaseVersion, (value) => {
     nextDevVersion.value = nextDevVersionOf(value)
 })
 
-async function loadVersions() {
-    loading.value = true
-    error.value = ''
-    try {
-        await waitForCache()
-        const response = await listReleaseProjects()
-        // `disable` is not persisted, so this listing comes back selectable; nothing is releasable
-        // until a version is chosen, so mark every row disabled as the original page did
-        modules.value = (response.data ?? []).map((m) => ({ ...m, disable: true }))
-        // distinct in first-seen order, matching the order the modules are released in
-        versions.value = [...new Set(modules.value.map((m) => m.version))]
-    } catch (e) {
-        error.value = errorMessage(e)
-    } finally {
-        loading.value = false
-    }
-}
-
 async function selectVersion() {
     if (!currentVersion.value) {
         return
     }
-    loading.value = true
-    error.value = ''
     releaseVersion.value = releaseVersionOf(currentVersion.value)
-    try {
-        const response = await listProjectsForVersion(currentVersion.value)
-        modules.value = response.data ?? []
-        // the server marks releasable modules with disable=false; those start out checked
-        selected.value = modules.value.filter((m) => !m.disable).map((m) => m.repository.name)
-        if (!modules.value.length) {
-            error.value = 'Please clone all repositories to your local repositories first.'
-        }
-    } catch (e) {
-        error.value = errorMessage(e)
-    } finally {
-        loading.value = false
+    await loadModules(currentVersion.value)
+    // the server marks releasable modules with disable=false; those start out checked
+    selected.value = modules.value.filter((m) => !m.disable).map((m) => m.repository.name)
+    if (!modules.value.length) {
+        error.value = 'Please clone all repositories to your local repositories first.'
     }
 }
 
@@ -126,7 +118,12 @@ async function startRelease() {
     }
 }
 
-onMounted(loadVersions)
+onMounted(async () => {
+    await loadModules()
+    // distinct in first-seen order, matching the order the modules are released in. Derived once,
+    // so narrowing to a version later does not shrink the choices in the dropdown.
+    versions.value = [...new Set(modules.value.map((m) => m.version))]
+})
 </script>
 
 <template>

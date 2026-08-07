@@ -1,8 +1,7 @@
-import { onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { AgrestQuery, DataResponse, SortDirection } from '@/api/agrest'
-import { errorMessage } from '@/api/http'
-import { useCacheWarmup } from './useCacheWarmup'
+import { useAsyncResource } from './useAsyncResource'
 
 export interface AgrestListOptions<T> {
     fetch: (query: AgrestQuery) => Promise<DataResponse<T>>
@@ -11,12 +10,6 @@ export interface AgrestListOptions<T> {
 }
 
 export function useAgrestList<T>(options: AgrestListOptions<T>) {
-    // shallow: rows are replaced wholesale on every reload, never mutated in place
-    const items = shallowRef<T[]>([])
-    const total = ref(0)
-    const loading = ref(false)
-    const error = ref('')
-
     const sort = ref('')
     const direction = ref<SortDirection>('DESC')
     const filterField = ref('')
@@ -24,7 +17,32 @@ export function useAgrestList<T>(options: AgrestListOptions<T>) {
 
     const route = options.syncQuery ? useRoute() : null
     const router = options.syncQuery ? useRouter() : null
-    const { waitForCache } = useCacheWarmup()
+
+    const {
+        data,
+        loading,
+        error,
+        reload: fetchPage,
+    } = useAsyncResource({
+        initial: { items: [] as T[], total: 0 },
+        warmCache: true,
+        // the onMounted below and the route watcher own the first load between them
+        immediate: false,
+        load: async () => {
+            const response = await options.fetch({
+                sort: sort.value || undefined,
+                direction: direction.value,
+                filter: filterField.value
+                    ? { field: filterField.value, value: filterValue.value }
+                    : undefined,
+            })
+            const rows = response.data ?? []
+            return { items: rows, total: response.total ?? rows.length }
+        },
+    })
+
+    const items = computed(() => data.value.items)
+    const total = computed(() => data.value.total)
 
     function readQuery() {
         if (!route) {
@@ -63,27 +81,8 @@ export function useAgrestList<T>(options: AgrestListOptions<T>) {
         }
     }
 
-    async function reload(): Promise<void> {
-        loading.value = true
-        error.value = ''
-        try {
-            await waitForCache()
-            const response = await options.fetch({
-                sort: sort.value || undefined,
-                direction: direction.value,
-                filter: filterField.value
-                    ? { field: filterField.value, value: filterValue.value }
-                    : undefined,
-            })
-            items.value = response.data ?? []
-            total.value = response.total ?? items.value.length
-        } catch (e) {
-            error.value = errorMessage(e)
-            items.value = []
-            total.value = 0
-        } finally {
-            loading.value = false
-        }
+    function reload(): Promise<void> {
+        return fetchPage()
     }
 
     /** First click on a column sorts descending; clicking the same column again flips it. */

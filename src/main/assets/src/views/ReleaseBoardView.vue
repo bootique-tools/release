@@ -24,15 +24,14 @@ import {
 } from '@/domain/releaseBoard'
 
 const router = useRouter()
-const board = useReleaseBoard()
+const { stages, repositories, loading, error, start, refresh, act, stop } = useReleaseBoard()
 
 // the route guard has just fetched this, so the board never re-requests it
 const { summary } = useReleaseSummary()
 const confirm = ref<'drop' | 'rollback' | null>(null)
 const confirmBusy = ref(false)
 
-const list = computed(() => board.repositories.value)
-const running = computed(() => releaseRunning(list.value))
+const running = computed(() => releaseRunning(repositories.value))
 
 interface ActionSpec {
     icon: string
@@ -54,37 +53,37 @@ const ACTIONS: Record<StageAction, ActionSpec> = {
         icon: 'bi-chevron-double-left',
         title: 'Roll this stage back',
         variant: 'btn-outline-info',
-        run: (d, stage) => board.act(() => api.rollbackRepository(d.repositoryName, stage)),
+        run: (d, stage) => act(() => api.rollbackRepository(d.repositoryName, stage)),
     },
     restart: {
         icon: 'bi-arrow-clockwise',
         title: 'Restart this stage',
         variant: 'btn-outline-dark',
-        run: (d, stage) => board.act(() => api.restartStage(d.repositoryName, stage)),
+        run: (d, stage) => act(() => api.restartStage(d.repositoryName, stage)),
     },
     skip: {
         icon: 'bi-skip-forward-fill',
         title: 'Skip this stage',
         variant: 'btn-outline-success',
-        run: (d, stage) => board.act(() => api.skipStage(d.repositoryName, stage)),
+        run: (d, stage) => act(() => api.skipStage(d.repositoryName, stage)),
     },
     resume: {
         icon: 'bi-chevron-double-right',
         title: 'Resume from this stage',
         variant: 'btn-outline-success',
-        run: (d, stage) => board.act(() => api.restartStage(d.repositoryName, stage)),
+        run: (d, stage) => act(() => api.restartStage(d.repositoryName, stage)),
     },
     retryRollback: {
         icon: 'bi-arrow-clockwise',
         title: 'Retry the rollback',
         variant: 'btn-outline-dark',
-        run: (d, stage) => board.act(() => api.rollbackRepository(d.repositoryName, stage)),
+        run: (d, stage) => act(() => api.rollbackRepository(d.repositoryName, stage)),
     },
     skipRollback: {
         icon: 'bi-skip-forward-fill',
         title: 'Skip the rollback',
         variant: 'btn-outline-success',
-        run: (d, stage) => board.act(() => api.skipRollback(d.repositoryName, stage)),
+        run: (d, stage) => act(() => api.skipRollback(d.repositoryName, stage)),
     },
 }
 
@@ -126,20 +125,20 @@ async function runConfirmed() {
     try {
         if (action === 'drop') {
             await api.dropRelease()
-            board.stop()
+            stop()
             await router.push('/release/select-projects')
         } else if (action === 'rollback') {
-            await board.act(api.rollbackRelease)
+            await act(api.rollbackRelease)
         }
         confirm.value = null
     } catch (e) {
-        board.error.value = errorMessage(e)
+        error.value = errorMessage(e)
     } finally {
         confirmBusy.value = false
     }
 }
 
-onMounted(board.start)
+onMounted(start)
 </script>
 
 <template>
@@ -150,11 +149,11 @@ onMounted(board.start)
         "
     >
         <template #actions>
-            <button type="button" class="btn btn-sm btn-outline-secondary" @click="board.refresh()">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="refresh()">
                 <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Refresh
             </button>
             <button
-                v-if="canRollbackRelease(list)"
+                v-if="canRollbackRelease(repositories)"
                 type="button"
                 class="btn btn-sm btn-outline-warning"
                 :disabled="running"
@@ -163,7 +162,7 @@ onMounted(board.start)
                 <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i>Roll back
             </button>
             <button
-                v-if="canDropRelease(list)"
+                v-if="canDropRelease(repositories)"
                 type="button"
                 class="btn btn-sm btn-outline-danger"
                 @click="confirm = 'drop'"
@@ -172,24 +171,24 @@ onMounted(board.start)
             </button>
         </template>
 
-        <ErrorAlert :message="board.error.value" @dismiss="board.error.value = ''" />
-        <LoadingBar :loading="board.loading.value" />
+        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <LoadingBar :loading="loading" />
 
         <div class="table-responsive">
             <table class="table table-sm align-middle stage-board">
                 <thead>
                     <tr>
                         <th scope="col" class="stage-board__repo">Repository</th>
-                        <th v-for="stage in board.stages.value" :key="stage" scope="col">
+                        <th v-for="stage in stages" :key="stage" scope="col">
                             {{ STAGE_LABELS[stage] }}
                             <button
-                                v-if="stage === 'RELEASE_SYNC' && syncEnabled(list)"
+                                v-if="stage === 'RELEASE_SYNC' && syncEnabled(repositories)"
                                 type="button"
                                 class="btn btn-sm btn-outline-success ms-1"
                                 :disabled="running"
                                 aria-label="Start the Central sync stage"
                                 title="Start sync"
-                                @click="board.act(api.startSyncStage)"
+                                @click="act(api.startSyncStage)"
                             >
                                 <i class="bi bi-play-fill" aria-hidden="true"></i>
                             </button>
@@ -197,12 +196,12 @@ onMounted(board.start)
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="descriptor in list" :key="descriptor.repositoryName">
+                    <tr v-for="descriptor in repositories" :key="descriptor.repositoryName">
                         <th scope="row" class="stage-board__repo fw-normal">
                             {{ descriptor.repositoryName }}
                         </th>
                         <td
-                            v-for="stage in board.stages.value"
+                            v-for="stage in stages"
                             :key="stage"
                             :class="{ 'table-active': statusOf(descriptor, stage) === 'In_Progress' }"
                         >
@@ -211,7 +210,7 @@ onMounted(board.start)
 
                                 <div class="btn-group btn-group-sm">
                                     <button
-                                        v-for="action in stageActions(list, descriptor, stage)"
+                                        v-for="action in stageActions(repositories, descriptor, stage)"
                                         :key="action"
                                         type="button"
                                         class="btn"

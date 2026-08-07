@@ -1,29 +1,20 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
 import ErrorAlert from '@/components/ErrorAlert.vue'
+import { useAsyncResource } from '@/composables/useAsyncResource'
 import { fetchToolCheck } from '@/api/session'
-import { errorMessage } from '@/api/http'
 import type { ToolCheck } from '@/api/types'
 
-const tools = ref<ToolCheck | null>(null)
-const loading = ref(false)
-const error = ref('')
-
-async function load() {
-    loading.value = true
-    error.value = ''
-    try {
-        tools.value = await fetchToolCheck()
-    } catch (e) {
-        error.value = errorMessage(e)
-    } finally {
-        loading.value = false
-    }
-}
-
-onMounted(load)
+const {
+    data: tools,
+    loading,
+    error,
+    reload,
+} = useAsyncResource({
+    initial: null as ToolCheck | null,
+    load: fetchToolCheck,
+})
 </script>
 
 <template>
@@ -32,7 +23,12 @@ onMounted(load)
         subtitle="Versions of the external tools the release pipeline shells out to"
     >
         <template #actions>
-            <button type="button" class="btn btn-sm btn-outline-secondary" :disabled="loading" @click="load">
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                :disabled="loading"
+                @click="reload()"
+            >
                 <i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Re-check
             </button>
         </template>

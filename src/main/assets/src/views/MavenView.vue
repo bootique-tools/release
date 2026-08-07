@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
 import ErrorAlert from '@/components/ErrorAlert.vue'
@@ -8,49 +8,45 @@ import StatusBadge from '@/components/StatusBadge.vue'
 import ResultButton from '@/components/ResultButton.vue'
 import JobProgress from '@/components/JobProgress.vue'
 import { useJobStatus } from '@/composables/useJobStatus'
-import { useCacheWarmup } from '@/composables/useCacheWarmup'
+import { useAsyncResource } from '@/composables/useAsyncResource'
 import { listReleaseProjects } from '@/api/releaseSelect'
 import { verifyAll } from '@/api/maven'
 import { errorMessage } from '@/api/http'
 import type { Project } from '@/api/types'
 
-const modules = ref<Project[]>([])
-const loading = ref(false)
-const error = ref('')
+const {
+    data: modules,
+    loading,
+    error,
+} = useAsyncResource({
+    initial: [] as Project[],
+    load: async () => (await listReleaseProjects()).data ?? [],
+    warmCache: true,
+})
 
-const job = useJobStatus('maven')
-const { waitForCache } = useCacheWarmup()
+const {
+    running: jobRunning,
+    progress: jobProgress,
+    byRepo: jobResults,
+    start: startJob,
+    resume: resumeJob,
+    reset: resetJob,
+} = useJobStatus('maven')
 
-const anyResults = computed(() => Object.keys(job.byRepo).length > 0)
-
-async function load() {
-    loading.value = true
-    error.value = ''
-    try {
-        await waitForCache()
-        modules.value = (await listReleaseProjects()).data ?? []
-    } catch (e) {
-        error.value = errorMessage(e)
-    } finally {
-        loading.value = false
-    }
-}
+const anyResults = computed(() => Object.keys(jobResults).length > 0)
 
 async function verify() {
     error.value = ''
-    job.reset()
+    resetJob()
     try {
         await verifyAll()
-        await job.start()
+        await startJob()
     } catch (e) {
         error.value = errorMessage(e)
     }
 }
 
-onMounted(async () => {
-    await load()
-    await job.resume()
-})
+onMounted(resumeJob)
 </script>
 
 <template>
@@ -62,11 +58,11 @@ onMounted(async () => {
             <button
                 type="button"
                 class="btn btn-sm btn-outline-primary"
-                :disabled="job.running.value"
+                :disabled="jobRunning"
                 @click="verify"
             >
                 <span
-                    v-if="job.running.value"
+                    v-if="jobRunning"
                     class="spinner-border spinner-border-sm me-1"
                     aria-hidden="true"
                 ></span>
@@ -76,7 +72,7 @@ onMounted(async () => {
         </template>
 
         <ErrorAlert :message="error" @dismiss="error = ''" />
-        <JobProgress :progress="job.progress.value" :running="job.running.value" />
+        <JobProgress :progress="jobProgress" :running="jobRunning" />
         <LoadingBar :loading="loading" />
 
         <div v-if="modules.length" class="table-responsive">
@@ -109,11 +105,11 @@ onMounted(async () => {
                             <span v-if="!module.dependencies?.length" class="text-body-secondary">—</span>
                         </td>
                         <td v-if="anyResults">
-                            <StatusBadge :status="job.byRepo[module.repository.name]?.status ?? null" />
+                            <StatusBadge :status="jobResults[module.repository.name]?.status ?? null" />
                         </td>
                         <td v-if="anyResults" class="text-end">
                             <ResultButton
-                                :result="job.byRepo[module.repository.name]?.result ?? ''"
+                                :result="jobResults[module.repository.name]?.result ?? ''"
                                 :title="module.repository.name"
                             />
                         </td>

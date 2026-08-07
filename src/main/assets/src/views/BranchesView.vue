@@ -8,53 +8,48 @@ import ModuleTable from '@/components/ModuleTable.vue'
 import JobProgress from '@/components/JobProgress.vue'
 import { useModuleSelection } from '@/composables/useModuleSelection'
 import { useJobStatus } from '@/composables/useJobStatus'
-import { useCacheWarmup } from '@/composables/useCacheWarmup'
+import { useAsyncResource } from '@/composables/useAsyncResource'
 import { listBranchProjects, startBranchJob, type BranchAction } from '@/api/branches'
 import { errorMessage } from '@/api/http'
 import type { Project } from '@/api/types'
 
-const modules = ref<Project[]>([])
-const loading = ref(false)
-const error = ref('')
 const branchTitle = ref('')
 
+const {
+    data: modules,
+    loading,
+    error,
+} = useAsyncResource({
+    initial: [] as Project[],
+    load: async () => (await listBranchProjects()).data ?? [],
+    warmCache: true,
+})
+
 const names = computed(() => modules.value.map((m) => m.repository.name))
-const selection = useModuleSelection(names)
-const job = useJobStatus('branches')
-const { waitForCache } = useCacheWarmup()
+const { selected, allSelected, hasSelection } = useModuleSelection(names)
+const {
+    running: jobRunning,
+    progress: jobProgress,
+    byRepo: jobResults,
+    start: startJob,
+    resume: resumeJob,
+    reset: resetJob,
+} = useJobStatus('branches')
 
-const canStart = computed(
-    () => selection.hasSelection.value && branchTitle.value.trim() !== '' && !job.running.value,
-)
-
-async function load() {
-    loading.value = true
-    error.value = ''
-    try {
-        await waitForCache()
-        modules.value = (await listBranchProjects()).data ?? []
-    } catch (e) {
-        error.value = errorMessage(e)
-    } finally {
-        loading.value = false
-    }
-}
+const canStart = computed(() => hasSelection.value && branchTitle.value.trim() !== '' && !jobRunning.value)
 
 async function run(action: BranchAction) {
     error.value = ''
-    job.reset()
+    resetJob()
     try {
-        await startBranchJob(action, selection.selected.value, branchTitle.value.trim())
-        await job.start()
+        await startBranchJob(action, selected.value, branchTitle.value.trim())
+        await startJob()
     } catch (e) {
         error.value = errorMessage(e)
     }
 }
 
-onMounted(async () => {
-    await load()
-    await job.resume()
-})
+onMounted(resumeJob)
 </script>
 
 <template>
@@ -68,7 +63,7 @@ onMounted(async () => {
                 class="form-control form-control-sm"
                 style="width: 14rem"
                 placeholder="Branch name"
-                :disabled="job.running.value"
+                :disabled="jobRunning"
             />
             <button
                 type="button"
@@ -89,18 +84,16 @@ onMounted(async () => {
         </template>
 
         <ErrorAlert :message="error" @dismiss="error = ''" />
-        <JobProgress :progress="job.progress.value" :running="job.running.value" />
+        <JobProgress :progress="jobProgress" :running="jobRunning" />
         <LoadingBar :loading="loading" />
 
         <ModuleTable
             v-if="modules.length"
+            v-model:selected="selected"
+            v-model:all-selected="allSelected"
             :modules="modules"
-            :selected="selection.selected.value"
-            :all-selected="selection.allSelected.value"
-            :results="job.byRepo"
-            :disabled="job.running.value"
-            @update:selected="selection.selected.value = $event"
-            @update:all-selected="selection.allSelected.value = $event"
+            :results="jobResults"
+            :disabled="jobRunning"
         >
             <template #head>
                 <th scope="col">Current branch</th>
@@ -108,8 +101,8 @@ onMounted(async () => {
             <template #row="{ module }">
                 <td class="text-nowrap">
                     <!-- the job reports the new branch as each module completes, ahead of a reload -->
-                    <code v-if="job.byRepo[module.repository.name]?.branchName">
-                        {{ job.byRepo[module.repository.name]!.branchName }}
+                    <code v-if="jobResults[module.repository.name]?.branchName">
+                        {{ jobResults[module.repository.name]!.branchName }}
                     </code>
                     <code v-else-if="module.branchName">{{ module.branchName }}</code>
                     <span v-else class="text-body-secondary">—</span>

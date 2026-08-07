@@ -9,34 +9,33 @@ import JobProgress from '@/components/JobProgress.vue'
 import MilestoneActionModal from '@/components/MilestoneActionModal.vue'
 import { useModuleSelection } from '@/composables/useModuleSelection'
 import { useJobStatus } from '@/composables/useJobStatus'
-import { useCacheWarmup } from '@/composables/useCacheWarmup'
+import { useAsyncResource } from '@/composables/useAsyncResource'
 import { listMilestoneProjects, startMilestoneJob, type MilestoneAction } from '@/api/milestones'
 import { errorMessage } from '@/api/http'
 import type { Project } from '@/api/types'
 
-const modules = ref<Project[]>([])
-const loading = ref(false)
-const error = ref('')
+const {
+    data: modules,
+    loading,
+    error,
+} = useAsyncResource({
+    initial: [] as Project[],
+    load: async () => (await listMilestoneProjects()).data ?? [],
+    warmCache: true,
+})
 
 const names = computed(() => modules.value.map((m) => m.repository.name))
-const selection = useModuleSelection(names)
-const job = useJobStatus('milestone')
-const { waitForCache } = useCacheWarmup()
+const { selected, allSelected, hasSelection } = useModuleSelection(names)
+const {
+    running: jobRunning,
+    progress: jobProgress,
+    byRepo: jobResults,
+    start: startJob,
+    resume: resumeJob,
+    reset: resetJob,
+} = useJobStatus('milestone')
 
 const pendingAction = ref<MilestoneAction | null>(null)
-
-async function load() {
-    loading.value = true
-    error.value = ''
-    try {
-        await waitForCache()
-        modules.value = (await listMilestoneProjects()).data ?? []
-    } catch (e) {
-        error.value = errorMessage(e)
-    } finally {
-        loading.value = false
-    }
-}
 
 async function run(titles: { milestoneTitle?: string; milestoneNewTitle?: string }) {
     const action = pendingAction.value
@@ -46,20 +45,17 @@ async function run(titles: { milestoneTitle?: string; milestoneNewTitle?: string
     }
 
     error.value = ''
-    job.reset()
+    resetJob()
     try {
-        await startMilestoneJob(action, selection.selected.value, titles)
+        await startMilestoneJob(action, selected.value, titles)
         // the server binds its listener to the job current at connect time, so connect after this resolves
-        await job.start()
+        await startJob()
     } catch (e) {
         error.value = errorMessage(e)
     }
 }
 
-onMounted(async () => {
-    await load()
-    await job.resume()
-})
+onMounted(resumeJob)
 </script>
 
 <template>
@@ -70,7 +66,7 @@ onMounted(async () => {
                 :key="action"
                 type="button"
                 class="btn btn-sm btn-outline-primary"
-                :disabled="!selection.hasSelection.value || job.running.value"
+                :disabled="!hasSelection || jobRunning"
                 @click="pendingAction = action"
             >
                 {{ action[0]!.toUpperCase() + action.slice(1) }}
@@ -78,18 +74,16 @@ onMounted(async () => {
         </template>
 
         <ErrorAlert :message="error" @dismiss="error = ''" />
-        <JobProgress :progress="job.progress.value" :running="job.running.value" />
+        <JobProgress :progress="jobProgress" :running="jobRunning" />
         <LoadingBar :loading="loading" />
 
         <ModuleTable
             v-if="modules.length"
+            v-model:selected="selected"
+            v-model:all-selected="allSelected"
             :modules="modules"
-            :selected="selection.selected.value"
-            :all-selected="selection.allSelected.value"
-            :results="job.byRepo"
-            :disabled="job.running.value"
-            @update:selected="selection.selected.value = $event"
-            @update:all-selected="selection.allSelected.value = $event"
+            :results="jobResults"
+            :disabled="jobRunning"
         >
             <template #head>
                 <th scope="col">Open milestones</th>
@@ -119,7 +113,7 @@ onMounted(async () => {
 
         <MilestoneActionModal
             :action="pendingAction"
-            :modules="selection.selected.value"
+            :modules="selected"
             @confirm="run"
             @cancel="pendingAction = null"
         />
