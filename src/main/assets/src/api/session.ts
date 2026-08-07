@@ -6,13 +6,8 @@ export function fetchSession(): Promise<SessionInfo> {
 }
 
 /** True once the scheduled GitHub import has populated the local database. */
-export function checkCache(signal?: AbortSignal): Promise<boolean> {
-    return fetch('/api/checkCache', { credentials: 'same-origin', signal }).then((r) => {
-        if (!r.ok) {
-            throw new Error(`HTTP ${r.status}`)
-        }
-        return r.json() as Promise<boolean>
-    })
+export function checkCache(): Promise<boolean> {
+    return getJson<boolean>('/checkCache')
 }
 
 export function fetchToolCheck(): Promise<ToolCheck> {

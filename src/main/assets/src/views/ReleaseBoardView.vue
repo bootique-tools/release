@@ -8,37 +8,85 @@ import StatusBadge from '@/components/StatusBadge.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
 import LogModal from '@/components/LogModal.vue'
 import { useReleaseBoard } from '@/composables/useReleaseBoard'
+import { useReleaseSummary } from '@/composables/useReleaseSummary'
 import * as api from '@/api/releaseProcess'
-import { fetchReleaseSummary } from '@/api/releaseSelect'
 import { errorMessage } from '@/api/http'
-import {
-    STAGE_LABELS,
-    type ReleaseStage,
-    type ReleaseStageStatus,
-    type RepositoryDescriptor,
-} from '@/api/types'
+import { STAGE_LABELS, type ReleaseStage, type RepositoryDescriptor } from '@/api/types'
 import {
     canDropRelease,
-    canResumeFrom,
     canRollbackRelease,
-    canRollbackStage,
-    fullRollbackFailed,
-    isRolledBack,
-    isSettled,
     logKind,
     releaseRunning,
+    stageActions,
+    statusOf,
     syncEnabled,
+    type StageAction,
 } from '@/domain/releaseBoard'
 
 const router = useRouter()
 const board = useReleaseBoard()
 
-const summary = ref<{ releaseVersion: string | null; devVersion: string | null } | null>(null)
+// the route guard has just fetched this, so the board never re-requests it
+const { summary } = useReleaseSummary()
 const confirm = ref<'drop' | 'rollback' | null>(null)
 const confirmBusy = ref(false)
 
 const list = computed(() => board.repositories.value)
 const running = computed(() => releaseRunning(list.value))
+
+interface ActionSpec {
+    icon: string
+    /** Both the tooltip and, expanded with the repository and stage, the accessible name. */
+    title: string
+    variant: string
+    run: (descriptor: RepositoryDescriptor, stage: ReleaseStage) => void
+}
+
+/** How each cell action presents, and what it calls. Visibility is decided in the domain layer. */
+const ACTIONS: Record<StageAction, ActionSpec> = {
+    log: {
+        icon: 'bi-info-circle',
+        title: 'Show log',
+        variant: 'btn-outline-secondary',
+        run: (d, stage) => openLog(d.repositoryName, stage, logKind(statusOf(d, stage), stage) ?? 'release'),
+    },
+    rollback: {
+        icon: 'bi-chevron-double-left',
+        title: 'Roll this stage back',
+        variant: 'btn-outline-info',
+        run: (d, stage) => board.act(() => api.rollbackRepository(d.repositoryName, stage)),
+    },
+    restart: {
+        icon: 'bi-arrow-clockwise',
+        title: 'Restart this stage',
+        variant: 'btn-outline-dark',
+        run: (d, stage) => board.act(() => api.restartStage(d.repositoryName, stage)),
+    },
+    skip: {
+        icon: 'bi-skip-forward-fill',
+        title: 'Skip this stage',
+        variant: 'btn-outline-success',
+        run: (d, stage) => board.act(() => api.skipStage(d.repositoryName, stage)),
+    },
+    resume: {
+        icon: 'bi-chevron-double-right',
+        title: 'Resume from this stage',
+        variant: 'btn-outline-success',
+        run: (d, stage) => board.act(() => api.restartStage(d.repositoryName, stage)),
+    },
+    retryRollback: {
+        icon: 'bi-arrow-clockwise',
+        title: 'Retry the rollback',
+        variant: 'btn-outline-dark',
+        run: (d, stage) => board.act(() => api.rollbackRepository(d.repositoryName, stage)),
+    },
+    skipRollback: {
+        icon: 'bi-skip-forward-fill',
+        title: 'Skip the rollback',
+        variant: 'btn-outline-success',
+        run: (d, stage) => board.act(() => api.skipRollback(d.repositoryName, stage)),
+    },
+}
 
 // one modal for the whole board, rather than one rendered inside every cell
 const log = ref({
@@ -50,10 +98,6 @@ const log = ref({
     loading: false,
     error: '',
 })
-
-function statusOf(descriptor: RepositoryDescriptor, stage: ReleaseStage): ReleaseStageStatus {
-    return descriptor.stageStatusMap[stage]
-}
 
 // opening a second log while the first is in flight must not let the first response land in it
 let logRequest = 0
@@ -95,10 +139,7 @@ async function runConfirmed() {
     }
 }
 
-onMounted(async () => {
-    summary.value = await fetchReleaseSummary().catch(() => null)
-    await board.start()
-})
+onMounted(board.start)
 </script>
 
 <template>
@@ -170,148 +211,18 @@ onMounted(async () => {
 
                                 <div class="btn-group btn-group-sm">
                                     <button
-                                        v-if="logKind(statusOf(descriptor, stage), stage)"
+                                        v-for="action in stageActions(list, descriptor, stage)"
+                                        :key="action"
                                         type="button"
-                                        class="btn btn-outline-secondary"
-                                        :aria-label="`Show log for ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
-                                        title="Show log"
-                                        @click="
-                                            openLog(
-                                                descriptor.repositoryName,
-                                                stage,
-                                                logKind(statusOf(descriptor, stage), stage)!,
-                                            )
-                                        "
+                                        class="btn"
+                                        :class="ACTIONS[action].variant"
+                                        :disabled="action !== 'log' && running"
+                                        :title="ACTIONS[action].title"
+                                        :aria-label="`${ACTIONS[action].title} - ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
+                                        @click="ACTIONS[action].run(descriptor, stage)"
                                     >
-                                        <i class="bi bi-info-circle" aria-hidden="true"></i>
+                                        <i class="bi" :class="ACTIONS[action].icon" aria-hidden="true"></i>
                                     </button>
-
-                                    <template v-if="isSettled(statusOf(descriptor, stage))">
-                                        <button
-                                            v-if="canRollbackStage(list, descriptor, stage)"
-                                            type="button"
-                                            class="btn btn-outline-info"
-                                            :disabled="running"
-                                            title="Roll this stage back"
-                                            :aria-label="`Roll back ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
-                                            @click="
-                                                board.act(() =>
-                                                    api.rollbackRepository(descriptor.repositoryName, stage),
-                                                )
-                                            "
-                                        >
-                                            <i class="bi bi-chevron-double-left" aria-hidden="true"></i>
-                                        </button>
-
-                                        <template v-if="statusOf(descriptor, stage) === 'Fail'">
-                                            <button
-                                                type="button"
-                                                class="btn btn-outline-dark"
-                                                :disabled="running"
-                                                title="Restart this stage"
-                                                :aria-label="`Restart ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
-                                                @click="
-                                                    board.act(() =>
-                                                        api.restartStage(descriptor.repositoryName, stage),
-                                                    )
-                                                "
-                                            >
-                                                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-                                            </button>
-                                            <button
-                                                type="button"
-                                                class="btn btn-outline-success"
-                                                :disabled="running"
-                                                title="Skip this stage"
-                                                :aria-label="`Skip ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
-                                                @click="
-                                                    board.act(() =>
-                                                        api.skipStage(descriptor.repositoryName, stage),
-                                                    )
-                                                "
-                                            >
-                                                <i class="bi bi-skip-forward-fill" aria-hidden="true"></i>
-                                            </button>
-                                        </template>
-                                    </template>
-
-                                    <template v-else-if="isRolledBack(statusOf(descriptor, stage))">
-                                        <!-- exactly one cell per repository is the point to resume forward from -->
-                                        <button
-                                            v-if="
-                                                statusOf(descriptor, stage) === 'Rollback' &&
-                                                canResumeFrom(descriptor, stage)
-                                            "
-                                            type="button"
-                                            class="btn btn-outline-success"
-                                            :disabled="running"
-                                            title="Resume from this stage"
-                                            :aria-label="`Resume ${descriptor.repositoryName} from ${STAGE_LABELS[stage]}`"
-                                            @click="
-                                                board.act(() =>
-                                                    api.restartStage(descriptor.repositoryName, stage),
-                                                )
-                                            "
-                                        >
-                                            <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
-                                        </button>
-
-                                        <template v-if="statusOf(descriptor, stage) === 'Fail_Rollback'">
-                                            <button
-                                                v-if="
-                                                    fullRollbackFailed(descriptor) && stage === 'RELEASE_PULL'
-                                                "
-                                                type="button"
-                                                class="btn btn-outline-success"
-                                                :disabled="running"
-                                                title="Resume from this stage"
-                                                :aria-label="`Resume ${descriptor.repositoryName} from ${STAGE_LABELS[stage]}`"
-                                                @click="
-                                                    board.act(() =>
-                                                        api.restartStage(descriptor.repositoryName, stage),
-                                                    )
-                                                "
-                                            >
-                                                <i class="bi bi-chevron-double-right" aria-hidden="true"></i>
-                                            </button>
-                                            <template v-else-if="!fullRollbackFailed(descriptor)">
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-outline-dark"
-                                                    :disabled="running"
-                                                    title="Retry the rollback"
-                                                    :aria-label="`Retry rollback of ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
-                                                    @click="
-                                                        board.act(() =>
-                                                            api.rollbackRepository(
-                                                                descriptor.repositoryName,
-                                                                stage,
-                                                            ),
-                                                        )
-                                                    "
-                                                >
-                                                    <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-outline-success"
-                                                    :disabled="running"
-                                                    title="Skip the rollback"
-                                                    :aria-label="`Skip rollback of ${descriptor.repositoryName} ${STAGE_LABELS[stage]}`"
-                                                    @click="
-                                                        board.act(() =>
-                                                            api.skipRollback(
-                                                                descriptor.repositoryName,
-                                                                stage,
-                                                            ),
-                                                        )
-                                                    "
-                                                >
-                                                    <i class="bi bi-skip-forward-fill" aria-hidden="true"></i>
-                                                </button>
-                                            </template>
-                                        </template>
-                                    </template>
                                 </div>
                             </div>
                         </td>

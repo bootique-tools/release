@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
-import { fetchReleaseSummary } from '@/api/releaseSelect'
+import { useReleaseSummary } from '@/composables/useReleaseSummary'
 
 export type IssueKind = 'issue' | 'pr'
 
@@ -16,7 +16,7 @@ declare module 'vue-router' {
  * landing: it cannot act on a release that may not exist.
  */
 async function hasRelease(): Promise<boolean> {
-    const summary = await fetchReleaseSummary().catch(() => null)
+    const summary = await useReleaseSummary().refresh()
     return summary?.hasDescriptor === true
 }
 

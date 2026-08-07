@@ -12,6 +12,8 @@ import {
     logKind,
     releaseFinished,
     releaseRunning,
+    stageActions,
+    statusOf,
     syncEnabled,
     syncStarted,
 } from './releaseBoard'
@@ -212,5 +214,69 @@ describe('logKind', () => {
     it('offers nothing for stages that have not run', () => {
         expect(logKind('Not_Start', 'RELEASE_PULL')).toBeNull()
         expect(logKind('In_Progress', 'RELEASE_PREPARE')).toBeNull()
+    })
+})
+
+describe('statusOf', () => {
+    it('reads a stage status out of a descriptor', () => {
+        expect(statusOf(PERFORMED, 'RELEASE_PERFORM')).toBe('Success')
+        expect(statusOf(PERFORMED, 'RELEASE_SYNC')).toBe('Not_Start')
+    })
+})
+
+describe('stageActions', () => {
+    it('offers nothing for a stage that has not run', () => {
+        expect(stageActions([NOT_STARTED], NOT_STARTED, 'RELEASE_PULL')).toEqual([])
+    })
+
+    it('offers nothing but hides the log while a stage is in progress', () => {
+        const running = repo('a', ['Success', 'In_Progress', 'Not_Start', 'Not_Start', 'Not_Start'])
+        expect(stageActions([running], running, 'RELEASE_VALIDATION')).toEqual([])
+    })
+
+    it('offers only the log for a stage that succeeded and cannot be rolled back', () => {
+        expect(stageActions([PERFORMED], PERFORMED, 'RELEASE_PULL')).toEqual(['log'])
+    })
+
+    it('offers a rollback on perform, and on prepare while perform has not run', () => {
+        const prepared = repo('a', ['Success', 'Success', 'Success', 'Not_Start', 'Not_Start'])
+        expect(stageActions([prepared], prepared, 'RELEASE_PREPARE')).toEqual(['log', 'rollback'])
+        expect(stageActions([PERFORMED], PERFORMED, 'RELEASE_PERFORM')).toEqual(['log', 'rollback'])
+    })
+
+    it('drops the rollback on prepare once perform has succeeded', () => {
+        expect(stageActions([PERFORMED], PERFORMED, 'RELEASE_PREPARE')).toEqual(['log'])
+    })
+
+    it('drops every rollback once any repository has entered sync', () => {
+        const syncing = repo('b', ['Success', 'Success', 'Success', 'Success', 'In_Progress'])
+        expect(stageActions([PERFORMED, syncing], PERFORMED, 'RELEASE_PERFORM')).toEqual(['log'])
+    })
+
+    it('offers restart and skip for a failure', () => {
+        const failed = repo('a', ['Success', 'Fail', 'Not_Start', 'Not_Start', 'Not_Start'])
+        expect(stageActions([failed], failed, 'RELEASE_VALIDATION')).toEqual(['log', 'restart', 'skip'])
+    })
+
+    it('offers a resume only on the stage the rollback reached last', () => {
+        const rolled = repo('a', ['Success', 'Success', 'Rollback', 'Rollback', 'Not_Start'])
+        expect(stageActions([rolled], rolled, 'RELEASE_PREPARE')).toEqual(['log', 'resume'])
+        expect(stageActions([rolled], rolled, 'RELEASE_PERFORM')).toEqual(['log'])
+    })
+
+    it('offers retrying or skipping a rollback that failed part-way back', () => {
+        const failed = repo('a', ['Success', 'Success', 'Rollback', 'Fail_Rollback', 'Not_Start'])
+        expect(stageActions([failed], failed, 'RELEASE_PERFORM')).toEqual([
+            'log',
+            'retryRollback',
+            'skipRollback',
+        ])
+    })
+
+    it('offers only a way forward once the rollback has failed at the first stage', () => {
+        // nothing is left to roll back to, so retrying or skipping the rollback would be a dead end
+        const failed = repo('a', ['Fail_Rollback', 'Rollback', 'Rollback', 'Rollback', 'Not_Start'])
+        expect(stageActions([failed], failed, 'RELEASE_PULL')).toEqual(['resume'])
+        expect(stageActions([failed], failed, 'RELEASE_PREPARE')).toEqual(['log'])
     })
 })

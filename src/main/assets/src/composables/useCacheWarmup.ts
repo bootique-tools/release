@@ -10,14 +10,8 @@ const error = ref('')
 
 let pending: Promise<void> | null = null
 
-function sleep(ms: number, signal?: AbortSignal): Promise<void> {
-    return new Promise((resolve) => {
-        const timer = setTimeout(resolve, ms)
-        signal?.addEventListener('abort', () => {
-            clearTimeout(timer)
-            resolve()
-        })
-    })
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function poll(): Promise<void> {
@@ -49,7 +43,7 @@ async function poll(): Promise<void> {
  */
 export function useCacheWarmup() {
     return {
-        ready: readonly(ready),
+        /** Set once the poller has given up, so App.vue can say the backend is unreachable. */
         error: readonly(error),
 
         waitForCache(): Promise<void> {

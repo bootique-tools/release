@@ -21,7 +21,7 @@ export const isFinishedOk = (status: ReleaseStageStatus): boolean => status === 
 export const isRolledBack = (status: ReleaseStageStatus): boolean =>
     status === 'Rollback' || status === 'Fail_Rollback'
 
-const statusOf = (descriptor: RepositoryDescriptor, stage: ReleaseStage): ReleaseStageStatus =>
+export const statusOf = (descriptor: RepositoryDescriptor, stage: ReleaseStage): ReleaseStageStatus =>
     descriptor.stageStatusMap[stage]
 
 /** A stage is running somewhere, so every mutating action must be disabled. */
@@ -109,4 +109,63 @@ export function logKind(status: ReleaseStageStatus, stage: ReleaseStage): 'relea
         return 'rollback'
     }
     return null
+}
+
+/**
+ * An action offered by one repository x stage cell on the board.
+ *
+ * `restart` and `resume` both re-run the stage; they are distinguished because they mean different
+ * things to the operator - retrying a failure versus stepping forward again after a rollback - and
+ * so carry different icons and wording.
+ */
+export type StageAction =
+    'log' | 'rollback' | 'restart' | 'skip' | 'resume' | 'retryRollback' | 'skipRollback'
+
+/**
+ * Every action a cell offers, in display order. Composing the predicates here rather than in the
+ * board template is what makes button visibility testable.
+ */
+export function stageActions(
+    list: RepositoryDescriptor[],
+    descriptor: RepositoryDescriptor,
+    stage: ReleaseStage,
+): StageAction[] {
+    const status = statusOf(descriptor, stage)
+    const actions: StageAction[] = []
+
+    if (logKind(status, stage)) {
+        actions.push('log')
+    }
+
+    if (isSettled(status)) {
+        if (canRollbackStage(list, descriptor, stage)) {
+            actions.push('rollback')
+        }
+        if (status === 'Fail') {
+            actions.push('restart', 'skip')
+        }
+        return actions
+    }
+
+    if (!isRolledBack(status)) {
+        return actions
+    }
+
+    if (status === 'Rollback') {
+        if (canResumeFrom(descriptor, stage)) {
+            actions.push('resume')
+        }
+        return actions
+    }
+
+    // Fail_Rollback. A rollback that failed at the very first stage has nowhere further back to go,
+    // so the only way out is forward; anywhere else, the rollback itself can be retried or skipped.
+    if (fullRollbackFailed(descriptor)) {
+        if (stage === 'RELEASE_PULL') {
+            actions.push('resume')
+        }
+    } else {
+        actions.push('retryRollback', 'skipRollback')
+    }
+    return actions
 }
