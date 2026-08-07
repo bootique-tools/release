@@ -1,0 +1,5 @@
+# Revisions that are pure reformatting. Tell git to skip them in blame:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style(ui): apply Prettier
+8f658b36bc3098cf9a0760ae5721845c952bce1d

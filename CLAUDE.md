@@ -30,7 +30,9 @@ java --add-opens java.base/sun.net.www.protocol.https=ALL-UNNAMED \
      -jar target/release-1.0-SNAPSHOT.jar
 ```
 
-Frontend-only iteration (from `src/main/assets/`): `npm run build:watch` rebuilds into `target/classes/static/ui/` on save; reload `http://127.0.0.1:9999/ui/` by hand (hard-reload, since watch mode uses stable filenames). Also `npm run typecheck` and `npm test`. There is deliberately **no Vite dev server** — the app must be served by Jetty so `/api` and the WebSockets resolve.
+Frontend-only iteration (from `src/main/assets/`): `npm run build:watch` rebuilds into `target/classes/static/ui/` on save; reload `http://127.0.0.1:9999/ui/` by hand (hard-reload, since watch mode uses stable filenames). Also `npm run typecheck`, `npm test`, `npm run lint` (Prettier `--check` + ESLint) and `npm run format`. There is deliberately **no Vite dev server** — the app must be served by Jetty so `/api` and the WebSockets resolve.
+
+`npm run lint` is bound to the Maven **`verify`** phase, not to the build, so a style warning never blocks producing an artifact. One-time setup so `git blame` skips the Prettier reformat: `git config blame.ignoreRevsFile .git-blame-ignore-revs`.
 
 ## Configuration
 
