@@ -65,35 +65,46 @@ onMounted(async () => {
 <template>
     <PageShell title="Milestones" subtitle="Create, close or rename milestones across modules">
         <template #actions>
-            <button v-for="action in (['create', 'close', 'rename'] as MilestoneAction[])"
-                    :key="action" type="button" class="btn btn-sm btn-outline-primary"
-                    :disabled="!selection.hasSelection.value || job.running.value"
-                    @click="pendingAction = action">
+            <button
+                v-for="action in ['create', 'close', 'rename'] as MilestoneAction[]"
+                :key="action"
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                :disabled="!selection.hasSelection.value || job.running.value"
+                @click="pendingAction = action"
+            >
                 {{ action[0]!.toUpperCase() + action.slice(1) }}
             </button>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''"/>
-        <JobProgress :progress="job.progress.value" :running="job.running.value"/>
-        <LoadingBar :loading="loading"/>
+        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <JobProgress :progress="job.progress.value" :running="job.running.value" />
+        <LoadingBar :loading="loading" />
 
-        <ModuleTable v-if="modules.length" :modules="modules"
-                     :selected="selection.selected.value"
-                     :all-selected="selection.allSelected.value"
-                     :results="job.byRepo" :disabled="job.running.value"
-                     @update:selected="selection.selected.value = $event"
-                     @update:all-selected="selection.allSelected.value = $event">
+        <ModuleTable
+            v-if="modules.length"
+            :modules="modules"
+            :selected="selection.selected.value"
+            :all-selected="selection.allSelected.value"
+            :results="job.byRepo"
+            :disabled="job.running.value"
+            @update:selected="selection.selected.value = $event"
+            @update:all-selected="selection.allSelected.value = $event"
+        >
             <template #head>
                 <th scope="col">Open milestones</th>
             </template>
             <template #row="{ module }">
                 <td>
-                    <div v-for="milestone in module.repository.milestones" :key="milestone.id"
-                         class="small">
+                    <div v-for="milestone in module.repository.milestones" :key="milestone.id" class="small">
                         <a :href="milestone.url" target="_blank" rel="noopener">{{ milestone.title }}</a>
                         <RouterLink
-                            :to="{ path: '/issue', query: { filter: 'milestone.title', field: milestone.title } }"
-                            class="badge text-bg-secondary ms-1 text-decoration-none">
+                            :to="{
+                                path: '/issue',
+                                query: { filter: 'milestone.title', field: milestone.title },
+                            }"
+                            class="badge text-bg-secondary ms-1 text-decoration-none"
+                        >
                             {{ milestone.openIssues?.length ?? 0 }} issues
                         </RouterLink>
                     </div>
@@ -104,9 +115,13 @@ onMounted(async () => {
             </template>
         </ModuleTable>
 
-        <EmptyState v-else-if="!loading" message="No modules found." icon="bi-flag"/>
+        <EmptyState v-else-if="!loading" message="No modules found." icon="bi-flag" />
 
-        <MilestoneActionModal :action="pendingAction" :modules="selection.selected.value"
-                              @confirm="run" @cancel="pendingAction = null"/>
+        <MilestoneActionModal
+            :action="pendingAction"
+            :modules="selection.selected.value"
+            @confirm="run"
+            @cancel="pendingAction = null"
+        />
     </PageShell>
 </template>

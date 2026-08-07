@@ -46,30 +46,42 @@ async function copy() {
             </button>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''"/>
+        <ErrorAlert :message="error" @dismiss="error = ''" />
 
         <div class="row g-2 align-items-end mb-3">
             <div class="col-sm-5">
                 <label class="form-label" for="milestone-title">Milestone title</label>
-                <input id="milestone-title" v-model="milestoneTitle" type="text" class="form-control"
-                       placeholder="e.g. 4.0.M1" @keyup.enter="canGenerate && generate(false)"/>
+                <input
+                    id="milestone-title"
+                    v-model="milestoneTitle"
+                    type="text"
+                    class="form-control"
+                    placeholder="e.g. 4.0.M1"
+                    @keyup.enter="canGenerate && generate(false)"
+                />
             </div>
             <div class="col-sm-auto">
-                <button type="button" class="btn btn-success" :disabled="!canGenerate"
-                        @click="generate(false)">
+                <button
+                    type="button"
+                    class="btn btn-success"
+                    :disabled="!canGenerate"
+                    @click="generate(false)"
+                >
                     Issues done
                 </button>
             </div>
             <div class="col-sm-auto">
-                <button type="button" class="btn btn-info" :disabled="!canGenerate"
-                        @click="generate(true)">
+                <button type="button" class="btn btn-info" :disabled="!canGenerate" @click="generate(true)">
                     Issues to do
                 </button>
             </div>
         </div>
 
-        <LoadingBar :loading="loading"/>
+        <LoadingBar :loading="loading" />
 
-        <pre v-if="notes" class="log-output border rounded p-3 bg-body-tertiary mb-0"><code>{{ notes }}</code></pre>
+        <pre
+            v-if="notes"
+            class="log-output border rounded p-3 bg-body-tertiary mb-0"
+        ><code>{{ notes }}</code></pre>
     </PageShell>
 </template>

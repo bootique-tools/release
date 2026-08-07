@@ -19,10 +19,13 @@ const ariaSort = computed(() =>
 <template>
     <th scope="col" :aria-sort="ariaSort">
         <button type="button" class="btn btn-link btn-sm th-sort p-0" @click="emit('sort', field)">
-            <slot/>
-            <i v-if="active" class="bi ms-1"
-               :class="direction === 'ASC' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"
-               aria-hidden="true"></i>
+            <slot />
+            <i
+                v-if="active"
+                class="bi ms-1"
+                :class="direction === 'ASC' ? 'bi-caret-up-fill' : 'bi-caret-down-fill'"
+                aria-hidden="true"
+            ></i>
         </button>
     </th>
 </template>

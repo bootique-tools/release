@@ -32,10 +32,13 @@ const spinning = computed(() => effective.value === 'In_Progress' || effective.v
 </script>
 
 <template>
-    <span v-if="effective" class="badge d-inline-flex align-items-center gap-1"
-          :class="`text-bg-${variant}`">
-        <span v-if="spinning" class="spinner-border spinner-border-sm" aria-hidden="true"
-              style="width: .6em; height: .6em;"></span>
+    <span v-if="effective" class="badge d-inline-flex align-items-center gap-1" :class="`text-bg-${variant}`">
+        <span
+            v-if="spinning"
+            class="spinner-border spinner-border-sm"
+            aria-hidden="true"
+            style="width: 0.6em; height: 0.6em"
+        ></span>
         {{ label }}
     </span>
 </template>

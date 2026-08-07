@@ -172,9 +172,7 @@ describe('canRollbackStage', () => {
 })
 
 describe('resuming after a rollback', () => {
-    const rolledToPrepare = repo('a', [
-        'Success', 'Success', 'Rollback', 'Rollback', 'Not_Start',
-    ])
+    const rolledToPrepare = repo('a', ['Success', 'Success', 'Rollback', 'Rollback', 'Not_Start'])
 
     it('finds the earliest rolled-back stage in pipeline order', () => {
         expect(firstRolledBackStage(rolledToPrepare)).toBe('RELEASE_PREPARE')
@@ -192,9 +190,7 @@ describe('resuming after a rollback', () => {
     })
 
     it('detects a rollback that failed all the way back at pull', () => {
-        const failedAtPull = repo('a', [
-            'Fail_Rollback', 'Rollback', 'Rollback', 'Rollback', 'Not_Start',
-        ])
+        const failedAtPull = repo('a', ['Fail_Rollback', 'Rollback', 'Rollback', 'Rollback', 'Not_Start'])
         expect(fullRollbackFailed(failedAtPull)).toBe(true)
         expect(fullRollbackFailed(rolledToPrepare)).toBe(false)
     })

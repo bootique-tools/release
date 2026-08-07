@@ -14,7 +14,8 @@
         background-color: var(--bs-body-bg);
     }
 
-    td, th {
+    td,
+    th {
         white-space: nowrap;
         vertical-align: middle;
     }
@@ -32,7 +33,7 @@
 .log-output {
     max-height: 60vh;
     overflow: auto;
-    font-size: .8125rem;
+    font-size: 0.8125rem;
     white-space: pre-wrap;
     word-break: break-word;
 }

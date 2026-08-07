@@ -1,4 +1,9 @@
-import { RELEASE_STAGES, type ReleaseStage, type ReleaseStageStatus, type RepositoryDescriptor } from '@/api/types'
+import {
+    RELEASE_STAGES,
+    type ReleaseStage,
+    type ReleaseStageStatus,
+    type RepositoryDescriptor,
+} from '@/api/types'
 
 /**
  * Predicates driving the release board, as pure functions over the descriptor list.
@@ -11,8 +16,7 @@ import { RELEASE_STAGES, type ReleaseStage, type ReleaseStageStatus, type Reposi
 export const isSettled = (status: ReleaseStageStatus): boolean =>
     status === 'Success' || status === 'Skip' || status === 'Fail'
 
-export const isFinishedOk = (status: ReleaseStageStatus): boolean =>
-    status === 'Success' || status === 'Skip'
+export const isFinishedOk = (status: ReleaseStageStatus): boolean => status === 'Success' || status === 'Skip'
 
 export const isRolledBack = (status: ReleaseStageStatus): boolean =>
     status === 'Rollback' || status === 'Fail_Rollback'
@@ -97,10 +101,7 @@ export function fullRollbackFailed(descriptor: RepositoryDescriptor): boolean {
 }
 
 /** Which log a cell's info button should open, or null when it has none. */
-export function logKind(
-    status: ReleaseStageStatus,
-    stage: ReleaseStage,
-): 'release' | 'rollback' | null {
+export function logKind(status: ReleaseStageStatus, stage: ReleaseStage): 'release' | 'rollback' | null {
     if (isSettled(status)) {
         return 'release'
     }

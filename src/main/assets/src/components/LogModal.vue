@@ -16,9 +16,12 @@ const emit = defineEmits<{ close: [] }>()
 </script>
 
 <template>
-    <AppModal :open="open" size="xl"
-              :title="`${kind === 'rollback' ? 'Rollback' : 'Release'} log`"
-              @close="emit('close')">
+    <AppModal
+        :open="open"
+        size="xl"
+        :title="`${kind === 'rollback' ? 'Rollback' : 'Release'} log`"
+        @close="emit('close')"
+    >
         <p class="text-body-secondary small mb-2">
             {{ repository }} <span aria-hidden="true">·</span>
             {{ stage ? STAGE_LABELS[stage] : '' }}

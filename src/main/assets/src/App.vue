@@ -12,12 +12,12 @@ const validationOpen = ref(false)
 -->
 
 <template>
-    <AppNav @validate-pom="validationOpen = true"/>
+    <AppNav @validate-pom="validationOpen = true" />
 
     <main class="container-xxl py-4">
         <RouterView v-slot="{ Component, route }">
             <Suspense>
-                <component :is="Component" :key="route.path"/>
+                <component :is="Component" :key="route.path" />
                 <template #fallback>
                     <div class="text-center text-body-secondary py-5">
                         <span class="spinner-border" aria-hidden="true"></span>
@@ -27,5 +27,5 @@ const validationOpen = ref(false)
         </RouterView>
     </main>
 
-    <ValidationModal :open="validationOpen" @close="validationOpen = false"/>
+    <ValidationModal :open="validationOpen" @close="validationOpen = false" />
 </template>

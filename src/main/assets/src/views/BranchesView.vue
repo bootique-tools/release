@@ -61,28 +61,47 @@ onMounted(async () => {
     <PageShell title="Branches" subtitle="Create or check out a branch across modules">
         <template #actions>
             <label class="visually-hidden" for="branch-title">Branch name</label>
-            <input id="branch-title" v-model="branchTitle" type="text" class="form-control form-control-sm"
-                   style="width: 14rem" placeholder="Branch name" :disabled="job.running.value"/>
-            <button type="button" class="btn btn-sm btn-outline-primary" :disabled="!canStart"
-                    @click="run('createBranch')">
+            <input
+                id="branch-title"
+                v-model="branchTitle"
+                type="text"
+                class="form-control form-control-sm"
+                style="width: 14rem"
+                placeholder="Branch name"
+                :disabled="job.running.value"
+            />
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                :disabled="!canStart"
+                @click="run('createBranch')"
+            >
                 Create
             </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" :disabled="!canStart"
-                    @click="run('checkoutBranch')">
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-secondary"
+                :disabled="!canStart"
+                @click="run('checkoutBranch')"
+            >
                 Check out
             </button>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''"/>
-        <JobProgress :progress="job.progress.value" :running="job.running.value"/>
-        <LoadingBar :loading="loading"/>
+        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <JobProgress :progress="job.progress.value" :running="job.running.value" />
+        <LoadingBar :loading="loading" />
 
-        <ModuleTable v-if="modules.length" :modules="modules"
-                     :selected="selection.selected.value"
-                     :all-selected="selection.allSelected.value"
-                     :results="job.byRepo" :disabled="job.running.value"
-                     @update:selected="selection.selected.value = $event"
-                     @update:all-selected="selection.allSelected.value = $event">
+        <ModuleTable
+            v-if="modules.length"
+            :modules="modules"
+            :selected="selection.selected.value"
+            :all-selected="selection.allSelected.value"
+            :results="job.byRepo"
+            :disabled="job.running.value"
+            @update:selected="selection.selected.value = $event"
+            @update:all-selected="selection.allSelected.value = $event"
+        >
             <template #head>
                 <th scope="col">Current branch</th>
             </template>
@@ -98,6 +117,6 @@ onMounted(async () => {
             </template>
         </ModuleTable>
 
-        <EmptyState v-else-if="!loading" message="No modules found." icon="bi-signpost"/>
+        <EmptyState v-else-if="!loading" message="No modules found." icon="bi-signpost" />
     </PageShell>
 </template>

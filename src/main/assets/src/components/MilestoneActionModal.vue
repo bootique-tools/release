@@ -77,8 +77,7 @@ function confirm() {
 
         <div v-if="needsExisting" class="mb-3">
             <label class="form-label" for="milestone-current">Current milestone title</label>
-            <select id="milestone-current" v-model="currentTitle" class="form-select"
-                    :disabled="loading">
+            <select id="milestone-current" v-model="currentTitle" class="form-select" :disabled="loading">
                 <option v-for="title in titles" :key="title" :value="title">{{ title }}</option>
             </select>
             <p v-if="!loading && !titles.length" class="form-text text-warning-emphasis">
@@ -88,8 +87,13 @@ function confirm() {
 
         <div v-if="needsNew">
             <label class="form-label" for="milestone-new">New milestone title</label>
-            <input id="milestone-new" v-model="newTitle" type="text" class="form-control"
-                   placeholder="e.g. 4.0.M1"/>
+            <input
+                id="milestone-new"
+                v-model="newTitle"
+                type="text"
+                class="form-control"
+                placeholder="e.g. 4.0.M1"
+            />
         </div>
 
         <template #footer>

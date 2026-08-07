@@ -48,17 +48,26 @@ onBeforeUnmount(() => {
 <template>
     <Teleport to="body">
         <template v-if="open">
-            <div class="modal fade show d-block" tabindex="-1" role="dialog"
-                 :aria-label="title" @click.self="emit('close')">
+            <div
+                class="modal fade show d-block"
+                tabindex="-1"
+                role="dialog"
+                :aria-label="title"
+                @click.self="emit('close')"
+            >
                 <div class="modal-dialog modal-dialog-scrollable" :class="`modal-${size}`">
                     <div ref="dialog" class="modal-content" tabindex="-1">
                         <div class="modal-header">
                             <h5 class="modal-title">{{ title }}</h5>
-                            <button type="button" class="btn-close" aria-label="Close"
-                                    @click="emit('close')"></button>
+                            <button
+                                type="button"
+                                class="btn-close"
+                                aria-label="Close"
+                                @click="emit('close')"
+                            ></button>
                         </div>
                         <div class="modal-body">
-                            <slot/>
+                            <slot />
                         </div>
                         <div class="modal-footer">
                             <slot name="footer">

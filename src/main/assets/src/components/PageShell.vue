@@ -9,9 +9,9 @@ defineProps<{ title: string; subtitle?: string }>()
             <p v-if="subtitle" class="text-body-secondary small mb-0">{{ subtitle }}</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <slot name="actions"/>
+            <slot name="actions" />
         </div>
     </header>
 
-    <slot/>
+    <slot />
 </template>

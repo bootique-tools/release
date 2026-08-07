@@ -36,7 +36,11 @@ export default defineConfig(({ mode }) => {
                     api: 'modern-compiler',
                     // Bootstrap 5.3 still uses @import, if(), and the legacy color functions internally
                     silenceDeprecations: [
-                        'import', 'global-builtin', 'color-functions', 'mixed-decls', 'if-function',
+                        'import',
+                        'global-builtin',
+                        'color-functions',
+                        'mixed-decls',
+                        'if-function',
                     ],
                 },
             },

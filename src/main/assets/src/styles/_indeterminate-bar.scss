@@ -2,7 +2,7 @@
 // Animates transform rather than left, so it stays on the compositor.
 
 .indeterminate-bar {
-    height: .5rem;
+    height: 0.5rem;
     overflow: hidden;
     border-radius: var(--bs-border-radius);
     background-color: var(--bs-secondary-bg);
@@ -16,14 +16,18 @@
 }
 
 @keyframes bq-bar-travel {
-    from { transform: translateX(-4%); }
-    to { transform: translateX(304%); }
+    from {
+        transform: translateX(-4%);
+    }
+    to {
+        transform: translateX(304%);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .indeterminate-bar__block {
         animation: none;
         width: 100%;
-        opacity: .4;
+        opacity: 0.4;
     }
 }

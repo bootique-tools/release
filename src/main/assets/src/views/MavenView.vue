@@ -54,60 +54,74 @@ onMounted(async () => {
 </script>
 
 <template>
-    <PageShell title="Maven projects"
-               subtitle="Runs mvn clean install across every module, in dependency order">
+    <PageShell
+        title="Maven projects"
+        subtitle="Runs mvn clean install across every module, in dependency order"
+    >
         <template #actions>
-            <button type="button" class="btn btn-sm btn-outline-primary" :disabled="job.running.value"
-                    @click="verify">
-                <span v-if="job.running.value" class="spinner-border spinner-border-sm me-1"
-                      aria-hidden="true"></span>
+            <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                :disabled="job.running.value"
+                @click="verify"
+            >
+                <span
+                    v-if="job.running.value"
+                    class="spinner-border spinner-border-sm me-1"
+                    aria-hidden="true"
+                ></span>
                 <i v-else class="bi bi-play-fill me-1" aria-hidden="true"></i>
                 Verify all
             </button>
         </template>
 
-        <ErrorAlert :message="error" @dismiss="error = ''"/>
-        <JobProgress :progress="job.progress.value" :running="job.running.value"/>
-        <LoadingBar :loading="loading"/>
+        <ErrorAlert :message="error" @dismiss="error = ''" />
+        <JobProgress :progress="job.progress.value" :running="job.running.value" />
+        <LoadingBar :loading="loading" />
 
         <div v-if="modules.length" class="table-responsive">
             <table class="table table-sm table-hover align-middle">
                 <thead>
-                <tr>
-                    <th scope="col">Module</th>
-                    <th scope="col">Version</th>
-                    <th scope="col">Depends on</th>
-                    <th v-if="anyResults" scope="col">Status</th>
-                    <th v-if="anyResults" scope="col" class="text-end">Result</th>
-                </tr>
+                    <tr>
+                        <th scope="col">Module</th>
+                        <th scope="col">Version</th>
+                        <th scope="col">Depends on</th>
+                        <th v-if="anyResults" scope="col">Status</th>
+                        <th v-if="anyResults" scope="col" class="text-end">Result</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr v-for="module in modules" :key="module.id">
-                    <td>
-                        <a :href="module.repository.url" target="_blank" rel="noopener">
-                            {{ module.repository.name }}
-                        </a>
-                    </td>
-                    <td class="text-nowrap">{{ module.version }}</td>
-                    <td>
-                        <span v-for="dependency in module.dependencies" :key="dependency.id"
-                              class="badge text-bg-light me-1">
-                            {{ dependency.repository?.name ?? dependency.groupId }}
-                        </span>
-                        <span v-if="!module.dependencies?.length" class="text-body-secondary">—</span>
-                    </td>
-                    <td v-if="anyResults">
-                        <StatusBadge :status="job.byRepo[module.repository.name]?.status ?? null"/>
-                    </td>
-                    <td v-if="anyResults" class="text-end">
-                        <ResultButton :result="job.byRepo[module.repository.name]?.result ?? ''"
-                                      :title="module.repository.name"/>
-                    </td>
-                </tr>
+                    <tr v-for="module in modules" :key="module.id">
+                        <td>
+                            <a :href="module.repository.url" target="_blank" rel="noopener">
+                                {{ module.repository.name }}
+                            </a>
+                        </td>
+                        <td class="text-nowrap">{{ module.version }}</td>
+                        <td>
+                            <span
+                                v-for="dependency in module.dependencies"
+                                :key="dependency.id"
+                                class="badge text-bg-light me-1"
+                            >
+                                {{ dependency.repository?.name ?? dependency.groupId }}
+                            </span>
+                            <span v-if="!module.dependencies?.length" class="text-body-secondary">—</span>
+                        </td>
+                        <td v-if="anyResults">
+                            <StatusBadge :status="job.byRepo[module.repository.name]?.status ?? null" />
+                        </td>
+                        <td v-if="anyResults" class="text-end">
+                            <ResultButton
+                                :result="job.byRepo[module.repository.name]?.result ?? ''"
+                                :title="module.repository.name"
+                            />
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
-        <EmptyState v-else-if="!loading" message="No Maven modules found." icon="bi-box-seam"/>
+        <EmptyState v-else-if="!loading" message="No Maven modules found." icon="bi-box-seam" />
     </PageShell>
 </template>

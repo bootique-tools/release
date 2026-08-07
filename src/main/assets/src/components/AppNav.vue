@@ -35,24 +35,37 @@ function isActive(to: string, exact?: boolean): boolean {
 <template>
     <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top">
         <div class="container-xxl">
-            <a v-if="session?.organization" class="navbar-brand"
-               :href="session.organization.url" target="_blank" rel="noopener">
+            <a
+                v-if="session?.organization"
+                class="navbar-brand"
+                :href="session.organization.url"
+                target="_blank"
+                rel="noopener"
+            >
                 {{ session.organization.name }}
             </a>
             <span v-else class="navbar-text text-warning-emphasis small">
                 No data from GitHub API, wrong token? Try to refresh the page or check your token.
             </span>
 
-            <button class="navbar-toggler" type="button" aria-label="Toggle navigation"
-                    :aria-expanded="expanded" @click="expanded = !expanded">
+            <button
+                class="navbar-toggler"
+                type="button"
+                aria-label="Toggle navigation"
+                :aria-expanded="expanded"
+                @click="expanded = !expanded"
+            >
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" :class="{ show: expanded }">
                 <ul v-if="session?.organization" class="navbar-nav me-auto" @click="expanded = false">
                     <li v-for="link in links" :key="link.to" class="nav-item">
-                        <RouterLink class="nav-link" :to="link.to"
-                                    :class="{ active: isActive(link.to, link.exact) }">
+                        <RouterLink
+                            class="nav-link"
+                            :to="link.to"
+                            :class="{ active: isActive(link.to, link.exact) }"
+                        >
                             {{ link.label }}
                             <span v-if="link.badge != null" class="badge text-bg-secondary">
                                 {{ link.badge }}
@@ -60,25 +73,32 @@ function isActive(to: string, exact?: boolean): boolean {
                         </RouterLink>
                     </li>
                     <li class="nav-item">
-                        <button type="button" class="nav-link btn btn-link"
-                                @click="emit('validatePom')">
+                        <button type="button" class="nav-link btn btn-link" @click="emit('validatePom')">
                             Validate pom
                         </button>
                     </li>
                 </ul>
 
                 <div class="d-flex align-items-center gap-2 ms-auto">
-                    <span v-if="backgroundJob" class="navbar-text small text-body-secondary"
-                          :title="`A ${backgroundJob} job is running`">
+                    <span
+                        v-if="backgroundJob"
+                        class="navbar-text small text-body-secondary"
+                        :title="`A ${backgroundJob} job is running`"
+                    >
                         <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
                         {{ backgroundJob }}
                     </span>
-                    <a v-if="session?.user" class="navbar-text link-body-emphasis"
-                       :href="session.user.url" target="_blank" rel="noopener"
-                       :title="`Current user: ${session.user.login} (${session.user.name ?? ''})`">
+                    <a
+                        v-if="session?.user"
+                        class="navbar-text link-body-emphasis"
+                        :href="session.user.url"
+                        target="_blank"
+                        rel="noopener"
+                        :title="`Current user: ${session.user.login} (${session.user.name ?? ''})`"
+                    >
                         {{ session.user.login }}
                     </a>
-                    <ThemeToggle/>
+                    <ThemeToggle />
                 </div>
             </div>
         </div>
