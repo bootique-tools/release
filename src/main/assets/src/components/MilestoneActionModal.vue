@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import AppModal from './AppModal.vue'
+import ConfirmModal from './ConfirmModal.vue'
+import AppAlert from './AppAlert.vue'
 import { listMilestoneTitles, type MilestoneAction } from '@/api/milestones'
 import { errorMessage } from '@/api/http'
 
@@ -68,12 +69,18 @@ function confirm() {
 </script>
 
 <template>
-    <AppModal :open="action !== null" :title="heading" size="sm" @close="emit('cancel')">
+    <ConfirmModal
+        :open="action !== null"
+        :title="heading"
+        :confirm-disabled="!canConfirm"
+        @confirm="confirm"
+        @cancel="emit('cancel')"
+    >
         <p class="text-body-secondary small">
             Applies to {{ modules.length }} selected module{{ modules.length === 1 ? '' : 's' }}.
         </p>
 
-        <p v-if="error" class="text-danger">{{ error }}</p>
+        <AppAlert :message="error" :dismissible="false" />
 
         <div v-if="needsExisting" class="mb-3">
             <label class="form-label" for="milestone-current">Current milestone title</label>
@@ -95,12 +102,5 @@ function confirm() {
                 placeholder="e.g. 4.0.M1"
             />
         </div>
-
-        <template #footer>
-            <button type="button" class="btn btn-secondary" @click="emit('cancel')">Cancel</button>
-            <button type="button" class="btn btn-primary" :disabled="!canConfirm" @click="confirm">
-                Confirm
-            </button>
-        </template>
-    </AppModal>
+    </ConfirmModal>
 </template>

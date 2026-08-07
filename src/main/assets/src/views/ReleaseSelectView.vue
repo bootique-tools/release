@@ -5,7 +5,7 @@ import PageShell from '@/components/PageShell.vue'
 import LoadingBar from '@/components/LoadingBar.vue'
 import AppAlert from '@/components/AppAlert.vue'
 import EmptyState from '@/components/EmptyState.vue'
-import AppModal from '@/components/AppModal.vue'
+import ConfirmModal from '@/components/ConfirmModal.vue'
 import ModuleTable from '@/components/ModuleTable.vue'
 import AppSection from '@/components/AppSection.vue'
 import BusyButton from '@/components/BusyButton.vue'
@@ -71,9 +71,6 @@ async function selectVersion() {
     await loadModules(currentVersion.value)
     // the server marks releasable modules with disable=false; those start out checked
     selected.value = modules.value.filter((m) => !m.disable).map((m) => m.repository.name)
-    if (!modules.value.length) {
-        error.value = 'Please clone all repositories to your local repositories first.'
-    }
 }
 
 /**
@@ -179,14 +176,26 @@ onMounted(async () => {
             @toggle="toggle"
         />
 
+        <!-- guidance, not a failure: this used to be pushed into `error` and rendered as an
+             alert-danger, which read as though something had gone wrong -->
         <EmptyState
             v-else-if="!loading && currentVersion"
             message="No modules available for this version."
             icon="bi-box"
-        />
+        >
+            <p class="small mb-0">Clone all repositories to your local base path first.</p>
+        </EmptyState>
         <EmptyState v-else-if="!loading" message="Choose a version to see its modules." icon="bi-arrow-up" />
 
-        <AppModal :open="confirmOpen" title="Start this release?" size="sm" @close="confirmOpen = false">
+        <ConfirmModal
+            :open="confirmOpen"
+            title="Start this release?"
+            variant="success"
+            confirm-label="Start release"
+            :busy="submitting"
+            @confirm="startRelease"
+            @cancel="confirmOpen = false"
+        >
             <dl class="row mb-3">
                 <dt class="col-5">From version</dt>
                 <dd class="col-7">{{ currentVersion }}</dd>
@@ -200,18 +209,6 @@ onMounted(async () => {
                 <li v-for="name in selected" :key="name">{{ name }}</li>
             </ol>
             <p class="fw-semibold mb-0">Be sure you have permission to push commits to these repositories.</p>
-
-            <template #footer>
-                <button type="button" class="btn btn-secondary" @click="confirmOpen = false">Cancel</button>
-                <button type="button" class="btn btn-success" :disabled="submitting" @click="startRelease">
-                    <span
-                        v-if="submitting"
-                        class="spinner-border spinner-border-sm me-2"
-                        aria-hidden="true"
-                    ></span>
-                    Confirm
-                </button>
-            </template>
-        </AppModal>
+        </ConfirmModal>
     </PageShell>
 </template>

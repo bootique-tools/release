@@ -16,6 +16,9 @@ const emit = defineEmits<{ close: [] }>()
 
 const dialog = ref<HTMLElement | null>(null)
 
+// so closing returns the keyboard to whatever opened the modal, rather than to <body>
+let previouslyFocused: HTMLElement | null = null
+
 function onKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
         emit('close')
@@ -29,13 +32,18 @@ watch(
         document.body.classList.toggle('modal-open', open)
         document.body.style.overflow = open ? 'hidden' : ''
         if (open) {
+            previouslyFocused = document.activeElement as HTMLElement | null
             document.addEventListener('keydown', onKeydown)
             await nextTick()
             dialog.value?.focus()
         } else {
             document.removeEventListener('keydown', onKeydown)
+            previouslyFocused?.focus()
+            previouslyFocused = null
         }
     },
+    // a modal mounted already open would otherwise never get its Escape handler
+    { immediate: true },
 )
 
 onBeforeUnmount(() => {
@@ -58,7 +66,8 @@ onBeforeUnmount(() => {
                 <div class="modal-dialog modal-dialog-scrollable" :class="`modal-${size}`">
                     <div ref="dialog" class="modal-content" tabindex="-1">
                         <div class="modal-header">
-                            <h5 class="modal-title">{{ title }}</h5>
+                            <!-- a dialog is its own landmark, so h2 is right; .h5 keeps the size -->
+                            <h2 class="h5 modal-title">{{ title }}</h2>
                             <button
                                 type="button"
                                 class="btn-close"
