@@ -13,7 +13,10 @@
     "build": "vue-tsc --noEmit -p tsconfig.app.json && vite build",
     "build:watch": "vite build --watch --mode development",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "prettier --check . && eslint . --max-warnings 0",
+    "lint:fix": "prettier --write . && eslint . --fix",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
@@ -22,8 +25,14 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/node": "^22.10.0",
     "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/eslint-config-prettier": "^10.1.0",
+    "@vue/eslint-config-typescript": "^14.2.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "prettier": "^3.4.2",
     "sass-embedded": "^1.83.0",
     "typescript": "~5.7.2",
     "vite": "^6.3.5",

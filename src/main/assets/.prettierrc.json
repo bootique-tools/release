@@ -1,0 +1,17 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "tabWidth": 4,
+  "printWidth": 110,
+  "trailingComma": "all",
+  "arrowParens": "always",
+  "vueIndentScriptAndStyle": false,
+  "htmlWhitespaceSensitivity": "css",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": ["*.json", "*.yml", "*.yaml"],
+      "options": { "tabWidth": 2 }
+    }
+  ]
+}

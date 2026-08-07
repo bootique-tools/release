@@ -1,0 +1,8 @@
+# Everything in this repo is stored and checked out as LF, regardless of the developer's
+# core.autocrlf. Prettier is configured with endOfLine: lf, so a CRLF checkout on Windows would
+# otherwise fail `npm run lint` on a freshly cloned tree.
+* text=auto eol=lf
+
+# Windows-only scripts must keep CRLF to run.
+*.bat text eol=crlf
+*.cmd text eol=crlf

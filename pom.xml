@@ -229,6 +229,20 @@
                             <skip>${skipTests}</skip>
                         </configuration>
                     </execution>
+
+                    <!-- Prettier + ESLint. Bound to verify rather than to the build, so a style
+                         warning never blocks producing an artifact or fires during build:watch.
+                         Deliberately not gated on skipTests - lint is not a test. -->
+                    <execution>
+                        <id>npm run lint</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run lint</arguments>
+                        </configuration>
+                    </execution>
                 </executions>
 
                 <configuration>
