@@ -74,9 +74,13 @@ Actual `mvn` invocations do **not** run in-process. `DesktopService` (per-OS imp
 
 Frontend lives in `src/main/assets/` — Vite root, sources under `src/`:
 - `api/` — one module per endpoint group over a shared `fetch` wrapper (`http.ts`, base `/api`). `agrest.ts` builds the Agrest `include`/`sort`/`cayenneExp` parameters; `types.ts` mirrors the Java enums and entity shapes.
-- `domain/` — pure, unit-tested logic with no Vue imports: `releaseBoard.ts` holds the release/rollback state machine, `version.ts` the version arithmetic. **Changes to board button visibility belong here, with a test.**
-- `composables/` — shared reactive state (`useAgrestList`, `useJobStatus`, `useReleaseBoard`, `useSession`, `useCacheWarmup`, …).
-- `components/`, `views/`, `styles/`, `router/`.
+- `domain/` — pure, unit-tested logic with no Vue imports: `releaseBoard.ts` holds the release/rollback state machine, `version.ts` the version arithmetic, `nav.ts` the nav derivation, `labelColor.ts` the GitHub label contrast maths. **Changes to board button visibility belong here, with a test** — that means `stageActions()`, which composes the predicates into the ordered list of buttons a cell offers, not just the predicates themselves.
+- `composables/` — shared reactive state. `useAsyncResource` is the one way to load data (fetch + `loading` + `error`); `useAgrestList` adds URL-synced sort/filter on top of it. Also `useJobStatus`, `useReleaseBoard`, `useSession`, `useCacheWarmup`, `useReleaseSummary`.
+- `components/`, `views/`, `styles/`, `router/` (`routes.ts` is the route table; `index.ts` builds the router).
+
+**The route table is the single source of truth for paths, page headings and the nav.** A route's `meta.title` is its `<h1>` (via `PageShell`) and its document title; `meta.nav` puts it in `AppNav`. Views never pass a title, and cross-page links use route `name`, never a literal path.
+
+`src/styles/` — `_bs.scss` is the only file that may name `bootstrap/scss/bootstrap`; it configures Bootstrap through `@forward ... with`. Overrides go there as Sass variables, because Bootstrap regenerates its whole `--bs-*` set per `data-bs-theme` and so gets dark mode for free. The `--app-*` tokens in `_tokens.scss` deliberately hold **no colours**, since an app-defined colour would need a hand-written dark twin.
 
 Vite emits to `target/classes/static/ui/` with `base: '/ui/'`; Jetty serves it from `classpath:static`. Nothing else may be written into `target/classes/static/` — the `ui/` subdirectory is what makes `emptyOutDir` safe.
 
@@ -87,7 +91,7 @@ Custom Logback setup (`service/logger/`): `MultiAppender` + per-release/per-roll
 
 JUnit 5 (`bootique-junit`) + Mockito. Tests instantiate services directly and hand-build a Cayenne `ServerRuntime` from `cayenne/cayenne-project.xml` rather than booting the full app. Hand-written `Mock*` doubles (e.g. `MockPreferenceService`, `MockGitHubApi`, `MockReleasePersistentService`) live alongside the tests and are the preferred way to fake collaborators. Some tests are `@Disabled` (they depend on local git/maven state) — don't assume the whole suite runs clean offline. Test fixtures (sample POMs/repos) are under `src/test/resources/`.
 
-Frontend tests are Vitest over `src/main/assets/src/domain/*.spec.ts`, wired into the Maven `test` phase (skipped by `-DskipTests`). They cover the release-board predicates and version arithmetic — the logic worth protecting. Components are not mounted in tests; `vue-tsc --noEmit` runs as part of `npm run build`, so a type error fails the Maven build.
+Frontend tests are Vitest over `src/main/assets/src/**/*.spec.ts`, wired into the Maven `test` phase (skipped by `-DskipTests`). They cover the release board, version arithmetic, nav derivation, label contrast and `useAsyncResource` — the logic worth protecting. **Components are deliberately not mounted**: the environment is `node`, and component tests here would assert Bootstrap class strings rather than behaviour. Push logic into `domain/` instead. `vue-tsc --noEmit` runs as part of `npm run build` with `strictTemplates`, so a type error — including a component used but not imported — fails the Maven build.
 
 ## Coding standards
 
@@ -95,6 +99,17 @@ Frontend tests are Vitest over `src/main/assets/src/domain/*.spec.ts`, wired int
 - use Javadoc format comments for public API
 - tests should cover public contracts, not internal implementation aspects
 - pure utility methods that use single Cayenne object's data are good candidates for inclusion in the cayenne layer
+
+### Frontend conventions
+
+These exist because each was violated in more than one way before, not as style preference:
+
+- **Destructure composables at the top of `<script setup>`, renaming on the way out where names collide. A template never contains `.value`.**
+- **One loading idiom per situation**: `LoadingBar` (page-level, a listing is being fetched), `JobProgress` (a server batch job with a real percentage), `InlineSpinner` (a region with nothing to show yet), `BusyButton` (a single action in flight). Nothing else hand-rolls a spinner.
+- **One error surface**: `AppAlert`, inside modals as much as on pages. Guidance is not an error — it belongs in an `EmptyState`, not in a red banner.
+- **Tables go through `TableFrame`**, which owns the card frame and the canonical classes. `ModuleTable` covers every module listing; omit `selected` for a read-only one.
+- **Modals that ask for a decision use `ConfirmModal`**; `AppModal` is the primitive underneath it.
+- Badges and pills use `chip-*` (`_chips.scss`), never Bootstrap's `text-bg-*`, whose `light` variant is not theme-scoped and glares in dark mode.
 
 ## Claude Code Workflow
 
