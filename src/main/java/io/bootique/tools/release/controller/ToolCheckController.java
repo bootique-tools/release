@@ -21,28 +21,29 @@ public class ToolCheckController extends BaseController {
     public ToolCheckResponse check() {
 
         String javaVersion;
+        java.nio.file.Path currentDir = Paths.get(".");
         try {
-            javaVersion = desktopService.runCommand(Paths.get("."), "java", "-version");
+            javaVersion = desktopService.runCommand(currentDir, "java", "-version");
         } catch (Exception ex) {
             javaVersion = "Unable to run 'java', " + ex.getMessage();
         }
         String mavenVersion;
         try {
-            mavenVersion = desktopService.runCommand(Paths.get("."), "mvn", "-version");
+            mavenVersion = desktopService.runCommand(currentDir, "mvn", "-version");
         } catch (Exception ex) {
             mavenVersion = "Unable to run 'mvn', " + ex.getMessage();
         }
 
         String jdk;
         try {
-            jdk = desktopService.runCommand(Paths.get("."), "jdk");
+            jdk = desktopService.runCommand(currentDir, "jdk");
         } catch (Exception ex) {
             jdk = "Unable to run 'jdk' command, " + ex.getMessage();
         }
 
         // /usr/libexec/java_home -v $1
         try {
-            String javaHome = desktopService.runCommand(Paths.get("."), "/usr/libexec/java_home", "-v", "1.8");
+            String javaHome = desktopService.runCommand(currentDir, "/usr/libexec/java_home", "-v", "1.8");
             javaVersion += "\n" + javaHome;
 //            javaVersion = desktopService.runCommand(Paths.get("."), "java", "-version");
         } catch (Exception ex) {
