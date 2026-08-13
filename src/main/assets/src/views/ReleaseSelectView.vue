@@ -11,6 +11,7 @@ import AppSection from '@/components/AppSection.vue'
 import BusyButton from '@/components/BusyButton.vue'
 import { useAsyncResource } from '@/composables/useAsyncResource'
 import { nextDevVersionOf, releaseVersionOf } from '@/domain/version'
+import { allModulesSelected, selectableNames } from '@/domain/moduleSelection'
 import {
     createReleaseDescriptor,
     listProjectsForVersion,
@@ -59,6 +60,23 @@ const canStart = computed(
     () => selected.value.length > 0 && releaseVersion.value !== '' && nextDevVersion.value !== '',
 )
 
+/**
+ * The header select-all checkbox. Unlike a row click this needs no server round-trip: the whole
+ * listing is already a superset of any dependency closure the server could resolve, and clearing
+ * selects nothing.
+ */
+const allSelected = computed({
+    get: () => allModulesSelected(modules.value, selected.value),
+    set: (value: boolean) => {
+        selected.value = value ? selectableNames(modules.value) : []
+    },
+})
+
+// with nothing to select - the state before a version is chosen - checking the box would leave no
+// trace in `allSelected`, so Vue would never patch the box back and it would sit checked but inert.
+// Every row is disabled in that state anyway, so disabling the whole column changes nothing else.
+const nothingSelectable = computed(() => selectableNames(modules.value).length === 0)
+
 watch(releaseVersion, (value) => {
     nextDevVersion.value = nextDevVersionOf(value)
 })
@@ -70,7 +88,7 @@ async function selectVersion() {
     releaseVersion.value = releaseVersionOf(currentVersion.value)
     await loadModules(currentVersion.value)
     // the server marks releasable modules with disable=false; those start out checked
-    selected.value = modules.value.filter((m) => !m.disable).map((m) => m.repository.name)
+    selected.value = selectableNames(modules.value)
 }
 
 /**
@@ -171,8 +189,9 @@ onMounted(async () => {
         <ModuleTable
             v-if="modules.length"
             v-model:selected="selected"
+            v-model:all-selected="allSelected"
             :modules="modules"
-            select-header="Release"
+            :disabled="nothingSelectable"
             @toggle="toggle"
         />
 

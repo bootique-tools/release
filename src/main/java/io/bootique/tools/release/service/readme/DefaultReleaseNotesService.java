@@ -7,7 +7,7 @@ import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.model.persistent.RepositoryNode;
 import jakarta.inject.Inject;
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.runtime.CayenneRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ import java.util.List;
 public class DefaultReleaseNotesService implements ReleaseNotesService {
 
     @Inject
-    private ServerRuntime cayenneRuntime;
+    private CayenneRuntime cayenneRuntime;
 
     @Override
     public String createReleaseNotes(String milestoneTitle, boolean todo) {

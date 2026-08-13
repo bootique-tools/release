@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<data-map xmlns="http://cayenne.apache.org/schema/10/modelMap"
+<data-map xmlns="http://cayenne.apache.org/schema/12/modelMap"
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	 xsi:schemaLocation="http://cayenne.apache.org/schema/10/modelMap https://cayenne.apache.org/schema/10/modelMap.xsd"
-	 project-version="10">
+	 xsi:schemaLocation="http://cayenne.apache.org/schema/12/modelMap https://cayenne.apache.org/schema/12/modelMap.xsd"
+	 project-version="12">
 	<property name="defaultPackage" value="io.bootique.tools.release.model.persistent"/>
 	<db-entity name="Author">
 		<db-attribute name="ID" type="INTEGER" isPrimaryKey="true" isMandatory="true" length="10"/>
@@ -332,21 +332,21 @@
 	<obj-relationship name="organization" source="Repository" target="Organization" deleteRule="Nullify" db-relationship-path="organization"/>
 	<obj-relationship name="parent" source="Repository" target="Repository" deleteRule="Nullify" db-relationship-path="parent"/>
 	<obj-relationship name="pullRequests" source="Repository" target="PullRequest" deleteRule="Deny" db-relationship-path="pullRequests"/>
-	<cgen xmlns="http://cayenne.apache.org/schema/10/cgen">
+	<cgen xmlns="http://cayenne.apache.org/schema/12/cgen">
+		<name>Default</name>
 		<destDir>../../java</destDir>
 		<mode>entity</mode>
 		<template>templates/v4_1/subclass.vm</template>
 		<superTemplate>templates/v4_1/superclass.vm</superTemplate>
 		<embeddableTemplate>templates/v4_1/embeddable-subclass.vm</embeddableTemplate>
 		<embeddableSuperTemplate>templates/v4_1/embeddable-superclass.vm</embeddableSuperTemplate>
-		<queryTemplate>templates/v4_1/datamap-subclass.vm</queryTemplate>
-		<querySuperTemplate>templates/v4_1/datamap-superclass.vm</querySuperTemplate>
+		<dataMapTemplate>templates/v4_1/datamap-subclass.vm</dataMapTemplate>
+		<dataMapSuperTemplate>templates/v4_1/datamap-superclass.vm</dataMapSuperTemplate>
 		<outputPattern>*.java</outputPattern>
 		<makePairs>true</makePairs>
 		<usePkgPath>true</usePkgPath>
 		<overwrite>false</overwrite>
 		<createPropertyNames>false</createPropertyNames>
 		<createPKProperties>false</createPKProperties>
-		<client>false</client>
 	</cgen>
 </data-map>

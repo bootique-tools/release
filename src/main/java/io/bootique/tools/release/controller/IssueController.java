@@ -1,7 +1,7 @@
 package io.bootique.tools.release.controller;
 
 import io.agrest.DataResponse;
-import io.agrest.jaxrs3.AgJaxrs;
+import io.agrest.jaxrs.AgJaxrs;
 import io.bootique.tools.release.model.persistent.OpenIssue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

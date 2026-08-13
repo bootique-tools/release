@@ -16,7 +16,7 @@ import io.bootique.tools.release.service.release.descriptors.release.ReleaseDesc
 import io.bootique.tools.release.service.release.descriptors.repository.RepositoryDescriptorServiceImpl;
 import io.bootique.tools.release.service.release.persistent.ReleasePersistentService;
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.runtime.CayenneRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class RollbackMvnReleaseTest {
     @BeforeEach
     void setUp() {
 
-        ServerRuntime cayenneRuntime = ServerRuntime.builder()
+        CayenneRuntime cayenneRuntime = CayenneRuntime.builder()
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
         ObjectContext context = cayenneRuntime.newContext();

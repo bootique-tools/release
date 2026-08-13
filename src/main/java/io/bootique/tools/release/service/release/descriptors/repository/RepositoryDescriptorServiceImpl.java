@@ -6,7 +6,7 @@ import io.bootique.tools.release.model.release.ReleaseStage;
 import io.bootique.tools.release.model.release.ReleaseStageStatus;
 import io.bootique.tools.release.model.release.RepositoryDescriptor;
 import jakarta.inject.Inject;
-import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.runtime.CayenneRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 import org.jvnet.hk2.annotations.Service;
 
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class RepositoryDescriptorServiceImpl implements RepositoryDescriptorService {
 
     @Inject
-    ServerRuntime cayenneRuntime;
+    CayenneRuntime cayenneRuntime;
 
     @Override
     public List<RepositoryDescriptor> createRepositoryDescriptorList(List<Project> projectList) {

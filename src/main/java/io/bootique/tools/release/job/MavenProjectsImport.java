@@ -9,7 +9,7 @@ import io.bootique.tools.release.service.maven.MavenService;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.runtime.CayenneRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ public class MavenProjectsImport extends BaseJob {
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProjectsImport.class);
 
     @Inject
-    Provider<ServerRuntime> cayenneRuntimeProvider;
+    Provider<CayenneRuntime> cayenneRuntimeProvider;
 
     @Inject
     MavenService mavenService;

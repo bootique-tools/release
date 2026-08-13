@@ -4,7 +4,7 @@ import io.bootique.tools.release.model.persistent.Repository;
 import io.bootique.tools.release.service.desktop.MockDesktopService;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.runtime.CayenneRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -25,7 +25,7 @@ public class ExternalGitServiceTest {
 
     @BeforeEach
     void setUp() {
-        ServerRuntime cayenneRuntime = ServerRuntime.builder()
+        CayenneRuntime cayenneRuntime = CayenneRuntime.builder()
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
         context = cayenneRuntime.newContext();

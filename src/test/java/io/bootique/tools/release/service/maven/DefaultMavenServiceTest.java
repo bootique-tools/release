@@ -6,7 +6,7 @@ import io.bootique.tools.release.service.git.GitService;
 import io.bootique.tools.release.service.preferences.MockPreferenceService;
 import io.bootique.tools.release.util.CopyDirVisitor;
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.runtime.CayenneRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class DefaultMavenServiceTest {
 
     @BeforeEach
     void createService() {
-        ServerRuntime cayenneRuntime = ServerRuntime.builder()
+        CayenneRuntime cayenneRuntime = CayenneRuntime.builder()
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
         context = cayenneRuntime.newContext();

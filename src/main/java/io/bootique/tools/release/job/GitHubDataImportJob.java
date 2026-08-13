@@ -18,7 +18,7 @@ import io.bootique.tools.release.service.preferences.PreferenceService;
 import jakarta.inject.Inject;
 import jakarta.inject.Provider;
 import org.apache.cayenne.ObjectContext;
-import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.runtime.CayenneRuntime;
 import org.apache.cayenne.map.EntityResolver;
 import org.apache.cayenne.query.ObjectSelect;
 import org.apache.cayenne.reflect.ClassDescriptor;
@@ -42,7 +42,7 @@ public class GitHubDataImportJob extends BaseJob {
     @Inject
     private GitService gitService;
 
-    private Provider<ServerRuntime> runtimeProvider;
+    private Provider<CayenneRuntime> runtimeProvider;
 
     @SuppressWarnings("unused")
     public GitHubDataImportJob() {
@@ -50,14 +50,14 @@ public class GitHubDataImportJob extends BaseJob {
     }
 
     @Inject
-    public GitHubDataImportJob(Provider<ServerRuntime> runtimeProvider) {
+    public GitHubDataImportJob(Provider<CayenneRuntime> runtimeProvider) {
         super(JobMetadata.build(GitHubDataImportJob.class));
         this.runtimeProvider = runtimeProvider;
     }
 
     @Override
     public JobOutcome run(Map<String, Object> map) {
-        ServerRuntime runtime = runtimeProvider.get();
+        CayenneRuntime runtime = runtimeProvider.get();
 
         ObjectContext context = runtime.newContext();
         syncGitHubDataData(context);

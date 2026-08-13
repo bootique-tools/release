@@ -5,7 +5,7 @@ import io.agrest.AgRequest;
 import io.agrest.DataResponse;
 import io.agrest.RootResourceEntity;
 import io.agrest.SelectStage;
-import io.agrest.jaxrs3.AgJaxrs;
+import io.agrest.jaxrs.AgJaxrs;
 import io.agrest.runtime.processor.select.SelectContext;
 import io.bootique.tools.release.model.maven.persistent.Project;
 import io.bootique.tools.release.model.persistent.Organization;
@@ -17,7 +17,7 @@ import io.bootique.tools.release.service.preferences.PreferenceService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Configuration;
 import jakarta.ws.rs.core.Context;
-import org.apache.cayenne.configuration.server.ServerRuntime;
+import org.apache.cayenne.runtime.CayenneRuntime;
 import org.apache.cayenne.query.ObjectSelect;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public abstract class BaseController {
     Configuration configuration;
 
     @Inject
-    ServerRuntime cayenneRuntime;
+    CayenneRuntime cayenneRuntime;
 
     private transient Organization currentOrganization;
     private transient User currentUser;
