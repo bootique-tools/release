@@ -155,9 +155,6 @@
     <build>
         <plugins>
             <plugin>
-                <!-- Override the parent's surefire 2.22.1, whose JUnit Platform provider is too old
-                     to discover the JUnit 6.0 tests pulled in by bootique-junit
-                     (it silently runs 0 tests). 3.x provisions a matching junit-platform-launcher. -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version>
@@ -218,9 +215,6 @@
                         </configuration>
                     </execution>
 
-                    <!-- Prettier + ESLint. Bound to verify rather than to the build, so a style
-                         warning never blocks producing an artifact or fires during build:watch.
-                         Deliberately not gated on skipTests - lint is not a test. -->
                     <execution>
                         <id>npm run lint</id>
                         <phase>verify</phase>
