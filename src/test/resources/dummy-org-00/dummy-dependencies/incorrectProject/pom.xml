@@ -48,12 +48,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback.contrib</groupId>
+            <groupId>org.example.logback</groupId>
             <artifactId>logback-json-classic</artifactId>
             <version>${logback.contrib.version}</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback.contrib</groupId>
+            <groupId>org.example.logback</groupId>
             <artifactId>logback-jackson</artifactId>
             <version>${logback.contrib.version}</version>
         </dependency>

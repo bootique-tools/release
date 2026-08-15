@@ -33,58 +33,58 @@
 	<dependencies>
 		<!-- Unit test dependencies -->
 		<dependency>
-			<groupId>junit</groupId>
+			<groupId>org.example.junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mockito</groupId>
+			<groupId>org.example.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
+			<groupId>org.example.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
+			<groupId>org.example.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
+			<groupId>org.example.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<scope>test</scope>
 		</dependency>
 
 		<!-- Compile dependencies -->
 		<dependency>
-			<groupId>com.google.inject</groupId>
+			<groupId>org.example.guice</groupId>
 			<artifactId>guice</artifactId>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
+			<groupId>org.example.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<scope>compile</scope>
 		</dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>org.example.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
+			<groupId>org.example.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<groupId>org.example.jackson.dataformat</groupId>
 			<artifactId>jackson-dataformat-yaml</artifactId>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.jopt-simple</groupId>
+			<groupId>org.example.jopt</groupId>
 			<artifactId>jopt-simple</artifactId>
 			<scope>compile</scope>
 		</dependency>

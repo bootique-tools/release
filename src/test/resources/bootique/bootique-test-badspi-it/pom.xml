@@ -38,7 +38,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
+            <groupId>org.example.junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>

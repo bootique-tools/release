@@ -45,18 +45,18 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.apache.curator</groupId>
+                <groupId>org.example.curator</groupId>
                 <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.slf4j</groupId>
+                        <groupId>org.example.slf4j</groupId>
                         <artifactId>slf4j-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.google.guava</groupId>
+                <groupId>org.example.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
@@ -76,17 +76,17 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.testcontainers</groupId>
+                <groupId>org.example.testcontainers</groupId>
                 <artifactId>testcontainers</artifactId>
                 <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
+                <groupId>org.example.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.slf4j</groupId>
+                <groupId>org.example.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
@@ -96,11 +96,11 @@
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
-            <groupId>org.apache.curator</groupId>
+            <groupId>org.example.curator</groupId>
             <artifactId>curator-recipes</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
+            <groupId>org.example.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
@@ -108,18 +108,18 @@
             <artifactId>bootique</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
+            <groupId>org.example.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency>
 
         <!-- Unit test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
+            <groupId>org.example.junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
+            <groupId>org.example.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
@@ -129,7 +129,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.testcontainers</groupId>
+            <groupId>org.example.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <scope>test</scope>
         </dependency>

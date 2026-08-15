@@ -45,11 +45,11 @@
             <artifactId>bootique-logback</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback.contrib</groupId>
+            <groupId>org.example.logback</groupId>
             <artifactId>logback-json-classic</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback.contrib</groupId>
+            <groupId>org.example.logback</groupId>
             <artifactId>logback-jackson</artifactId>
         </dependency>
         <dependency>
