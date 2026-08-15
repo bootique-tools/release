@@ -7,7 +7,7 @@
   "type": "module",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=20.19"
+    "node": "^22.13.0 || >=24"
   },
   "scripts": {
     "build": "vue-tsc --noEmit -p tsconfig.app.json && vite build",
@@ -19,24 +19,24 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1",
+    "vue": "^3.5.41",
+    "vue-router": "^5.2.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@types/node": "^22.10.0",
-    "@vitejs/plugin-vue": "^5.2.1",
-    "@vue/eslint-config-prettier": "^10.1.0",
-    "@vue/eslint-config-typescript": "^14.2.0",
-    "eslint": "^9.17.0",
-    "eslint-plugin-vue": "^9.32.0",
-    "prettier": "^3.4.2",
-    "sass-embedded": "^1.83.0",
-    "typescript": "~5.7.2",
-    "vite": "^6.3.5",
-    "vitest": "^2.1.8",
-    "vue-tsc": "^2.2.0"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.3",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.9.0",
+    "eslint": "^10.8.1",
+    "eslint-plugin-vue": "^10.10.0",
+    "prettier": "^3.9.6",
+    "sass-embedded": "^1.102.0",
+    "typescript": "~6.0.3",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.10",
+    "vue-tsc": "^3.3.10"
   }
 }

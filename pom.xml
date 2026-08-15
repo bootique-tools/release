@@ -22,7 +22,7 @@
 
         <mockito.version>5.23.0</mockito.version>
 
-        <node.version>v22.20.0</node.version>
+        <node.version>v24.19.0</node.version>
         <!-- -Dskip.frontend=true to build the backend without the node round-trip -->
         <skip.frontend>false</skip.frontend>
 

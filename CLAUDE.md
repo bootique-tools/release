@@ -11,7 +11,7 @@ Single Maven module, Java 21. Backend = Bootique DI + Jersey REST + Jetty + Caye
 ## Commands
 
 ```bash
-# Full build — also installs node v22, runs npm ci + vite build via frontend-maven-plugin
+# Full build — also installs node v24, runs npm ci + vite build via frontend-maven-plugin
 mvn clean install
 
 # Backend only, skipping the node round-trip
