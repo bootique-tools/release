@@ -34,7 +34,7 @@ class DefaultMavenServiceTest {
 
     @BeforeEach
     void createService() {
-        CayenneRuntime cayenneRuntime = CayenneRuntime.builder()
+        CayenneRuntime cayenneRuntime = CayenneRuntime.of()
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
         context = cayenneRuntime.newContext();

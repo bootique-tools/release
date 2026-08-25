@@ -18,6 +18,8 @@
         <bq.version>4.0-M5</bq.version>
         <jetty.version>12.1.12</jetty.version>
         <jackson.version>2.22.1</jackson.version>
+        <!-- ahead of the Cayenne version the Bootique BOM pins -->
+        <cayenne.version>5.0-M3</cayenne.version>
         <sqlite.version>3.53.2.1</sqlite.version>
 
         <mockito.version>5.23.0</mockito.version>
@@ -74,6 +76,16 @@
                 <version>${bq.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cayenne</groupId>
+                <artifactId>cayenne</artifactId>
+                <version>${cayenne.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cayenne</groupId>
+                <artifactId>cayenne-di</artifactId>
+                <version>${cayenne.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>

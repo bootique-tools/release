@@ -45,7 +45,7 @@ class RollbackMvnReleaseTest {
     @BeforeEach
     void setUp() {
 
-        CayenneRuntime cayenneRuntime = CayenneRuntime.builder()
+        CayenneRuntime cayenneRuntime = CayenneRuntime.of()
                 .addConfig("cayenne/cayenne-project.xml")
                 .build();
         ObjectContext context = cayenneRuntime.newContext();
