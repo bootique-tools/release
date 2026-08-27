@@ -32,7 +32,7 @@ log:
     - FILE
 
   loggers:
-    org.apache.cayenne.log.JdbcEventLogger:
+    cayenne-sql:
       level: warn
 
     io.bootique.jersey.client.instrumented.ClientTimingFilter:

@@ -5,4 +5,7 @@
 	 project-version="13">
 	<map name="github"/>
 	<map name="maven"/>
+	<validation xmlns="http://cayenne.apache.org/schema/13/validation">
+		<exclude>OBJ_ENTITY_INVALID_SUPER_CLASS</exclude>
+	</validation>
 </domain>
